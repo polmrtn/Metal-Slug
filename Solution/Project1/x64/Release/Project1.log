@@ -1,0 +1,9 @@
+﻿  main.c
+D:\Work\UPC\Project1\main.c(87,20): warning C4244: 'function': conversion from 'double' to 'int', possible loss of data
+D:\Work\UPC\Project1\main.c(87,23): warning C4244: 'function': conversion from 'double' to 'int', possible loss of data
+  Generating code
+  1 of 1 functions (100.0%) were compiled.
+    0 functions were new in current compilation
+    0 functions had inline decision re-evaluated but remain unchanged
+  Finished generating code
+  Project1.vcxproj -> D:\Work\UPC\x64\Release\Project1.exe
