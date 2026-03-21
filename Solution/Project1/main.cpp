@@ -3,9 +3,8 @@
 
 #include "Player.hpp"
 
-int main() {
-	
-	
+int main() 
+{
 	InitWindow(1280, 896, "Metal Slug");
 	SetTargetFPS(30);
 
@@ -16,7 +15,6 @@ int main() {
 		ClearBackground(BLACK);
 		player.Draw();
 		EndDrawing();
-		
-		
+	
 	}
 }
