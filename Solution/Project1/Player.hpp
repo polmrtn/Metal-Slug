@@ -3,15 +3,18 @@
 
 class Player {
 public:
-	Player();
-	~Player();
-	void Draw();
-	void MoveLeft();
-	void MoveRight();
-	void Jump();
-	void Shoot();
-private:
-	Texture2D image;
-	Vector2 position;
-};
+    Player();
+    ~Player();
 
+    void Update(); 
+    void Draw();
+
+    void MoveLeft();
+    void MoveRight();
+    void Jump();
+
+private:
+    Texture2D image;
+    Vector2 position;
+    Vector2 velocity; 
+};
