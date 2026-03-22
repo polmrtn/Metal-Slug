@@ -143,8 +143,10 @@
     <ClCompile Include="game.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Player.cpp" />
+    <ClCompile Include="Soldier.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Soldier.hpp" />
     <ClInclude Include="game.hpp" />
     <ClInclude Include="libraries\raylib\include\raylib.h" />
     <ClInclude Include="libraries\raylib\include\raymath.h" />

@@ -6,6 +6,7 @@ enum GameState {
     GAME
 };
 
+
 int main() 
 {
     InitWindow(1280, 896, "Metal Slug");
