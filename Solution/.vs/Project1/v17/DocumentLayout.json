@@ -48,7 +48,7 @@
               "RelativeDocumentMoniker": "Project1\\game.cpp",
               "ToolTip": "C:\\Users\\USUARIO\\Desktop\\Barcos\\Metal-Slug\\Solution\\Project1\\game.cpp",
               "RelativeToolTip": "Project1\\game.cpp",
-              "ViewState": "AgIAACcAAAAAAAAAAAAlwDoAAAAgAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACsAAAASAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2026-03-22T15:04:09.62Z",
               "EditorCaption": ""
@@ -63,8 +63,7 @@
               "RelativeToolTip": "Project1\\Soldier.cpp",
               "ViewState": "AgIAABUAAAAAAAAAAAAAAAoAAAByAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2026-03-22T14:37:39.86Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-22T14:37:39.86Z"
             },
             {
               "$type": "Document",
@@ -76,8 +75,7 @@
               "RelativeToolTip": "Project1\\Soldier.hpp",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAAPAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2026-03-22T14:25:41.506Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-22T14:25:41.506Z"
             },
             {
               "$type": "Document",
@@ -89,8 +87,7 @@
               "RelativeToolTip": "Project1\\main.cpp",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2026-03-16T10:21:03.052Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-16T10:21:03.052Z"
             },
             {
               "$type": "Document",
@@ -102,8 +99,7 @@
               "RelativeToolTip": "Project1\\game.hpp",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAAhAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2026-03-22T10:13:10.633Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-22T10:13:10.633Z"
             },
             {
               "$type": "Document",
@@ -115,8 +111,7 @@
               "RelativeToolTip": "Project1\\Player.cpp",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAAWAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2026-03-19T13:41:31.541Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-19T13:41:31.541Z"
             },
             {
               "$type": "Document",
@@ -128,8 +123,7 @@
               "RelativeToolTip": "Project1\\Player.hpp",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABYAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2026-03-19T13:39:27.469Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-19T13:39:27.469Z"
             }
           ]
         }

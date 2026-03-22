@@ -8,7 +8,7 @@ public:
 
     void Update(); 
     void Draw();
-
+    void StopMoving();
     void MoveLeft();
     void MoveRight();
     void Jump();
