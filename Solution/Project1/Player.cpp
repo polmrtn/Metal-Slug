@@ -1,6 +1,6 @@
 #include "Player.hpp"
 
-Player::Player()
+Player::Player() //class and constructor
 {
     image = LoadTexture("Graphics/Marco_Sprites - Neutral 1.png");
     position = {100, 100};
