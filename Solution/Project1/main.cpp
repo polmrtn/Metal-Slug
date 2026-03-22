@@ -1,19 +1,23 @@
-
 #include <raylib.h>
-
-#include "Player.hpp"
+#include "game.hpp"
 
 int main() 
 {
+
 	InitWindow(1280, 896, "Metal Slug");
 	SetTargetFPS(30);
 
-	Player player;
+	Game game;
+
 	while (WindowShouldClose() == false)
 	{
+		game.HandleInput();
+		game.Update();
+
 		BeginDrawing();
 		ClearBackground(BLACK);
-		player.Draw();
+		game.Draw();
+
 		EndDrawing();
 	
 	}
