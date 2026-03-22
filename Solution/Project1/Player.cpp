@@ -3,12 +3,13 @@
 Player::Player() //class and constructor
 {
 	image = LoadTexture("Graphics/Marco_Sprites - Neutral 1.png");
+	
+	//setting the following variables
 	position.x = 100;
 	position.y = 100;
-
 	velocity.x = 0; 
 	velocity.y = 0; 
-	isGrounded = false;
+	isGrounded = false; //player starting position is falling from sky, bool is false he's not on the ground
 	gravity = 0.8f;
 	jumpForce = -12.0f; 
 	moveSpeed = 5.0f; 
@@ -24,11 +25,11 @@ void Player::Draw() {
 
 void Player::Update()
 {
-	velocity.y += gravity;	//aplicar gravedad
-	position.y += velocity.y;	//actualizar posicion Y	
+	velocity.y += gravity;	//aplies gravity 
+	position.y += velocity.y;	//updates position Y
 
-
-	if (position.y + image.height >= groundLevel)
+	//Y position starts at top 0, the end is in the bottom, if it's bigger or equal than ground value, bool true, otherwise false. 
+	if (position.y + image.height >= groundLevel) 
 	{
 		position.y = groundLevel - image.height;
 		velocity.y = 0;
@@ -39,9 +40,9 @@ void Player::Update()
 		isGrounded = false; 
 	}
 
-	position.x += velocity.x; //actualizar posicion X con velocidad
+	position.x += velocity.x; //updates position X 
 
-	if (position.x < 0) //limites laterales
+	if (position.x < 0) //lateral limits, the right side will be changed following camera
 	{
 		position.x = 0; 
 		
@@ -70,7 +71,7 @@ void Player::StopMoving()
 
 void Player::Jump()
 {
-	// Solo puede saltar si está en el suelo
+	// Can only jump if its on the ground
 	if (isGrounded)
 	{
 		velocity.y = jumpForce;
