@@ -1,13 +1,15 @@
 #include "game.hpp"
-
+bool musicStarted = false;
 Game::Game()
 {
 	soldiers = CreateSoldiers();
+	
+	
 }
 
 Game::~Game()
 {
-
+	
 }
 
 void Game:: Draw()
@@ -21,10 +23,33 @@ void Game:: Draw()
 
 void Game::Update()
 {
-	player.Update();  // Actualiza física del jugador
-	for (auto& Soldier : soldiers) { //auto&(is a variable that the compiler assumes from the vector) in this case type Soldier, this initializes the update in each soldier
-		Soldier.Update();
+	
+	
+	
+	if (sceneManager.GetGamestate() == SceneManager::TITLE) {
+		sceneManager.DrawTexts();
+		
+		
+	  audioManager.PlayMusic(audioManager.GetTitleMusic());
+	  UpdateMusicStream(audioManager.GetTitleMusic());
+		
 	}
+	else if (sceneManager.GetGamestate() == SceneManager::GAME) {
+		
+		UpdateMusicStream(audioManager.GetGameMusic());
+		
+		Draw();
+		ClearBackground(BLACK);
+		player.Update();
+
+		for (auto& Soldier : soldiers) { //auto&(is a variable that the compiler assumes from the vector) in this case type Soldier, this initializes the update in each soldier
+			Soldier.Update();
+		}
+		
+
+	}
+	
+
 }
 
 
@@ -46,6 +71,12 @@ void Game::HandleInput()
 	if (IsKeyPressed(KEY_SPACE))
 	{
 		player.Jump();
+	}
+	if (IsKeyPressed(KEY_ENTER) && sceneManager.currentState == SceneManager::TITLE)
+	{
+		audioManager.StopMusic(audioManager.GetTitleMusic());
+		audioManager.PlayMusic(audioManager.GetGameMusic());
+		sceneManager.SetGameState(SceneManager::GAME);
 	}
 }
 

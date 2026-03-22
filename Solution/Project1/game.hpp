@@ -1,6 +1,8 @@
 #pragma once
 #include "Player.hpp"
 #include "Soldier.hpp"
+#include "AudioManager.hpp"
+#include "SceneManager.hpp"
 #include <vector>
 
 
@@ -11,8 +13,11 @@ class Game {
 		void Draw();
 		void Update();
 		void HandleInput();
+
 	private:
 		Player player;
+		AudioManager audioManager;
+		SceneManager sceneManager;
 		std::vector<Soldier> soldiers; 
 		std::vector<Soldier> CreateSoldiers();
 };
