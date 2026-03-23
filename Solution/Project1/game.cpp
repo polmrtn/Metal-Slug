@@ -101,6 +101,10 @@ void Game::HandleInput()
 		audioManager.PlayMusic(audioManager.GetGameMusic());
 		sceneManager.SetGameState(SceneManager::GAME);
 	}
+	if (IsKeyPressed(KEY_D))
+	{
+		player.Shoot();
+	}
 }
 
 std::vector<Soldier>  Game::CreateSoldiers()
