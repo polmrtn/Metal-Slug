@@ -30,14 +30,25 @@ void Game::Update()
 		sceneManager.DrawTexts();
 		
 		
-	  audioManager.PlayMusic(audioManager.GetTitleMusic());
-	  UpdateMusicStream(audioManager.GetTitleMusic());
+		if (!musicStarted)
+		{
+			audioManager.PlayMusic(audioManager.GetTitleMusic());
+			musicStarted = true;
+		}
+
+		audioManager.UpdateMusic(audioManager.GetTitleMusic());
 		
 	}
 	else if (sceneManager.GetGamestate() == SceneManager::GAME) {
 		
-		UpdateMusicStream(audioManager.GetGameMusic());
-		
+		if (!musicStarted)
+		{
+			audioManager.PlayMusic(audioManager.GetGameMusic());
+			musicStarted = true;
+		}
+
+		audioManager.UpdateMusic(audioManager.GetGameMusic());
+
 		Draw();
 		ClearBackground(BLACK);
 		player.Update();
@@ -75,8 +86,9 @@ void Game::HandleInput()
 	if (IsKeyPressed(KEY_ENTER) && sceneManager.currentState == SceneManager::TITLE)
 	{
 		audioManager.StopMusic(audioManager.GetTitleMusic());
-		audioManager.PlayMusic(audioManager.GetGameMusic());
+		audioManager.PlaySound(audioManager.GetGameSound());
 		sceneManager.SetGameState(SceneManager::GAME);
+		musicStarted = false;
 	}
 }
 
