@@ -78,3 +78,8 @@ void Player::Jump()
 		isGrounded = false;
 	}
 }
+
+void Player::Shoot()
+{
+	 
+}

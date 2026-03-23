@@ -1,6 +1,6 @@
 #include <raylib.h>
 #include "game.hpp"
-
+#include "bullet.hpp"
 
 
 
@@ -13,10 +13,15 @@ int main()
     
     Game game;
     SceneManager sceneManager;
+
+   
+
     while (WindowShouldClose() == false)
     {
        game.HandleInput();
        game.Update();
+
+
        //game draw() ist inside game.cpp update()
         EndDrawing();
        

@@ -12,6 +12,11 @@ class Player {
 		void Jump();
 		void Update();
 		void Shoot();
+
+		Vector2 GetPosition() const { return position; }
+		float GetWidth() const { return (float)image.width; }
+		float GetHeight() const { return (float)image.height; }
+
 	private:
 		Texture2D image;
 		Vector2 position;

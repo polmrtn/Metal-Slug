@@ -143,12 +143,14 @@
     <ClCompile Include="AudioManager.cpp" />
     <ClCompile Include="AudioManager.hpp" />
     <ClCompile Include="game.cpp" />
+    <ClCompile Include="bullet.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="SceneManager.cpp" />
     <ClCompile Include="Soldier.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="bullet.hpp" />
     <ClInclude Include="SceneManager.hpp" />
     <ClInclude Include="Soldier.hpp" />
     <ClInclude Include="game.hpp" />
