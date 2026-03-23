@@ -12,6 +12,8 @@ class Player {
 		void Jump();
 		void Update();
 		void Shoot();
+		Rectangle GetRect();
+		void DrawHitBox(bool isColliding);
 	private:
 		Texture2D image;
 		Vector2 position;

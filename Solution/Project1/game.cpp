@@ -1,5 +1,6 @@
 #include "game.hpp"
 bool musicStarted = false;
+Rectangle obstacle = Rectangle{ 800,600,200,175 };
 Game::Game()
 {
 	soldiers = CreateSoldiers();
@@ -15,7 +16,8 @@ Game::~Game()
 void Game:: Draw()
 {
 	player.Draw();
-
+	
+	
 	for (auto& Soldier : soldiers) {//auto&(is a variable that the compiler assumes from the vector) in this case type Soldier, this initializes the draw in each soldier
 		Soldier.Draw();
 	}
@@ -23,32 +25,26 @@ void Game:: Draw()
 
 void Game::Update()
 {
-	
-	
-	
 	if (sceneManager.GetGamestate() == SceneManager::TITLE) {
 		sceneManager.DrawTexts();
-		
-		
-	  audioManager.PlayMusic(audioManager.GetTitleMusic());
-	  UpdateMusicStream(audioManager.GetTitleMusic());
+	    audioManager.PlayMusic(audioManager.GetTitleMusic());
+	    UpdateMusicStream(audioManager.GetTitleMusic());
 		
 	}
 	else if (sceneManager.GetGamestate() == SceneManager::GAME) {
 		
 		UpdateMusicStream(audioManager.GetGameMusic());
-		
 		Draw();
+		DrawRectangleLinesEx(obstacle, 5, WHITE);
+		bool isColliding = CheckCollisionRecs(player.GetRect(), obstacle);
+		player.DrawHitBox(isColliding);
 		ClearBackground(BLACK);
 		player.Update();
 
 		for (auto& Soldier : soldiers) { //auto&(is a variable that the compiler assumes from the vector) in this case type Soldier, this initializes the update in each soldier
 			Soldier.Update();
 		}
-		
-
 	}
-	
 
 }
 
@@ -85,8 +81,8 @@ std::vector<Soldier>  Game::CreateSoldiers()
 	std::vector<Soldier> soldiers;
 	for (int i = 0; i < 10; i++) {
 		float xpos, ypos;
-		ypos = (10 * i) + 100;
-		xpos = (10 * i) + 100;
+		ypos = (10 * i + 40) + 100;
+		xpos = (10 * i+ 40) + 100;
 		soldiers.push_back(Soldier(1, { xpos,ypos}));
 	}
 	

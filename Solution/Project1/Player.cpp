@@ -54,6 +54,11 @@ void Player::Update()
 	}
 }
 
+Rectangle Player::GetRect()
+{
+	return Rectangle{ position.x, position.y, float(image.width),float(image.height) };
+}
+
 void Player::MoveLeft()
 {
 	velocity.x = -moveSpeed;
@@ -77,4 +82,8 @@ void Player::Jump()
 		velocity.y = jumpForce;
 		isGrounded = false;
 	}
+}
+void Player::DrawHitBox(bool isColliding) {
+	Color outlineColor = isColliding ? WHITE : RED;
+	DrawRectangleLinesEx(GetRect(), 3, outlineColor);
 }
