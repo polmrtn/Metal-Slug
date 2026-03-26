@@ -16,6 +16,7 @@ class Player {
 		void Draw();
 		void MoveLeft();
 		void MoveRight();
+		void Aim();
 		void StopMoving();
 		void Jump();
 		void Update();
