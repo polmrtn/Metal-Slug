@@ -1,6 +1,14 @@
 #pragma once
 #include "raylib.h"
 
+enum class PlayerDirection {
+	LEFT,
+	RIGHT,
+	UP,
+	DOWN,
+};
+
+
 class Player {
 	public:
 		Player();
@@ -16,6 +24,7 @@ class Player {
 		Vector2 GetPosition() const { return position; }
 		float GetWidth() const { return (float)image.width; }
 		float GetHeight() const { return (float)image.height; }
+		int GetDirection() const { return direction; } // Getter para la dirección
 
 	private:
 		Texture2D image;
@@ -26,5 +35,6 @@ class Player {
 		float jumpForce;
 		float moveSpeed;
 		float groundLevel;
+		int direction;
 	};
 

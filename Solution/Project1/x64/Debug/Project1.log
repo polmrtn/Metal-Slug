@@ -1,4 +1,4 @@
 ﻿  game.cpp
-C:\Users\polmd\Documents\GitHub\Metalborne2\Solution\Project1\game.cpp(111,19): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\polmd\Documents\GitHub\Metalborne2\Solution\Project1\game.cpp(112,19): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-  Project1.vcxproj -> C:\Users\polmd\Documents\GitHub\Metalborne2\Solution\x64\Debug\Project1.exe
+C:\Users\polmd\Documents\GitHub\Metal-Slug\Solution\Project1\game.cpp(122,19): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\polmd\Documents\GitHub\Metal-Slug\Solution\Project1\game.cpp(123,19): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+  Project1.vcxproj -> C:\Users\polmd\Documents\GitHub\Metal-Slug\Solution\x64\Debug\Project1.exe

@@ -14,13 +14,21 @@ Player::Player() //class and constructor
 	jumpForce = -12.0f;
 	moveSpeed = 5.0f;
 	groundLevel = 800.0f;
+	direction = 1; 
 
 }
 Player::~Player() {   //class and destructor
 	UnloadTexture(image);
 }
 void Player::Draw() {
-	DrawTextureV(image, position, WHITE);
+
+	if (direction == -1){
+		Rectangle sourceRect = { (float)image.width, 0, (float)-image.width, (float)image.height };
+		DrawTextureRec(image, sourceRect, position, WHITE);
+	}
+	else {
+		DrawTextureV(image, position, WHITE);
+	}
 }
 
 void Player::Update()
@@ -52,6 +60,14 @@ void Player::Update()
 		position.x = GetScreenWidth() - image.width;
 
 	}
+	// Actualizar dirección basada en el movimiento
+	if (velocity.x > 0) {
+		direction = 1; // Mirando a la derecha
+	}
+	else if (velocity.x < 0) {
+		direction = -1; // Mirando a la izquierda
+	}
+	// Si velocity.x == 0, mantenemos la dirección anterior
 }
 
 void Player::MoveLeft()
@@ -63,6 +79,13 @@ void Player::MoveRight()
 {
 	velocity.x = moveSpeed;
 }
+
+//void Player::Aim()
+//{
+//	if (direction = PlayerDirection::LEFT) {
+//
+//	}
+//}
 
 void Player::StopMoving()
 {

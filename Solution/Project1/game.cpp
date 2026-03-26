@@ -32,8 +32,7 @@ void Game::Update()
 		
 	if (sceneManager.GetGamestate() == SceneManager::TITLE) {
 		sceneManager.DrawTexts();
-		
-		
+				
 	  audioManager.PlayMusic(audioManager.GetTitleMusic());
 	  UpdateMusicStream(audioManager.GetTitleMusic());
 		
@@ -44,25 +43,15 @@ void Game::Update()
 		
 		player.Update();
 
-		// Crear la bala en el centro del player (solo una vez)
-		static bool bulletCreated = false;
-		if (!bulletCreated) {
-			// Obtener posición del player
-			Vector2 playerPos = player.GetPosition();
-
-			// Calcular el centro del player usando el tamaño de la textura
-			float playerWidth = player.GetWidth();
-			float playerHeight = player.GetHeight();
-
-			// Posición central de la textura del player
-			Vector2 bulletPos = {
-				playerPos.x + playerWidth / 2,
-				playerPos.y + playerHeight / 2
-			};
-
-			// Crear la bala en el centro
-			bullets.emplace_back(bulletPos, 0);
-			bulletCreated = true;
+		for (auto& bullet : bullets) {
+			bullet.Update(); //update all bullets
+		}
+		for (int i = 0; i < bullets.size(); i++) {
+			// Usar el getter GetX() para acceder a la posición X
+			if (bullets[i].GetX() < 0 || bullets[i].GetX() > GetScreenWidth()) {
+				bullets.erase(bullets.begin() + i);
+				i--; // Decrementar índice porque el vector se redujo
+			}
 		}
 
 		for (auto& Soldier : soldiers) { //auto&(is a variable that the compiler assumes from the vector) in this case type Soldier, this initializes the update in each soldier
@@ -101,9 +90,27 @@ void Game::HandleInput()
 		audioManager.PlayMusic(audioManager.GetGameMusic());
 		sceneManager.SetGameState(SceneManager::GAME);
 	}
-	if (IsKeyPressed(KEY_D))
+	if (IsKeyPressed(KEY_D) || IsKeyDown(KEY_D))
 	{
 		player.Shoot();
+
+		// Crear bala cuando se presiona D
+		Vector2 playerPos = player.GetPosition();
+		float playerWidth = player.GetWidth();
+		float playerHeight = player.GetHeight();
+
+		Vector2 bulletPos = {
+			playerPos.x + playerWidth / 2,
+			playerPos.y + playerHeight / 2
+		};
+
+		// Usar la dirección actual del jugador
+		int direction = player.GetDirection();
+
+		// Velocidad de la bala (ajusta este valor según necesites)
+		int bulletSpeed = 10;
+
+		bullets.emplace_back(bulletPos, bulletSpeed, direction);
 	}
 }
 
