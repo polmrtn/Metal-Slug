@@ -22,7 +22,7 @@ void Soldier::Draw() {
 	DrawTextureV(image, position, WHITE);
 }
 
-int Soldier::GetType() {
+int Soldier::GetType(){
 	return type;
 }
 

@@ -1,33 +1,45 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "C:\\Users\\filipp\\Documents\\GitHub\\Metalborne2\\Solution\\",
+  "WorkspaceRootPath": "C:\\Users\\filipp\\Documents\\GitHub\\Metal-Slug\\Solution\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|C:\\Users\\filipp\\Documents\\GitHub\\Metalborne2\\Solution\\Project1\\main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "AbsoluteMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|C:\\Users\\filipp\\Documents\\GitHub\\Metal-Slug\\Solution\\Project1\\main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|solutionrelative:Project1\\main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|C:\\Users\\filipp\\Documents\\GitHub\\Metalborne2\\Solution\\Project1\\AudioManager.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|solutionrelative:Project1\\AudioManager.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+      "AbsoluteMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|C:\\Users\\filipp\\Documents\\GitHub\\Metal-Slug\\Solution\\Project1\\SceneManager.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|solutionrelative:Project1\\SceneManager.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|C:\\Users\\filipp\\Documents\\GitHub\\Metalborne2\\Solution\\Project1\\AudioManager.hpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|solutionrelative:Project1\\AudioManager.hpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|C:\\Users\\filipp\\Documents\\GitHub\\Metalborne2\\Solution\\Project1\\game.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "AbsoluteMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|C:\\Users\\filipp\\Documents\\GitHub\\Metal-Slug\\Solution\\Project1\\game.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|solutionrelative:Project1\\game.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|C:\\Users\\filipp\\Documents\\GitHub\\Metalborne2\\Solution\\Project1\\Soldier.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "AbsoluteMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|C:\\Users\\filipp\\Documents\\GitHub\\Metal-Slug\\Solution\\Project1\\SceneManager.hpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|solutionrelative:Project1\\SceneManager.hpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|C:\\Users\\filipp\\Documents\\GitHub\\Metal-Slug\\Solution\\Project1\\AudioManager.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|solutionrelative:Project1\\AudioManager.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|C:\\Users\\filipp\\Documents\\GitHub\\Metal-Slug\\Solution\\Project1\\game.hpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|solutionrelative:Project1\\game.hpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|C:\\Users\\filipp\\Documents\\GitHub\\Metal-Slug\\Solution\\Project1\\AudioManager.hpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|solutionrelative:Project1\\AudioManager.hpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|C:\\Users\\filipp\\Documents\\GitHub\\Metal-Slug\\Solution\\Project1\\Soldier.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|solutionrelative:Project1\\Soldier.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|C:\\Users\\filipp\\Documents\\GitHub\\Metalborne2\\Solution\\Project1\\Player.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "AbsoluteMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|C:\\Users\\filipp\\Documents\\GitHub\\Metal-Slug\\Solution\\Project1\\Player.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|solutionrelative:Project1\\Player.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|C:\\Users\\filipp\\Documents\\GitHub\\Metalborne2\\Solution\\Project1\\Player.hpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "AbsoluteMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|C:\\Users\\filipp\\Documents\\GitHub\\Metal-Slug\\Solution\\Project1\\Player.hpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|solutionrelative:Project1\\Player.hpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     }
   ],
@@ -38,41 +50,80 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 3,
           "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "game.hpp",
+              "DocumentMoniker": "C:\\Users\\filipp\\Documents\\GitHub\\Metal-Slug\\Solution\\Project1\\game.hpp",
+              "RelativeDocumentMoniker": "Project1\\game.hpp",
+              "ToolTip": "C:\\Users\\filipp\\Documents\\GitHub\\Metal-Slug\\Solution\\Project1\\game.hpp",
+              "RelativeToolTip": "Project1\\game.hpp",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAARAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2026-03-26T12:48:27.002Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "SceneManager.cpp",
+              "DocumentMoniker": "C:\\Users\\filipp\\Documents\\GitHub\\Metal-Slug\\Solution\\Project1\\SceneManager.cpp",
+              "RelativeDocumentMoniker": "Project1\\SceneManager.cpp",
+              "ToolTip": "C:\\Users\\filipp\\Documents\\GitHub\\Metal-Slug\\Solution\\Project1\\SceneManager.cpp",
+              "RelativeToolTip": "Project1\\SceneManager.cpp",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABUAAAAgAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2026-03-26T12:23:33.257Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "SceneManager.hpp",
+              "DocumentMoniker": "C:\\Users\\filipp\\Documents\\GitHub\\Metal-Slug\\Solution\\Project1\\SceneManager.hpp",
+              "RelativeDocumentMoniker": "Project1\\SceneManager.hpp",
+              "ToolTip": "C:\\Users\\filipp\\Documents\\GitHub\\Metal-Slug\\Solution\\Project1\\SceneManager.hpp",
+              "RelativeToolTip": "Project1\\SceneManager.hpp",
+              "ViewState": "AgIAAAYAAAAAAAAAAAAAAAcAAAACAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2026-03-26T12:22:48.933Z",
+              "EditorCaption": ""
+            },
             {
               "$type": "Document",
               "DocumentIndex": 0,
               "Title": "main.cpp",
-              "DocumentMoniker": "C:\\Users\\filipp\\Documents\\GitHub\\Metalborne2\\Solution\\Project1\\main.cpp",
+              "DocumentMoniker": "C:\\Users\\filipp\\Documents\\GitHub\\Metal-Slug\\Solution\\Project1\\main.cpp",
               "RelativeDocumentMoniker": "Project1\\main.cpp",
-              "ToolTip": "C:\\Users\\filipp\\Documents\\GitHub\\Metalborne2\\Solution\\Project1\\main.cpp",
+              "ToolTip": "C:\\Users\\filipp\\Documents\\GitHub\\Metal-Slug\\Solution\\Project1\\main.cpp",
               "RelativeToolTip": "Project1\\main.cpp",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAALAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2026-03-22T17:27:27.065Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 4,
               "Title": "AudioManager.cpp",
-              "DocumentMoniker": "C:\\Users\\filipp\\Documents\\GitHub\\Metalborne2\\Solution\\Project1\\AudioManager.cpp",
+              "DocumentMoniker": "C:\\Users\\filipp\\Documents\\GitHub\\Metal-Slug\\Solution\\Project1\\AudioManager.cpp",
               "RelativeDocumentMoniker": "Project1\\AudioManager.cpp",
-              "ToolTip": "C:\\Users\\filipp\\Documents\\GitHub\\Metalborne2\\Solution\\Project1\\AudioManager.cpp",
+              "ToolTip": "C:\\Users\\filipp\\Documents\\GitHub\\Metal-Slug\\Solution\\Project1\\AudioManager.cpp",
               "RelativeToolTip": "Project1\\AudioManager.cpp",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAASAAAAAAAAAA==",
+              "ViewState": "AgIAAAYAAAAAAAAAAAAAAAwAAAASAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2026-03-22T16:44:44.433Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 6,
               "Title": "AudioManager.hpp",
-              "DocumentMoniker": "C:\\Users\\filipp\\Documents\\GitHub\\Metalborne2\\Solution\\Project1\\AudioManager.hpp",
+              "DocumentMoniker": "C:\\Users\\filipp\\Documents\\GitHub\\Metal-Slug\\Solution\\Project1\\AudioManager.hpp",
               "RelativeDocumentMoniker": "Project1\\AudioManager.hpp",
-              "ToolTip": "C:\\Users\\filipp\\Documents\\GitHub\\Metalborne2\\Solution\\Project1\\AudioManager.hpp",
+              "ToolTip": "C:\\Users\\filipp\\Documents\\GitHub\\Metal-Slug\\Solution\\Project1\\AudioManager.hpp",
               "RelativeToolTip": "Project1\\AudioManager.hpp",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAAgAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
@@ -81,37 +132,37 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 2,
               "Title": "game.cpp",
-              "DocumentMoniker": "C:\\Users\\filipp\\Documents\\GitHub\\Metalborne2\\Solution\\Project1\\game.cpp",
+              "DocumentMoniker": "C:\\Users\\filipp\\Documents\\GitHub\\Metal-Slug\\Solution\\Project1\\game.cpp",
               "RelativeDocumentMoniker": "Project1\\game.cpp",
-              "ToolTip": "C:\\Users\\filipp\\Documents\\GitHub\\Metalborne2\\Solution\\Project1\\game.cpp",
+              "ToolTip": "C:\\Users\\filipp\\Documents\\GitHub\\Metal-Slug\\Solution\\Project1\\game.cpp",
               "RelativeToolTip": "Project1\\game.cpp",
-              "ViewState": "AgIAABgAAAAAAAAAAAAAADEAAAA1AAAAAAAAAA==",
+              "ViewState": "AgIAAAwAAAAAAAAAAAAAAEEAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2026-03-22T15:04:09.62Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 7,
               "Title": "Soldier.cpp",
-              "DocumentMoniker": "C:\\Users\\filipp\\Documents\\GitHub\\Metalborne2\\Solution\\Project1\\Soldier.cpp",
+              "DocumentMoniker": "C:\\Users\\filipp\\Documents\\GitHub\\Metal-Slug\\Solution\\Project1\\Soldier.cpp",
               "RelativeDocumentMoniker": "Project1\\Soldier.cpp",
-              "ToolTip": "C:\\Users\\filipp\\Documents\\GitHub\\Metalborne2\\Solution\\Project1\\Soldier.cpp",
+              "ToolTip": "C:\\Users\\filipp\\Documents\\GitHub\\Metal-Slug\\Solution\\Project1\\Soldier.cpp",
               "RelativeToolTip": "Project1\\Soldier.cpp",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAMAAAABAAAAAAAAAA==",
+              "ViewState": "AgIAABIAAAAAAAAAAAAAABgAAAAWAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2026-03-22T14:37:39.86Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 8,
               "Title": "Player.cpp",
-              "DocumentMoniker": "C:\\Users\\filipp\\Documents\\GitHub\\Metalborne2\\Solution\\Project1\\Player.cpp",
+              "DocumentMoniker": "C:\\Users\\filipp\\Documents\\GitHub\\Metal-Slug\\Solution\\Project1\\Player.cpp",
               "RelativeDocumentMoniker": "Project1\\Player.cpp",
-              "ToolTip": "C:\\Users\\filipp\\Documents\\GitHub\\Metalborne2\\Solution\\Project1\\Player.cpp",
+              "ToolTip": "C:\\Users\\filipp\\Documents\\GitHub\\Metal-Slug\\Solution\\Project1\\Player.cpp",
               "RelativeToolTip": "Project1\\Player.cpp",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAAoAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
@@ -120,15 +171,16 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 9,
               "Title": "Player.hpp",
-              "DocumentMoniker": "C:\\Users\\filipp\\Documents\\GitHub\\Metalborne2\\Solution\\Project1\\Player.hpp",
+              "DocumentMoniker": "C:\\Users\\filipp\\Documents\\GitHub\\Metal-Slug\\Solution\\Project1\\Player.hpp",
               "RelativeDocumentMoniker": "Project1\\Player.hpp",
-              "ToolTip": "C:\\Users\\filipp\\Documents\\GitHub\\Metalborne2\\Solution\\Project1\\Player.hpp",
+              "ToolTip": "C:\\Users\\filipp\\Documents\\GitHub\\Metal-Slug\\Solution\\Project1\\Player.hpp",
               "RelativeToolTip": "Project1\\Player.hpp",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2026-03-19T13:39:27.469Z"
+              "WhenOpened": "2026-03-19T13:39:27.469Z",
+              "EditorCaption": ""
             }
           ]
         }

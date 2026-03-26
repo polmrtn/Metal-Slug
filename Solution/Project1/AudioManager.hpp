@@ -1,7 +1,7 @@
 #pragma once
 #include "raylib.h"
 
-class AudioManager {
+class AudioManager{
 public:
     AudioManager();
     ~AudioManager();

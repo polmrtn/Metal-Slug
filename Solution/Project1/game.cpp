@@ -1,4 +1,4 @@
-#include "game.hpp"
+﻿#include "game.hpp"
 bool musicStarted = false;
 Game::Game()
 {
@@ -23,10 +23,10 @@ void Game:: Draw()
 
 void Game::Update()
 {
-	
-	
-	
-	if (sceneManager.GetGamestate() == SceneManager::TITLE) {
+	if (sceneManager.GetGamestate() == SceneManager::INTRO) { 
+		sceneManager.DrawTexts(); 
+	} 
+	else if (sceneManager.GetGamestate() == SceneManager::TITLE) {
 		sceneManager.DrawTexts();
 		
 		
@@ -67,6 +67,7 @@ void Game::Update()
 
 void Game::HandleInput()
 {
+
 	if (IsKeyDown(KEY_LEFT))
 	{
 		player.MoveLeft();
@@ -83,12 +84,18 @@ void Game::HandleInput()
 	{
 		player.Jump();
 	}
-	if (IsKeyPressed(KEY_ENTER) && sceneManager.currentState == SceneManager::TITLE)
+	if (IsKeyPressed(KEY_ENTER) )
 	{
-		audioManager.StopMusic(audioManager.GetTitleMusic());
-		audioManager.PlaySound(audioManager.GetGameSound());
-		sceneManager.SetGameState(SceneManager::GAME);
-		musicStarted = false;
+		if (sceneManager.currentState == SceneManager::TITLE) {
+			audioManager.StopMusic(audioManager.GetTitleMusic());
+			audioManager.PlaySound(audioManager.GetGameSound());
+			sceneManager.SetGameState(SceneManager::GAME);
+			musicStarted = false;
+		}
+		else if (sceneManager.currentState == SceneManager::INTRO) {
+			sceneManager.SetGameState(SceneManager::TITLE);
+			musicStarted = false;
+		}
 	}
 }
 

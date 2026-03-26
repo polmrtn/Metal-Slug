@@ -4,15 +4,15 @@ AudioManager::AudioManager()
 {
 	titleMusic = LoadMusicStream("OST/04. Steel Beast 5Beats (Boss Stage).ogg");
 	gameMusic = LoadMusicStream("OST/03. Main Theme from Metal Slug (Stage 1).ogg");
-	gameSound = LoadSound("OST/FX AUDIO/file002 mission 1 start.ogg");
+    gameSound = LoadSound("OST/FX AUDIO/file002 mission 1 start.ogg");
 }
-Music& AudioManager::GetTitleMusic() {
+Music& AudioManager::GetTitleMusic(){
 	return titleMusic;
 }
-Music& AudioManager::GetGameMusic() {
+Music& AudioManager::GetGameMusic(){
 	return gameMusic;
 }
-Sound& AudioManager::GetGameSound() {
+Sound& AudioManager::GetGameSound(){
 	return gameSound;
 }
 void AudioManager::PlayMusic(Music music)

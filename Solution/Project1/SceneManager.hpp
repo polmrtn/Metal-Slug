@@ -6,12 +6,15 @@ class SceneManager {
 public:
 	enum Gamestates
 	{
+		INTRO,
 		TITLE,
 		GAME
 	};
 	SceneManager();
 	~SceneManager();
 	void DrawTexts();
+	
+	
 	Gamestates GetGamestate();
     void SetGameState(Gamestates gamestate);
 	Gamestates currentState;
@@ -20,6 +23,7 @@ public:
 
 private:
 
+	Texture2D introBackground; 
 
 
 };
