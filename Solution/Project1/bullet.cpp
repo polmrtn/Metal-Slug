@@ -1,13 +1,15 @@
 #include "bullet.hpp"
 
-Bullet::Bullet(Vector2 position, int speed, int direction){
+Bullet::Bullet(Vector2 position, int speed, int directionX, int directionY){
 	this->position = position;
 	this->speed = speed; 
-	this->direction = direction; 
+	this->directionX = directionX;
+	this->directionY = directionY;
 }
 
 void Bullet::Update() {
-	position.x += speed * direction; //para saber la direccion en x
+	position.x += speed * directionX;
+	position.y += speed * directionY;
 }
 
 void Bullet::Draw() {

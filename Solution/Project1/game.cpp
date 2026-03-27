@@ -3,19 +3,16 @@
 
 bool musicStarted = false;
 
-Game::Game()
-{
+Game::Game(){
 	soldiers = CreateSoldiers();
 	
 }
 
-Game::~Game()
-{
+Game::~Game(){
 	
 }
 
-void Game:: Draw()
-{
+void Game:: Draw(){
 	player.Draw();
 	
 	for (auto& Soldier : soldiers) {//auto&(is a variable that the compiler assumes from the vector) in this case type Soldier, this initializes the draw in each soldier
@@ -27,19 +24,18 @@ void Game:: Draw()
 	}
 }
 
-void Game::Update()
-{
+void Game::Update(){
 		
 	if (sceneManager.GetGamestate() == SceneManager::TITLE) {
 		sceneManager.DrawTexts();
 				
-	  audioManager.PlayMusic(audioManager.GetTitleMusic());
-	  UpdateMusicStream(audioManager.GetTitleMusic());
+	  //audioManager.PlayMusic(audioManager.GetTitleMusic());
+	  //UpdateMusicStream(audioManager.GetTitleMusic());
 		
 	}
 	else if (sceneManager.GetGamestate() == SceneManager::GAME) {
 		
-		UpdateMusicStream(audioManager.GetGameMusic());
+		//UpdateMusicStream(audioManager.GetGameMusic());
 		
 		player.Update();
 
@@ -64,10 +60,8 @@ void Game::Update()
 	}
 }
 
-
-
-void Game::HandleInput()
-{
+void Game::HandleInput(){
+	//HORIZONTAL MOVEMENT
 	if (IsKeyDown(KEY_LEFT))
 	{
 		player.MoveLeft();
@@ -78,44 +72,82 @@ void Game::HandleInput()
 	}
 	else
 	{
-		player.StopMoving();
+		player.StopMovingHorizontal();
 	}
+
+	//AIMING UP
+	if (IsKeyDown(KEY_UP))
+	{
+		player.StartAimingUp();
+	}
+	else
+	{
+		player.StopAimingUp();
+	}
+
+	//CROUCHING
+	if (IsKeyDown(KEY_DOWN))
+	{
+		player.StartCrouching();
+	}
+	else
+	{
+		player.StopCrouching();
+	}
+
+	//JUMP
 	if (IsKeyPressed(KEY_SPACE))
 	{
 		player.Jump();
 	}
+
+	//CHANGE SCENE
 	if (IsKeyPressed(KEY_ENTER) && sceneManager.currentState == SceneManager::TITLE)
 	{
-		audioManager.StopMusic(audioManager.GetTitleMusic());
-		audioManager.PlayMusic(audioManager.GetGameMusic());
+		//audioManager.StopMusic(audioManager.GetTitleMusic());
+		//audioManager.PlayMusic(audioManager.GetGameMusic());
 		sceneManager.SetGameState(SceneManager::GAME);
 	}
+
+	//SHOOT
 	if (IsKeyPressed(KEY_D) || IsKeyDown(KEY_D))
 	{
 		player.Shoot();
 
-		// Crear bala cuando se presiona D
 		Vector2 playerPos = player.GetPosition();
-		float playerWidth = player.GetWidth();
-		float playerHeight = player.GetHeight();
+		float playerWidth = player.GetWidth();  // Siempre el mismo ancho
+		float playerHeight = player.GetHeight(); // Cambia si está agachado
 
-		Vector2 bulletPos = {
-			playerPos.x + playerWidth / 2,
-			playerPos.y + playerHeight / 2
-		};
-
-		// Usar la dirección actual del jugador
-		int direction = player.GetDirection();
-
-		// Velocidad de la bala (ajusta este valor según necesites)
+		Vector2 bulletPos;
+		PlayerDirection aimDir = player.GetAimDirection();
 		int bulletSpeed = 10;
+		int directionX = 0;
+		int directionY = 0;
 
-		bullets.emplace_back(bulletPos, bulletSpeed, direction);
+		switch (aimDir) {
+		case PlayerDirection::LEFT:
+			bulletPos = { playerPos.x, playerPos.y + playerHeight / 2 };
+			directionX = -1;
+			break;
+		case PlayerDirection::RIGHT:
+			bulletPos = { playerPos.x + playerWidth, playerPos.y + playerHeight / 2 };
+			directionX = 1;
+			break;
+		case PlayerDirection::UP:
+			bulletPos = { playerPos.x + playerWidth / 2, playerPos.y };
+			directionY = -1;
+			break;
+		case PlayerDirection::DOWN:
+			bulletPos = { playerPos.x + playerWidth / 2, playerPos.y + playerHeight };
+			directionY = 1;
+			break;
+		}
+
+		bullets.emplace_back(bulletPos, bulletSpeed, directionX, directionY);
 	}
 }
 
-std::vector<Soldier>  Game::CreateSoldiers()
-{
+std::vector<Soldier>  Game::CreateSoldiers(){
 	std::vector<Soldier> soldiers;
 	for (int i = 0; i < 10; i++) {
 		float xpos, ypos;

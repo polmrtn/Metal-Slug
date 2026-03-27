@@ -3,7 +3,7 @@
 
 class Bullet {
 	public:
-		Bullet(Vector2 position, int speed, int direction);
+		Bullet(Vector2 position, int speed, int directionX, int directionY);
 		void Update();
 		void Draw();
 		float GetX() const { return position.x; }  // Getter para la posición X
@@ -11,5 +11,6 @@ class Bullet {
 	private:
 		Vector2 position; 
 		int speed; 
-		int direction;
+		int directionX;
+		int directionY;
 };

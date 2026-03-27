@@ -18,7 +18,7 @@ class Game {
 
 	private:
 		Player player;
-		AudioManager audioManager;
+		/*AudioManager audioManager;*/
 		SceneManager sceneManager;
 		std::vector<Soldier> soldiers; 
 		std::vector<Bullet> bullets;

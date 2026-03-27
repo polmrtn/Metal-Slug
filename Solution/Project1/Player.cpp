@@ -14,92 +14,123 @@ Player::Player() //class and constructor
 	jumpForce = -12.0f;
 	moveSpeed = 5.0f;
 	groundLevel = 800.0f;
-	direction = 1; 
+	direction = PlayerDirection::RIGHT; //inicializamos mirando a la derecha  
+	aimingUp = false;
+	isCrouching = false;
 
+	//alturas
+	normalHeight = (float)image.height;
+	crouchHeight = normalHeight * 0.6f; //60% de altura cuando agachado, provisional
 }
 Player::~Player() {   //class and destructor
 	UnloadTexture(image);
 }
 void Player::Draw() {
+	Rectangle sourceRect = { 0, 0, (float)image.width, (float)image.width };
 
-	if (direction == -1){
-		Rectangle sourceRect = { (float)image.width, 0, (float)-image.width, (float)image.height };
-		DrawTextureRec(image, sourceRect, position, WHITE);
+	//flip horizontal para Left
+	if (direction == PlayerDirection::LEFT) {
+		sourceRect.width = -(float)image.width;
 	}
-	else {
-		DrawTextureV(image, position, WHITE);
-	}
+
+	// Por implementar: Sprites diferentes para:
+	// - aimingUp == true (mirando arriba)
+	// - isCrouching == true (agachado)
+	// - normal (izquierda/derecha)
+
+	DrawTextureRec(image, sourceRect, position, WHITE);
 }
 
-void Player::Update()
-{
-	velocity.y += gravity;	//aplies gravity 
-	position.y += velocity.y;	//updates position Y
+void Player::Update(){	
+	
+	//gravedad
+	velocity.y += gravity;	
+	position.y += velocity.y;	
 
-	//Y position starts at top 0, the end is in the bottom, if it's bigger or equal than ground value, bool true, otherwise false. 
-	if (position.y + image.height >= groundLevel)
-	{
-		position.y = groundLevel - image.height;
+	// Colisión con suelo (usando altura actual)
+	float currentHeight = isCrouching ? crouchHeight : normalHeight;
+	if (position.y + currentHeight >= groundLevel) {
+		position.y = groundLevel - currentHeight;
 		velocity.y = 0;
 		isGrounded = true;
 	}
-	else
-	{
+	else {
 		isGrounded = false;
 	}
 
-	position.x += velocity.x; //updates position X 
+	// Movimiento horizontal
+	position.x += velocity.x;
 
-	if (position.x < 0) //lateral limits, the right side will be changed following camera
-	{
+	// Límites laterales
+	if (position.x < 0) {
 		position.x = 0;
-
 	}
-	if (position.x + image.width > GetScreenWidth())
-	{
+	if (position.x + image.width > GetScreenWidth()) {
 		position.x = GetScreenWidth() - image.width;
-
 	}
-	// Actualizar dirección basada en el movimiento
-	if (velocity.x > 0) {
-		direction = 1; // Mirando a la derecha
-	}
-	else if (velocity.x < 0) {
-		direction = -1; // Mirando a la izquierda
-	}
-	// Si velocity.x == 0, mantenemos la dirección anterior
 }
 
-void Player::MoveLeft()
-{
-	velocity.x = -moveSpeed;
+void Player::MoveLeft(){
+	velocity.x = isCrouching ? -crouchSpeed : -moveSpeed;
+	if (!aimingUp) {
+		direction = PlayerDirection::LEFT;
+	}
 }
 
-void Player::MoveRight()
-{
-	velocity.x = moveSpeed;
+void Player::MoveRight(){
+	velocity.x = isCrouching ? crouchSpeed : moveSpeed;
+	if (!aimingUp) {
+		direction = PlayerDirection::RIGHT;
+	}
 }
 
-//void Player::Aim()
-//{
-//	if (direction = PlayerDirection::LEFT) {
-//
-//	}
-//}
-
-void Player::StopMoving()
-{
+void Player::StopMovingHorizontal(){
 	velocity.x = 0;
 }
 
-void Player::Jump()
+void Player::StartAimingUp(){
+	aimingUp = true;
+	if (isCrouching) {
+		StopCrouching();
+	}
+}
+
+void Player::StopAimingUp(){
+	aimingUp = false;
+}
+
+void Player::StartCrouching(){
+	if (isGrounded) {
+		isCrouching = true;
+		// Ajustar posición Y para mantener los pies en el suelo
+		position.y += (normalHeight - crouchHeight);
+		aimingUp = false;
+	}
+}
+
+void Player::StopCrouching()
 {
-	// Can only jump if its on the ground
-	if (isGrounded)
-	{
+	if (isCrouching) {
+		isCrouching = false;
+		position.y -= (normalHeight - crouchHeight);
+	}
+}
+
+void Player::Jump(){
+	if (isGrounded && !isCrouching) {
 		velocity.y = jumpForce;
 		isGrounded = false;
 	}
+}
+
+PlayerDirection Player::GetAimDirection() const{
+	if (aimingUp) {
+		return PlayerDirection::UP;
+	}
+	if (isCrouching) {
+		return direction; // Agachado dispara hacia izquierda o derecha
+	}
+	return direction; // Normal: izquierda o derecha
 }
 
 void Player::Shoot()
