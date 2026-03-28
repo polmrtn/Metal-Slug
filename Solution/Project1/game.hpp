@@ -3,6 +3,7 @@
 #include "Soldier.hpp"
 #include "AudioManager.hpp"
 #include "SceneManager.hpp"
+#include "Bullet.hpp"
 #include <vector>
 
 
@@ -18,6 +19,9 @@ class Game {
 		Player player;
 		AudioManager audioManager;
 		SceneManager sceneManager;
+		std::vector<Bullet> bullets;
+		std::vector<Bullet> CreateBullets();
+	
 		std::vector<Soldier> soldiers; 
 		std::vector<Soldier> CreateSoldiers();
 };
