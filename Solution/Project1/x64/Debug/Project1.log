@@ -1,6 +1,8 @@
-﻿  game.cpp
-C:\Users\USUARIO\Desktop\Barcos\Metal-Slug\Solution\Project1\game.cpp(153,24): warning C4244: '=': conversión de 'int' a 'float'; posible pérdida de datos
-C:\Users\USUARIO\Desktop\Barcos\Metal-Slug\Solution\Project1\game.cpp(154,23): warning C4244: '=': conversión de 'int' a 'float'; posible pérdida de datos
-x64\Debug\AudioManager.obj : warning LNK4042: objeto especificado más de una vez; omitidos los sobrantes
-LINK : warning LNK4098: la biblioteca predeterminada'MSVCRT' entra en conflicto con otras bibliotecas; use la biblioteca /NODEFAULTLIB:biblioteca
+﻿  Soldier.cpp
+C:\Users\USUARIO\Desktop\Barcos\Metal-Slug\Solution\Project1\Soldier.cpp(76,33): warning C4244: '=': conversión de 'int' a 'float'; posible pérdida de datos
+  game.cpp
+C:\Users\USUARIO\Desktop\Barcos\Metal-Slug\Solution\Project1\game.cpp(178,24): warning C4244: '=': conversión de 'int' a 'float'; posible pérdida de datos
+C:\Users\USUARIO\Desktop\Barcos\Metal-Slug\Solution\Project1\game.cpp(179,23): warning C4244: '=': conversión de 'int' a 'float'; posible pérdida de datos
+  main.cpp
+  Generando código...
   Project1.vcxproj -> C:\Users\USUARIO\Desktop\Barcos\Metal-Slug\Solution\x64\Debug\Project1.exe

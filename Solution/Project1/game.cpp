@@ -28,15 +28,32 @@ void Game:: Draw()
 
 void Game::Update()
 {
-	if (sceneManager.GetGamestate() == SceneManager::TITLE) {
-		sceneManager.DrawTexts();
-	    audioManager.PlayMusic(audioManager.GetTitleMusic());
-	    UpdateMusicStream(audioManager.GetTitleMusic());
-		
+	
+	if (sceneManager.GetGamestate() == SceneManager::INTRO) {
+			sceneManager.DrawTexts();
 	}
+	else if (sceneManager.GetGamestate() == SceneManager::TITLE) {
+			sceneManager.DrawTexts();
+
+
+			if (!musicStarted)
+			{
+				audioManager.PlayMusic(audioManager.GetTitleMusic());
+				musicStarted = true;
+			}
+
+			audioManager.UpdateMusic(audioManager.GetTitleMusic());
+
+	} 
+
 	else if (sceneManager.GetGamestate() == SceneManager::GAME) {
+		if (!musicStarted)
+		{
+			audioManager.PlayMusic(audioManager.GetGameMusic());
+			musicStarted = true;
+		}
+		audioManager.UpdateMusic(audioManager.GetGameMusic());
 		
-		UpdateMusicStream(audioManager.GetGameMusic());
 		Draw();
 		DrawRectangleLinesEx(obstacle, 5, WHITE);
 		bool isColliding = CheckCollisionRecs(player.GetRect(), obstacle);
@@ -100,11 +117,18 @@ void Game::HandleInput()
 	}
 
 	//CHANGE SCENE
-	if (IsKeyPressed(KEY_ENTER) && sceneManager.currentState == SceneManager::TITLE)
+	if (IsKeyPressed(KEY_ENTER) )
 	{
-		//audioManager.StopMusic(audioManager.GetTitleMusic());
-		//audioManager.PlayMusic(audioManager.GetGameMusic());
-		sceneManager.SetGameState(SceneManager::GAME);
+		if (sceneManager.currentState == SceneManager::TITLE) {
+			audioManager.StopMusic(audioManager.GetTitleMusic());
+			audioManager.PlaySound(audioManager.GetGameSound());
+			sceneManager.SetGameState(SceneManager::GAME);
+			musicStarted = false;
+		}
+		else if (sceneManager.currentState == SceneManager::INTRO) {
+			sceneManager.SetGameState(SceneManager::TITLE);
+			musicStarted = false;
+		}
 	}
 
 	if (IsKeyPressed(KEY_D) || IsKeyDown(KEY_D))
@@ -148,6 +172,7 @@ void Game::HandleInput()
 std::vector<Soldier>  Game::CreateSoldiers()
 {
 	std::vector<Soldier> soldiers;
+	soldiers.reserve(10);
 	for (int i = 0; i < 10; i++) {
 		float xpos, ypos;
 		ypos = (10 * i + 40) + 100;

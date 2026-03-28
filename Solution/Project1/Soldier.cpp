@@ -18,6 +18,27 @@ Soldier::Soldier(int type , Vector2 position)//constructor depending on each typ
 		break;
 	}
 }
+Soldier::Soldier(const Soldier& other)
+{
+	type = other.type;
+	position = other.position;
+	isGrounded = other.isGrounded;
+	velocity = other.velocity;
+	gravity = other.gravity;
+	groundLevel = other.groundLevel;
+
+	switch (type) {
+	case 1:
+	default:
+		image = LoadTexture("Graphics/Rebel Soldier_Sprites - Neutral 1.png");
+		break;
+	}
+
+}
+
+Soldier::~Soldier() {
+	UnloadTexture(image);
+}
 void Soldier::Draw() {
 	DrawTextureV(image, position, WHITE);
 }

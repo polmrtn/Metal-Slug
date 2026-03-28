@@ -4,22 +4,26 @@
 
 class SceneManager {
 public:
-	enum Gamestates
-	{
-		TITLE,
-		GAME
-	};
-	SceneManager();
-	~SceneManager();
-	void DrawTexts();
-	Gamestates GetGamestate();
+    enum Gamestates
+    {
+        INTRO,
+        TITLE,
+        GAME
+    };
+    SceneManager();
+    ~SceneManager();
+    void DrawTexts();
+
+
+    Gamestates GetGamestate();
     void SetGameState(Gamestates gamestate);
-	Gamestates currentState;
+    Gamestates currentState;
 
 
 
 private:
 
+    Texture2D introBackground;
 
 
 };
