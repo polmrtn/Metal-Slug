@@ -8,6 +8,7 @@ public:
 	~Soldier();
 	Texture2D image;
 	Vector2 position;
+	Rectangle GetHitBox();
 	int type;
 	int GetType();
 	void Draw();

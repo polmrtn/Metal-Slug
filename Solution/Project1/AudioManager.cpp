@@ -1,5 +1,5 @@
 #include "AudioManager.hpp"
-
+#include "raylib.h"
 AudioManager::AudioManager()
 {
     titleMusic = LoadMusicStream("OST/04. Steel Beast 5Beats (Boss Stage).ogg");

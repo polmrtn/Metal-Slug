@@ -1,8 +1,7 @@
 ﻿  Soldier.cpp
-C:\Users\USUARIO\Desktop\Barcos\Metal-Slug\Solution\Project1\Soldier.cpp(76,33): warning C4244: '=': conversión de 'int' a 'float'; posible pérdida de datos
-  game.cpp
-C:\Users\USUARIO\Desktop\Barcos\Metal-Slug\Solution\Project1\game.cpp(178,24): warning C4244: '=': conversión de 'int' a 'float'; posible pérdida de datos
-C:\Users\USUARIO\Desktop\Barcos\Metal-Slug\Solution\Project1\game.cpp(179,23): warning C4244: '=': conversión de 'int' a 'float'; posible pérdida de datos
-  main.cpp
-  Generando código...
+C:\Users\USUARIO\Desktop\Barcos\Metal-Slug\Solution\Project1\Soldier.cpp(51,61): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
+C:\Users\USUARIO\Desktop\Barcos\Metal-Slug\Solution\Project1\Soldier.cpp(51,47): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
+C:\Users\USUARIO\Desktop\Barcos\Metal-Slug\Solution\Project1\Soldier.cpp(51,36): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
+C:\Users\USUARIO\Desktop\Barcos\Metal-Slug\Solution\Project1\Soldier.cpp(51,27): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
+C:\Users\USUARIO\Desktop\Barcos\Metal-Slug\Solution\Project1\Soldier.cpp(86,33): warning C4244: '=': conversión de 'int' a 'float'; posible pérdida de datos
   Project1.vcxproj -> C:\Users\USUARIO\Desktop\Barcos\Metal-Slug\Solution\x64\Debug\Project1.exe

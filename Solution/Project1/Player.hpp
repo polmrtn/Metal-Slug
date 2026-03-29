@@ -1,5 +1,6 @@
 #pragma once
 #include "raylib.h"
+#include "Bullet.hpp"
 enum class PlayerDirection {
 	LEFT,
 	RIGHT,
@@ -21,7 +22,7 @@ class Player {
 		void Jump();
 		void Update();
 		void Shoot();
-		Rectangle GetRect();
+		Rectangle GetHitBox();
 		void DrawHitBox(bool isColliding);
 		Vector2 GetPosition() const { return position; }
 		float GetWidth() const { return (float)image.width; }

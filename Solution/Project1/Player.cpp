@@ -69,13 +69,14 @@ void Player::Update()
 	}
 }
 
-Rectangle Player::GetRect()
+Rectangle Player::GetHitBox()
 {
 	return Rectangle{ position.x, position.y, float(image.width),float(image.height) };
 }
 void Player::Shoot()
 {
-
+	
+	
 }
 void Player::MoveLeft() {
 	velocity.x = isCrouching ? -crouchSpeed : -moveSpeed;
@@ -141,5 +142,5 @@ PlayerDirection Player::GetAimDirection() const {
 
 void Player::DrawHitBox(bool isColliding) {
 	Color outlineColor = isColliding ? WHITE : RED;
-	DrawRectangleLinesEx(GetRect(), 3, outlineColor);
+	DrawRectangleLinesEx(GetHitBox(), 3, outlineColor);
 }

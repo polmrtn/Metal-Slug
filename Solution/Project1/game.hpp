@@ -14,6 +14,7 @@ class Game {
 		void Draw();
 		void Update();
 		void HandleInput();
+		void CheckForCollisions();
 
 	private:
 		Player player;

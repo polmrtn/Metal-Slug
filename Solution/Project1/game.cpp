@@ -1,6 +1,6 @@
 #include "game.hpp"
 bool musicStarted = false;
-Rectangle obstacle = Rectangle{ 800,600,200,175 };
+
 Game::Game()
 {
 	soldiers = CreateSoldiers();
@@ -55,17 +55,16 @@ void Game::Update()
 		audioManager.UpdateMusic(audioManager.GetGameMusic());
 		
 		Draw();
-		DrawRectangleLinesEx(obstacle, 5, WHITE);
-		bool isColliding = CheckCollisionRecs(player.GetRect(), obstacle);
-		player.DrawHitBox(isColliding);
 		ClearBackground(BLACK);
 		player.Update();
+		CheckForCollisions();
 
 		for (auto& Soldier : soldiers) { //auto&(is a variable that the compiler assumes from the vector) in this case type Soldier, this initializes the update in each soldier
 			Soldier.Update();
 		}
 		for (auto& bullet : bullets) {
-			bullet.Update(); //update all bullets
+			bullet.Update();
+			//update all bullets
 		}
 	
 
@@ -134,7 +133,6 @@ void Game::HandleInput()
 	if (IsKeyPressed(KEY_D) || IsKeyDown(KEY_D))
 	{
 		player.Shoot();
-
 		Vector2 playerPos = player.GetPosition();
 		float playerWidth = player.GetWidth();  // Siempre el mismo ancho
 		float playerHeight = player.GetHeight(); // Cambia si está agachado
@@ -163,8 +161,27 @@ void Game::HandleInput()
 			directionY = 1;
 			break;
 		}
-
 		bullets.emplace_back(bulletPos, bulletSpeed, directionX, directionY);
+	}
+
+}
+
+void Game::CheckForCollisions()
+{
+	for (auto& bullet : bullets) {
+		auto it = soldiers.begin();
+		auto it2 = bullets.begin(); //it hace referencia a iterador, para recorrer automaticamente el vector del que se quiere iterar
+		while (it != soldiers.end()) {
+			if (CheckCollisionRecs(it -> GetHitBox(), bullet.GetHitbox())) //checks collision of solider and bullets;
+			{
+				it = soldiers.erase(it);
+				it2 = bullets.erase(it2);
+			}
+			else
+			{
+				it++;
+			}
+		}
 	}
 
 }

@@ -12,6 +12,17 @@ void Bullet::Update() {
 	position.y += speed * directionY;
 }
 
+
+Rectangle Bullet::GetHitbox()
+{
+	return Rectangle{ position.x, position.y, 10, 10 };
+	
+	 
+
+}
 void Bullet::Draw() {
-	DrawCircle(position.x, position.y, 5, WHITE);
+	Rectangle hitbox = GetHitbox();
+	
+	DrawRectangleLines(position.x - hitbox.width/2, position.y - hitbox.height/2, hitbox.width, hitbox.height, WHITE);
+	DrawCircle(position.x, position.y, 5, RED);
 }

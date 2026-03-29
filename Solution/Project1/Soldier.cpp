@@ -39,9 +39,19 @@ Soldier::Soldier(const Soldier& other)
 Soldier::~Soldier() {
 	UnloadTexture(image);
 }
+
+Rectangle Soldier::GetHitBox()
+{
+	 
+	return Rectangle{ position.x , position.y, float(image.width- image.width/10 ) ,float(image.height- image.height/10) };
+}
 void Soldier::Draw() {
+	Rectangle hitbox = GetHitBox();
+
+	DrawRectangleLines(hitbox.x,hitbox.y , hitbox.width, hitbox.height, WHITE);
 	DrawTextureV(image, position, WHITE);
 }
+
 
 int Soldier::GetType() {
 	return type;
