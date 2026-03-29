@@ -18,9 +18,40 @@ Soldier::Soldier(int type , Vector2 position)//constructor depending on each typ
 		break;
 	}
 }
+Soldier::Soldier(const Soldier& other)
+{
+	type = other.type;
+	position = other.position;
+	isGrounded = other.isGrounded;
+	velocity = other.velocity;
+	gravity = other.gravity;
+	groundLevel = other.groundLevel;
+
+	switch (type) {
+	case 1:
+	default:
+		image = LoadTexture("Graphics/Rebel Soldier_Sprites - Neutral 1.png");
+		break;
+	}
+
+}
+
+Soldier::~Soldier() {
+	UnloadTexture(image);
+}
+
+Rectangle Soldier::GetHitBox()
+{
+	 
+	return Rectangle{ position.x , position.y, float(image.width- image.width/10 ) ,float(image.height- image.height/10) };
+}
 void Soldier::Draw() {
+	Rectangle hitbox = GetHitBox();
+
+	DrawRectangleLines(hitbox.x,hitbox.y , hitbox.width, hitbox.height, WHITE);
 	DrawTextureV(image, position, WHITE);
 }
+
 
 int Soldier::GetType() {
 	return type;

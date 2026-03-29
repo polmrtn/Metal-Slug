@@ -1,9 +1,10 @@
 #include "game.hpp"
 bool musicStarted = false;
+
 Game::Game()
 {
 	soldiers = CreateSoldiers();
-	
+	bullets = CreateBullets();
 	
 }
 
@@ -15,40 +16,59 @@ Game::~Game()
 void Game:: Draw()
 {
 	player.Draw();
-
+	
+	
 	for (auto& Soldier : soldiers) {//auto&(is a variable that the compiler assumes from the vector) in this case type Soldier, this initializes the draw in each soldier
 		Soldier.Draw();
 	}
+	for (auto& bullet : bullets) {
+		bullet.Draw();
+	}	
 }
 
 void Game::Update()
 {
 	
-	
-	
-	if (sceneManager.GetGamestate() == SceneManager::TITLE) {
-		sceneManager.DrawTexts();
-		
-		
-	  audioManager.PlayMusic(audioManager.GetTitleMusic());
-	  UpdateMusicStream(audioManager.GetTitleMusic());
-		
+	if (sceneManager.GetGamestate() == SceneManager::INTRO) {
+			sceneManager.DrawTexts();
 	}
+	else if (sceneManager.GetGamestate() == SceneManager::TITLE) {
+			sceneManager.DrawTexts();
+
+
+			if (!musicStarted)
+			{
+				audioManager.PlayMusic(audioManager.GetTitleMusic());
+				musicStarted = true;
+			}
+
+			audioManager.UpdateMusic(audioManager.GetTitleMusic());
+
+	} 
+
 	else if (sceneManager.GetGamestate() == SceneManager::GAME) {
-		
-		UpdateMusicStream(audioManager.GetGameMusic());
+		if (!musicStarted)
+		{
+			audioManager.PlayMusic(audioManager.GetGameMusic());
+			musicStarted = true;
+		}
+		audioManager.UpdateMusic(audioManager.GetGameMusic());
 		
 		Draw();
 		ClearBackground(BLACK);
 		player.Update();
+		CheckForCollisions();
 
 		for (auto& Soldier : soldiers) { //auto&(is a variable that the compiler assumes from the vector) in this case type Soldier, this initializes the update in each soldier
 			Soldier.Update();
 		}
-		
+		for (auto& bullet : bullets) {
+			bullet.Update();
+			//update all bullets
+		}
+	
 
 	}
-	
 
 }
 
@@ -66,29 +86,127 @@ void Game::HandleInput()
 	}
 	else
 	{
-		player.StopMoving();
+		player.StopMovingHorizontal();
 	}
+
+	//AIMING UP
+	if (IsKeyDown(KEY_UP))
+	{
+		player.StartAimingUp();
+	}
+	else
+	{
+		player.StopAimingUp();
+	}
+
+	//CROUCHING
+	if (IsKeyDown(KEY_DOWN))
+	{
+		player.StartCrouching();
+	}
+	else
+	{
+		player.StopCrouching();
+	}
+
+	//JUMP
 	if (IsKeyPressed(KEY_SPACE))
 	{
 		player.Jump();
 	}
-	if (IsKeyPressed(KEY_ENTER) && sceneManager.currentState == SceneManager::TITLE)
+
+	//CHANGE SCENE
+	if (IsKeyPressed(KEY_ENTER) )
 	{
-		audioManager.StopMusic(audioManager.GetTitleMusic());
-		audioManager.PlayMusic(audioManager.GetGameMusic());
-		sceneManager.SetGameState(SceneManager::GAME);
+		if (sceneManager.currentState == SceneManager::TITLE) {
+			audioManager.StopMusic(audioManager.GetTitleMusic());
+			audioManager.PlaySound(audioManager.GetGameSound());
+			sceneManager.SetGameState(SceneManager::GAME);
+			musicStarted = false;
+		}
+		else if (sceneManager.currentState == SceneManager::INTRO) {
+			sceneManager.SetGameState(SceneManager::TITLE);
+			musicStarted = false;
+		}
 	}
+
+	if (IsKeyPressed(KEY_D) || IsKeyDown(KEY_D))
+	{
+		player.Shoot();
+		Vector2 playerPos = player.GetPosition();
+		float playerWidth = player.GetWidth();  // Siempre el mismo ancho
+		float playerHeight = player.GetHeight(); // Cambia si está agachado
+
+		Vector2 bulletPos;
+		PlayerDirection aimDir = player.GetAimDirection();
+		int bulletSpeed = 10;
+		int directionX = 0;
+		int directionY = 0;
+
+		switch (aimDir) {
+		case PlayerDirection::LEFT:
+			bulletPos = { playerPos.x, playerPos.y + playerHeight / 2 };
+			directionX = -1;
+			break;
+		case PlayerDirection::RIGHT:
+			bulletPos = { playerPos.x + playerWidth, playerPos.y + playerHeight / 2 };
+			directionX = 1;
+			break;
+		case PlayerDirection::UP:
+			bulletPos = { playerPos.x + playerWidth / 2, playerPos.y };
+			directionY = -1;
+			break;
+		case PlayerDirection::DOWN:
+			bulletPos = { playerPos.x + playerWidth / 2, playerPos.y + playerHeight };
+			directionY = 1;
+			break;
+		}
+		bullets.emplace_back(bulletPos, bulletSpeed, directionX, directionY);
+	}
+
+}
+
+void Game::CheckForCollisions()
+{
+	for (auto& bullet : bullets) {
+		auto it = soldiers.begin();
+		auto it2 = bullets.begin(); //it hace referencia a iterador, para recorrer automaticamente el vector del que se quiere iterar
+		while (it != soldiers.end()) {
+			if (CheckCollisionRecs(it -> GetHitBox(), bullet.GetHitbox())) //checks collision of solider and bullets;
+			{
+				it = soldiers.erase(it);
+				it2 = bullets.erase(it2);
+			}
+			else
+			{
+				it++;
+			}
+		}
+	}
+
 }
 
 std::vector<Soldier>  Game::CreateSoldiers()
 {
 	std::vector<Soldier> soldiers;
+	soldiers.reserve(10);
 	for (int i = 0; i < 10; i++) {
 		float xpos, ypos;
-		ypos = (10 * i) + 100;
-		xpos = (10 * i) + 100;
+		ypos = (10 * i + 40) + 100;
+		xpos = (10 * i+ 40) + 100;
 		soldiers.push_back(Soldier(1, { xpos,ypos}));
 	}
 	
 	return soldiers;
+}
+std::vector<Bullet> Game::CreateBullets() {
+	std::vector<Bullet> bullets;
+	for (int i = 0; i < bullets.size(); i++) {
+		// Usar el getter GetX() para acceder a la posición X
+		if (bullets[i].GetX() < 0 || bullets[i].GetX() > GetScreenWidth()) {
+			bullets.erase(bullets.begin() + i);
+			i--; // Decrementar índice porque el vector se redujo
+		}
+	}
+	return bullets;
 }
