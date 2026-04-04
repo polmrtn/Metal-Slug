@@ -4,6 +4,7 @@ Soldier::Soldier(int type , Vector2 position)//constructor depending on each typ
 {
 	this-> type = type;
 	this->position = position;
+	this->scale = 4.0f;
 	isGrounded = false;
 	velocity.y = 0;
 	gravity = 0.8f;
@@ -17,6 +18,7 @@ Soldier::Soldier(int type , Vector2 position)//constructor depending on each typ
 		image = LoadTexture("Graphics/Rebel Soldier_Sprites - Neutral 1.png");	
 		break;
 	}
+	SetTextureFilter(image, TEXTURE_FILTER_POINT);
 }
 Soldier::Soldier(const Soldier& other)
 {
@@ -26,6 +28,7 @@ Soldier::Soldier(const Soldier& other)
 	velocity = other.velocity;
 	gravity = other.gravity;
 	groundLevel = other.groundLevel;
+	scale = other.scale;
 
 	switch (type) {
 	case 1:
@@ -33,7 +36,7 @@ Soldier::Soldier(const Soldier& other)
 		image = LoadTexture("Graphics/Rebel Soldier_Sprites - Neutral 1.png");
 		break;
 	}
-
+	SetTextureFilter(image, TEXTURE_FILTER_POINT);
 }
 
 Soldier::~Soldier() {
@@ -46,10 +49,20 @@ Rectangle Soldier::GetHitBox()
 	return Rectangle{ position.x , position.y, float(image.width- image.width/10 ) ,float(image.height- image.height/10) };
 }
 void Soldier::Draw() {
-	Rectangle hitbox = GetHitBox();
+	Rectangle sourceRect = { 0, 0, (float)image.width, (float)image.height };
 
-	DrawRectangleLines(hitbox.x,hitbox.y , hitbox.width, hitbox.height, WHITE);
-	DrawTextureV(image, position, WHITE);
+	// Definimos el tamaño en pantalla (Ancho original * escala)
+	Rectangle destRect = {
+		position.x,
+		position.y,
+		(float)image.width* scale,
+		(float)image.height* scale
+	};
+
+	Vector2 origin = { 0, 0 };
+
+	// Dibujamos con escalado
+	DrawTexturePro(image, sourceRect, destRect, origin, 0.0f, WHITE);
 }
 
 
@@ -59,31 +72,30 @@ int Soldier::GetType() {
 
 void Soldier::Update()
 {
-	velocity.y += gravity;	//aplies gravity 
-	position.y += velocity.y;	//updates position Y
+	if (!isGrounded) {
+		velocity.y += gravity;
+	}
+	else if (velocity.y > 0) {
+		velocity.y = 0;
+	}
 
-	//Y position starts at top 0, the end is in the bottom, if it's bigger or equal than ground value, bool true, otherwise false. 
-	if (position.y + image.height >= groundLevel)
-	{
-		position.y = groundLevel - image.height;
+	// Aplicar Movimiento
+	position.y += velocity.y;
+	
+
+	// Colisión con el Suelo (Considerando Escala)
+	float currentHeight = GetHeight();
+	if (position.y + currentHeight >= groundLevel) {
+		position.y = groundLevel - currentHeight;
 		velocity.y = 0;
 		isGrounded = true;
 	}
-	else
-	{
+	else {
 		isGrounded = false;
 	}
 
-	position.x += velocity.x; //updates position X 
-
-	if (position.x < 0) //lateral limits, the right side will be changed following camera
-	{
-		position.x = 0;
-
-	}
-	if (position.x + image.width > GetScreenWidth())
-	{
-		position.x = GetScreenWidth() - image.width;
-
-	}
+	// Límites laterales del mapa
+	float currentWidth = GetWidth();
+	if (position.x < 0) position.x = 0;
+	if (position.x + currentWidth > 7300) position.x = 7300 - currentWidth;
 }

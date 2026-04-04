@@ -1,24 +1,34 @@
 #pragma once
+
 #include "raylib.h"
 
 class Soldier {
 public:
-	Soldier(int type, Vector2 position);
-	Soldier(const Soldier& other);   // constructor de copia
-	~Soldier();
-	Texture2D image;
-	Vector2 position;
-	Rectangle GetHitBox();
-	int type;
-	int GetType();
-	void Draw();
-	void Update();
-	bool isGrounded;
-	float groundLevel;
+    Soldier(int type, Vector2 position);
+    Soldier(const Soldier& other); // Constructor de copia
+    ~Soldier();
+
+    void Update();
+    void Draw();
+
+    Rectangle GetHitBox();
+    int GetType();
+
+    // Getters de dimensiones escaladas
+    float GetWidth() const { return (float)image.width * scale; }
+    float GetHeight() const { return (float)image.height * scale; }
+
 private:
-	float gravity;
-	Vector2 velocity;
-	
-	
+    Texture2D image;
+    Vector2 position;
+    Vector2 velocity;
+    int type;
+
+    float scale;
+    float gravity;
+    float groundLevel;
+    bool isGrounded;
 };
+
+
 

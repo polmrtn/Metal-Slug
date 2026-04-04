@@ -5,6 +5,7 @@
 #include "SceneManager.hpp"
 #include "Bullet.hpp"
 #include "BackgroundManager.hpp"
+#include "CameraManager.hpp"
 #include <vector>
 
 
@@ -18,6 +19,7 @@ class Game {
 		void CheckForCollisions();
 
 	private:
+		CameraManager camera;
 		Player player;
 		AudioManager audioManager;
 		SceneManager sceneManager;

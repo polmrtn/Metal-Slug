@@ -1,11 +1,12 @@
 #include "game.hpp"
+
 bool musicStarted = false;
-Rectangle screen = { 0,0,1280, 896 };
-Game::Game()
+
+Game::Game() : camera({ 1280.0f / 2.0f, 896.0f / 2.0f })
 {
 	soldiers = CreateSoldiers();
 	bullets = CreateBullets();
-	
+
 }
 
 Game::~Game()
@@ -15,8 +16,10 @@ Game::~Game()
 
 void Game:: Draw()
 {
+	backgroundManager.Draw();
+	camera.Begin();
 	player.Draw();
-	backgroundManager.Draw(screen, { 0,0 }, screen);
+	
 	
 	for (auto& Soldier : soldiers) {//auto&(is a variable that the compiler assumes from the vector) in this case type Soldier, this initializes the draw in each soldier
 		Soldier.Draw();
@@ -24,10 +27,12 @@ void Game:: Draw()
 	for (auto& bullet : bullets) {
 		bullet.Draw();
 	}	
+	camera.End();
 }
 
 void Game::Update()
 {
+	float frameTime = GetFrameTime();
 	
 	if (sceneManager.GetGamestate() == SceneManager::INTRO) {
 			sceneManager.DrawTexts();
@@ -47,6 +52,15 @@ void Game::Update()
 	} 
 
 	else if (sceneManager.GetGamestate() == SceneManager::GAME) {
+		BeginDrawing();
+		ClearBackground(BLACK);
+		this->Draw();
+		camera.Update(player.GetPosition());
+	
+		player.Update();
+		CheckForCollisions();
+		backgroundManager.FollowPlayer(player.GetPosition());
+		
 		if (!musicStarted)
 		{
 			audioManager.PlayMusic(audioManager.GetGameMusic());
@@ -54,10 +68,7 @@ void Game::Update()
 		}
 		audioManager.UpdateMusic(audioManager.GetGameMusic());
 		
-		Draw();
-		ClearBackground(BLACK);
-		player.Update();
-		CheckForCollisions();
+		
 
 		for (auto& Soldier : soldiers) { //auto&(is a variable that the compiler assumes from the vector) in this case type Soldier, this initializes the update in each soldier
 			Soldier.Update();
@@ -69,6 +80,7 @@ void Game::Update()
 	
 
 	}
+	
 
 }
 
