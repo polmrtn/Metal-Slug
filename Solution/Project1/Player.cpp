@@ -60,30 +60,7 @@ void Player::Update() {
     if (position.x + currentWidth > 7300) position.x = 7300 - currentWidth;
 }
 
-void Player::Draw() {
-    // Recorte de la imagen (Source)
-    Rectangle sourceRect = { 0, 0, (float)image.width, (float)image.height };
-    if (direction == PlayerDirection::LEFT) {
-        sourceRect.width = -(float)image.width;
-    }
 
-    // Área en pantalla (Destino escalado)
-    Rectangle destRect = {
-        position.x,
-        position.y,
-        (float)image.width * scale,
-        (float)image.height * scale
-    };
-
-    Vector2 origin = { 0, 0 };
-
-    // Feedback visual de estados (opcional)
-    Color tint = WHITE;
-    if (isCrouching) tint = SKYBLUE;
-    if (aimingUp) tint = YELLOW;
-
-    DrawTexturePro(image, sourceRect, destRect, origin, 0.0f, tint);
-}
 
 Rectangle Player::GetHitBox() {
     return Rectangle{ position.x, position.y, GetWidth(), GetHeight() };
@@ -140,10 +117,35 @@ PlayerDirection Player::GetAimDirection() const {
     return direction;
 }
 
-void Player::DrawHitBox(bool isColliding) {
-    DrawRectangleLinesEx(GetHitBox(), 2, isColliding ? RED : GREEN);
+void Player::DrawHitBox() {
+    DrawRectangleLinesEx(GetHitBox(), 2,WHITE);
 }
 
 void Player::Shoot() {
     // Implementar creación de balas aquí
+}
+void Player::Draw() {
+    // Recorte de la imagen (Source)
+    Rectangle sourceRect = { 0, 0, (float)image.width, (float)image.height };
+    if (direction == PlayerDirection::LEFT) {
+        sourceRect.width = -(float)image.width;
+    }
+
+    // Área en pantalla (Destino escalado)
+    Rectangle destRect = {
+        position.x,
+        position.y,
+        (float)image.width * scale,
+        (float)image.height * scale
+    };
+
+    Vector2 origin = { 0, 0 };
+
+    // Feedback visual de estados (opcional)
+    Color tint = WHITE;
+    if (isCrouching) tint = SKYBLUE;
+    if (aimingUp) tint = YELLOW;
+
+    DrawTexturePro(image, sourceRect, destRect, origin, 0.0f, tint);
+    DrawHitBox();
 }

@@ -11,7 +11,7 @@ public:
 
     void Update();
     void Draw();
-    void DrawHitBox(bool isColliding);
+    void DrawHitBox();
 
     // Movimiento e Input
     void MoveLeft();

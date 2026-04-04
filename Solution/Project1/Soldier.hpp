@@ -10,13 +10,14 @@ public:
 
     void Update();
     void Draw();
+    void DrawHitBox();
 
     Rectangle GetHitBox();
     int GetType();
 
     // Getters de dimensiones escaladas
-    float GetWidth() const { return (float)image.width * scale; }
-    float GetHeight() const { return (float)image.height * scale; }
+    float GetWidth()  { return (float)image.width * scale; }
+    float GetHeight()  { return (float)image.height * scale; }
 
 private:
     Texture2D image;

@@ -43,10 +43,14 @@ Soldier::~Soldier() {
 	UnloadTexture(image);
 }
 
+
 Rectangle Soldier::GetHitBox()
 {
-	 
-	return Rectangle{ position.x , position.y, float(image.width- image.width/10 ) ,float(image.height- image.height/10) };
+	return Rectangle{ position.x , position.y, GetWidth()/2 , GetHeight()/2};
+}
+void Soldier::DrawHitBox()
+{
+	DrawRectangleLinesEx(GetHitBox(), 2, WHITE);
 }
 void Soldier::Draw() {
 	Rectangle sourceRect = { 0, 0, (float)image.width, (float)image.height };
