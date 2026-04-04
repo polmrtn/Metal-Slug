@@ -1,6 +1,6 @@
 #include "game.hpp"
 bool musicStarted = false;
-
+Rectangle screen = { 0,0,1280, 896 };
 Game::Game()
 {
 	soldiers = CreateSoldiers();
@@ -16,7 +16,7 @@ Game::~Game()
 void Game:: Draw()
 {
 	player.Draw();
-	
+	backgroundManager.Draw(screen, { 0,0 }, screen);
 	
 	for (auto& Soldier : soldiers) {//auto&(is a variable that the compiler assumes from the vector) in this case type Soldier, this initializes the draw in each soldier
 		Soldier.Draw();
