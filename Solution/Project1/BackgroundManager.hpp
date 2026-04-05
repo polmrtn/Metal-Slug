@@ -7,15 +7,10 @@ public:
 	~BackgroundManager();
 	void FollowPlayer(Vector2 playerpos);
 	void Draw();
-	float destHeight,destWidth, xposSprite, yposSprite;
-	
-	
-	
+	float destHeight, destWidth, xposSprite, yposSprite;
 private:
 	Texture2D background;
 	Vector2 origin;
 	Rectangle source;
 	Rectangle destination;
-
-
 };

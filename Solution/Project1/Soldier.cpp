@@ -1,8 +1,8 @@
 #include "Soldier.hpp"
 
-Soldier::Soldier(int type , Vector2 position)//constructor depending on each type of soldier
+Soldier::Soldier(int type, Vector2 position)//constructor depending on each type of soldier
 {
-	this-> type = type;
+	this->type = type;
 	this->position = position;
 	this->scale = 4.0f;
 	isGrounded = false;
@@ -15,7 +15,7 @@ Soldier::Soldier(int type , Vector2 position)//constructor depending on each typ
 		image = LoadTexture("Graphics/Rebel Soldier_Sprites - Neutral 1.png");
 		break;
 	default:
-		image = LoadTexture("Graphics/Rebel Soldier_Sprites - Neutral 1.png");	
+		image = LoadTexture("Graphics/Rebel Soldier_Sprites - Neutral 1.png");
 		break;
 	}
 	SetTextureFilter(image, TEXTURE_FILTER_POINT);
@@ -46,7 +46,7 @@ Soldier::~Soldier() {
 
 Rectangle Soldier::GetHitBox()
 {
-	return Rectangle{ position.x , position.y, GetWidth()/2 , GetHeight()/2};
+	return Rectangle{ position.x + GetHeight() / 2 , position.y + GetWidth() / 2, GetWidth() / 2 , GetHeight() / 2 };
 }
 void Soldier::DrawHitBox()
 {
@@ -55,18 +55,20 @@ void Soldier::DrawHitBox()
 void Soldier::Draw() {
 	Rectangle sourceRect = { 0, 0, (float)image.width, (float)image.height };
 
+
 	// Definimos el tamaño en pantalla (Ancho original * escala)
 	Rectangle destRect = {
 		position.x,
 		position.y,
-		(float)image.width* scale,
-		(float)image.height* scale
+		GetWidth(),
+		GetHeight()
 	};
 
 	Vector2 origin = { 0, 0 };
 
 	// Dibujamos con escalado
 	DrawTexturePro(image, sourceRect, destRect, origin, 0.0f, WHITE);
+	DrawHitBox();
 }
 
 
@@ -85,7 +87,7 @@ void Soldier::Update()
 
 	// Aplicar Movimiento
 	position.y += velocity.y;
-	
+
 
 	// Colisión con el Suelo (Considerando Escala)
 	float currentHeight = GetHeight();

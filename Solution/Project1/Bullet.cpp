@@ -1,6 +1,7 @@
 #include "bullet.hpp"
 
 Bullet::Bullet(Vector2 position, int speed, int directionX, int directionY) {
+	image = LoadTexture("Graphics/BulletTest.png");
 	this->position = position;
 	this->speed = speed;
 	this->directionX = directionX;
@@ -15,14 +16,29 @@ void Bullet::Update() {
 
 Rectangle Bullet::GetHitbox()
 {
-	return Rectangle{ position.x, position.y, 10, 10 };
-	
-	 
+	return Rectangle{ position.x , position.y , GetWidth() , GetHeight() };
 
 }
+void Bullet::DrawHitBox()
+{
+	DrawRectangleLinesEx(GetHitbox(), 2, WHITE);
+}
 void Bullet::Draw() {
-	Rectangle hitbox = GetHitbox();
-	
-	DrawRectangleLines(position.x - hitbox.width/2, position.y - hitbox.height/2, hitbox.width, hitbox.height, WHITE);
-	DrawCircle(position.x, position.y, 5, RED);
+
+	Rectangle sourceRect = { 0, 0, (float)image.width, (float)image.height };
+
+
+	// Definimos el tamaño en pantalla (Ancho original * escala)
+	Rectangle destRect = {
+		position.x,
+		position.y,
+		GetWidth(),
+		GetHeight()
+	};
+
+	Vector2 origin = { 0, 0 };
+
+	// Dibujamos con escalado
+	DrawTexturePro(image, sourceRect, destRect, origin, 0.0f, WHITE);
+	DrawHitBox();
 }

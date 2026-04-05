@@ -17,8 +17,12 @@ class Game {
 		void Update();
 		void HandleInput();
 		void CheckForCollisions();
+		void Shoot();
+		void Timers();
 
 	private:
+		float shootTimer = 0.0f;
+		float shootDelay = 1.0f;
 		CameraManager camera;
 		Player player;
 		AudioManager audioManager;

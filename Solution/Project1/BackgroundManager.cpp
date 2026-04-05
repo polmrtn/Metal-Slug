@@ -11,12 +11,10 @@ BackgroundManager::BackgroundManager()
 	source = {xposSprite,yposSprite ,570, 405};
 	destination = { 0,0 ,destHeight, destWidth };
 	origin = { 0 ,0 };
-
 }
 
 BackgroundManager::~BackgroundManager()
 {
-
 }
 
 void BackgroundManager::FollowPlayer(Vector2 playerpos)
