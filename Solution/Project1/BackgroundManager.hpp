@@ -5,15 +5,12 @@ class BackgroundManager {
 public:
 	BackgroundManager();
 	~BackgroundManager();
-	void FollowPlayer();
-	void Draw(Rectangle screen, Vector2 origin, Rectangle source);
-
-
-
-	
+	void FollowPlayer(Vector2 playerpos);
+	void Draw();
+	float destHeight, destWidth, xposSprite, yposSprite;
 private:
 	Texture2D background;
-
-
-
+	Vector2 origin;
+	Rectangle source;
+	Rectangle destination;
 };

@@ -1,53 +1,50 @@
 #include "Player.hpp"
 
-Player::Player() //class and constructor
-{
+Player::Player() {
+	// 1. Cargar Textura y Filtro para Pixel Art
 	image = LoadTexture("Graphics/Marco_Sprites - Neutral 1.png");
+	SetTextureFilter(image, TEXTURE_FILTER_POINT);
 
-	//setting the following variables
-	position.x = 100;
-	position.y = 100;
-	velocity.x = 0;
-	velocity.y = 0;
-	isGrounded = false; //player starting position is falling from sky, bool is false he's not on the ground
-	gravity = 0.8f;
-	jumpForce = -12.0f;
-	moveSpeed = 5.0f;
-	groundLevel = 800.0f;
-	direction = PlayerDirection::RIGHT; //inicializamos mirando a la derecha  
-	aimingUp = false;
-	isCrouching = false;
-
+	// 2. Configuración de Escala y Dimensiones
+	scale = 4.0f; // Ajusta este valor al tamaño que desees
 	normalHeight = (float)image.height;
 	crouchHeight = normalHeight * 0.6f;
 
+	// 3. Variables de Física
+	position = { 100, 100 };
+	velocity = { 0, 0 };
+	gravity = 0.8f;
+	jumpForce = -14.0f;
+	moveSpeed = 5.0f;
+	crouchSpeed = 2.5f;
+	groundLevel = 800.0f;
+
+	// 4. Estados Iniciales
+	isGrounded = false;
+	aimingUp = false;
+	isCrouching = false;
+	direction = PlayerDirection::RIGHT;
 }
-Player::~Player() {   //class and destructor
+
+Player::~Player() {
 	UnloadTexture(image);
 }
-void Player::Draw() {
-	Rectangle sourceRect = { 0, 0, (float)image.width, (float)image.width };
 
-	//flip horizontal para Left
-	if (direction == PlayerDirection::LEFT) {
-		sourceRect.width = -(float)image.width;
+void Player::Update() {
+	// Aplicar Gravedad
+	if (!isGrounded) {
+		velocity.y += gravity;
+	}
+	else if (velocity.y > 0) {
+		velocity.y = 0;
 	}
 
-	// Por implementar: Sprites diferentes para:
-	// - aimingUp == true (mirando arriba)
-	// - isCrouching == true (agachado)
-	// - normal (izquierda/derecha)
-
-	DrawTextureRec(image, sourceRect, position, WHITE);
-}
-
-void Player::Update()
-{
-	velocity.y += gravity;
+	// Aplicar Movimiento
 	position.y += velocity.y;
+	position.x += velocity.x;
 
-	// Colisión con suelo (usando altura actual)
-	float currentHeight = isCrouching ? crouchHeight : normalHeight;
+	// Colisión con el Suelo (Considerando Escala)
+	float currentHeight = GetHeight();
 	if (position.y + currentHeight >= groundLevel) {
 		position.y = groundLevel - currentHeight;
 		velocity.y = 0;
@@ -57,68 +54,32 @@ void Player::Update()
 		isGrounded = false;
 	}
 
-	// Movimiento horizontal
-	position.x += velocity.x;
-
-	// Límites laterales
-	if (position.x < 0) {
-		position.x = 0;
-	}
-	if (position.x + image.width > GetScreenWidth()) {
-		position.x = GetScreenWidth() - image.width;
-	}
-}
-
-Rectangle Player::GetHitBox()
-{
-	return Rectangle{ position.x, position.y, float(image.width),float(image.height) };
-}
-void Player::Shoot()
-{
-	
-	
-}
-void Player::MoveLeft() {
-	velocity.x = isCrouching ? -crouchSpeed : -moveSpeed;
-	if (!aimingUp) {
-		direction = PlayerDirection::LEFT;
-	}
-}
-
-void Player::MoveRight() {
-	velocity.x = isCrouching ? crouchSpeed : moveSpeed;
-	if (!aimingUp) {
-		direction = PlayerDirection::RIGHT;
-	}
+	// Límites laterales del mapa
+	float currentWidth = GetWidth();
+	if (position.x < 0) position.x = 0;
+	if (position.x + currentWidth > 7300) position.x = 7300 - currentWidth;
 }
 
 
-void Player::StopMovingHorizontal() {
-	velocity.x = 0;
-}
-void Player::StartAimingUp() {
-	aimingUp = true;
-	if (isCrouching) {
-		StopCrouching();
-	}
 
+Rectangle Player::GetHitBox() {
+	return Rectangle{ position.x, position.y, GetWidth(), GetHeight() };
 }
-void Player::StopAimingUp() {
-	aimingUp = false;
-}
+
 void Player::StartCrouching() {
-	if (isGrounded) {
+	if (isGrounded && !isCrouching) {
 		isCrouching = true;
-		// Ajustar posición Y para mantener los pies en el suelo
-		position.y += (normalHeight - crouchHeight);
+		// Bajamos la posición Y para que los pies no floten al encogerse
+		position.y += (normalHeight - crouchHeight) * scale;
 		aimingUp = false;
 	}
 }
-void Player::StopCrouching()
-{
+
+void Player::StopCrouching() {
 	if (isCrouching) {
 		isCrouching = false;
-		position.y -= (normalHeight - crouchHeight);
+		// Subimos la posición Y para recuperar la altura normal
+		position.y -= (normalHeight - crouchHeight) * scale;
 	}
 }
 
@@ -129,18 +90,62 @@ void Player::Jump() {
 	}
 }
 
-PlayerDirection Player::GetAimDirection() const {
-	if (aimingUp) {
-		return PlayerDirection::UP;
-	}
-	if (isCrouching) {
-		return direction; // Agachado dispara hacia izquierda o derecha
-	}
-	return direction; // Normal: izquierda o derecha
+void Player::MoveLeft() {
+	velocity.x = isCrouching ? -crouchSpeed : -moveSpeed;
+	if (!aimingUp) direction = PlayerDirection::LEFT;
 }
 
+void Player::MoveRight() {
+	velocity.x = isCrouching ? crouchSpeed : moveSpeed;
+	if (!aimingUp) direction = PlayerDirection::RIGHT;
+}
 
-void Player::DrawHitBox(bool isColliding) {
-	Color outlineColor = isColliding ? WHITE : RED;
-	DrawRectangleLinesEx(GetHitBox(), 3, outlineColor);
+void Player::StopMovingHorizontal() {
+	velocity.x = 0;
+}
+
+void Player::StartAimingUp() {
+	if (!isCrouching) aimingUp = true;
+}
+
+void Player::StopAimingUp() {
+	aimingUp = false;
+}
+
+PlayerDirection Player::GetAimDirection() const {
+	if (aimingUp) return PlayerDirection::UP;
+	return direction;
+}
+
+void Player::DrawHitBox() {
+	DrawRectangleLinesEx(GetHitBox(), 2, WHITE);
+}
+
+void Player::Shoot() {
+	// Implementar creación de balas aquí
+}
+void Player::Draw() {
+	// Recorte de la imagen (Source)
+	Rectangle sourceRect = { 0, 0, (float)image.width, (float)image.height };
+	if (direction == PlayerDirection::LEFT) {
+		sourceRect.width = -(float)image.width;
+	}
+
+	// Área en pantalla (Destino escalado)
+	Rectangle destRect = {
+		position.x,
+		position.y,
+	   GetWidth(),
+		GetHeight()
+	};
+
+	Vector2 origin = { 0, 0 };
+
+	// Feedback visual de estados (opcional)
+	Color tint = WHITE;
+	if (isCrouching) tint = SKYBLUE;
+	if (aimingUp) tint = YELLOW;
+
+	DrawTexturePro(image, sourceRect, destRect, origin, 0.0f, tint);
+	DrawHitBox();
 }
