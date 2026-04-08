@@ -1,7 +1,2 @@
-﻿  game.cpp
-C:\Users\USUARIO\Desktop\Barcos\Metal-Slug\Solution\Project1\Bullet.hpp(23,16): warning C4305: 'inicializando': truncamiento de 'double' a 'float'
-  (compilando archivo de origen "game.cpp")
-  
-C:\Users\USUARIO\Desktop\Barcos\Metal-Slug\Solution\Project1\game.cpp(226,24): warning C4244: '=': conversión de 'int' a 'float'; posible pérdida de datos
-C:\Users\USUARIO\Desktop\Barcos\Metal-Slug\Solution\Project1\game.cpp(227,25): warning C4244: '=': conversión de 'int' a 'float'; posible pérdida de datos
-  Project1.vcxproj -> C:\Users\USUARIO\Desktop\Barcos\Metal-Slug\Solution\x64\Debug\Project1.exe
+﻿  BackgroundManager.cpp
+  Project1.vcxproj -> C:\Users\sergionr\Documents\GitHub\Metal-Slug\Solution\x64\Debug\Project1.exe

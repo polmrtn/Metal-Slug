@@ -66,6 +66,11 @@ Rectangle Player::GetHitBox() {
 	return Rectangle{ position.x, position.y, GetWidth(), GetHeight() };
 }
 
+Vector2 Player::GetPosition()
+{
+	return position;
+}
+
 void Player::StartCrouching() {
 	if (isGrounded && !isCrouching) {
 		isCrouching = true;

@@ -2,10 +2,11 @@
 
 bool musicStarted = false;
 
-Game::Game() : camera({ 1280.0f / 2.0f, 896.0f / 2.0f })
+Game::Game() : camera({ 1280.0f/2 , 896.0f/2  })
 {
 	soldiers = CreateSoldiers();
 	bullets = CreateBullets();
+	
 
 }
 
@@ -16,8 +17,8 @@ Game::~Game()
 
 void Game::Draw()
 {
-	backgroundManager.Draw();
 	camera.Begin();
+	backgroundManager.Draw();
 	player.Draw();
 
 
@@ -27,7 +28,7 @@ void Game::Draw()
 	for (auto& bullet : bullets) {
 		bullet.Draw();
 	}
-	camera.End();
+	
 }
 void Game::Timers()
 {
@@ -61,12 +62,13 @@ void Game::Update()
 		BeginDrawing();
 		ClearBackground(BLACK);
 		this->Draw();
+		player.Update();
 		camera.Update(player.GetPosition());
 		Timers();
 
-		player.Update();
+		
 		CheckForCollisions();
-		backgroundManager.FollowPlayer(player.GetPosition());
+		/*backgroundManager.FollowPlayer(player.GetPosition());*/
 
 		if (!musicStarted)
 		{

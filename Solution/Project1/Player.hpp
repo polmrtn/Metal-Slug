@@ -26,7 +26,7 @@ public:
 
     // Getters
     Rectangle GetHitBox();
-    Vector2 GetPosition() const { return position; }
+    Vector2 GetPosition();
     PlayerDirection GetAimDirection() const;
     float GetWidth() const { return (float)image.width * scale; }
     float GetHeight() const { return (isCrouching ? crouchHeight : normalHeight) * scale; }

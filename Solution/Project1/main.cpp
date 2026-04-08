@@ -15,6 +15,7 @@ int main()
     SceneManager sceneManager;
     while (WindowShouldClose() == false)
     {
+       
        game.HandleInput();
        game.Update();
        //game draw() ist inside game.cpp update()
