@@ -1,8 +1,8 @@
 #include "game.hpp"
-
+#include <raymath.h>
 bool musicStarted = false;
 
-Game::Game() : camera({ 1280.0f/2 , 896.0f/2  })
+Game::Game() : camera({ 1280.0f/10 , 896.0f/2  })
 {
 	soldiers = CreateSoldiers();
 	bullets = CreateBullets();
@@ -61,6 +61,8 @@ void Game::Update()
 	else if (sceneManager.GetGamestate() == SceneManager::GAME) {
 		BeginDrawing();
 		ClearBackground(BLACK);
+		/*backgroundManager.yposSprite = Lerp(backgroundManager.yposSprite, -200, 0.2);*/
+
 		this->Draw();
 		player.Update();
 		camera.Update(player.GetPosition());

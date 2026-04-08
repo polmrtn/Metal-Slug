@@ -11,7 +11,7 @@ Player::Player() {
 	crouchHeight = normalHeight * 0.6f;
 
 	// 3. Variables de Física
-	position = { 100, 100 };
+	position = { 0, 100 };
 	velocity = { 0, 0 };
 	gravity = 0.8f;
 	jumpForce = -14.0f;
@@ -140,7 +140,7 @@ void Player::Draw() {
 	Rectangle destRect = {
 		position.x,
 		position.y,
-	   GetWidth(),
+	    GetWidth(),
 		GetHeight()
 	};
 

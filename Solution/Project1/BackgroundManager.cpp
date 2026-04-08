@@ -3,7 +3,7 @@
 
 	BackgroundManager::BackgroundManager()
 	{
-		yposSprite = -300;
+		yposSprite = -342;
 		xposSprite = 0;
 		destHeight = 1280;
 		destWidth = 896;
