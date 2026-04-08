@@ -9,7 +9,7 @@ public:
     Player();
     ~Player();
 
-    void Update();
+    void Update(float CameraLeftLimit);
     void Draw();
     void DrawHitBox();
 
@@ -30,7 +30,13 @@ public:
     PlayerDirection GetAimDirection() const;
     float GetWidth() const { return (float)image.width * scale; }
     float GetHeight() const { return (isCrouching ? crouchHeight : normalHeight) * scale; }
-
+    bool GetisGrounded() { return isGrounded; }
+    float GetY() const { return position.y; }
+    void SetY(float newY) { position.y = newY; }
+    void SetVelocityY(float newVelY) { velocity.y = newVelY; }
+    void SetGrounded(bool grounded) { isGrounded = grounded; }
+    float GetVelocityY() const { return velocity.y; }
+    
 private:
     Texture2D image;
     Vector2 position;

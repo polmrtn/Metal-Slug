@@ -2,12 +2,11 @@
 #include <raymath.h>
 bool musicStarted = false;
 
-Game::Game() : camera({ 1280.0f/10 , 896.0f/2  })
+Game::Game() : camera({ 1280.0f/2 , 896/2  })
 {
 	soldiers = CreateSoldiers();
 	bullets = CreateBullets();
-	
-
+	blocks = CreateBlocks();
 }
 
 Game::~Game()
@@ -20,67 +19,51 @@ void Game::Draw()
 	camera.Begin();
 	backgroundManager.Draw();
 	player.Draw();
-
-
 	for (auto& Soldier : soldiers) {//auto&(is a variable that the compiler assumes from the vector) in this case type Soldier, this initializes the draw in each soldier
 		Soldier.Draw();
 	}
 	for (auto& bullet : bullets) {
 		bullet.Draw();
 	}
-	
 }
 void Game::Timers()
 {
 	shootTimer += GetFrameTime();
-
-
-
 }
 void Game::Update()
 {
-
 
 	if (sceneManager.GetGamestate() == SceneManager::INTRO) {
 		sceneManager.DrawTexts();
 	}
 	else if (sceneManager.GetGamestate() == SceneManager::TITLE) {
 		sceneManager.DrawTexts();
-
-
 		if (!musicStarted)
 		{
 			audioManager.PlayMusic(audioManager.GetTitleMusic());
 			musicStarted = true;
 		}
-
 		audioManager.UpdateMusic(audioManager.GetTitleMusic());
-
 	}
 
 	else if (sceneManager.GetGamestate() == SceneManager::GAME) {
-		BeginDrawing();
+		
 		ClearBackground(BLACK);
 		/*backgroundManager.yposSprite = Lerp(backgroundManager.yposSprite, -200, 0.2);*/
-
-		this->Draw();
-		player.Update();
-		camera.Update(player.GetPosition());
-		Timers();
-
-		
 		CheckForCollisions();
+		
+		camera.Update(player.GetPosition(), backgroundManager.GetWidth(), backgroundManager.GetHeight(),player.GetisGrounded());
+		BeginDrawing();
+		this->Draw();
+		Timers();
+		
 		/*backgroundManager.FollowPlayer(player.GetPosition());*/
-
 		if (!musicStarted)
 		{
 			audioManager.PlayMusic(audioManager.GetGameMusic());
 			musicStarted = true;
 		}
 		audioManager.UpdateMusic(audioManager.GetGameMusic());
-
-
-
 		for (auto& Soldier : soldiers) { //auto&(is a variable that the compiler assumes from the vector) in this case type Soldier, this initializes the update in each soldier
 			Soldier.Update();
 		}
@@ -88,17 +71,13 @@ void Game::Update()
 			bullet.Update();
 			//update all bullets
 		}
-
-
+		player.Update(camera.GetLeftLimit());
 	}
-
-
 }
 
 
 void Game::Shoot()
 {
-
 
 	Vector2 playerPos = player.GetPosition();
 	float playerWidth = player.GetWidth();  // Siempre el mismo ancho
@@ -199,26 +178,87 @@ void Game::HandleInput()
 	}
 
 }
+void Game::BulletsCollision() {
+	auto bIt = bullets.begin();
+	while (bIt != bullets.end()) {
+		bool bulletHit = false;
+		auto sIt = soldiers.begin();
 
-void Game::CheckForCollisions()
-{
-	for (auto& bullet : bullets) {
-		auto it = soldiers.begin();
-		auto it2 = bullets.begin(); //it hace referencia a iterador, para recorrer automaticamente el vector del que se quiere iterar
-		while (it != soldiers.end()) {
-			if (CheckCollisionRecs(it->GetHitBox(), bullet.GetHitbox())) //checks collision of solider and bullets;
-			{
-				it = soldiers.erase(it);
-				it2 = bullets.erase(it2);
+		while (sIt != soldiers.end()) {
+			if (CheckCollisionRecs(sIt->GetHitBox(), bIt->GetHitbox())) {
+				sIt = soldiers.erase(sIt);
+				bulletHit = true;
+				break;
 			}
-			else
-			{
+			else {
+				++sIt;
+			}
+		}
 
-				it++;
+		if (bulletHit) {
+			bIt = bullets.erase(bIt);
+		}
+		else {
+			++bIt;
+		}
+	}
+}
+
+void Game::ResolveCollisions()
+{
+	
+	Rectangle playerRect = player.GetHitBox();
+	player.SetGrounded(false);
+
+	for (const auto& block : blocks) {
+		Rectangle blockRect = block.GetRect();
+
+		if (CheckCollisionRecs(playerRect, blockRect)) {
+			if (player.GetVelocityY() > 0) {
+				player.SetY(blockRect.y - player.GetHeight());
+				player.SetVelocityY(0);
+				player.SetGrounded(true);
+				break;
 			}
 		}
 	}
 
+	for (auto& soldier : soldiers) {
+		Rectangle soldierRect = soldier.GetHitBox();
+		soldier.SetGrounded(false);
+
+		for (const auto& block : blocks) {
+			Rectangle blockRect = block.GetRect();
+
+			if (CheckCollisionRecs(soldierRect, blockRect)) {
+				if (soldier.GetVelocityY() >= 0) {
+					soldier.SetY(blockRect.y - soldier.GetHeight());
+					soldier.SetVelocityY(0);
+					soldier.SetGrounded(true);
+					break;
+				}
+			}
+		}
+	}
+}
+
+void Game::ApplyGravityToEntity(float posY, float velY, bool grounded) {
+	if (grounded) {
+		velY = 0;
+	}
+	else {
+		velY += 0.8f;
+	}
+	posY += velY;
+}
+void Game::CheckForCollisions() {
+	ApplyGravityToEntity(player.GetY(), player.GetVelocityY(), player.GetisGrounded());
+    for (auto& soldier : soldiers) {
+        ApplyGravityToEntity(soldier.GetY(), soldier.GetVelocityY(), soldier.GetisGrounded());
+    }
+	ResolveCollisions();
+	BulletsCollision();
+	
 }
 
 std::vector<Soldier>  Game::CreateSoldiers()
@@ -237,11 +277,17 @@ std::vector<Soldier>  Game::CreateSoldiers()
 std::vector<Bullet> Game::CreateBullets() {
 	std::vector<Bullet> bullets;
 	for (int i = 0; i < bullets.size(); i++) {
-		// Usar el getter GetX() para acceder a la posición X
+
 		if (bullets[i].GetX() < 0 || bullets[i].GetX() > GetScreenWidth()) {
 			bullets.erase(bullets.begin() + i);
-			i--; // Decrementar índice porque el vector se redujo
+			i--; 
 		}
 	}
 	return bullets;
+}
+
+std::vector<Block> Game::CreateBlocks() {
+	std::vector<Block> blocks;
+	blocks.push_back(Block(0, 1000, 2000, 100));
+	return blocks;
 }

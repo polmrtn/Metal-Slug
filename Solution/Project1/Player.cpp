@@ -15,9 +15,9 @@ Player::Player() {
 	velocity = { 0, 0 };
 	gravity = 0.8f;
 	jumpForce = -14.0f;
-	moveSpeed = 5.0f;
+	moveSpeed = 15.0f;
 	crouchSpeed = 2.5f;
-	groundLevel = 800.0f;
+	groundLevel = 900.0f;
 
 	// 4. Estados Iniciales
 	isGrounded = false;
@@ -30,7 +30,7 @@ Player::~Player() {
 	UnloadTexture(image);
 }
 
-void Player::Update() {
+void Player::Update(float CameraLeftLimit) {
 	// Aplicar Gravedad
 	if (!isGrounded) {
 		velocity.y += gravity;
@@ -43,21 +43,12 @@ void Player::Update() {
 	position.y += velocity.y;
 	position.x += velocity.x;
 
-	// Colisión con el Suelo (Considerando Escala)
-	float currentHeight = GetHeight();
-	if (position.y + currentHeight >= groundLevel) {
-		position.y = groundLevel - currentHeight;
-		velocity.y = 0;
-		isGrounded = true;
-	}
-	else {
-		isGrounded = false;
-	}
-
 	// Límites laterales del mapa
 	float currentWidth = GetWidth();
-	if (position.x < 0) position.x = 0;
-	if (position.x + currentWidth > 7300) position.x = 7300 - currentWidth;
+	float leftEdge = CameraLeftLimit;
+	if (position.x < leftEdge) {
+		position.x = leftEdge;
+	}
 }
 
 
@@ -121,6 +112,8 @@ PlayerDirection Player::GetAimDirection() const {
 	if (aimingUp) return PlayerDirection::UP;
 	return direction;
 }
+
+
 
 void Player::DrawHitBox() {
 	DrawRectangleLinesEx(GetHitBox(), 2, WHITE);

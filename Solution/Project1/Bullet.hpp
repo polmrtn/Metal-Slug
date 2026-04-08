@@ -11,7 +11,7 @@ public:
 	float GetX() const { return position.x; }  // Getter para la posición X
 	Vector2 GetPosition() const { return position; }  // Getter para toda la posición
 	Rectangle GetHitbox();
-
+	bool active = true;
 	void DrawHitBox();
 	
 private:

@@ -6,16 +6,15 @@ public:
     CameraManager(Vector2 screenCenter);
     ~CameraManager();
 
-    // Actualiza la posición de la cámara siguiendo al jugador
-    void Update(Vector2 playerPos);
-
-    // Métodos para entrar y salir del modo 2D en el Game::Draw()
+    float GetLeftLimit();
+    void Update(Vector2 playerPos, float bgWidth, float bgHeight, bool playerIsGrounded);
     void Begin();
     void End();
-
-    // Getters por si necesitas saber dónde está la cámara
     Camera2D GetCamera() { return camera; }
 
 private:
     Camera2D camera;
+    bool yLocked = false;       
+    float lockedYValue = 0.0f;
+    float maxScrollX = 0.0f;
 };
