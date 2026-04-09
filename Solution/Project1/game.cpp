@@ -7,6 +7,7 @@ Game::Game() : camera({ 1280.0f/2 , 896/2  })
 	soldiers = CreateSoldiers();
 	bullets = CreateBullets();
 	blocks = CreateBlocks();
+	
 }
 
 Game::~Game()
@@ -32,7 +33,7 @@ void Game::Timers()
 }
 void Game::Update()
 {
-
+	
 	if (sceneManager.GetGamestate() == SceneManager::INTRO) {
 		sceneManager.DrawTexts();
 	}
@@ -47,31 +48,28 @@ void Game::Update()
 	}
 
 	else if (sceneManager.GetGamestate() == SceneManager::GAME) {
-		
-		ClearBackground(BLACK);
-		/*backgroundManager.yposSprite = Lerp(backgroundManager.yposSprite, -200, 0.2);*/
-		CheckForCollisions();
-		
+		ResolveCollisions();
 		camera.Update(player.GetPosition(), backgroundManager.GetWidth(), backgroundManager.GetHeight(),player.GetisGrounded());
 		BeginDrawing();
-		this->Draw();
+		Draw();
+		ClearBackground(BLACK);
 		Timers();
-		
-		/*backgroundManager.FollowPlayer(player.GetPosition());*/
 		if (!musicStarted)
 		{
 			audioManager.PlayMusic(audioManager.GetGameMusic());
 			musicStarted = true;
 		}
 		audioManager.UpdateMusic(audioManager.GetGameMusic());
-		for (auto& Soldier : soldiers) { //auto&(is a variable that the compiler assumes from the vector) in this case type Soldier, this initializes the update in each soldier
-			Soldier.Update();
+		player.Update(camera.GetLeftLimit());
+		for (auto& soldier : soldiers) {
+			soldier.Update();
+			//update all bullets
 		}
 		for (auto& bullet : bullets) {
 			bullet.Update();
 			//update all bullets
 		}
-		player.Update(camera.GetLeftLimit());
+		
 	}
 }
 
@@ -85,7 +83,7 @@ void Game::Shoot()
 
 	Vector2 bulletPos;
 	PlayerDirection aimDir = player.GetAimDirection();
-	int bulletSpeed = 10;
+	int bulletSpeed = 30;
 	int directionX = 0;
 	int directionY = 0;
 
@@ -183,7 +181,6 @@ void Game::BulletsCollision() {
 	while (bIt != bullets.end()) {
 		bool bulletHit = false;
 		auto sIt = soldiers.begin();
-
 		while (sIt != soldiers.end()) {
 			if (CheckCollisionRecs(sIt->GetHitBox(), bIt->GetHitbox())) {
 				sIt = soldiers.erase(sIt);
@@ -204,11 +201,11 @@ void Game::BulletsCollision() {
 	}
 }
 
-void Game::ResolveCollisions()
+void Game::BlockCollisions()
 {
-	
+
 	Rectangle playerRect = player.GetHitBox();
-	player.SetGrounded(false);
+	auto It = soldiers.begin();
 
 	for (const auto& block : blocks) {
 		Rectangle blockRect = block.GetRect();
@@ -221,42 +218,30 @@ void Game::ResolveCollisions()
 				break;
 			}
 		}
-	}
 
-	for (auto& soldier : soldiers) {
-		Rectangle soldierRect = soldier.GetHitBox();
-		soldier.SetGrounded(false);
-
-		for (const auto& block : blocks) {
-			Rectangle blockRect = block.GetRect();
-
-			if (CheckCollisionRecs(soldierRect, blockRect)) {
-				if (soldier.GetVelocityY() >= 0) {
-					soldier.SetY(blockRect.y - soldier.GetHeight());
-					soldier.SetVelocityY(0);
-					soldier.SetGrounded(true);
+		while (It != soldiers.end()) {
+			if (CheckCollisionRecs(It->GetHitBox(), blockRect))
+			{
+				if (It->GetVelocityY() >= 0) {
+					It->SetY(blockRect.y - It->GetHeight());
+					It->SetVelocityY(0);
+					It->SetGrounded(true);
 					break;
 				}
 			}
+			else {
+				++It;
+			}
 		}
+		
+	
 	}
+
 }
 
-void Game::ApplyGravityToEntity(float posY, float velY, bool grounded) {
-	if (grounded) {
-		velY = 0;
-	}
-	else {
-		velY += 0.8f;
-	}
-	posY += velY;
-}
-void Game::CheckForCollisions() {
-	ApplyGravityToEntity(player.GetY(), player.GetVelocityY(), player.GetisGrounded());
-    for (auto& soldier : soldiers) {
-        ApplyGravityToEntity(soldier.GetY(), soldier.GetVelocityY(), soldier.GetisGrounded());
-    }
-	ResolveCollisions();
+
+void Game::ResolveCollisions() {
+	BlockCollisions();
 	BulletsCollision();
 	
 }
@@ -288,6 +273,7 @@ std::vector<Bullet> Game::CreateBullets() {
 
 std::vector<Block> Game::CreateBlocks() {
 	std::vector<Block> blocks;
-	blocks.push_back(Block(0, 1000, 2000, 100));
+
+	blocks.emplace_back(Block(0, 1000, 2000, 100));
 	return blocks;
 }

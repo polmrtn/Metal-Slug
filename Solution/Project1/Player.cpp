@@ -31,14 +31,12 @@ Player::~Player() {
 }
 
 void Player::Update(float CameraLeftLimit) {
-	// Aplicar Gravedad
 	if (!isGrounded) {
 		velocity.y += gravity;
 	}
-	else if (velocity.y > 0) {
+	else if (isGrounded) {
 		velocity.y = 0;
 	}
-
 	// Aplicar Movimiento
 	position.y += velocity.y;
 	position.x += velocity.x;
@@ -119,9 +117,6 @@ void Player::DrawHitBox() {
 	DrawRectangleLinesEx(GetHitBox(), 2, WHITE);
 }
 
-void Player::Shoot() {
-	// Implementar creación de balas aquí
-}
 void Player::Draw() {
 	// Recorte de la imagen (Source)
 	Rectangle sourceRect = { 0, 0, (float)image.width, (float)image.height };
@@ -138,8 +133,6 @@ void Player::Draw() {
 	};
 
 	Vector2 origin = { 0, 0 };
-
-	// Feedback visual de estados (opcional)
 	Color tint = WHITE;
 	if (isCrouching) tint = SKYBLUE;
 	if (aimingUp) tint = YELLOW;

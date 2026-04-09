@@ -44,7 +44,7 @@ Soldier::~Soldier() {
 
 Rectangle Soldier::GetHitBox()
 {
-	return Rectangle{ position.x + GetHeight() / 2 , position.y + GetWidth() / 2, GetWidth() / 2 , GetHeight() / 2 };
+	return Rectangle{ position.x , position.y , GetWidth() / 2 , GetHeight() / 2 };
 }
 void Soldier::DrawHitBox()
 {
@@ -79,8 +79,9 @@ void Soldier::Update()
 	if (!isGrounded) {
 		velocity.y += gravity;
 	}
-	else if (velocity.y > 0) {
+	else if (isGrounded) {
 		velocity.y = 0;
+		
 	}
 
 	// Aplicar Movimiento

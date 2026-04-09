@@ -17,12 +17,11 @@ class Game {
 		void Draw();
 		void Update();
 		void HandleInput();
-		void CheckForCollisions();
+		void BlockCollisions();
 		void Shoot();
 		void Timers();
 		void BulletsCollision();
 		void ResolveCollisions();
-		void ApplyGravityToEntity(float posY, float velY, bool grounded);
 	private:
 		float shootTimer = 0.0f;
 		float shootDelay = 1.0f;

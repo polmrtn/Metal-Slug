@@ -22,7 +22,6 @@ public:
     void StopAimingUp();
     void StartCrouching();
     void StopCrouching();
-    void Shoot();
 
     // Getters
     Rectangle GetHitBox();
