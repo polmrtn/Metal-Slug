@@ -45,6 +45,12 @@
     <ClCompile Include="CameraManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="LevelMap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="playerAnim.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="libraries\raylib\include\raylib.h">
@@ -77,5 +83,11 @@
     <ClInclude Include="CameraManager.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="playerAnim.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="LevelMap.hpp" />
   </ItemGroup>
 </Project>
