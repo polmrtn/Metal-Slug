@@ -26,9 +26,9 @@ class Game {
 	private:
 		float shootTimer = 0.0f;
 		float shootDelay = 1.0f;
-		UiManager UiManager;
 		CameraManager camera;
 		Player player;
+		UiManager UiManager;
 		AudioManager audioManager;
 		SceneManager sceneManager;
 		BackgroundManager backgroundManager;

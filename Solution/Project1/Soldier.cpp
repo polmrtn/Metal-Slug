@@ -1,139 +1,94 @@
-﻿#include "Soldier.hpp"
-#include "Player.hpp"
-#include <raylib.h>
+#include "Soldier.hpp"
 
-Soldier::Soldier(int type, Vector2 position)
+Soldier::Soldier(int type, Vector2 position)//constructor depending on each type of soldier
 {
-    this->type = type;
-    this->position = position;
-    this->scale = 4.0f;
-    this->isGrounded = false;
-    this->velocity.y = 0;
-    this->velocity.x = 0;
-    this->gravity = 0.8f;
-
-    // Inicializar IA
-    this->currentState = SoldierState::IDLE;
-    this->stateTimer = 0;
-
-    switch (type)
-    {
-    case 1:
-        image = LoadTexture("Graphics/Rebel Soldier_Sprites - Neutral 1.png");
-        break;
-    default:
-        image = LoadTexture("Graphics/Rebel Soldier_Sprites - Neutral 1.png");
-        break;
-    }
-    SetTextureFilter(image, TEXTURE_FILTER_POINT);
+	this->type = type;
+	this->position = position;
+	this->scale = 4.0f;
+	this->isGrounded = false;
+	this->velocity.y = 0;
+	this->gravity = 0.8f;
+	switch (type)//switch cases for each type of soldier / enemy (can be updated later to add more types of soldiers)
+	{
+	case 1:
+		image = LoadTexture("Graphics/Rebel Soldier_Sprites - Neutral 1.png");
+		break;
+	default:
+		image = LoadTexture("Graphics/Rebel Soldier_Sprites - Neutral 1.png");
+		break;
+	}
+	SetTextureFilter(image, TEXTURE_FILTER_POINT);
 }
-
 Soldier::Soldier(const Soldier& other)
 {
-    type = other.type;
-    position = other.position;
-    isGrounded = other.isGrounded;
-    velocity = other.velocity;
-    gravity = other.gravity;
-    scale = other.scale;
-    currentState = other.currentState;
-    stateTimer = other.stateTimer;
+	type = other.type;
+	position = other.position;
+	isGrounded = other.isGrounded;
+	velocity = other.velocity;
+	gravity = other.gravity;
+	scale = other.scale;
 
-    switch (type) {
-    case 1:
-    default:
-        image = LoadTexture("Graphics/Rebel Soldier_Sprites - Neutral 1.png");
-        break;
-    }
-    SetTextureFilter(image, TEXTURE_FILTER_POINT);
+	switch (type) {
+	case 1:
+	default:
+		image = LoadTexture("Graphics/Rebel Soldier_Sprites - Neutral 1.png");
+		break;
+	}
+	SetTextureFilter(image, TEXTURE_FILTER_POINT);
 }
 
 Soldier::~Soldier() {
-    UnloadTexture(image);
+	UnloadTexture(image);
 }
+
 
 Rectangle Soldier::GetHitBox()
 {
-    float hitboxWidth = GetWidth() / 2;
-    float hitboxHeight = GetHeight() / 2;
-
-    float hitboxX = position.x + (GetWidth() - hitboxWidth) / 2;
-    float hitboxY = position.y + (GetHeight() - hitboxHeight) / 2;
-
-    return Rectangle{ hitboxX, hitboxY, hitboxWidth, hitboxHeight };
-   
+	return Rectangle{ position.x , position.y , GetWidth() / 2 , GetHeight() / 2 };
 }
-
 void Soldier::DrawHitBox()
 {
-    DrawRectangleLinesEx(GetHitBox(), 2, WHITE);
+	DrawRectangleLinesEx(GetHitBox(), 2, WHITE);
 }
-
 void Soldier::Draw() {
-    Rectangle sourceRect = { 0, 0, (float)image.width, (float)image.height };
+	Rectangle sourceRect = { 0, 0, (float)image.width, (float)image.height };
 
-    Rectangle destRect = {
-        position.x,
-        position.y,
-        GetWidth(),
-        GetHeight()
-    };
 
-    Vector2 origin = { 0, 0 };
+	// Definimos el tama�o en pantalla (Ancho original * escala)
+	Rectangle destRect = {
+		position.x,
+		position.y,
+		GetWidth(),
+		GetHeight()
+	};
 
-    DrawTexturePro(image, sourceRect, destRect, origin, 0.0f, WHITE);
-    DrawHitBox();
+	Vector2 origin = { 0, 0 };
+
+	// Dibujamos con escalado
+	DrawTexturePro(image, sourceRect, destRect, origin, 0.0f, WHITE);
+	DrawHitBox();
 }
+
 
 int Soldier::GetType() {
-    return type;
+	return type;
 }
 
 void Soldier::Update()
 {
-    if (!isGrounded) {
-        velocity.y += gravity;
-    }
-    else if (isGrounded) {
-        velocity.y = 0;
-    }
+	if (!isGrounded) {
+		velocity.y += gravity;
+	}
+	else if (isGrounded) {
+		velocity.y = 0;
+		
+	}
 
-    // Aplicar Movimiento
-    position.y += velocity.y;
-    position.x += velocity.x;
-}
+	// Aplicar Movimiento
+	position.y += velocity.y;
 
-void Soldier::UpdateAI(Player& player)
-{
-    stateTimer += GetFrameTime();
-
-    if (stateTimer >= 2.0f) {
-        stateTimer = 0.0f;
-        int randomBehaviour = GetRandomValue(0, 2);
-
-        switch (randomBehaviour) {
-        case 0:
-            currentState = SoldierState::IDLE;
-            break;
-        case 1:
-            currentState = SoldierState::WALKING;
-            break;
-        case 2:
-            currentState = SoldierState::ATTACKING;
-            break;
-        }
-    }
-
-    // Comportamiento según el estado
-    if (currentState == SoldierState::IDLE) {
-        velocity.x = 0;
-    }
-    else if (currentState == SoldierState::WALKING) {
-        int direction = (GetRandomValue(0, 1) == 0) ? -2 : 2;
-        velocity.x = direction;
-    }
-    else if (currentState == SoldierState::ATTACKING) {
-        velocity.x = 0;
-        // Aquí puedes añadir lógica de ataque
-    }
+	// L�mites laterales del mapa
+	float currentWidth = GetWidth();
+	if (position.x < 0) position.x = 0;
+	if (position.x + currentWidth > 7300) position.x = 7300 - currentWidth;
 }

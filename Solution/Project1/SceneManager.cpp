@@ -20,17 +20,17 @@ void SceneManager::SetGameState(Gamestates gamestate)
 void SceneManager::DrawTexts()
 {
     if (currentState == TITLE) {
+        ClearBackground(BLACK);
         DrawText("METAL SLUG", 450, 300, 50, WHITE);
         DrawText("Press ENTER to start", 420, 400, 20, GRAY);
-        ClearBackground(BLACK);
     }
     else if (currentState == GAME) {
-        DrawText("FUCK YOU", 420, 400, 20, GRAY);
         ClearBackground(BLACK);
+        DrawText("FUCK YOU", 420, 400, 20, GRAY);
     }
     else if (currentState == INTRO) {
+        ClearBackground(BLACK);
         DrawTextureEx(introBackground, { 0, 0 }, 0.0f, 4.0f, WHITE);
         DrawText("Press ENTER to start", 520, 800, 20, GRAY);
-        ClearBackground(BLACK);
     }
 }

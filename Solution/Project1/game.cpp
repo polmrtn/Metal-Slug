@@ -7,7 +7,6 @@ Game::Game() : camera({ 1280.0f/2 , 896/2  })
 	soldiers = CreateSoldiers();
 	bullets = CreateBullets();
 	blocks = CreateBlocks();
-
 	
 }
 
@@ -18,24 +17,32 @@ Game::~Game()
 
 void Game::Draw()
 {
-	BeginDrawing();
 	camera.Begin();
+	
 	backgroundManager.Draw();
 	player.Draw();
-	for (auto& Soldier : soldiers) {//auto&(is a variable that the compiler assumes from the vector) in this case type Soldier, this initializes the draw in each soldier
+
+	for (auto& Soldier : soldiers) {
 		Soldier.Draw();
 	}
+
 	for (auto& bullet : bullets) {
 		bullet.Draw();
 	}
-	ClearBackground(BLACK);
+	
+	camera.End();
+
+	UiManager.DrawCredits(camera.GetCamera());
+	
 }
+
 void Game::Timers()
 {
 	shootTimer += GetFrameTime();
 }
 void Game::Update()
 {
+	
 	if (sceneManager.GetGamestate() == SceneManager::INTRO) {
 		BeginDrawing();
 		ClearBackground(BLACK);
@@ -55,34 +62,30 @@ void Game::Update()
 	else if (sceneManager.GetGamestate() == SceneManager::GAME) {
 		UiManager.Update();
 		ResolveCollisions();
+		camera.Update(player.GetPosition(), backgroundManager.GetWidth(), backgroundManager.GetHeight(),player.GetIsGrounded());
+		BeginDrawing();
+		ClearBackground(BLACK);
 		Draw();
-		camera.Update(player.GetPosition(), backgroundManager.GetWidth(), backgroundManager.GetHeight(), player.GetIsGrounded());
-
 		Timers();
-
 		if (!musicStarted)
 		{
 			audioManager.PlayMusic(audioManager.GetGameMusic());
 			musicStarted = true;
 		}
 		audioManager.UpdateMusic(audioManager.GetGameMusic());
-
 		player.Update(camera.GetLeftLimit());
-
-		// Actualizar IA y movimiento de cada soldado
 		for (auto& soldier : soldiers) {
-			soldier.UpdateAI(player);  // Cada soldado usa su propia IA
 			soldier.Update();
+			//update all bullets
 		}
-
 		for (auto& bullet : bullets) {
 			bullet.Update();
+			//update all bullets
 		}
-
-		// Dibujar
 		
 	}
 }
+
 
 void Game::Shoot()
 {
@@ -129,16 +132,18 @@ void Game::HandleInput()
 	{
 		UiManager.NextLevel();
 	}
-	if (IsKeyPressed(KEY_J))
+	if (IsKeyPressed(KEY_J)) 
 	{
 		UiManager.AddScore(100);
 	}
 	if (IsKeyPressed(KEY_C))
 	{
-		if (UiManager.GetCredits() < 99)
+		if (UiManager.GetCredits() < 99) 
 		{
 			UiManager.SetCredits(1);
 		}
+			
+	}
 	if (IsKeyDown(KEY_LEFT))
 	{
 		player.MoveLeft();
@@ -209,6 +214,7 @@ void Game::BulletsCollision() {
 		while (sIt != soldiers.end()) {
 			if (CheckCollisionRecs(sIt->GetHitBox(), bIt->GetHitbox())) {
 				sIt = soldiers.erase(sIt);
+				UiManager.AddScore(100);
 				bulletHit = true;
 				break;
 			}
