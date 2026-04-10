@@ -7,6 +7,7 @@
 #include "BackgroundManager.hpp"
 #include "CameraManager.hpp"
 #include "LevelMap.hpp"
+#include "UiManager.hpp"
 #include <vector>
 
 
@@ -25,6 +26,7 @@ class Game {
 	private:
 		float shootTimer = 0.0f;
 		float shootDelay = 1.0f;
+		UiManager UiManager;
 		CameraManager camera;
 		Player player;
 		AudioManager audioManager;
