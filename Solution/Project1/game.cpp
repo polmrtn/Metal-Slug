@@ -49,7 +49,7 @@ void Game::Update()
 
 	else if (sceneManager.GetGamestate() == SceneManager::GAME) {
 		ResolveCollisions();
-		camera.Update(player.GetPosition(), backgroundManager.GetWidth(), backgroundManager.GetHeight(),player.GetisGrounded());
+		camera.Update(player.GetPosition(), backgroundManager.GetWidth(), backgroundManager.GetHeight(),player.GetIsGrounded());
 		BeginDrawing();
 		Draw();
 		ClearBackground(BLACK);
@@ -171,6 +171,7 @@ void Game::HandleInput()
 
 	if (IsKeyPressed(KEY_D) || IsKeyDown(KEY_D) && shootTimer >= shootDelay)
 	{
+		player.Shoot();
 		Shoot();
 		shootTimer = 0;
 	}
