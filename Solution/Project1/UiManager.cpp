@@ -2,6 +2,8 @@
 #include <cstdio>
 
 static const float TICK_INTERVAL = 5.0f;
+const float UiManager::INTRO_DURATION = 3.0f;
+const float UiManager::BLINK_INTERVAL = 0.25f;  // co ile sekund zmienia widocznosc
 
 UiManager::UiManager()
 {
@@ -10,16 +12,32 @@ UiManager::UiManager()
     level = 1;
     timeLeft = 60;
     timeAccum = 0.0f;
+    introTimer = 0.0f;
+    blinkAccum = 0.0f;
+    blinkVisible = true;
 }
 
 UiManager::~UiManager() {}
 
 void UiManager::Update()
 {
+    if (introTimer < INTRO_DURATION)
+    {
+        introTimer += GetFrameTime();
+
+        // miganie tylko podczas intro
+        blinkAccum += GetFrameTime();
+        if (blinkAccum >= BLINK_INTERVAL)
+        {
+            blinkAccum -= BLINK_INTERVAL;
+            blinkVisible = !blinkVisible;
+        }
+        return;
+    }
+
     if (timeLeft <= 0) return;
 
     timeAccum += GetFrameTime();
-
     if (timeAccum >= TICK_INTERVAL)
     {
         timeAccum -= TICK_INTERVAL;
@@ -28,46 +46,81 @@ void UiManager::Update()
     }
 }
 
+bool UiManager::IsMissionIntroOver() const
+{
+    return introTimer >= INTRO_DURATION;
+}
+
+void UiManager::DrawMissionIntro()
+{
+    if (IsMissionIntroOver()) return;
+    if (!blinkVisible) return;      // miganie - co druga klatka nie rysuj
+
+    int screenW = GetScreenWidth();
+    int screenH = GetScreenHeight();
+
+    char missionText[32];
+    std::snprintf(missionText, sizeof(missionText), "MISSION %d", level);
+
+    int bigSize = 72;
+    int mw = MeasureText(missionText, bigSize);
+    int mx = screenW / 2 - mw / 2;
+    int my = screenH / 2 - bigSize;
+
+    DrawText(missionText, mx + 3, my + 3, bigSize, BLACK);
+    DrawText(missionText, mx, my, bigSize, WHITE);
+
+    char startText[] = "Start!";
+    int smallSize = 36;
+    int sw = MeasureText(startText, smallSize);
+    int sx = screenW / 2 - sw / 2;
+    int sy = my + bigSize + 16;
+
+    DrawText(startText, sx + 2, sy + 2, smallSize, BLACK);
+    DrawText(startText, sx, sy, smallSize, YELLOW);
+}
+
 void UiManager::DrawCredits(Camera2D camera)
 {
     int fontSize = 32;
+    int labelSize = 24;
     int padding = 16;
     int screenW = GetScreenWidth();
     int screenH = GetScreenHeight();
 
-    // --- CREDITS - prawy dolny rog ---
-    char creditsText[32];
-    std::snprintf(creditsText, sizeof(creditsText), "CREDITS %02d", credits);
-
-    int cw = MeasureText(creditsText, fontSize);
-    int cx = screenW - cw - padding;
-    int cy = screenH - fontSize - padding;
-
-    DrawText(creditsText, cx + 2, cy + 2, fontSize, BLACK);
-    DrawText(creditsText, cx, cy, fontSize, WHITE);
-
-    // --- SCORE - lewy gorny, ~1/4 szerokosci ---
-    char scoreLabel[] = "SCORE";
+    // offset od krawedzi - taki sam dla SCORE i CREDITS
     char scoreValue[32];
     std::snprintf(scoreValue, sizeof(scoreValue), "%07d", score);
+    int scoreBlockW = MeasureText(scoreValue, fontSize);
+    int offsetFromEdge = screenW / 4 - scoreBlockW / 2;
 
-    int labelSize = 24;
-    int valueSize = 32;
-
-    int sx = screenW / 4 - MeasureText(scoreValue, valueSize) / 2;
+    // --- SCORE - lewy gorny ---
+    char scoreLabel[] = "SCORE";
+    int sx = offsetFromEdge;
     int sy = padding;
 
     DrawText(scoreLabel, sx + 2, sy + 2, labelSize, BLACK);
     DrawText(scoreLabel, sx, sy, labelSize, YELLOW);
-    DrawText(scoreValue, sx + 2, sy + labelSize + 4 + 2, valueSize, BLACK);
-    DrawText(scoreValue, sx, sy + labelSize + 4, valueSize, WHITE);
+    DrawText(scoreValue, sx + 2, sy + labelSize + 4 + 2, fontSize, BLACK);
+    DrawText(scoreValue, sx, sy + labelSize + 4, fontSize, WHITE);
+
+    // --- AMMO - miedzy SCORE a TIME ---
+    int ammoX = screenW / 4 + screenW / 8 - MeasureText("AMMO", labelSize) / 2;
+    int ammoY = padding;
+
+    char ammoLabel[] = "AMMO";
+    char ammoSymbol[] = "\xe2\x88\x9e";
+
+    DrawText(ammoLabel, ammoX + 2, ammoY + 2, labelSize, BLACK);
+    DrawText(ammoLabel, ammoX, ammoY, labelSize, YELLOW);
+    DrawText(ammoSymbol, ammoX + 2, ammoY + labelSize + 4 + 2, fontSize, BLACK);
+    DrawText(ammoSymbol, ammoX, ammoY + labelSize + 4, fontSize, WHITE);
 
     // --- TIMER - srodek na gorze ---
     int timerSize = 56;
 
     char timerText[8];
     std::snprintf(timerText, sizeof(timerText), "%d", timeLeft);
-
     Color timerColor = (timeLeft <= 10) ? RED : WHITE;
 
     int tw = MeasureText(timerText, timerSize);
@@ -75,14 +128,27 @@ void UiManager::DrawCredits(Camera2D camera)
     int ty = padding;
 
     char timeLabel[] = "TIME";
-    int timeLabelSize = 24;
-    int tlw = MeasureText(timeLabel, timeLabelSize);
-    int tlx = screenW / 2 - tlw / 2;
+    int  tlw = MeasureText(timeLabel, labelSize);
+    int  tlx = screenW / 2 - tlw / 2;
 
-    DrawText(timeLabel, tlx + 2, ty + 2, timeLabelSize, BLACK);
-    DrawText(timeLabel, tlx, ty, timeLabelSize, YELLOW);
-    DrawText(timerText, tx + 2, ty + timeLabelSize + 4 + 2, timerSize, BLACK);
-    DrawText(timerText, tx, ty + timeLabelSize + 4, timerSize, timerColor);
+    DrawText(timeLabel, tlx + 2, ty + 2, labelSize, BLACK);
+    DrawText(timeLabel, tlx, ty, labelSize, YELLOW);
+    DrawText(timerText, tx + 2, ty + labelSize + 4 + 2, timerSize, BLACK);
+    DrawText(timerText, tx, ty + labelSize + 4, timerSize, timerColor);
+
+    // --- CREDITS - dol po prawej, symetrycznie do SCORE ---
+    char creditsLabel[] = "CREDITS";
+    char creditsValue[8];
+    std::snprintf(creditsValue, sizeof(creditsValue), "%02d", credits);
+
+    int creditsValueW = MeasureText(creditsValue, fontSize);
+    int cx = screenW - offsetFromEdge - creditsValueW;
+    int cy = screenH - labelSize - fontSize - padding - 4;
+
+    DrawText(creditsLabel, cx + 2, cy + 2, labelSize, BLACK);
+    DrawText(creditsLabel, cx, cy, labelSize, YELLOW);
+    DrawText(creditsValue, cx + 2, cy + labelSize + 4 + 2, fontSize, BLACK);
+    DrawText(creditsValue, cx, cy + labelSize + 4, fontSize, WHITE);
 
     // --- LEVEL - dol na srodku ---
     char levelText[32];
@@ -94,6 +160,9 @@ void UiManager::DrawCredits(Camera2D camera)
 
     DrawText(levelText, lx + 2, ly + 2, fontSize, BLACK);
     DrawText(levelText, lx, ly, fontSize, WHITE);
+
+    // --- MISSION INTRO ---
+    DrawMissionIntro();
 }
 
 void UiManager::SetCredits(int amount)
@@ -119,6 +188,11 @@ bool UiManager::IsTimeUp()    const { return timeLeft <= 0; }
 void UiManager::NextLevel()
 {
     level++;
+    introTimer = 0.0f;
+    blinkAccum = 0.0f;
+    blinkVisible = true;
+    timeLeft = 60;
+    timeAccum = 0.0f;
 }
 
 int UiManager::GetLevel() const { return level; }

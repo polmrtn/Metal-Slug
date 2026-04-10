@@ -8,6 +8,8 @@ public:
 
     void Update();
     void DrawCredits(Camera2D camera);
+    void DrawMissionIntro();
+    bool IsMissionIntroOver() const;
 
     void SetCredits(int amount);
     int  GetCredits() const;
@@ -28,4 +30,11 @@ private:
 
     int   timeLeft;
     float timeAccum;
+
+    float introTimer;
+    float blinkAccum;       // akumulator do migania
+    bool  blinkVisible;     // czy napis jest teraz widoczny
+
+    static const float INTRO_DURATION;
+    static const float BLINK_INTERVAL;
 };
