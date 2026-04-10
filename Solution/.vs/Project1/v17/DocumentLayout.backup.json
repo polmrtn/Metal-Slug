@@ -1,66 +1,78 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "E:\\_Universidad\\1.2_Segundo_Semestre\\Project 1\\Metal-Slug\\Metal-Slug\\Solution\\",
+  "WorkspaceRootPath": "C:\\Users\\fpaty\\Desktop\\GITHUB DESKTOP\\Metal-Slug\\Solution\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|E:\\_Universidad\\1.2_Segundo_Semestre\\Project 1\\Metal-Slug\\Metal-Slug\\Solution\\Project1\\game.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "AbsoluteMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|C:\\Users\\fpaty\\Desktop\\GITHUB DESKTOP\\Metal-Slug\\Solution\\Project1\\game.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|solutionrelative:Project1\\game.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|E:\\_Universidad\\1.2_Segundo_Semestre\\Project 1\\Metal-Slug\\Metal-Slug\\Solution\\Project1\\Player.hpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|solutionrelative:Project1\\Player.hpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+      "AbsoluteMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|C:\\Users\\fpaty\\Desktop\\GITHUB DESKTOP\\Metal-Slug\\Solution\\Project1\\UiManager.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|solutionrelative:Project1\\UiManager.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|E:\\_Universidad\\1.2_Segundo_Semestre\\Project 1\\Metal-Slug\\Metal-Slug\\Solution\\Project1\\Player.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|solutionrelative:Project1\\Player.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+      "AbsoluteMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|C:\\Users\\fpaty\\Desktop\\GITHUB DESKTOP\\Metal-Slug\\Solution\\Project1\\UiManager.hpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|solutionrelative:Project1\\UiManager.hpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|E:\\_Universidad\\1.2_Segundo_Semestre\\Project 1\\Metal-Slug\\Metal-Slug\\Solution\\Project1\\Bullet.hpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|solutionrelative:Project1\\Bullet.hpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|E:\\_Universidad\\1.2_Segundo_Semestre\\Project 1\\Metal-Slug\\Metal-Slug\\Solution\\Project1\\BackgroundManager.hpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|solutionrelative:Project1\\BackgroundManager.hpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|E:\\_Universidad\\1.2_Segundo_Semestre\\Project 1\\Metal-Slug\\Metal-Slug\\Solution\\Project1\\BackgroundManager.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|solutionrelative:Project1\\BackgroundManager.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|E:\\_Universidad\\1.2_Segundo_Semestre\\Project 1\\Metal-Slug\\Metal-Slug\\Solution\\Project1\\LevelMap.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|solutionrelative:Project1\\LevelMap.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|E:\\_Universidad\\1.2_Segundo_Semestre\\Project 1\\Metal-Slug\\Metal-Slug\\Solution\\Project1\\Soldier.hpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|solutionrelative:Project1\\Soldier.hpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|E:\\_Universidad\\1.2_Segundo_Semestre\\Project 1\\Metal-Slug\\Metal-Slug\\Solution\\Project1\\game.hpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|solutionrelative:Project1\\game.hpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|E:\\_Universidad\\1.2_Segundo_Semestre\\Project 1\\Metal-Slug\\Metal-Slug\\Solution\\Project1\\Soldier.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|solutionrelative:Project1\\Soldier.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|E:\\_Universidad\\1.2_Segundo_Semestre\\Project 1\\Metal-Slug\\Metal-Slug\\Solution\\Project1\\LevelMap.hpp||{8B382828-6202-11D1-8870-0000F87579D2}",
-      "RelativeMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|solutionrelative:Project1\\LevelMap.hpp||{8B382828-6202-11D1-8870-0000F87579D2}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|E:\\_Universidad\\1.2_Segundo_Semestre\\Project 1\\Metal-Slug\\Metal-Slug\\Solution\\Project1\\CameraManager.hpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "AbsoluteMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|C:\\Users\\fpaty\\Desktop\\GITHUB DESKTOP\\Metal-Slug\\Solution\\Project1\\CameraManager.hpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|solutionrelative:Project1\\CameraManager.hpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|E:\\_Universidad\\1.2_Segundo_Semestre\\Project 1\\Metal-Slug\\Metal-Slug\\Solution\\Project1\\CameraManager.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|solutionrelative:Project1\\CameraManager.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+      "AbsoluteMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|C:\\Users\\fpaty\\Desktop\\GITHUB DESKTOP\\Metal-Slug\\Solution\\Project1\\game.hpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|solutionrelative:Project1\\game.hpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|E:\\_Universidad\\1.2_Segundo_Semestre\\Project 1\\Metal-Slug\\Metal-Slug\\Solution\\Project1\\AudioManager.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "AbsoluteMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|C:\\Users\\fpaty\\Desktop\\GITHUB DESKTOP\\Metal-Slug\\Solution\\Project1\\Player.hpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|solutionrelative:Project1\\Player.hpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|C:\\Users\\fpaty\\Desktop\\GITHUB DESKTOP\\Metal-Slug\\Solution\\Project1\\SceneManager.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|solutionrelative:Project1\\SceneManager.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|C:\\Users\\fpaty\\Desktop\\GITHUB DESKTOP\\Metal-Slug\\Solution\\Project1\\Soldier.hpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|solutionrelative:Project1\\Soldier.hpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|C:\\Users\\fpaty\\Desktop\\GITHUB DESKTOP\\Metal-Slug\\Solution\\Project1\\AudioManager.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|solutionrelative:Project1\\AudioManager.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|E:\\_Universidad\\1.2_Segundo_Semestre\\Project 1\\Metal-Slug\\Metal-Slug\\Solution\\Project1\\AudioManager.hpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "AbsoluteMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|C:\\Users\\fpaty\\Desktop\\GITHUB DESKTOP\\Metal-Slug\\Solution\\Project1\\Soldier.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|solutionrelative:Project1\\Soldier.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|C:\\Users\\fpaty\\Desktop\\GITHUB DESKTOP\\Metal-Slug\\Solution\\Project1\\Player.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|solutionrelative:Project1\\Player.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|C:\\Users\\fpaty\\Desktop\\GITHUB DESKTOP\\Metal-Slug\\Solution\\Project1\\CameraManager.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|solutionrelative:Project1\\CameraManager.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|C:\\Users\\fpaty\\Desktop\\GITHUB DESKTOP\\Metal-Slug\\Solution\\Project1\\BackgroundManager.hpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|solutionrelative:Project1\\BackgroundManager.hpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|C:\\Users\\fpaty\\Desktop\\GITHUB DESKTOP\\Metal-Slug\\Solution\\Project1\\BackgroundManager.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|solutionrelative:Project1\\BackgroundManager.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|C:\\Users\\fpaty\\Desktop\\GITHUB DESKTOP\\Metal-Slug\\Solution\\Project1\\AudioManager.hpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|solutionrelative:Project1\\AudioManager.hpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|C:\\Users\\fpaty\\Desktop\\GITHUB DESKTOP\\Metal-Slug\\Solution\\Project1\\LevelMap.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|solutionrelative:Project1\\LevelMap.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|C:\\Users\\fpaty\\Desktop\\GITHUB DESKTOP\\Metal-Slug\\Solution\\Project1\\LevelMap.hpp||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|solutionrelative:Project1\\LevelMap.hpp||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|C:\\Users\\fpaty\\Desktop\\GITHUB DESKTOP\\Metal-Slug\\Solution\\Project1\\Bullet.hpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|solutionrelative:Project1\\Bullet.hpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     }
   ],
   "DocumentGroupContainers": [
@@ -76,11 +88,11 @@
               "$type": "Document",
               "DocumentIndex": 0,
               "Title": "game.cpp",
-              "DocumentMoniker": "E:\\_Universidad\\1.2_Segundo_Semestre\\Project 1\\Metal-Slug\\Metal-Slug\\Solution\\Project1\\game.cpp",
+              "DocumentMoniker": "C:\\Users\\fpaty\\Desktop\\GITHUB DESKTOP\\Metal-Slug\\Solution\\Project1\\game.cpp",
               "RelativeDocumentMoniker": "Project1\\game.cpp",
-              "ToolTip": "E:\\_Universidad\\1.2_Segundo_Semestre\\Project 1\\Metal-Slug\\Metal-Slug\\Solution\\Project1\\game.cpp*",
-              "RelativeToolTip": "Project1\\game.cpp*",
-              "ViewState": "AgIAABQAAAAAAAAAAAAIwD8AAAAiAAAAAAAAAA==",
+              "ToolTip": "C:\\Users\\fpaty\\Desktop\\GITHUB DESKTOP\\Metal-Slug\\Solution\\Project1\\game.cpp",
+              "RelativeToolTip": "Project1\\game.cpp",
+              "ViewState": "AgIAAHsAAAAAAAAAAAAAAIYAAAAXAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2026-04-08T19:13:41.643Z",
               "IsPinned": true,
@@ -88,35 +100,128 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 4,
               "Title": "game.hpp",
-              "DocumentMoniker": "E:\\_Universidad\\1.2_Segundo_Semestre\\Project 1\\Metal-Slug\\Metal-Slug\\Solution\\Project1\\game.hpp",
+              "DocumentMoniker": "C:\\Users\\fpaty\\Desktop\\GITHUB DESKTOP\\Metal-Slug\\Solution\\Project1\\game.hpp",
               "RelativeDocumentMoniker": "Project1\\game.hpp",
-              "ToolTip": "E:\\_Universidad\\1.2_Segundo_Semestre\\Project 1\\Metal-Slug\\Metal-Slug\\Solution\\Project1\\game.hpp",
+              "ToolTip": "C:\\Users\\fpaty\\Desktop\\GITHUB DESKTOP\\Metal-Slug\\Solution\\Project1\\game.hpp",
               "RelativeToolTip": "Project1\\game.hpp",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAAHAAAAAAAAAA==",
+              "ViewState": "AgIAAAcAAAAAAAAAAAAowCgAAAACAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2026-04-09T06:47:57.059Z"
+              "WhenOpened": "2026-04-09T06:47:57.059Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 9,
               "Title": "Soldier.cpp",
-              "DocumentMoniker": "E:\\_Universidad\\1.2_Segundo_Semestre\\Project 1\\Metal-Slug\\Metal-Slug\\Solution\\Project1\\Soldier.cpp",
+              "DocumentMoniker": "C:\\Users\\fpaty\\Desktop\\GITHUB DESKTOP\\Metal-Slug\\Solution\\Project1\\Soldier.cpp",
               "RelativeDocumentMoniker": "Project1\\Soldier.cpp",
-              "ToolTip": "E:\\_Universidad\\1.2_Segundo_Semestre\\Project 1\\Metal-Slug\\Metal-Slug\\Solution\\Project1\\Soldier.cpp",
+              "ToolTip": "C:\\Users\\fpaty\\Desktop\\GITHUB DESKTOP\\Metal-Slug\\Solution\\Project1\\Soldier.cpp",
               "RelativeToolTip": "Project1\\Soldier.cpp",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAFMAAAACAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2026-04-08T21:27:00.302Z"
+              "WhenOpened": "2026-04-08T21:27:00.302Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "UiManager.cpp",
+              "DocumentMoniker": "C:\\Users\\fpaty\\Desktop\\GITHUB DESKTOP\\Metal-Slug\\Solution\\Project1\\UiManager.cpp",
+              "RelativeDocumentMoniker": "Project1\\UiManager.cpp",
+              "ToolTip": "C:\\Users\\fpaty\\Desktop\\GITHUB DESKTOP\\Metal-Slug\\Solution\\Project1\\UiManager.cpp",
+              "RelativeToolTip": "Project1\\UiManager.cpp",
+              "ViewState": "AgIAAFoAAAAAAAAAAAAowHsAAAAxAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2026-04-10T15:15:16.202Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 2,
+              "Title": "UiManager.hpp",
+              "DocumentMoniker": "C:\\Users\\fpaty\\Desktop\\GITHUB DESKTOP\\Metal-Slug\\Solution\\Project1\\UiManager.hpp",
+              "RelativeDocumentMoniker": "Project1\\UiManager.hpp",
+              "ToolTip": "C:\\Users\\fpaty\\Desktop\\GITHUB DESKTOP\\Metal-Slug\\Solution\\Project1\\UiManager.hpp",
+              "RelativeToolTip": "Project1\\UiManager.hpp",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAB4AAAACAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2026-04-10T15:14:27.335Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "Soldier.hpp",
+              "DocumentMoniker": "C:\\Users\\fpaty\\Desktop\\GITHUB DESKTOP\\Metal-Slug\\Solution\\Project1\\Soldier.hpp",
+              "RelativeDocumentMoniker": "Project1\\Soldier.hpp",
+              "ToolTip": "C:\\Users\\fpaty\\Desktop\\GITHUB DESKTOP\\Metal-Slug\\Solution\\Project1\\Soldier.hpp",
+              "RelativeToolTip": "Project1\\Soldier.hpp",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAAfAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2026-04-08T21:25:02.398Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "AudioManager.cpp",
+              "DocumentMoniker": "C:\\Users\\fpaty\\Desktop\\GITHUB DESKTOP\\Metal-Slug\\Solution\\Project1\\AudioManager.cpp",
+              "RelativeDocumentMoniker": "Project1\\AudioManager.cpp",
+              "ToolTip": "C:\\Users\\fpaty\\Desktop\\GITHUB DESKTOP\\Metal-Slug\\Solution\\Project1\\AudioManager.cpp",
+              "RelativeToolTip": "Project1\\AudioManager.cpp",
+              "ViewState": "AgIAAAoAAAAAAAAAAAAowCsAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2026-04-08T19:15:23.376Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "Player.hpp",
+              "DocumentMoniker": "C:\\Users\\fpaty\\Desktop\\GITHUB DESKTOP\\Metal-Slug\\Solution\\Project1\\Player.hpp",
+              "RelativeDocumentMoniker": "Project1\\Player.hpp",
+              "ToolTip": "C:\\Users\\fpaty\\Desktop\\GITHUB DESKTOP\\Metal-Slug\\Solution\\Project1\\Player.hpp",
+              "RelativeToolTip": "Project1\\Player.hpp",
+              "ViewState": "AgIAACgAAAAAAAAAAAAowD4AAAAbAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2026-04-04T19:24:13.262Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "CameraManager.hpp",
+              "DocumentMoniker": "C:\\Users\\fpaty\\Desktop\\GITHUB DESKTOP\\Metal-Slug\\Solution\\Project1\\CameraManager.hpp",
+              "RelativeDocumentMoniker": "Project1\\CameraManager.hpp",
+              "ToolTip": "C:\\Users\\fpaty\\Desktop\\GITHUB DESKTOP\\Metal-Slug\\Solution\\Project1\\CameraManager.hpp",
+              "RelativeToolTip": "Project1\\CameraManager.hpp",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAACAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2026-04-08T09:37:16.314Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "SceneManager.cpp",
+              "DocumentMoniker": "C:\\Users\\fpaty\\Desktop\\GITHUB DESKTOP\\Metal-Slug\\Solution\\Project1\\SceneManager.cpp",
+              "RelativeDocumentMoniker": "Project1\\SceneManager.cpp",
+              "ToolTip": "C:\\Users\\fpaty\\Desktop\\GITHUB DESKTOP\\Metal-Slug\\Solution\\Project1\\SceneManager.cpp",
+              "RelativeToolTip": "Project1\\SceneManager.cpp",
+              "ViewState": "AgIAAAIAAAAAAAAAAAAowB0AAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2026-04-10T19:42:08.899Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
               "Title": "Player.cpp",
-              "DocumentMoniker": "E:\\_Universidad\\1.2_Segundo_Semestre\\Project 1\\Metal-Slug\\Metal-Slug\\Solution\\Project1\\Player.cpp",
+              "DocumentMoniker": "C:\\Users\\fpaty\\Desktop\\GITHUB DESKTOP\\Metal-Slug\\Solution\\Project1\\Player.cpp",
               "RelativeDocumentMoniker": "Project1\\Player.cpp",
-              "ToolTip": "E:\\_Universidad\\1.2_Segundo_Semestre\\Project 1\\Metal-Slug\\Metal-Slug\\Solution\\Project1\\Player.cpp",
+              "ToolTip": "C:\\Users\\fpaty\\Desktop\\GITHUB DESKTOP\\Metal-Slug\\Solution\\Project1\\Player.cpp",
               "RelativeToolTip": "Project1\\Player.cpp",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAACEAAAAbAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
@@ -125,136 +230,94 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "Player.hpp",
-              "DocumentMoniker": "E:\\_Universidad\\1.2_Segundo_Semestre\\Project 1\\Metal-Slug\\Metal-Slug\\Solution\\Project1\\Player.hpp",
-              "RelativeDocumentMoniker": "Project1\\Player.hpp",
-              "ToolTip": "E:\\_Universidad\\1.2_Segundo_Semestre\\Project 1\\Metal-Slug\\Metal-Slug\\Solution\\Project1\\Player.hpp",
-              "RelativeToolTip": "Project1\\Player.hpp",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2026-04-04T19:24:13.262Z",
+              "DocumentIndex": 11,
+              "Title": "CameraManager.cpp",
+              "DocumentMoniker": "C:\\Users\\fpaty\\Desktop\\GITHUB DESKTOP\\Metal-Slug\\Solution\\Project1\\CameraManager.cpp",
+              "RelativeDocumentMoniker": "Project1\\CameraManager.cpp",
+              "ToolTip": "C:\\Users\\fpaty\\Desktop\\GITHUB DESKTOP\\Metal-Slug\\Solution\\Project1\\CameraManager.cpp",
+              "RelativeToolTip": "Project1\\CameraManager.cpp",
+              "ViewState": "AgIAACwAAAAAAAAAAAAAADgAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2026-04-04T18:49:32.523Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
-              "Title": "Soldier.hpp",
-              "DocumentMoniker": "E:\\_Universidad\\1.2_Segundo_Semestre\\Project 1\\Metal-Slug\\Metal-Slug\\Solution\\Project1\\Soldier.hpp",
-              "RelativeDocumentMoniker": "Project1\\Soldier.hpp",
-              "ToolTip": "E:\\_Universidad\\1.2_Segundo_Semestre\\Project 1\\Metal-Slug\\Metal-Slug\\Solution\\Project1\\Soldier.hpp",
-              "RelativeToolTip": "Project1\\Soldier.hpp",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAAfAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2026-04-08T21:25:02.398Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "LevelMap.cpp",
-              "DocumentMoniker": "E:\\_Universidad\\1.2_Segundo_Semestre\\Project 1\\Metal-Slug\\Metal-Slug\\Solution\\Project1\\LevelMap.cpp",
-              "RelativeDocumentMoniker": "Project1\\LevelMap.cpp",
-              "ToolTip": "E:\\_Universidad\\1.2_Segundo_Semestre\\Project 1\\Metal-Slug\\Metal-Slug\\Solution\\Project1\\LevelMap.cpp",
-              "RelativeToolTip": "Project1\\LevelMap.cpp",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2026-04-08T20:48:49.487Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 10,
-              "Title": "LevelMap.hpp",
-              "DocumentMoniker": "E:\\_Universidad\\1.2_Segundo_Semestre\\Project 1\\Metal-Slug\\Metal-Slug\\Solution\\Project1\\LevelMap.hpp",
-              "RelativeDocumentMoniker": "Project1\\LevelMap.hpp",
-              "ToolTip": "E:\\_Universidad\\1.2_Segundo_Semestre\\Project 1\\Metal-Slug\\Metal-Slug\\Solution\\Project1\\LevelMap.hpp",
-              "RelativeToolTip": "Project1\\LevelMap.hpp",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAACAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2026-04-08T20:47:30.201Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "Bullet.hpp",
-              "DocumentMoniker": "E:\\_Universidad\\1.2_Segundo_Semestre\\Project 1\\Metal-Slug\\Metal-Slug\\Solution\\Project1\\Bullet.hpp",
-              "RelativeDocumentMoniker": "Project1\\Bullet.hpp",
-              "ToolTip": "E:\\_Universidad\\1.2_Segundo_Semestre\\Project 1\\Metal-Slug\\Metal-Slug\\Solution\\Project1\\Bullet.hpp",
-              "RelativeToolTip": "Project1\\Bullet.hpp",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2026-04-08T20:43:52.211Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "BackgroundManager.cpp",
-              "DocumentMoniker": "E:\\_Universidad\\1.2_Segundo_Semestre\\Project 1\\Metal-Slug\\Metal-Slug\\Solution\\Project1\\BackgroundManager.cpp",
-              "RelativeDocumentMoniker": "Project1\\BackgroundManager.cpp",
-              "ToolTip": "E:\\_Universidad\\1.2_Segundo_Semestre\\Project 1\\Metal-Slug\\Metal-Slug\\Solution\\Project1\\BackgroundManager.cpp",
-              "RelativeToolTip": "Project1\\BackgroundManager.cpp",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAABJAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2026-04-04T16:51:58.29Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "BackgroundManager.hpp",
-              "DocumentMoniker": "E:\\_Universidad\\1.2_Segundo_Semestre\\Project 1\\Metal-Slug\\Metal-Slug\\Solution\\Project1\\BackgroundManager.hpp",
-              "RelativeDocumentMoniker": "Project1\\BackgroundManager.hpp",
-              "ToolTip": "E:\\_Universidad\\1.2_Segundo_Semestre\\Project 1\\Metal-Slug\\Metal-Slug\\Solution\\Project1\\BackgroundManager.hpp",
-              "RelativeToolTip": "Project1\\BackgroundManager.hpp",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2026-04-04T16:48:50.751Z"
-            },
-            {
-              "$type": "Document",
               "DocumentIndex": 12,
-              "Title": "CameraManager.cpp",
-              "DocumentMoniker": "E:\\_Universidad\\1.2_Segundo_Semestre\\Project 1\\Metal-Slug\\Metal-Slug\\Solution\\Project1\\CameraManager.cpp",
-              "RelativeDocumentMoniker": "Project1\\CameraManager.cpp",
-              "ToolTip": "E:\\_Universidad\\1.2_Segundo_Semestre\\Project 1\\Metal-Slug\\Metal-Slug\\Solution\\Project1\\CameraManager.cpp",
-              "RelativeToolTip": "Project1\\CameraManager.cpp",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAAhAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2026-04-04T18:49:32.523Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 11,
-              "Title": "CameraManager.hpp",
-              "DocumentMoniker": "E:\\_Universidad\\1.2_Segundo_Semestre\\Project 1\\Metal-Slug\\Metal-Slug\\Solution\\Project1\\CameraManager.hpp",
-              "RelativeDocumentMoniker": "Project1\\CameraManager.hpp",
-              "ToolTip": "E:\\_Universidad\\1.2_Segundo_Semestre\\Project 1\\Metal-Slug\\Metal-Slug\\Solution\\Project1\\CameraManager.hpp",
-              "RelativeToolTip": "Project1\\CameraManager.hpp",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAZAAAAAAAAAA==",
+              "Title": "BackgroundManager.hpp",
+              "DocumentMoniker": "C:\\Users\\fpaty\\Desktop\\GITHUB DESKTOP\\Metal-Slug\\Solution\\Project1\\BackgroundManager.hpp",
+              "RelativeDocumentMoniker": "Project1\\BackgroundManager.hpp",
+              "ToolTip": "C:\\Users\\fpaty\\Desktop\\GITHUB DESKTOP\\Metal-Slug\\Solution\\Project1\\BackgroundManager.hpp",
+              "RelativeToolTip": "Project1\\BackgroundManager.hpp",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2026-04-08T09:37:16.314Z"
+              "WhenOpened": "2026-04-04T16:48:50.751Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 13,
-              "Title": "AudioManager.cpp",
-              "DocumentMoniker": "E:\\_Universidad\\1.2_Segundo_Semestre\\Project 1\\Metal-Slug\\Metal-Slug\\Solution\\Project1\\AudioManager.cpp",
-              "RelativeDocumentMoniker": "Project1\\AudioManager.cpp",
-              "ToolTip": "E:\\_Universidad\\1.2_Segundo_Semestre\\Project 1\\Metal-Slug\\Metal-Slug\\Solution\\Project1\\AudioManager.cpp",
-              "RelativeToolTip": "Project1\\AudioManager.cpp",
-              "ViewState": "AgIAAAIAAAAAAAAAAAAswCsAAAABAAAAAAAAAA==",
+              "Title": "BackgroundManager.cpp",
+              "DocumentMoniker": "C:\\Users\\fpaty\\Desktop\\GITHUB DESKTOP\\Metal-Slug\\Solution\\Project1\\BackgroundManager.cpp",
+              "RelativeDocumentMoniker": "Project1\\BackgroundManager.cpp",
+              "ToolTip": "C:\\Users\\fpaty\\Desktop\\GITHUB DESKTOP\\Metal-Slug\\Solution\\Project1\\BackgroundManager.cpp",
+              "RelativeToolTip": "Project1\\BackgroundManager.cpp",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABIAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2026-04-08T19:15:23.376Z"
+              "WhenOpened": "2026-04-04T16:51:58.29Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 14,
               "Title": "AudioManager.hpp",
-              "DocumentMoniker": "E:\\_Universidad\\1.2_Segundo_Semestre\\Project 1\\Metal-Slug\\Metal-Slug\\Solution\\Project1\\AudioManager.hpp",
+              "DocumentMoniker": "C:\\Users\\fpaty\\Desktop\\GITHUB DESKTOP\\Metal-Slug\\Solution\\Project1\\AudioManager.hpp",
               "RelativeDocumentMoniker": "Project1\\AudioManager.hpp",
-              "ToolTip": "E:\\_Universidad\\1.2_Segundo_Semestre\\Project 1\\Metal-Slug\\Metal-Slug\\Solution\\Project1\\AudioManager.hpp",
+              "ToolTip": "C:\\Users\\fpaty\\Desktop\\GITHUB DESKTOP\\Metal-Slug\\Solution\\Project1\\AudioManager.hpp",
               "RelativeToolTip": "Project1\\AudioManager.hpp",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAACAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABIAAAAUAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2026-04-08T19:15:27.773Z"
+              "WhenOpened": "2026-04-08T19:15:27.773Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "LevelMap.cpp",
+              "DocumentMoniker": "C:\\Users\\fpaty\\Desktop\\GITHUB DESKTOP\\Metal-Slug\\Solution\\Project1\\LevelMap.cpp",
+              "RelativeDocumentMoniker": "Project1\\LevelMap.cpp",
+              "ToolTip": "C:\\Users\\fpaty\\Desktop\\GITHUB DESKTOP\\Metal-Slug\\Solution\\Project1\\LevelMap.cpp",
+              "RelativeToolTip": "Project1\\LevelMap.cpp",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2026-04-08T20:48:49.487Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
+              "Title": "LevelMap.hpp",
+              "DocumentMoniker": "C:\\Users\\fpaty\\Desktop\\GITHUB DESKTOP\\Metal-Slug\\Solution\\Project1\\LevelMap.hpp",
+              "RelativeDocumentMoniker": "Project1\\LevelMap.hpp",
+              "ToolTip": "C:\\Users\\fpaty\\Desktop\\GITHUB DESKTOP\\Metal-Slug\\Solution\\Project1\\LevelMap.hpp",
+              "RelativeToolTip": "Project1\\LevelMap.hpp",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAACAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2026-04-08T20:47:30.201Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 17,
+              "Title": "Bullet.hpp",
+              "DocumentMoniker": "C:\\Users\\fpaty\\Desktop\\GITHUB DESKTOP\\Metal-Slug\\Solution\\Project1\\Bullet.hpp",
+              "RelativeDocumentMoniker": "Project1\\Bullet.hpp",
+              "ToolTip": "C:\\Users\\fpaty\\Desktop\\GITHUB DESKTOP\\Metal-Slug\\Solution\\Project1\\Bullet.hpp",
+              "RelativeToolTip": "Project1\\Bullet.hpp",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABcAAAACAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2026-04-08T20:43:52.211Z",
+              "EditorCaption": ""
             }
           ]
         }

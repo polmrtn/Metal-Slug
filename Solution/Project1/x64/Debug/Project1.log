@@ -1,22 +1,19 @@
-﻿  LevelMap.cpp
-  Player.cpp
+﻿  UiManager.cpp
   game.cpp
-E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\Bullet.hpp(23,16): warning C4305: 'inicializando': truncamiento de 'double' a 'float'
-  (compilando archivo de origen "game.cpp")
+C:\Users\fpaty\Desktop\GITHUB DESKTOP\Metal-Slug\Solution\Project1\Bullet.hpp(23,16): warning C4305: "inicjowanie": obcięcie z "double" do "float"
+  (kompilowanie pliku źródłowego „game.cpp”)
   
-E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\BackgroundManager.hpp(19,21): warning C4305: 'inicializando': truncamiento de 'double' a 'float'
-  (compilando archivo de origen "game.cpp")
+C:\Users\fpaty\Desktop\GITHUB DESKTOP\Metal-Slug\Solution\Project1\BackgroundManager.hpp(19,21): warning C4305: "inicjowanie": obcięcie z "double" do "float"
+  (kompilowanie pliku źródłowego „game.cpp”)
   
-E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\game.cpp(256,24): warning C4244: '=': conversión de 'int' a 'float'; posible pérdida de datos
-E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\game.cpp(257,25): warning C4244: '=': conversión de 'int' a 'float'; posible pérdida de datos
+C:\Users\fpaty\Desktop\GITHUB DESKTOP\Metal-Slug\Solution\Project1\game.cpp(286,24): warning C4244: "=": konwersja z "int" do "float", możliwa utrata danych
+C:\Users\fpaty\Desktop\GITHUB DESKTOP\Metal-Slug\Solution\Project1\game.cpp(287,25): warning C4244: "=": konwersja z "int" do "float", możliwa utrata danych
   main.cpp
-E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\Bullet.hpp(23,16): warning C4305: 'inicializando': truncamiento de 'double' a 'float'
-  (compilando archivo de origen "main.cpp")
+C:\Users\fpaty\Desktop\GITHUB DESKTOP\Metal-Slug\Solution\Project1\Bullet.hpp(23,16): warning C4305: "inicjowanie": obcięcie z "double" do "float"
+  (kompilowanie pliku źródłowego „main.cpp”)
   
-E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\BackgroundManager.hpp(19,21): warning C4305: 'inicializando': truncamiento de 'double' a 'float'
-  (compilando archivo de origen "main.cpp")
+C:\Users\fpaty\Desktop\GITHUB DESKTOP\Metal-Slug\Solution\Project1\BackgroundManager.hpp(19,21): warning C4305: "inicjowanie": obcięcie z "double" do "float"
+  (kompilowanie pliku źródłowego „main.cpp”)
   
-  Generando código...
-x64\Debug\AudioManager.obj : warning LNK4042: objeto especificado más de una vez; omitidos los sobrantes
-LINK : warning LNK4098: la biblioteca predeterminada'MSVCRT' entra en conflicto con otras bibliotecas; use la biblioteca /NODEFAULTLIB:biblioteca
-  Project1.vcxproj -> E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\x64\Debug\Project1.exe
+  Generowanie kodu...
+  Project1.vcxproj -> C:\Users\fpaty\Desktop\GITHUB DESKTOP\Metal-Slug\Solution\x64\Debug\Project1.exe
