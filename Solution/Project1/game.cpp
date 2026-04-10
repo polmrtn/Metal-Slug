@@ -7,6 +7,7 @@ Game::Game() : camera({ 1280.0f/2 , 896/2  })
 	soldiers = CreateSoldiers();
 	bullets = CreateBullets();
 	blocks = CreateBlocks();
+
 	
 }
 
@@ -17,6 +18,7 @@ Game::~Game()
 
 void Game::Draw()
 {
+	BeginDrawing();
 	camera.Begin();
 	backgroundManager.Draw();
 	player.Draw();
@@ -26,6 +28,7 @@ void Game::Draw()
 	for (auto& bullet : bullets) {
 		bullet.Draw();
 	}
+	ClearBackground(BLACK);
 }
 void Game::Timers()
 {
@@ -33,11 +36,14 @@ void Game::Timers()
 }
 void Game::Update()
 {
-	
 	if (sceneManager.GetGamestate() == SceneManager::INTRO) {
+		BeginDrawing();
+		ClearBackground(BLACK);
 		sceneManager.DrawTexts();
 	}
 	else if (sceneManager.GetGamestate() == SceneManager::TITLE) {
+		BeginDrawing();
+		ClearBackground(BLACK);
 		sceneManager.DrawTexts();
 		if (!musicStarted)
 		{
@@ -46,33 +52,37 @@ void Game::Update()
 		}
 		audioManager.UpdateMusic(audioManager.GetTitleMusic());
 	}
-
 	else if (sceneManager.GetGamestate() == SceneManager::GAME) {
+		UiManager.Update();
 		ResolveCollisions();
-		camera.Update(player.GetPosition(), backgroundManager.GetWidth(), backgroundManager.GetHeight(),player.GetIsGrounded());
-		BeginDrawing();
 		Draw();
-		ClearBackground(BLACK);
+		camera.Update(player.GetPosition(), backgroundManager.GetWidth(), backgroundManager.GetHeight(), player.GetIsGrounded());
+
 		Timers();
+
 		if (!musicStarted)
 		{
 			audioManager.PlayMusic(audioManager.GetGameMusic());
 			musicStarted = true;
 		}
 		audioManager.UpdateMusic(audioManager.GetGameMusic());
+
 		player.Update(camera.GetLeftLimit());
+
+		// Actualizar IA y movimiento de cada soldado
 		for (auto& soldier : soldiers) {
+			soldier.UpdateAI(player);  // Cada soldado usa su propia IA
 			soldier.Update();
-			//update all bullets
 		}
+
 		for (auto& bullet : bullets) {
 			bullet.Update();
-			//update all bullets
 		}
+
+		// Dibujar
 		
 	}
 }
-
 
 void Game::Shoot()
 {
@@ -115,6 +125,20 @@ void Game::Shoot()
 
 void Game::HandleInput()
 {
+	if (IsKeyPressed(KEY_L))
+	{
+		UiManager.NextLevel();
+	}
+	if (IsKeyPressed(KEY_J))
+	{
+		UiManager.AddScore(100);
+	}
+	if (IsKeyPressed(KEY_C))
+	{
+		if (UiManager.GetCredits() < 99)
+		{
+			UiManager.SetCredits(1);
+		}
 	if (IsKeyDown(KEY_LEFT))
 	{
 		player.MoveLeft();
