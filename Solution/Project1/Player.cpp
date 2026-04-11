@@ -2,87 +2,149 @@
 
 Player::Player() {
     anim.LoadTextures();
+    SetNormalHitbox();
 }
 
 Player::~Player() {
     anim.UnloadTextures();
 }
 
+void Player::SetNormalHitbox() {
+    hitboxWidth = 20.0f * SCALE;
+    hitboxHeight = 40.0f * SCALE;
+    hitboxOffsetX = 2.0f * SCALE;
+    hitboxOffsetY = 8.0f * SCALE;
+}
+
+void Player::SetCrouchHitbox() {
+    hitboxWidth = 20.0f * SCALE;
+    hitboxHeight = 25.0f * SCALE;
+    hitboxOffsetX = 2.0f * SCALE;
+    hitboxOffsetY = 23.0f * SCALE;
+}
+
 void Player::Update(float CameraLeftLimit) {
-    // ========== ACTUALIZAR ANIMACIONES ==========
+    // ========== ACTUALIZAR HITBOX SEGÚN ESTADO ==========
+    if (crouching) {
+        SetCrouchHitbox();
+    }
+    else {
+        SetNormalHitbox();
+    }
+
     anim.Update(grounded, vel.x, crouching, aimingUp, GetFrameTime());
-    
-    // ========== MODO CUERPO COMPLETO ==========
-    if (mode == Mode::FULL_BODY) {
+
+    if (mode == Mode::FULL_BODY && !crouching) {
         specialTimer += GetFrameTime();
         if (specialTimer >= specialDuration) {
             mode = Mode::SEPARATED;
             special = SpecialAnim::NONE;
-            crouching = false;
         }
         pos.x += vel.x;
-        
-        // Límite izquierdo con cámara
-        float currentWidth = GetWidth();
         if (pos.x < CameraLeftLimit) pos.x = CameraLeftLimit;
         return;
     }
-    
-    // ========== FÍSICA ==========
+
+    // Física
     if (!grounded) {
         vel.y += GRAVITY;
-    } else if (vel.y > 0) {
+    }
+    else if (vel.y > 0) {
         vel.y = 0;
     }
-    
+
     pos.y += vel.y;
     pos.x += vel.x;
-    
-    // ========== LÍMITE IZQUIERDO CON CÁMARA ==========
-    float currentWidth = GetWidth();
+
     if (pos.x < CameraLeftLimit) pos.x = CameraLeftLimit;
 }
 
 void Player::Draw() {
-    if (mode == Mode::FULL_BODY) DrawFullBody();
-    else DrawSeparated();
+    if (crouching) {
+        DrawCrouch();
+        DrawHitBox();
+        return;
+    }
+    if (mode == Mode::FULL_BODY) {
+        DrawFullBody();
+    }
+    else {
+        DrawSeparated();
+    }
     DrawHitBox();
+}
+
+void Player::DrawCrouch() {
+    Rectangle sourceRect;
+    float currentHeight;
+    float rowY;
+    float yOffset;
+
+    if (anim.IsCrouchTransition()) {
+        rowY = 18 * 34.0f;
+        currentHeight = 68.0f;
+        yOffset = -72.0f;
+    }
+    else {
+        rowY = 20 * 34.0f;
+        currentHeight = 34.0f;
+        yOffset = 75.0f;
+    }
+
+    sourceRect = {
+        (float)(anim.GetCrouchFrame() * 34.0f),
+        rowY,
+        34.0f,
+        currentHeight
+    };
+
+    if (dir == PlayerDirection::LEFT) {
+        sourceRect.width = -sourceRect.width;
+    }
+
+    Rectangle destRect = {
+        pos.x,
+        pos.y + yOffset,
+        34.0f * SCALE,
+        currentHeight * SCALE
+    };
+
+    DrawTexturePro(anim.GetSheet(), sourceRect, destRect, { 0,0 }, 0, WHITE);
 }
 
 void Player::DrawSeparated() {
     float w = anim.GetW(), h = anim.GetH();
     float baseY = pos.y + GetHeight() - (h * SCALE);
     VisualOffsets off = anim.GetOffsets();
-    
-    // ========== 1. DIBUJAR PIERNAS ==========
+
+    // Piernas
     Rectangle legSrc;
     switch (anim.GetLegsAnim()) {
-        case LegsAnim::WALKING:
-            legSrc = { anim.GetWalkLegsFrame() * w, anim.GetRowWalkLegs(), w, h };
-            break;
-        case LegsAnim::JUMPING:
-            legSrc = { anim.GetJumpLegsFrame() * w, anim.GetRowJumpLegs(), w, h };
-            break;
-        default:
-            legSrc = { 4 * w, anim.GetRowIdle(), w, h };
+    case LegsAnim::WALKING:
+        legSrc = { anim.GetWalkLegsFrame() * w, anim.GetRowWalkLegs(), w, h };
+        break;
+    case LegsAnim::JUMPING:
+        legSrc = { anim.GetJumpLegsFrame() * w, anim.GetRowJumpLegs(), w, h };
+        break;
+    default:
+        legSrc = { 4 * w, anim.GetRowIdle(), w, h };
     }
-    
+
     float offX = off.legsX;
-    if (dir == PlayerDirection::LEFT) { legSrc.width = -w; offX = -off.legsX; }
-    
+    if (dir == PlayerDirection::LEFT) {
+        legSrc.width = -w;
+        offX = -off.legsX;
+    }
+
     DrawTexturePro(anim.GetSheet(), legSrc,
         { pos.x + offX * SCALE, baseY + off.legsY * SCALE, w * SCALE, h * SCALE },
-        {0,0}, 0, WHITE);
-    
-    // ========== 2. DIBUJAR TORSO ==========
+        { 0,0 }, 0, WHITE);
+
+    // Torso
     float torsoX = pos.x;
     Rectangle torsoSrc;
-    
-    // Color tint según estado
-    Color tint = WHITE;
-    if (crouching) tint = SKYBLUE;
-    if (aimingUp) tint = YELLOW;
-    
+    Color tint = aimingUp ? YELLOW : WHITE;
+
     if (anim.IsShooting()) {
         torsoSrc = { anim.GetShootFrame() * anim.GetShootW(), anim.GetRowShoot(), anim.GetShootW(), h };
         if (dir == PlayerDirection::LEFT) {
@@ -91,12 +153,30 @@ void Player::DrawSeparated() {
         }
         DrawTexturePro(anim.GetSheet(), torsoSrc,
             { torsoX, baseY, anim.GetShootW() * SCALE, h * SCALE },
-            {0,0}, 0, tint);
+            { 0,0 }, 0, tint);
         return;
     }
-    
+
+    // AIMING UP (apuntar arriba)
+    if (aimingUp) {
+        if (anim.IsAimingTransition()) {
+            torsoSrc = {
+                (float)(anim.GetAimingFrame() * w),
+                anim.GetAimingTransitionRowY(),
+                w, h
+            };
+        }
+        else {
+            torsoSrc = {
+                (float)(anim.GetAimingFrame() * w),
+                anim.GetAimingIdleRowY(),
+                w, h
+            };
+        }
+    }
     // Torso normal
-    switch (anim.GetTorsoAnim()) {
+    else {
+        switch (anim.GetTorsoAnim()) {
         case TorsoAnim::WALKING:
             torsoSrc = { anim.GetWalkTorsoFrame() * w, anim.GetRowWalkTorso(), w, h };
             break;
@@ -105,25 +185,31 @@ void Player::DrawSeparated() {
             break;
         default:
             torsoSrc = { anim.GetIdleFrame() * w, anim.GetRowIdle(), w, h };
+        }
     }
-    if (dir == PlayerDirection::LEFT) torsoSrc.width = -w;
-    
+
+    if (dir == PlayerDirection::LEFT) {
+        torsoSrc.width = -w;
+    }
+
     DrawTexturePro(anim.GetSheet(), torsoSrc,
         { pos.x, baseY, w * SCALE, h * SCALE },
-        {0,0}, 0, tint);
+        { 0,0 }, 0, tint);
 }
 
 void Player::DrawFullBody() {
-    Rectangle src = GetFullBodyRect();
-    if (dir == PlayerDirection::LEFT) src.width = -src.width;
-    float curH = GetFullBodyH();
-    
-    Color tint = WHITE;
-    if (crouching) tint = SKYBLUE;
-    
-    DrawTexturePro(anim.GetSheet(), src,
-        { pos.x, pos.y + (NORMAL_H - curH) * SCALE, GetWidth(), curH * SCALE },
-        {0,0}, 0, tint);
+    Rectangle sourceRect = GetFullBodyRect();
+    if (dir == PlayerDirection::LEFT) sourceRect.width = -sourceRect.width;
+    float currentHeight = GetFullBodyH();
+
+    Rectangle destRect = {
+        pos.x,
+        pos.y + (34.0f - currentHeight) * SCALE,
+        GetWidth(),
+        currentHeight * SCALE
+    };
+
+    DrawTexturePro(anim.GetSheet(), sourceRect, destRect, { 0,0 }, 0, aimingUp ? YELLOW : WHITE);
 }
 
 void Player::DrawHitBox() {
@@ -132,47 +218,58 @@ void Player::DrawHitBox() {
 
 Rectangle Player::GetFullBodyRect() {
     int row = 0;
-    int h = (int)NORMAL_H;
-    
+    int h = 34;
     switch (special) {
-        case SpecialAnim::CROUCH:
-            row = 0;
-            h = (int)CROUCH_H;
-            break;
-        case SpecialAnim::CROUCH_SHOOT:
-            row = 1;
-            h = (int)CROUCH_H;
-            break;
-        case SpecialAnim::FALLING_START:
-            row = 2;
-            h = 48;
-            break;
-        default:
-            break;
+    case SpecialAnim::CROUCH: row = 0; h = 20; break;
+    case SpecialAnim::CROUCH_SHOOT: row = 1; h = 20; break;
+    case SpecialAnim::FALLING_START: row = 2; h = 48; break;
+    default: break;
     }
-    return { 0, row * NORMAL_H, NORMAL_H, (float)h };
+    return { 0, row * 34.0f, 34.0f, (float)h };
 }
 
 float Player::GetFullBodyH() const {
     switch (special) {
-        case SpecialAnim::CROUCH:
-        case SpecialAnim::CROUCH_SHOOT:
-            return CROUCH_H;
-        case SpecialAnim::FALLING_START:
-            return 48.0f;
-        default:
-            return NORMAL_H;
+    case SpecialAnim::CROUCH:
+    case SpecialAnim::CROUCH_SHOOT:
+        return 20.0f;
+    case SpecialAnim::FALLING_START:
+        return 48.0f;
+    default:
+        return 34.0f;
     }
 }
 
 float Player::GetHeight() const {
     if (mode == Mode::FULL_BODY) return GetFullBodyH() * SCALE;
-    if (crouching) return CROUCH_H * SCALE;
-    return NORMAL_H * SCALE;
+    return hitboxHeight;
 }
 
 Rectangle Player::GetHitBox() {
-    return Rectangle{ pos.x, pos.y, GetWidth(), GetHeight() };
+    float hitboxX;
+
+    // Detectar si está saltando (no está en el suelo)
+    if (!grounded && !crouching) {
+        float jumpOffsetX = 6.0f * SCALE;
+
+        if (dir == PlayerDirection::LEFT) {
+            hitboxX = pos.x + (34.0f * SCALE - hitboxWidth - jumpOffsetX);
+        }
+        else {
+            hitboxX = pos.x + jumpOffsetX;
+        }
+    }
+    else {
+        if (dir == PlayerDirection::LEFT) {
+            hitboxX = pos.x + (34.0f * SCALE - hitboxWidth - hitboxOffsetX);
+        }
+        else {
+            hitboxX = pos.x + hitboxOffsetX;
+        }
+    }
+
+    float hitboxY = pos.y + hitboxOffsetY;
+    return Rectangle{ hitboxX, hitboxY, GetWidth(), GetHeight() };
 }
 
 Vector2 Player::GetPosition() {
@@ -181,21 +278,27 @@ Vector2 Player::GetPosition() {
 
 // ========== MOVIMIENTO E INPUT ==========
 void Player::MoveLeft() {
-    if (mode != Mode::FULL_BODY) {
-        vel.x = crouching ? -CROUCH_SPEED : -MOVE_SPEED;
+    if (mode != Mode::FULL_BODY && !crouching) {
+        vel.x = -MOVE_SPEED;
         if (!aimingUp) dir = PlayerDirection::LEFT;
+    }
+    else if (crouching) {
+        vel.x = -CROUCH_SPEED;
     }
 }
 
 void Player::MoveRight() {
-    if (mode != Mode::FULL_BODY) {
-        vel.x = crouching ? CROUCH_SPEED : MOVE_SPEED;
+    if (mode != Mode::FULL_BODY && !crouching) {
+        vel.x = MOVE_SPEED;
         if (!aimingUp) dir = PlayerDirection::RIGHT;
+    }
+    else if (crouching) {
+        vel.x = CROUCH_SPEED;
     }
 }
 
 void Player::StopMovingHorizontal() {
-    if (mode != Mode::FULL_BODY) vel.x = 0;
+    vel.x = 0;
 }
 
 void Player::Jump() {
@@ -218,25 +321,25 @@ void Player::StartCrouching() {
     if (grounded && !crouching && mode != Mode::FULL_BODY) {
         crouching = true;
         aimingUp = false;
-        special = SpecialAnim::CROUCH;
-        mode = Mode::FULL_BODY;
-        specialDuration = 0.1f;
-        specialTimer = 0;
+        SetCrouchHitbox();
+        anim.ForceCrouch();
     }
 }
 
 void Player::StopCrouching() {
     if (crouching) {
         crouching = false;
+        SetNormalHitbox();
     }
 }
 
 void Player::Shoot() {
-    if (mode != Mode::FULL_BODY) anim.StartShoot();
+    if (mode != Mode::FULL_BODY && !crouching) {
+        anim.StartShoot();
+    }
 }
 
 PlayerDirection Player::GetAimDirection() const {
     if (aimingUp) return PlayerDirection::UP;
-    if (crouching) return PlayerDirection::DOWN;
     return dir;
 }
