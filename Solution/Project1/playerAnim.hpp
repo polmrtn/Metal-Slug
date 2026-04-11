@@ -54,6 +54,17 @@ public:
     float GetCrouchTransitionH() const { return 68.0f; }
     float GetCrouchIdleH() const { return 34.0f; }
 
+    // Getters para caminar agachado
+    int GetCrouchWalkFrame() const { return crouchWalkFrame; }
+    bool IsCrouchWalking() const { return crouchWalking; }
+    float GetCrouchWalkRowY() const { return 21 * 34.0f; }
+
+    // Getters para disparo agachado
+    int GetCrouchShootFrame() const { return crouchShootFrame; }
+    bool IsCrouchShooting() const { return crouchShooting; }
+    float GetCrouchShootRowY() const { return 22 * 34.0f; }
+    float GetCrouchShootW() const { return 68.0f; }
+
     // Getters para aiming up
     int GetAimingFrame() const { return aimingFrame; }
     bool IsAimingUp() const { return aimingUp; }
@@ -67,25 +78,13 @@ public:
     float GetShootUpRowY() const { return 16 * 34.0f; }
     float GetShootUpH() const { return 68.0f; }
 
-    // Getters para caminar agachado
-    int GetCrouchWalkFrame() const { return crouchWalkFrame; }
-    bool IsCrouchWalking() const { return crouchWalking; }
-    float GetCrouchWalkRowY() const { return 21 * 34.0f; }  // Fila 21
-
-    // Getters para disparo agachado
-    int GetCrouchShootFrame() const { return crouchShootFrame; }
-    bool IsCrouchShooting() const { return crouchShooting; }
-    float GetCrouchShootRowY() const { return 22 * 34.0f; }  // Fila 22
-    float GetCrouchShootW() const { return 68.0f; }          // Ancho 68px
-
-
     // Control de animaciones
     void StartShoot();
     void StartShootUp();
-    void ForceStopShoot();
+    void StartCrouchShoot();
     void ResetJump();
     void ForceCrouch();
-    void StartCrouchShoot();
+    void ForceStopShoot();
 
 private:
     Texture2D spriteSheet;
@@ -108,26 +107,17 @@ private:
     // Control de salto
     bool jumpComplete = false;
 
+    // Velocidades de animación walking
+    float walkLegsDelay = 0.05f;      // Velocidad piernas caminando
+    float walkTorsoDelay = 0.05f;     // Velocidad torso caminando
+
     // Agachado
     int crouchFrame = 0;
     float crouchTimer = 0.0f;
-    float crouchDelay = 0.05f;
+    float crouchTransitionDelay = 0.05f;
+    float crouchIdleDelay = 0.15f;
     bool crouching = false;
     bool crouchTransition = false;
-
-    // Aiming up
-    int aimingFrame = 0;
-    float aimingTimer = 0.0f;
-    float aimingDelay = 0.05f;
-    bool aimingUp = false;
-    bool aimingTransition = true;
-
-    // Shooting up
-    int shootUpFrame = 0;
-    float shootUpTimer = 0.0f;
-    float shootUpDelay = 0.05f;
-    int shootUpFrameCount = 10;
-    bool shootingUp = false;
 
     // Caminar agachado
     int crouchWalkFrame = 0;
@@ -142,6 +132,20 @@ private:
     float crouchShootDelay = 0.05f;
     int crouchShootFrameCount = 10;
     bool crouchShooting = false;
+
+    // Aiming up
+    int aimingFrame = 0;
+    float aimingTimer = 0.0f;
+    float aimingDelay = 0.05f;
+    bool aimingUp = false;
+    bool aimingTransition = true;
+
+    // Shooting up
+    int shootUpFrame = 0;
+    float shootUpTimer = 0.0f;
+    float shootUpDelay = 0.05f;
+    int shootUpFrameCount = 10;
+    bool shootingUp = false;
 
     // Offsets
     VisualOffsets idleOffset = { -3.0f, 9.0f };

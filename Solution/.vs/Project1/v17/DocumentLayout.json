@@ -3,20 +3,20 @@
   "WorkspaceRootPath": "E:\\_Universidad\\1.2_Segundo_Semestre\\Project 1\\Metal-Slug\\Metal-Slug\\Solution\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|E:\\_Universidad\\1.2_Segundo_Semestre\\Project 1\\Metal-Slug\\Metal-Slug\\Solution\\Project1\\Player.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|solutionrelative:Project1\\Player.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+      "AbsoluteMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|E:\\_Universidad\\1.2_Segundo_Semestre\\Project 1\\Metal-Slug\\Metal-Slug\\Solution\\Project1\\playerAnim.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|solutionrelative:Project1\\playerAnim.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|E:\\_Universidad\\1.2_Segundo_Semestre\\Project 1\\Metal-Slug\\Metal-Slug\\Solution\\Project1\\playerAnim.hpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|solutionrelative:Project1\\playerAnim.hpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|E:\\_Universidad\\1.2_Segundo_Semestre\\Project 1\\Metal-Slug\\Metal-Slug\\Solution\\Project1\\playerAnim.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|solutionrelative:Project1\\playerAnim.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|E:\\_Universidad\\1.2_Segundo_Semestre\\Project 1\\Metal-Slug\\Metal-Slug\\Solution\\Project1\\Player.hpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|solutionrelative:Project1\\Player.hpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|E:\\_Universidad\\1.2_Segundo_Semestre\\Project 1\\Metal-Slug\\Metal-Slug\\Solution\\Project1\\Player.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|solutionrelative:Project1\\Player.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|E:\\_Universidad\\1.2_Segundo_Semestre\\Project 1\\Metal-Slug\\Metal-Slug\\Solution\\Project1\\game.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
@@ -30,8 +30,21 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 3,
+          "SelectedChildIndex": 0,
           "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "playerAnim.cpp",
+              "DocumentMoniker": "E:\\_Universidad\\1.2_Segundo_Semestre\\Project 1\\Metal-Slug\\Metal-Slug\\Solution\\Project1\\playerAnim.cpp",
+              "RelativeDocumentMoniker": "Project1\\playerAnim.cpp",
+              "ToolTip": "E:\\_Universidad\\1.2_Segundo_Semestre\\Project 1\\Metal-Slug\\Metal-Slug\\Solution\\Project1\\playerAnim.cpp",
+              "RelativeToolTip": "Project1\\playerAnim.cpp",
+              "ViewState": "AgIAANAAAAAAAAAAAAAswPYAAAAVAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2026-04-11T16:07:55.667Z",
+              "EditorCaption": ""
+            },
             {
               "$type": "Document",
               "DocumentIndex": 1,
@@ -40,7 +53,7 @@
               "RelativeDocumentMoniker": "Project1\\playerAnim.hpp",
               "ToolTip": "E:\\_Universidad\\1.2_Segundo_Semestre\\Project 1\\Metal-Slug\\Metal-Slug\\Solution\\Project1\\playerAnim.hpp",
               "RelativeToolTip": "Project1\\playerAnim.hpp",
-              "ViewState": "AgIAAAMAAAAAAAAAAAAAAEYAAAAjAAAAAAAAAA==",
+              "ViewState": "AgIAAHEAAAAAAAAAAAAcwIMAAAAjAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
               "WhenOpened": "2026-04-11T16:07:50.256Z",
               "EditorCaption": ""
@@ -48,38 +61,25 @@
             {
               "$type": "Document",
               "DocumentIndex": 2,
-              "Title": "playerAnim.cpp",
-              "DocumentMoniker": "E:\\_Universidad\\1.2_Segundo_Semestre\\Project 1\\Metal-Slug\\Metal-Slug\\Solution\\Project1\\playerAnim.cpp",
-              "RelativeDocumentMoniker": "Project1\\playerAnim.cpp",
-              "ToolTip": "E:\\_Universidad\\1.2_Segundo_Semestre\\Project 1\\Metal-Slug\\Metal-Slug\\Solution\\Project1\\playerAnim.cpp",
-              "RelativeToolTip": "Project1\\playerAnim.cpp",
-              "ViewState": "AgIAAJ8AAAAAAAAAAAAswM8AAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2026-04-11T16:07:55.667Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
               "Title": "Player.hpp",
               "DocumentMoniker": "E:\\_Universidad\\1.2_Segundo_Semestre\\Project 1\\Metal-Slug\\Metal-Slug\\Solution\\Project1\\Player.hpp",
               "RelativeDocumentMoniker": "Project1\\Player.hpp",
               "ToolTip": "E:\\_Universidad\\1.2_Segundo_Semestre\\Project 1\\Metal-Slug\\Metal-Slug\\Solution\\Project1\\Player.hpp",
               "RelativeToolTip": "Project1\\Player.hpp",
-              "ViewState": "AgIAABIAAAAAAAAAAAAAAD0AAAAtAAAAAAAAAA==",
+              "ViewState": "AgIAABgAAAAAAAAAAAAAACkAAAAuAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
               "WhenOpened": "2026-04-11T16:07:54.476Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 3,
               "Title": "Player.cpp",
               "DocumentMoniker": "E:\\_Universidad\\1.2_Segundo_Semestre\\Project 1\\Metal-Slug\\Metal-Slug\\Solution\\Project1\\Player.cpp",
               "RelativeDocumentMoniker": "Project1\\Player.cpp",
-              "ToolTip": "E:\\_Universidad\\1.2_Segundo_Semestre\\Project 1\\Metal-Slug\\Metal-Slug\\Solution\\Project1\\Player.cpp*",
-              "RelativeToolTip": "Project1\\Player.cpp*",
-              "ViewState": "AgIAAEIAAAAAAAAAAAAMwFcAAAAUAAAAAAAAAA==",
+              "ToolTip": "E:\\_Universidad\\1.2_Segundo_Semestre\\Project 1\\Metal-Slug\\Metal-Slug\\Solution\\Project1\\Player.cpp",
+              "RelativeToolTip": "Project1\\Player.cpp",
+              "ViewState": "AgIAAEcBAAAAAAAAAAAMwHEBAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2026-04-11T16:07:53.678Z",
               "EditorCaption": ""
@@ -92,7 +92,7 @@
               "RelativeDocumentMoniker": "Project1\\game.cpp",
               "ToolTip": "E:\\_Universidad\\1.2_Segundo_Semestre\\Project 1\\Metal-Slug\\Metal-Slug\\Solution\\Project1\\game.cpp",
               "RelativeToolTip": "Project1\\game.cpp",
-              "ViewState": "AgIAAEsAAAAAAAAAAAAAAHAAAAA/AAAAAAAAAA==",
+              "ViewState": "AgIAAE4AAAAAAAAAAAAAAGcAAAAhAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2026-04-11T16:09:01.389Z",
               "EditorCaption": ""

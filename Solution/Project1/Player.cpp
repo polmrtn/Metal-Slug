@@ -352,9 +352,9 @@ void Player::MoveLeft() {
         vel.x = -MOVE_SPEED;
         dir = PlayerDirection::LEFT;
     }
-    else if (crouching) {
+    else if (crouching && !anim.IsCrouchShooting()) {  // ← Solo mover si NO está disparando agachado
         vel.x = -CROUCH_SPEED;
-        dir = PlayerDirection::LEFT;  // ← AÑADIR ESTO: actualizar dirección también cuando está agachado
+        dir = PlayerDirection::LEFT;
     }
 }
 
@@ -363,9 +363,9 @@ void Player::MoveRight() {
         vel.x = MOVE_SPEED;
         dir = PlayerDirection::RIGHT;
     }
-    else if (crouching) {
+    else if (crouching && !anim.IsCrouchShooting()) {  // ← Solo mover si NO está disparando agachado
         vel.x = CROUCH_SPEED;
-        dir = PlayerDirection::RIGHT;  // ← AÑADIR ESTO: actualizar dirección también cuando está agachado
+        dir = PlayerDirection::RIGHT;
     }
 }
 
@@ -408,13 +408,15 @@ void Player::StopCrouching() {
 void Player::Shoot() {
     if (mode != Mode::FULL_BODY) {
         if (crouching) {
-            anim.StartCrouchShoot();  // Disparo agachado
+            // Al disparar agachado, detener el movimiento horizontal
+            vel.x = 0;
+            anim.StartCrouchShoot();
         }
         else if (aimingUp) {
-            anim.StartShootUp();       // Disparo hacia arriba
+            anim.StartShootUp();
         }
         else {
-            anim.StartShoot();         // Disparo horizontal normal
+            anim.StartShoot();
         }
     }
 }

@@ -75,7 +75,7 @@ void PlayerAnim::Update(bool grounded, float velX, bool crouchingInput, bool aim
         }
     }
 
-    // ========== AGACHADO (prioridad máxima) ==========
+    // ========== AGACHADO ==========
     if (crouchingInput && !crouching) {
         crouching = true;
         crouchTransition = true;
@@ -109,7 +109,7 @@ void PlayerAnim::Update(bool grounded, float velX, bool crouchingInput, bool aim
             }
         }
 
-        // ========== CAMINAR AGACHADO (solo si no está disparando) ==========
+        // ========== CAMINAR AGACHADO ==========
         if (velX != 0 && !crouchTransition && !crouchShooting) {
             crouchWalking = true;
             crouchWalkTimer += dt;
@@ -127,10 +127,11 @@ void PlayerAnim::Update(bool grounded, float velX, bool crouchingInput, bool aim
             crouchWalkTimer = 0.0f;
         }
 
-        // ========== TRANSICIÓN E IDLE AGACHADO (solo si no está disparando) ==========
+        // ========== TRANSICIÓN E IDLE AGACHADO ==========
         if (!crouchShooting) {
             crouchTimer += dt;
-            if (crouchTimer >= crouchDelay) {
+            float currentDelay = crouchTransition ? crouchTransitionDelay : crouchIdleDelay;
+            if (crouchTimer >= currentDelay) {
                 crouchTimer = 0.0f;
                 crouchFrame++;
 
@@ -176,12 +177,12 @@ void PlayerAnim::Update(bool grounded, float velX, bool crouchingInput, bool aim
     // WALKING
     if (legsAnim == LegsAnim::WALKING) {
         walkLegsTimer += dt;
-        if (walkLegsTimer >= 0.02f) {
+        if (walkLegsTimer >= walkLegsDelay) {
             walkLegsTimer = 0.0f;
             walkLegsFrame = (walkLegsFrame + 1) % 12;
         }
         walkTorsoTimer += dt;
-        if (walkTorsoTimer >= 0.02f) {
+        if (walkTorsoTimer >= walkTorsoDelay) {
             walkTorsoTimer = 0.0f;
             walkTorsoFrame = (walkTorsoFrame + 1) % 12;
         }
@@ -232,15 +233,8 @@ void PlayerAnim::StartCrouchShoot() {
     crouchShooting = true;
     crouchShootFrame = 0;
     crouchShootTimer = 0.0f;
-    // Resetear otras animaciones de agachado
     crouchWalking = false;
     crouchWalkFrame = 0;
-}
-
-void PlayerAnim::ForceStopShoot() {
-    shooting = false;
-    shootFrame = 0;
-    shootTimer = 0.0f;
 }
 
 void PlayerAnim::ResetJump() {
@@ -254,4 +248,10 @@ void PlayerAnim::ForceCrouch() {
     crouchTransition = true;
     crouchFrame = 0;
     crouchTimer = 0.0f;
+}
+
+void PlayerAnim::ForceStopShoot() {
+    shooting = false;
+    shootFrame = 0;
+    shootTimer = 0.0f;
 }
