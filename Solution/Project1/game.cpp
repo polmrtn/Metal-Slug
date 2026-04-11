@@ -1,4 +1,4 @@
-#include "game.hpp"
+﻿#include "game.hpp"
 #include <raymath.h>
 bool musicStarted = false;
 
@@ -89,10 +89,9 @@ void Game::Update()
 
 void Game::Shoot()
 {
-
 	Vector2 playerPos = player.GetPosition();
-	float playerWidth = player.GetWidth();  // Siempre el mismo ancho
-	float playerHeight = player.GetHeight(); // Cambia si est� agachado
+	float playerWidth = player.GetWidth();
+	float playerHeight = player.GetHeight();
 
 	Vector2 bulletPos;
 	PlayerDirection aimDir = player.GetAimDirection();
@@ -110,7 +109,8 @@ void Game::Shoot()
 		directionX = 1;
 		break;
 	case PlayerDirection::UP:
-		bulletPos = { playerPos.x + playerWidth / 2, playerPos.y };
+		// Bala desde más arriba cuando apunta hacia arriba
+		bulletPos = { playerPos.x + playerWidth / 2, playerPos.y - 100.0f };  // ← 20px más arriba
 		directionY = -1;
 		break;
 	case PlayerDirection::DOWN:
@@ -119,7 +119,6 @@ void Game::Shoot()
 		break;
 	}
 	bullets.emplace_back(bulletPos, bulletSpeed, directionX, directionY);
-
 }
 
 
