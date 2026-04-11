@@ -62,7 +62,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 9,
+          "SelectedChildIndex": 7,
           "Children": [
             {
               "$type": "Document",
@@ -89,32 +89,6 @@
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
               "WhenOpened": "2026-04-04T16:48:50.751Z",
               "IsPinned": true,
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 7,
-              "Title": "game.hpp",
-              "DocumentMoniker": "C:\\Users\\USUARIO\\Desktop\\Barcos\\Metal-Slug\\Solution\\Project1\\game.hpp",
-              "RelativeDocumentMoniker": "Project1\\game.hpp",
-              "ToolTip": "C:\\Users\\USUARIO\\Desktop\\Barcos\\Metal-Slug\\Solution\\Project1\\game.hpp",
-              "RelativeToolTip": "Project1\\game.hpp",
-              "ViewState": "AgIAAAcAAAAAAAAAAAAowCgAAAACAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2026-04-09T06:47:57.059Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "Soldier.cpp",
-              "DocumentMoniker": "C:\\Users\\USUARIO\\Desktop\\Barcos\\Metal-Slug\\Solution\\Project1\\Soldier.cpp",
-              "RelativeDocumentMoniker": "Project1\\Soldier.cpp",
-              "ToolTip": "C:\\Users\\USUARIO\\Desktop\\Barcos\\Metal-Slug\\Solution\\Project1\\Soldier.cpp",
-              "RelativeToolTip": "Project1\\Soldier.cpp",
-              "ViewState": "AgIAAC0AAAAAAAAAAAAowDgAAAAiAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2026-04-08T21:27:00.302Z",
               "EditorCaption": ""
             },
             {
@@ -193,6 +167,32 @@
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABIAAAAUAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
               "WhenOpened": "2026-04-08T19:15:27.773Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "Soldier.cpp",
+              "DocumentMoniker": "C:\\Users\\USUARIO\\Desktop\\Barcos\\Metal-Slug\\Solution\\Project1\\Soldier.cpp",
+              "RelativeDocumentMoniker": "Project1\\Soldier.cpp",
+              "ToolTip": "C:\\Users\\USUARIO\\Desktop\\Barcos\\Metal-Slug\\Solution\\Project1\\Soldier.cpp",
+              "RelativeToolTip": "Project1\\Soldier.cpp",
+              "ViewState": "AgIAAC0AAAAAAAAAAAAowDgAAAAiAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2026-04-08T21:27:00.302Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "game.hpp",
+              "DocumentMoniker": "C:\\Users\\USUARIO\\Desktop\\Barcos\\Metal-Slug\\Solution\\Project1\\game.hpp",
+              "RelativeDocumentMoniker": "Project1\\game.hpp",
+              "ToolTip": "C:\\Users\\USUARIO\\Desktop\\Barcos\\Metal-Slug\\Solution\\Project1\\game.hpp",
+              "RelativeToolTip": "Project1\\game.hpp",
+              "ViewState": "AgIAAAcAAAAAAAAAAAAowCgAAAACAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2026-04-09T06:47:57.059Z",
               "EditorCaption": ""
             },
             {

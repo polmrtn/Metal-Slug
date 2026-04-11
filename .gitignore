@@ -492,3 +492,5 @@ FodyWeavers.xsd
 /Solution/.vs
 /Solution/.vs
 /Solution
+/Solution/.vs
+*.json
