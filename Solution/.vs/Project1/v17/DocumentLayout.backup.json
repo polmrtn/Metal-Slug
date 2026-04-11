@@ -3,10 +3,6 @@
   "WorkspaceRootPath": "C:\\Users\\USUARIO\\Desktop\\Barcos\\Metal-Slug\\Solution\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|C:\\Users\\USUARIO\\Desktop\\Barcos\\Metal-Slug\\Solution\\Project1\\game.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|solutionrelative:Project1\\game.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|C:\\Users\\USUARIO\\Desktop\\Barcos\\Metal-Slug\\Solution\\Project1\\Soldier.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|solutionrelative:Project1\\Soldier.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
@@ -15,16 +11,16 @@
       "RelativeMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|solutionrelative:Project1\\Soldier.hpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|C:\\Users\\USUARIO\\Desktop\\Barcos\\Metal-Slug\\Solution\\Project1\\UiManager.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|solutionrelative:Project1\\UiManager.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|C:\\Users\\USUARIO\\Desktop\\Barcos\\Metal-Slug\\Solution\\Project1\\UiManager.hpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|solutionrelative:Project1\\UiManager.hpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|C:\\Users\\USUARIO\\Desktop\\Barcos\\Metal-Slug\\Solution\\Project1\\CameraManager.hpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|solutionrelative:Project1\\CameraManager.hpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+      "AbsoluteMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|C:\\Users\\USUARIO\\Desktop\\Barcos\\Metal-Slug\\Solution\\Project1\\game.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|solutionrelative:Project1\\game.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|C:\\Users\\USUARIO\\Desktop\\Barcos\\Metal-Slug\\Solution\\Project1\\UiManager.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|solutionrelative:Project1\\UiManager.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|C:\\Users\\USUARIO\\Desktop\\Barcos\\Metal-Slug\\Solution\\Project1\\game.hpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
@@ -33,22 +29,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|C:\\Users\\USUARIO\\Desktop\\Barcos\\Metal-Slug\\Solution\\Project1\\Player.hpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|solutionrelative:Project1\\Player.hpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|C:\\Users\\USUARIO\\Desktop\\Barcos\\Metal-Slug\\Solution\\Project1\\SceneManager.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|solutionrelative:Project1\\SceneManager.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|C:\\Users\\USUARIO\\Desktop\\Barcos\\Metal-Slug\\Solution\\Project1\\AudioManager.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|solutionrelative:Project1\\AudioManager.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|C:\\Users\\USUARIO\\Desktop\\Barcos\\Metal-Slug\\Solution\\Project1\\Player.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|solutionrelative:Project1\\Player.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|C:\\Users\\USUARIO\\Desktop\\Barcos\\Metal-Slug\\Solution\\Project1\\CameraManager.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|solutionrelative:Project1\\CameraManager.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{573927D7-D0DE-4371-9780-77AD1A2A648E}|Project1\\Project1.vcxproj|C:\\Users\\USUARIO\\Desktop\\Barcos\\Metal-Slug\\Solution\\Project1\\BackgroundManager.hpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
@@ -82,11 +62,11 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 3,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 3,
               "Title": "game.cpp",
               "DocumentMoniker": "C:\\Users\\USUARIO\\Desktop\\Barcos\\Metal-Slug\\Solution\\Project1\\game.cpp",
               "RelativeDocumentMoniker": "Project1\\game.cpp",
@@ -100,7 +80,20 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 7,
+              "Title": "BackgroundManager.hpp",
+              "DocumentMoniker": "C:\\Users\\USUARIO\\Desktop\\Barcos\\Metal-Slug\\Solution\\Project1\\BackgroundManager.hpp",
+              "RelativeDocumentMoniker": "Project1\\BackgroundManager.hpp",
+              "ToolTip": "C:\\Users\\USUARIO\\Desktop\\Barcos\\Metal-Slug\\Solution\\Project1\\BackgroundManager.hpp",
+              "RelativeToolTip": "Project1\\BackgroundManager.hpp",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2026-04-04T16:48:50.751Z",
+              "IsPinned": true
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
               "Title": "game.hpp",
               "DocumentMoniker": "C:\\Users\\USUARIO\\Desktop\\Barcos\\Metal-Slug\\Solution\\Project1\\game.hpp",
               "RelativeDocumentMoniker": "Project1\\game.hpp",
@@ -112,20 +105,20 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 0,
               "Title": "Soldier.cpp",
               "DocumentMoniker": "C:\\Users\\USUARIO\\Desktop\\Barcos\\Metal-Slug\\Solution\\Project1\\Soldier.cpp",
               "RelativeDocumentMoniker": "Project1\\Soldier.cpp",
               "ToolTip": "C:\\Users\\USUARIO\\Desktop\\Barcos\\Metal-Slug\\Solution\\Project1\\Soldier.cpp",
               "RelativeToolTip": "Project1\\Soldier.cpp",
-              "ViewState": "AgIAAAUAAAAAAAAAAAAswIIAAAABAAAAAAAAAA==",
+              "ViewState": "AgIAAC0AAAAAAAAAAAAowDgAAAAiAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2026-04-08T21:27:00.302Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 4,
               "Title": "UiManager.cpp",
               "DocumentMoniker": "C:\\Users\\USUARIO\\Desktop\\Barcos\\Metal-Slug\\Solution\\Project1\\UiManager.cpp",
               "RelativeDocumentMoniker": "Project1\\UiManager.cpp",
@@ -138,7 +131,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 2,
               "Title": "UiManager.hpp",
               "DocumentMoniker": "C:\\Users\\USUARIO\\Desktop\\Barcos\\Metal-Slug\\Solution\\Project1\\UiManager.hpp",
               "RelativeDocumentMoniker": "Project1\\UiManager.hpp",
@@ -146,11 +139,12 @@
               "RelativeToolTip": "Project1\\UiManager.hpp",
               "ViewState": "AgIAAAYAAAAAAAAAAAAowCcAAAACAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2026-04-10T15:14:27.335Z"
+              "WhenOpened": "2026-04-10T15:14:27.335Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 1,
               "Title": "Soldier.hpp",
               "DocumentMoniker": "C:\\Users\\USUARIO\\Desktop\\Barcos\\Metal-Slug\\Solution\\Project1\\Soldier.hpp",
               "RelativeDocumentMoniker": "Project1\\Soldier.hpp",
@@ -163,19 +157,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
-              "Title": "AudioManager.cpp",
-              "DocumentMoniker": "C:\\Users\\USUARIO\\Desktop\\Barcos\\Metal-Slug\\Solution\\Project1\\AudioManager.cpp",
-              "RelativeDocumentMoniker": "Project1\\AudioManager.cpp",
-              "ToolTip": "C:\\Users\\USUARIO\\Desktop\\Barcos\\Metal-Slug\\Solution\\Project1\\AudioManager.cpp",
-              "RelativeToolTip": "Project1\\AudioManager.cpp",
-              "ViewState": "AgIAAAoAAAAAAAAAAAAowCsAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2026-04-08T19:15:23.376Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 6,
               "Title": "Player.hpp",
               "DocumentMoniker": "C:\\Users\\USUARIO\\Desktop\\Barcos\\Metal-Slug\\Solution\\Project1\\Player.hpp",
               "RelativeDocumentMoniker": "Project1\\Player.hpp",
@@ -187,67 +169,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "CameraManager.hpp",
-              "DocumentMoniker": "C:\\Users\\USUARIO\\Desktop\\Barcos\\Metal-Slug\\Solution\\Project1\\CameraManager.hpp",
-              "RelativeDocumentMoniker": "Project1\\CameraManager.hpp",
-              "ToolTip": "C:\\Users\\USUARIO\\Desktop\\Barcos\\Metal-Slug\\Solution\\Project1\\CameraManager.hpp",
-              "RelativeToolTip": "Project1\\CameraManager.hpp",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAACAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2026-04-08T09:37:16.314Z"
-            },
-            {
-              "$type": "Document",
               "DocumentIndex": 8,
-              "Title": "SceneManager.cpp",
-              "DocumentMoniker": "C:\\Users\\USUARIO\\Desktop\\Barcos\\Metal-Slug\\Solution\\Project1\\SceneManager.cpp",
-              "RelativeDocumentMoniker": "Project1\\SceneManager.cpp",
-              "ToolTip": "C:\\Users\\USUARIO\\Desktop\\Barcos\\Metal-Slug\\Solution\\Project1\\SceneManager.cpp",
-              "RelativeToolTip": "Project1\\SceneManager.cpp",
-              "ViewState": "AgIAAAIAAAAAAAAAAAAowB0AAAAFAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2026-04-10T19:42:08.899Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 10,
-              "Title": "Player.cpp",
-              "DocumentMoniker": "C:\\Users\\USUARIO\\Desktop\\Barcos\\Metal-Slug\\Solution\\Project1\\Player.cpp",
-              "RelativeDocumentMoniker": "Project1\\Player.cpp",
-              "ToolTip": "C:\\Users\\USUARIO\\Desktop\\Barcos\\Metal-Slug\\Solution\\Project1\\Player.cpp",
-              "RelativeToolTip": "Project1\\Player.cpp",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAACEAAAAbAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2026-04-04T19:03:08.396Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 11,
-              "Title": "CameraManager.cpp",
-              "DocumentMoniker": "C:\\Users\\USUARIO\\Desktop\\Barcos\\Metal-Slug\\Solution\\Project1\\CameraManager.cpp",
-              "RelativeDocumentMoniker": "Project1\\CameraManager.cpp",
-              "ToolTip": "C:\\Users\\USUARIO\\Desktop\\Barcos\\Metal-Slug\\Solution\\Project1\\CameraManager.cpp",
-              "RelativeToolTip": "Project1\\CameraManager.cpp",
-              "ViewState": "AgIAACwAAAAAAAAAAAAAADgAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2026-04-04T18:49:32.523Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 12,
-              "Title": "BackgroundManager.hpp",
-              "DocumentMoniker": "C:\\Users\\USUARIO\\Desktop\\Barcos\\Metal-Slug\\Solution\\Project1\\BackgroundManager.hpp",
-              "RelativeDocumentMoniker": "Project1\\BackgroundManager.hpp",
-              "ToolTip": "C:\\Users\\USUARIO\\Desktop\\Barcos\\Metal-Slug\\Solution\\Project1\\BackgroundManager.hpp",
-              "RelativeToolTip": "Project1\\BackgroundManager.hpp",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2026-04-04T16:48:50.751Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 13,
               "Title": "BackgroundManager.cpp",
               "DocumentMoniker": "C:\\Users\\USUARIO\\Desktop\\Barcos\\Metal-Slug\\Solution\\Project1\\BackgroundManager.cpp",
               "RelativeDocumentMoniker": "Project1\\BackgroundManager.cpp",
@@ -259,7 +181,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 14,
+              "DocumentIndex": 9,
               "Title": "AudioManager.hpp",
               "DocumentMoniker": "C:\\Users\\USUARIO\\Desktop\\Barcos\\Metal-Slug\\Solution\\Project1\\AudioManager.hpp",
               "RelativeDocumentMoniker": "Project1\\AudioManager.hpp",
@@ -271,7 +193,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 15,
+              "DocumentIndex": 10,
               "Title": "LevelMap.cpp",
               "DocumentMoniker": "C:\\Users\\USUARIO\\Desktop\\Barcos\\Metal-Slug\\Solution\\Project1\\LevelMap.cpp",
               "RelativeDocumentMoniker": "Project1\\LevelMap.cpp",
@@ -283,7 +205,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 16,
+              "DocumentIndex": 11,
               "Title": "LevelMap.hpp",
               "DocumentMoniker": "C:\\Users\\USUARIO\\Desktop\\Barcos\\Metal-Slug\\Solution\\Project1\\LevelMap.hpp",
               "RelativeDocumentMoniker": "Project1\\LevelMap.hpp",
@@ -295,7 +217,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 17,
+              "DocumentIndex": 12,
               "Title": "Bullet.hpp",
               "DocumentMoniker": "C:\\Users\\USUARIO\\Desktop\\Barcos\\Metal-Slug\\Solution\\Project1\\Bullet.hpp",
               "RelativeDocumentMoniker": "Project1\\Bullet.hpp",

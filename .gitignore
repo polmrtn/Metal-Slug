@@ -488,3 +488,7 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+/Solution/.vs
+/Solution/.vs
+/Solution/.vs
+/Solution
