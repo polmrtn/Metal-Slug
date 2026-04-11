@@ -19,6 +19,9 @@ void Game::Draw()
 {
 	camera.Begin();
 	backgroundManager.Draw();
+	for (auto& block : blocks) {
+		block.Draw();
+	}
 	player.Draw();
 	for (auto& Soldier : soldiers) {//auto&(is a variable that the compiler assumes from the vector) in this case type Soldier, this initializes the draw in each soldier
 		Soldier.Draw();
@@ -234,8 +237,6 @@ void Game::BlockCollisions()
 				++It;
 			}
 		}
-		
-	
 	}
 
 }

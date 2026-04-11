@@ -20,5 +20,6 @@ private:
 	int speed;
 	int directionX;
 	int directionY;
-	float scale = 0.05;
+	float scale = 2.0f;
+	float yOffset;
 };

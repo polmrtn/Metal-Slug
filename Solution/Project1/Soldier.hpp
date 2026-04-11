@@ -24,6 +24,7 @@ public:
     void SetVelocityY(float newVelY) { velocity.y = newVelY; }
     void SetGrounded(bool grounded) { isGrounded = grounded; }
     float GetVelocityY() const { return velocity.y; }
+
 private:
     Texture2D image;
     Vector2 position;

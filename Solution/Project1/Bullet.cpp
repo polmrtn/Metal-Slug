@@ -1,11 +1,12 @@
 #include "bullet.hpp"
 
 Bullet::Bullet(Vector2 position, int speed, int directionX, int directionY) {
-	image = LoadTexture("Graphics/BulletTest.png");
+	image = LoadTexture("Graphics/Bullet.png");
 	this->position = position;
 	this->speed = speed;
 	this->directionX = directionX;
 	this->directionY = directionY;
+	this->yOffset = -25.0f;
 }
 
 void Bullet::Update() {
@@ -16,7 +17,7 @@ void Bullet::Update() {
 
 Rectangle Bullet::GetHitbox()
 {
-	return Rectangle{ position.x , position.y , GetWidth() , GetHeight() };
+	return Rectangle{ position.x , position.y + yOffset , GetWidth() , GetHeight() };
 
 }
 void Bullet::DrawHitBox()
@@ -31,7 +32,7 @@ void Bullet::Draw() {
 	// Definimos el tamaño en pantalla (Ancho original * escala)
 	Rectangle destRect = {
 		position.x,
-		position.y,
+		position.y + yOffset,
 		GetWidth(),
 		GetHeight()
 	};

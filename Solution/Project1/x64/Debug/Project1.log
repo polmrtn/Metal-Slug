@@ -1,22 +1,21 @@
-﻿  LevelMap.cpp
-  Player.cpp
-  game.cpp
-E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\Bullet.hpp(23,16): warning C4305: 'inicializando': truncamiento de 'double' a 'float'
-  (compilando archivo de origen "game.cpp")
-  
+﻿  game.cpp
 E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\BackgroundManager.hpp(19,21): warning C4305: 'inicializando': truncamiento de 'double' a 'float'
   (compilando archivo de origen "game.cpp")
   
-E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\game.cpp(256,24): warning C4244: '=': conversión de 'int' a 'float'; posible pérdida de datos
-E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\game.cpp(257,25): warning C4244: '=': conversión de 'int' a 'float'; posible pérdida de datos
-  main.cpp
-E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\Bullet.hpp(23,16): warning C4305: 'inicializando': truncamiento de 'double' a 'float'
-  (compilando archivo de origen "main.cpp")
+E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\game.cpp(94,39): error C2039: "IsCrouching": no es un miembro de "Player"
+      E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\Player.hpp(8,7):
+      vea la declaración de 'Player'
   
+E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\game.cpp(261,24): warning C4244: '=': conversión de 'int' a 'float'; posible pérdida de datos
+E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\game.cpp(262,25): warning C4244: '=': conversión de 'int' a 'float'; posible pérdida de datos
+E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\game.cpp(287,14): error C2039: "IsCrouching": no es un miembro de "Player"
+      E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\Player.hpp(8,7):
+      vea la declaración de 'Player'
+  
+E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\game.cpp(287,14): error C2270: 'IsCrouching': modificadores no permitidos en funciones que no sean miembro
+E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\game.cpp(288,9): error C2065: 'crouching': identificador no declarado
+  main.cpp
 E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\BackgroundManager.hpp(19,21): warning C4305: 'inicializando': truncamiento de 'double' a 'float'
   (compilando archivo de origen "main.cpp")
   
   Generando código...
-x64\Debug\AudioManager.obj : warning LNK4042: objeto especificado más de una vez; omitidos los sobrantes
-LINK : warning LNK4098: la biblioteca predeterminada'MSVCRT' entra en conflicto con otras bibliotecas; use la biblioteca /NODEFAULTLIB:biblioteca
-  Project1.vcxproj -> E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\x64\Debug\Project1.exe
