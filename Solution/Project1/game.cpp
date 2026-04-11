@@ -75,8 +75,8 @@ void Game::Update()
 		audioManager.UpdateMusic(audioManager.GetGameMusic());
 		player.Update(camera.GetLeftLimit());
 		for (auto& soldier : soldiers) {
+			soldier.UpdateAI(player);  // Cada soldado usa su propia IA
 			soldier.Update();
-			//update all bullets
 		}
 		for (auto& bullet : bullets) {
 			bullet.Update();
