@@ -1,6 +1,7 @@
 #pragma once
 #include "SoldierState.hpp"  // enum aquí
 #include "SoldierAnim.hpp" 
+#include <raylib.h>
 
 
 class Soldier {
@@ -13,7 +14,9 @@ public:
     void UpdateAI(class Player& player);
     void Draw();
     void DrawHitBox();
-
+    void Attack(Player& player);
+    Rectangle GetHurtBox();
+    bool IsVisionRay(Player& player);
     Rectangle GetHitBox();
     int GetType();
 
@@ -45,10 +48,13 @@ private:
     
     bool isGrounded;
     bool isAlive;
-
+    bool facingRight ;
+    
+    
     // Variables de IA (cada soldado tiene las suyas)
     SoldierState currentState;
     float stateTimer;
+    float attackTimer = 0.0f;
 };
 
 

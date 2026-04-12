@@ -75,8 +75,8 @@ void Game::Update()
 		audioManager.UpdateMusic(audioManager.GetGameMusic());
 		player.Update(camera.GetLeftLimit());
 		for (auto& soldier : soldiers) {
-			soldier.UpdateAI(player);  // Cada soldado usa su propia IA
 			soldier.Update();
+			soldier.UpdateAI(player);
 		}
 		for (auto& bullet : bullets) {
 			bullet.Update();
@@ -212,7 +212,7 @@ void Game::BulletsCollision() {
 		bool bulletHit = false;
 		auto sIt = soldiers.begin();
 		while (sIt != soldiers.end()) {
-			if (CheckCollisionRecs(sIt->GetHitBox(), bIt->GetHitbox())) {
+			if (CheckCollisionRecs(sIt->GetHurtBox(), bIt->GetHitbox())) {
 				sIt = soldiers.erase(sIt);
 				UiManager.AddScore(100);
 				bulletHit = true;
@@ -251,7 +251,7 @@ void Game::BlockCollisions()
 		}
 
 		while (It != soldiers.end()) {
-			if (CheckCollisionRecs(It->GetHitBox(), blockRect))
+			if (CheckCollisionRecs(It->GetHurtBox(), blockRect))
 			{
 				if (It->GetVelocityY() >= 0) {
 					It->SetY(blockRect.y - It->GetHeight());
@@ -280,8 +280,8 @@ void Game::ResolveCollisions() {
 std::vector<Soldier>  Game::CreateSoldiers()
 {
 	std::vector<Soldier> soldiers;
-	soldiers.reserve(10);
-	for (int i = 0; i < 10; ++i) {
+	soldiers.reserve(1);
+	for (int i = 0; i < 1; ++i) {
 		float xpos, ypos;
 		ypos = (10 * i + 40) + 100;
 		xpos = (100 * i + 40) + 500;
