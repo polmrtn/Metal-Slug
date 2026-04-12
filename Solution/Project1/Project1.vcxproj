@@ -152,6 +152,7 @@
     <ClCompile Include="playerAnim.cpp" />
     <ClCompile Include="SceneManager.cpp" />
     <ClCompile Include="Soldier.cpp" />
+    <ClCompile Include="SoldierAnim.cpp" />
     <ClCompile Include="UiManager.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -166,6 +167,7 @@
     <ClInclude Include="libraries\raylib\include\raymath.h" />
     <ClInclude Include="libraries\raylib\include\rlgl.h" />
     <ClInclude Include="Player.hpp" />
+    <ClInclude Include="SoldierAnim.hpp" />
     <ClInclude Include="UiManager.hpp" />
   </ItemGroup>
   <ItemGroup>
