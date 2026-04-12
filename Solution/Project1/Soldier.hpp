@@ -1,13 +1,7 @@
 #pragma once
-#include "raylib.h"
+#include "SoldierState.hpp"  // enum aquí
+#include "SoldierAnim.hpp" 
 
-enum class SoldierState {
-    IDLE,
-    WALKING,
-    ATTACKING,
-    HURT,
-    DYING
-};
 
 class Soldier {
 public:
@@ -23,20 +17,24 @@ public:
     Rectangle GetHitBox();
     int GetType();
 
-    float GetWidth() { return (float)image.width * scale; }
-    float GetHeight() { return (float)image.height * scale; }
+    float GetWidth() { return 34.f * scale; }
+    float GetHeight() { return 68.f * scale; }
     bool GetIsGrounded() { return isGrounded; }
     float GetY() const { return position.y; }
     float GetX() const { return position.x; }
     Vector2 GetPosition() const { return position; }
+    bool GetisAlive() { return isAlive; }
 
     void SetY(float newY) { position.y = newY; }
     void SetVelocityY(float newVelY) { velocity.y = newVelY; }
     void SetVelocityX(float newVelX) { velocity.x = newVelX; }
     void SetGrounded(bool grounded) { isGrounded = grounded; }
+    void SetisAlive(bool isalive) { isAlive = isalive; }
     float GetVelocityY() const { return velocity.y; }
 
 private:
+    //reference soldier animation
+    SoldierAnim soldierAnim;
     Texture2D image;
     Vector2 position;
     Vector2 velocity;
@@ -44,8 +42,9 @@ private:
 
     float scale;
     float gravity;
-    float groundLevel;
+    
     bool isGrounded;
+    bool isAlive;
 
     // Variables de IA (cada soldado tiene las suyas)
     SoldierState currentState;

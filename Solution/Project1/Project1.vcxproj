@@ -168,6 +168,7 @@
     <ClInclude Include="libraries\raylib\include\rlgl.h" />
     <ClInclude Include="Player.hpp" />
     <ClInclude Include="SoldierAnim.hpp" />
+    <ClInclude Include="SoldierState.hpp" />
     <ClInclude Include="UiManager.hpp" />
   </ItemGroup>
   <ItemGroup>
