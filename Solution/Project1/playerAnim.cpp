@@ -16,7 +16,20 @@ void PlayerAnim::UnloadTextures() {
 }
 
 void PlayerAnim::Update(bool grounded, float velX, bool crouchingInput, bool aimingUpInput, float dt) {
-    // ========== AIMING UP (prioridad alta) ==========
+    // ========== DISPARO HACIA ARRIBA (shooting up) ==========
+    if (shootingUp) {
+        shootUpTimer += dt;
+        if (shootUpTimer >= shootUpDelay) {
+            shootUpTimer = 0.0f;
+            shootUpFrame++;
+            if (shootUpFrame >= shootUpFrameCount) {
+                shootUpFrame = 0;
+                shootingUp = false;
+            }
+        }
+    }
+
+    // ========== AIMING UP (apuntar, sin disparar) ==========
     if (aimingUpInput && !aimingUp) {
         aimingUp = true;
         aimingTransition = true;
@@ -30,7 +43,7 @@ void PlayerAnim::Update(bool grounded, float velX, bool crouchingInput, bool aim
         aimingTimer = 0.0f;
     }
 
-    if (aimingUp) {
+    if (aimingUp && !shootingUp) {
         aimingTimer += dt;
         if (aimingTimer >= aimingDelay) {
             aimingTimer = 0.0f;
@@ -48,38 +61,90 @@ void PlayerAnim::Update(bool grounded, float velX, bool crouchingInput, bool aim
                 }
             }
         }
-        // No return para que las piernas sigan actualizándose
     }
 
-    // ========== AGACHADO (prioridad máxima) ==========
+    // ========== DISPARO NORMAL (horizontal) ==========
+    if (shooting) {
+        shootTimer += dt;
+        if (shootTimer >= 0.05f) {
+            shootTimer = 0.0f;
+            if (++shootFrame >= 10) {
+                shootFrame = 0;
+                shooting = false;
+            }
+        }
+    }
+
+    // ========== AGACHADO ==========
     if (crouchingInput && !crouching) {
         crouching = true;
         crouchTransition = true;
+        crouchWalking = false;
+        crouchShooting = false;
         crouchFrame = 0;
         crouchTimer = 0.0f;
     }
     else if (!crouchingInput && crouching) {
         crouching = false;
         crouchTransition = false;
+        crouchWalking = false;
+        crouchShooting = false;
         crouchFrame = 0;
         crouchTimer = 0.0f;
+        crouchWalkFrame = 0;
+        crouchShootFrame = 0;
     }
 
     if (crouching) {
-        crouchTimer += dt;
-        if (crouchTimer >= crouchDelay) {
-            crouchTimer = 0.0f;
-            crouchFrame++;
-
-            if (crouchTransition) {
-                if (crouchFrame >= 3) {
-                    crouchTransition = false;
-                    crouchFrame = 0;
+        // ========== DISPARO AGACHADO ==========
+        if (crouchShooting) {
+            crouchShootTimer += dt;
+            if (crouchShootTimer >= crouchShootDelay) {
+                crouchShootTimer = 0.0f;
+                crouchShootFrame++;
+                if (crouchShootFrame >= crouchShootFrameCount) {
+                    crouchShootFrame = 0;
+                    crouchShooting = false;
                 }
             }
-            else {
-                if (crouchFrame >= 4) {
-                    crouchFrame = 0;
+        }
+
+        // ========== CAMINAR AGACHADO ==========
+        if (velX != 0 && !crouchTransition && !crouchShooting) {
+            crouchWalking = true;
+            crouchWalkTimer += dt;
+            if (crouchWalkTimer >= crouchWalkDelay) {
+                crouchWalkTimer = 0.0f;
+                crouchWalkFrame++;
+                if (crouchWalkFrame >= crouchWalkFrameCount) {
+                    crouchWalkFrame = 0;
+                }
+            }
+        }
+        else if (!crouchShooting) {
+            crouchWalking = false;
+            crouchWalkFrame = 0;
+            crouchWalkTimer = 0.0f;
+        }
+
+        // ========== TRANSICIÓN E IDLE AGACHADO ==========
+        if (!crouchShooting) {
+            crouchTimer += dt;
+            float currentDelay = crouchTransition ? crouchTransitionDelay : crouchIdleDelay;
+            if (crouchTimer >= currentDelay) {
+                crouchTimer = 0.0f;
+                crouchFrame++;
+
+                if (crouchTransition) {
+                    if (crouchFrame >= 3) {
+                        crouchTransition = false;
+                        crouchFrame = 0;
+                    }
+                }
+                else {
+                    if (!crouchWalking && crouchFrame >= 4) {
+                        crouchFrame = 0;
+                    }
                 }
             }
         }
@@ -99,7 +164,6 @@ void PlayerAnim::Update(bool grounded, float velX, bool crouchingInput, bool aim
         legsAnim = LegsAnim::IDLE;
         torsoAnim = TorsoAnim::IDLE;
     }
-    if (aimingUpInput) torsoAnim = TorsoAnim::SHOOTING;
 
     // IDLE
     if (torsoAnim == TorsoAnim::IDLE) {
@@ -113,12 +177,12 @@ void PlayerAnim::Update(bool grounded, float velX, bool crouchingInput, bool aim
     // WALKING
     if (legsAnim == LegsAnim::WALKING) {
         walkLegsTimer += dt;
-        if (walkLegsTimer >= 0.02f) {
+        if (walkLegsTimer >= walkLegsDelay) {
             walkLegsTimer = 0.0f;
             walkLegsFrame = (walkLegsFrame + 1) % 12;
         }
         walkTorsoTimer += dt;
-        if (walkTorsoTimer >= 0.02f) {
+        if (walkTorsoTimer >= walkTorsoDelay) {
             walkTorsoTimer = 0.0f;
             walkTorsoFrame = (walkTorsoFrame + 1) % 12;
         }
@@ -142,18 +206,6 @@ void PlayerAnim::Update(bool grounded, float velX, bool crouchingInput, bool aim
             }
         }
     }
-
-    // SHOOTING
-    if (shooting) {
-        shootTimer += dt;
-        if (shootTimer >= 0.05f) {
-            shootTimer = 0.0f;
-            if (++shootFrame >= 10) {
-                shootFrame = 0;
-                shooting = false;
-            }
-        }
-    }
 }
 
 VisualOffsets PlayerAnim::GetOffsets() const {
@@ -171,6 +223,20 @@ void PlayerAnim::StartShoot() {
     shootTimer = 0.0f;
 }
 
+void PlayerAnim::StartShootUp() {
+    shootingUp = true;
+    shootUpFrame = 0;
+    shootUpTimer = 0.0f;
+}
+
+void PlayerAnim::StartCrouchShoot() {
+    crouchShooting = true;
+    crouchShootFrame = 0;
+    crouchShootTimer = 0.0f;
+    crouchWalking = false;
+    crouchWalkFrame = 0;
+}
+
 void PlayerAnim::ResetJump() {
     jumpComplete = false;
     jumpLegsFrame = 0;
@@ -182,4 +248,10 @@ void PlayerAnim::ForceCrouch() {
     crouchTransition = true;
     crouchFrame = 0;
     crouchTimer = 0.0f;
+}
+
+void PlayerAnim::ForceStopShoot() {
+    shooting = false;
+    shootFrame = 0;
+    shootTimer = 0.0f;
 }
