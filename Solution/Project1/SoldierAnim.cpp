@@ -17,7 +17,9 @@ Rectangle SoldierAnim::GetSourceRect() {
 	return { frame * clip.cellW, clip.rowY, clip.cellW, clip.cellH };
 	
 }
-
+void SoldierAnim::UnloadTextures() {
+    UnloadTexture(spriteSheet);
+}
 SoldierAnim::~SoldierAnim()
 {
 
@@ -38,25 +40,21 @@ void SoldierAnim::Update()
 
     if (timer >= 1.f / clip.fps) {
         timer = 0.f;
-
-        if (currentAnim == SoldierState::ATTACKING) {
-            // ping-pong
+        attackPeakReached = false;
+        if (currentAnim == SoldierState::ATTACKING) { // logica para que se devuelva la animacion ya que haya terminado
             if (animForward) {
                 frame++;
-                    if (frame >= clip.frames - 1) {
-                    animForward = false;
-                    // hemos alcanzado el pico (último frame)
+                if (frame >= clip.frames - 1) {
                     attackPeakReached = true;
+                    animForward = false;
+                    
                 }
             }
             else {
                 frame--;
                 if (frame <= 0) {
-                    animForward = true;
-                    // si ya pasó por el pico y volvió a 0 => ciclo completo
-                    if (attackPeakReached) {
-                        animCompleted = true;
-                    }
+                    frame = 0;
+                    animCompleted = true;
                 }
             }
         }
@@ -68,6 +66,7 @@ void SoldierAnim::Update()
             else {
                 // Non-looping (non-pingpong) finished when reaching last frame
                 animCompleted = true;
+               
             }
         }
     }
@@ -75,7 +74,7 @@ void SoldierAnim::Update()
 
 void SoldierAnim::SetAnimation(SoldierState animation)
 {
-    if (currentAnim == animation && animation != SoldierState::ATTACKING) return;
+    if (currentAnim == animation ) return;
     currentAnim = animation;
     frame = 0;
     timer = 0.f;

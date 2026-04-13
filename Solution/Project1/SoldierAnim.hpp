@@ -19,12 +19,12 @@ public:
 	~SoldierAnim();
 	void LoadTexture();
 	Texture2D GetSheet() const { return spriteSheet; }
-    
+	void UnloadTextures();
 	bool IsShooting() const { return isShooting; }
 	void Update();
 	void SetAnimation(SoldierState animation);
 	void ForceAnimation(SoldierState animation);
-
+	bool IsAttackPeak() const { return attackPeakReached; }
 	SoldierState GetCurrentAnim() const { return currentAnim; }
 	
 	// Devuelve true cuando la animación actual alcanzó su "fin" significativo.
@@ -40,9 +40,9 @@ private:
 	int frame;
 	float timer;
 	bool animForward;
-
-	// Flags para detectar final de animación (especialmente ATTACKING ping-pong)
 	bool attackPeakReached;
+	// Flags para detectar final de animación (especialmente ATTACKING ping-pong)
+	
 	bool animCompleted;
 
 	static constexpr AnimClip CLIPS[5] = {

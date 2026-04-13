@@ -21,14 +21,17 @@ public:
     void SetSoliderState(SoldierState newState);
     int GetType();
 
+
     float GetWidth() { return 34.f * scale; }
     float GetHeight() { return 68.f * scale; }
     bool GetIsGrounded() { return isGrounded; }
+    bool IsDeadAnimFinished() const { return soldierAnim.IsAnimationFinished(); }
     float GetY() const { return position.y; }
     float GetX() const { return position.x; }
     Vector2 GetPosition() const { return position; }
     bool GetisAlive() { return isAlive; }
-
+    void TriggerDeath();
+   
     void SetY(float newY) { position.y = newY; }
     void SetVelocityY(float newVelY) { velocity.y = newVelY; }
     void SetVelocityX(float newVelX) { velocity.x = newVelX; }

@@ -1,4 +1,4 @@
-#include "game.hpp"
+﻿#include "game.hpp"
 #include <raymath.h>
 bool musicStarted = false;
 
@@ -77,6 +77,7 @@ void Game::Update()
 		for (auto& soldier : soldiers) {
 			soldier.Update();
 			soldier.UpdateAI(player);
+		
 		}
 		for (auto& bullet : bullets) {
 			bullet.Update();
@@ -92,7 +93,7 @@ void Game::Shoot()
 
 	Vector2 playerPos = player.GetPosition();
 	float playerWidth = player.GetWidth();  // Siempre el mismo ancho
-	float playerHeight = player.GetHeight(); // Cambia si est� agachado
+	float playerHeight = player.GetHeight(); // Cambia si está agachado
 
 	Vector2 bulletPos;
 	PlayerDirection aimDir = player.GetAimDirection();
@@ -212,22 +213,26 @@ void Game::BulletsCollision() {
 		bool bulletHit = false;
 		auto sIt = soldiers.begin();
 		while (sIt != soldiers.end()) {
-			if (CheckCollisionRecs(sIt->GetHurtBox(), bIt->GetHitbox())) {
-				sIt = soldiers.erase(sIt);
+			if (sIt->GetisAlive() && CheckCollisionRecs(sIt->GetHurtBox(), bIt->GetHitbox())) {
+				sIt->TriggerDeath();       // ← activa animación de muerte
 				UiManager.AddScore(100);
 				bulletHit = true;
 				break;
 			}
-			else {
-				++sIt;
-			}
+			++sIt;
 		}
+		if (bulletHit) bIt = bullets.erase(bIt);
+		else           ++bIt;
+	}
 
-		if (bulletHit) {
-			bIt = bullets.erase(bIt);
+	// ── Borrar soldados muertos DESPUÉS del loop de balas ────────────────────
+	auto sIt = soldiers.begin();
+	while (sIt != soldiers.end()) {
+		if (!sIt->GetisAlive() && sIt->IsDeadAnimFinished()) {
+			sIt = soldiers.erase(sIt);
 		}
 		else {
-			++bIt;
+			++sIt;
 		}
 	}
 }
@@ -280,8 +285,8 @@ void Game::ResolveCollisions() {
 std::vector<Soldier>  Game::CreateSoldiers()
 {
 	std::vector<Soldier> soldiers;
-	soldiers.reserve(1);
-	for (int i = 0; i < 1; ++i) {
+	soldiers.reserve(2);
+	for (int i = 0; i < 2; ++i) {
 		float xpos, ypos;
 		ypos = (10 * i + 40) + 100;
 		xpos = (100 * i + 40) + 500;
