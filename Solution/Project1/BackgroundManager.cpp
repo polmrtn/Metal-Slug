@@ -6,7 +6,7 @@ BackgroundManager::BackgroundManager()
     yposSprite = 0;
     xposSprite = 0;
 
-    background = LoadTexture("Graphics/NEW/bg4.png");
+    background = LoadTexture("Graphics/background sprites/bg4.png");
 
     // ========== PARÁMETROS AJUSTABLES ==========
     float scale = 4.0f;  // Escala única (ancho y alto se multiplican por esto)
