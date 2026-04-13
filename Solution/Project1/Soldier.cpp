@@ -71,7 +71,14 @@ Rectangle Soldier::GetHitBox() {
     else {
         rayX = position.x + rayLength;
     }
-    return Rectangle{ rayX , position.y + GetHeight() / 2, rayLength, GetHeight() / 10};
+    return Rectangle{ rayX , position.y + GetHeight() / 2, rayLength, GetHeight() / 2};
+}
+void Soldier::SetSoliderState(SoldierState newState)
+{
+    if (currentState == newState) return;
+    currentState = newState;
+    // Start the animation immediately when state changes
+    soldierAnim.SetAnimation(newState);
 }
 bool Soldier::IsVisionRay(Player& player)
 {
@@ -138,41 +145,43 @@ void Soldier::Attack(Player& player) {
     else {
         TraceLog(LOG_INFO, "Soldier attacked but missed");
     }
+    
 }
 void Soldier::UpdateAI(Player& player)
 {
-    if (IsVisionRay(player)) {
-        currentState = SoldierState::ATTACKING;
-        soldierAnim.ForceAnimation(SoldierState::ATTACKING);
-        
-        velocity.x = 0;
-        return;
-    }
-    stateTimer += GetFrameTime();
+    const bool inVision = IsVisionRay(player);
 
+    // If player is in vision and we haven't triggered an attack for this entry, trigger once
+    if (inVision && !attackTriggered) {
+        SetSoliderState(SoldierState::ATTACKING);
+        attackTriggered = true;
+        attackTimer = 0.0f;
+    }
+
+    // If player left vision, allow re-trigger on next entry
+    if (!inVision) {
+        attackTriggered = false;
+    }
+
+
+    stateTimer += GetFrameTime();
     if (stateTimer >= 3.0f) {
         stateTimer = 0.0f;
         direction = (GetRandomValue(0, 1) == 0) ? -1 : 1;
         int randomBehaviour = GetRandomValue(0, 1);
 
-
         switch (randomBehaviour)
         {
         case 0:
-            currentState = SoldierState::IDLE;
-
+            SetSoliderState(SoldierState::IDLE);
             break;
+
         case 1:
-            currentState = SoldierState::WALKING;
-
+            SetSoliderState(SoldierState::WALKING);
             break;
-
         }
-
-
     }
 
-    // Comportamiento según el estado
     if (currentState == SoldierState::IDLE && isGrounded && isAlive) {
         soldierAnim.SetAnimation(SoldierState::IDLE);
         velocity.x = 0;
@@ -189,15 +198,15 @@ void Soldier::UpdateAI(Player& player)
             facingRight = false;
         }
     }
-    else if (currentState == SoldierState::ATTACKING && isGrounded && isAlive) {
-        
-        attackTimer += GetFrameTime();
-        if (attackTimer >= 1.0f) {
-            Attack(player);
-            attackTimer = 0.0f;
- 
-        }
-        velocity.x = -direction;
-    }
+    else if  (currentState == SoldierState::ATTACKING && isAlive && isGrounded) {
+        soldierAnim.SetAnimation(SoldierState::ATTACKING); // ensure correct anim
+        velocity.x = 0;
 
+        // Option A: call Attack() when animation finishes (you already set that flag in SoldierAnim)
+        if (soldierAnim.IsAnimationFinished()) {
+            Attack(player);
+            // keep attackTriggered true so re-entry is required to attack again
+        }
+        return; // while attacking do not process other AI
+    }
 }

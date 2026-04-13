@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <raylib.h>
 #include "SoldierState.hpp"
 
@@ -6,7 +6,7 @@ struct AnimClip {
 	float rowY;      // Y en el spritesheet
 	float cellW;     // ancho de celda (34 o 68 para die)
 	float cellH;     // alto de celda
-	int   frames;    // n�mero de frames
+	int   frames;    // número de frames
 	float fps;       // velocidad
 	bool  loop;  
  //looping anim
@@ -27,6 +27,9 @@ public:
 
 	SoldierState GetCurrentAnim() const { return currentAnim; }
 	
+	// Devuelve true cuando la animación actual alcanzó su "fin" significativo.
+	// Para ATTACKING significa: forward → peak → back → vuelta a 0.
+	bool IsAnimationFinished() const;
 
 	Rectangle GetSourceRect();
 
@@ -37,6 +40,10 @@ private:
 	int frame;
 	float timer;
 	bool animForward;
+
+	// Flags para detectar final de animación (especialmente ATTACKING ping-pong)
+	bool attackPeakReached;
+	bool animCompleted;
 
 	static constexpr AnimClip CLIPS[5] = {
 		//  rowY   cellW  cellH  frames  fps    loop  

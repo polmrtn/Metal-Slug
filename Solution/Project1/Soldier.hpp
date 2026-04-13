@@ -18,6 +18,7 @@ public:
     Rectangle GetHurtBox();
     bool IsVisionRay(Player& player);
     Rectangle GetHitBox();
+    void SetSoliderState(SoldierState newState);
     int GetType();
 
     float GetWidth() { return 34.f * scale; }
@@ -55,6 +56,9 @@ private:
     SoldierState currentState;
     float stateTimer;
     float attackTimer = 0.0f;
+
+    // Prevent retrigger while player stays in vision: only trigger once per entry
+    bool attackTriggered = false;
 };
 
 

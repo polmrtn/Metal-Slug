@@ -8,6 +8,8 @@ SoldierAnim::SoldierAnim()
     frame = 0;
     timer = 0;
     animForward = true;
+    attackPeakReached = false;
+    animCompleted = false;
 }
 		
 Rectangle SoldierAnim::GetSourceRect() {
@@ -41,11 +43,21 @@ void SoldierAnim::Update()
             // ping-pong
             if (animForward) {
                 frame++;
-                if (frame >= clip.frames - 1) animForward = false;
+                    if (frame >= clip.frames - 1) {
+                    animForward = false;
+                    // hemos alcanzado el pico (último frame)
+                    attackPeakReached = true;
+                }
             }
             else {
                 frame--;
-                if (frame <= 0) animForward = true;
+                if (frame <= 0) {
+                    animForward = true;
+                    // si ya pasó por el pico y volvió a 0 => ciclo completo
+                    if (attackPeakReached) {
+                        animCompleted = true;
+                    }
+                }
             }
         }
         else if (clip.loop) {
@@ -53,6 +65,10 @@ void SoldierAnim::Update()
         }
         else {
             if (frame < clip.frames - 1) frame++;
+            else {
+                // Non-looping (non-pingpong) finished when reaching last frame
+                animCompleted = true;
+            }
         }
     }
 }
@@ -64,6 +80,9 @@ void SoldierAnim::SetAnimation(SoldierState animation)
     frame = 0;
     timer = 0.f;
     animForward = true;
+    // reset flags
+    attackPeakReached = false;
+    animCompleted = false;
 }
 
 void SoldierAnim::ForceAnimation(SoldierState animation) {
@@ -71,6 +90,11 @@ void SoldierAnim::ForceAnimation(SoldierState animation) {
     frame = 0;
     timer = 0.f;
     animForward = true;
+    attackPeakReached = false;
+    animCompleted = false;
 }
 
+bool SoldierAnim::IsAnimationFinished() const {
+    return animCompleted;
+}
 
