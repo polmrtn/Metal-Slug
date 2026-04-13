@@ -413,6 +413,10 @@ void Player::Shoot() {
             anim.StartCrouchShoot();
         }
         else if (aimingUp) {
+            // Forzar la interrupción del disparo horizontal si está activo
+            if (anim.IsShooting()) {
+                anim.ForceStopShoot();  // ← Forzar fin del disparo horizontal
+            }
             anim.StartShootUp();
         }
         else {

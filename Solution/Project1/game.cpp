@@ -29,7 +29,9 @@ void Game::Draw()
 	for (auto& bullet : bullets) {
 		bullet.Draw();
 	}
-	
+	for (auto& block : blocks) {
+		block.Draw();
+	}
 	camera.End();
 
 	UiManager.DrawCredits(camera.GetCamera());
@@ -308,5 +310,6 @@ std::vector<Block> Game::CreateBlocks() {
 	std::vector<Block> blocks;
 
 	blocks.emplace_back(Block(0, 1000, 2000, 100));
+
 	return blocks;
 }
