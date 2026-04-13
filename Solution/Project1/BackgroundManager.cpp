@@ -28,6 +28,7 @@ BackgroundManager::~BackgroundManager()
     UnloadTexture(background);
 }
 
+
 void BackgroundManager::FollowPlayer(Vector2 cameraPos)
 {
     float maxX = background.width - (destination.width / scale);

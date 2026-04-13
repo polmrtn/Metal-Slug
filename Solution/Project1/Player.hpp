@@ -33,12 +33,15 @@ public:
     float GetHeight() const;
     bool GetIsGrounded() const { return grounded; }
     float GetY() const { return pos.y; }
+    float GetVelocityX() const { return vel.x; }
     float GetVelocityY() const { return vel.y; }
     bool IsCrouching() const { return crouching; }
 
     // Setters
     void SetY(float newY) { pos.y = newY; }
+    void SetX(float newX) { pos.x = newX; }
     void SetVelocityY(float newVelY) { vel.y = newVelY; }
+    void SetVelocityX(float newVelX) { vel.x = newVelX; }  // ← AÑADIR
     void SetGrounded(bool g) { grounded = g; }
 
     // Hitbox
