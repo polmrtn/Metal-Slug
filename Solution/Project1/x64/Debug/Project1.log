@@ -1,2 +1,7 @@
-﻿  BackgroundManager.cpp
-  Project1.vcxproj -> C:\Users\polmd\Documents\GitHub\Metalborne2\Solution\x64\Debug\Project1.exe
+﻿  game.cpp
+E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\Bullet.hpp(23,16): warning C4305: 'inicializando': truncamiento de 'double' a 'float'
+  (compilando archivo de origen "game.cpp")
+  
+E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\game.cpp(299,24): warning C4244: '=': conversión de 'int' a 'float'; posible pérdida de datos
+E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\game.cpp(300,25): warning C4244: '=': conversión de 'int' a 'float'; posible pérdida de datos
+  Project1.vcxproj -> E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\x64\Debug\Project1.exe
