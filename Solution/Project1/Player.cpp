@@ -89,7 +89,7 @@ void Player::DrawCrouch() {
     if (anim.IsCrouchShooting()) {
         rowY = anim.GetCrouchShootRowY();
         currentHeight = 34.0f;
-        yOffset = -28.0f; //65 to - 28
+        yOffset = -30.0f; //65 to - 28
 
         // CADA SPRITE OCUPA 68 PÍXELES DE ANCHO
         sourceRect = {
@@ -108,7 +108,7 @@ void Player::DrawCrouch() {
     else if (anim.IsCrouchWalking()) {
         rowY = anim.GetCrouchWalkRowY();
         currentHeight = 34.0f;
-        yOffset = -13.0f;
+        yOffset = -15.0f;
         sourceRect = {
             (float)(anim.GetCrouchWalkFrame() * 34.0f),
             rowY,
@@ -123,7 +123,7 @@ void Player::DrawCrouch() {
     else if (anim.IsCrouchTransition()) {
         rowY = 18 * 34.0f;
         currentHeight = 68.0f;
-        yOffset = -115.0f;
+        yOffset = -165.0f;
         sourceRect = {
             (float)(anim.GetCrouchFrame() * 34.0f),
             rowY,
@@ -138,7 +138,7 @@ void Player::DrawCrouch() {
     else {
         rowY = 20 * 34.0f;
         currentHeight = 34.0f;
-        yOffset = -13.0f;
+        yOffset = -15.0f;
         sourceRect = {
             (float)(anim.GetCrouchFrame() * 34.0f),
             rowY,
@@ -217,15 +217,17 @@ void Player::DrawSeparated() {
         };
 
         // CALCULAR POSICIÓN X SEGÚN DIRECCIÓN
-        float shootUpX = pos.x;
+        float shootUpX;
+
         if (dir == PlayerDirection::LEFT) {
-            torsoSrc.width = -w;  // Voltear el sprite
-            // Ajustar posición X porque el sprite se voltea
-            shootUpX = pos.x - (w - w) * SCALE;  // No hay compensación porque el ancho es el mismo (34)
-            // Si ves desajuste, prueba con: shootUpX = pos.x - 20.0f;
+            torsoSrc.width = -w;
+            shootUpX = pos.x + 20.0f;  // Ajusta este valor para izquierda
+        }
+        else {
+            shootUpX = pos.x - 10.0f;  // Ajusta este valor para derecha
         }
 
-        float shootUpBaseY = pos.y + GetHeight() - (anim.GetShootUpH() * SCALE);
+        float shootUpBaseY = baseY - 140;
 
         DrawTexturePro(anim.GetSheet(), torsoSrc,
             { shootUpX, shootUpBaseY, w * SCALE, anim.GetShootUpH() * SCALE },
@@ -400,10 +402,16 @@ void Player::StopAimingUp() {
 
 void Player::StartCrouching() {
     if (grounded && !crouching && mode != Mode::FULL_BODY) {
+        // Guardar la posición de los pies antes de agacharse
+        float feetY = pos.y + GetHeight();
+
         crouching = true;
         aimingUp = false;
         SetCrouchHitbox();
         anim.ForceCrouch();
+
+        // Mantener los pies en la misma posición después de agacharse
+        pos.y = feetY - GetHeight();
     }
 }
 

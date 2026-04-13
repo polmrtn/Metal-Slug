@@ -111,20 +111,24 @@ void Game::Shoot()
 	int directionY = 0;
 
 	// Detectar si está agachado y disparando
-	bool isCrouching = player.IsCrouching();  // Necesitas tener este método
-	float yOffset = isCrouching ? 60.0f : 0.0f;  // 25px más abajo si está agachado
+	bool isCrouching = player.IsCrouching();
+
+	// Altura de disparo (ajusta estos valores)
+	float normalYOffset = -20.0f;   // Altura normal (desde el centro)
+	float crouchYOffset = -20.0f;   // Altura cuando está agachado
+	float upYOffset = -20.0f;      // Altura cuando dispara hacia arriba
 
 	switch (aimDir) {
 	case PlayerDirection::LEFT:
-		bulletPos = { playerPos.x, playerPos.y + playerHeight / 2 + yOffset };
+		bulletPos = { playerPos.x, playerPos.y + playerHeight / 2 + (isCrouching ? crouchYOffset : normalYOffset) };
 		directionX = -1;
 		break;
 	case PlayerDirection::RIGHT:
-		bulletPos = { playerPos.x + playerWidth, playerPos.y + playerHeight / 2 + yOffset };
+		bulletPos = { playerPos.x + playerWidth, playerPos.y + playerHeight / 2 + (isCrouching ? crouchYOffset : normalYOffset) };
 		directionX = 1;
 		break;
 	case PlayerDirection::UP:
-		bulletPos = { playerPos.x + playerWidth / 2, playerPos.y - 20.0f };
+		bulletPos = { playerPos.x + playerWidth / 2, playerPos.y + upYOffset };
 		directionY = -1;
 		break;
 	case PlayerDirection::DOWN:
