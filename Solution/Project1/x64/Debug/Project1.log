@@ -1,7 +1,9 @@
-﻿  game.cpp
+﻿  Player.cpp
+  game.cpp
 C:\Users\polmd\Documents\GitHub\Metalborne2\Solution\Project1\Bullet.hpp(23,16): warning C4305: 'initializing': truncation from 'double' to 'float'
   (compiling source file 'game.cpp')
   
-C:\Users\polmd\Documents\GitHub\Metalborne2\Solution\Project1\game.cpp(290,24): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\polmd\Documents\GitHub\Metalborne2\Solution\Project1\game.cpp(291,25): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\polmd\Documents\GitHub\Metalborne2\Solution\Project1\game.cpp(295,24): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\polmd\Documents\GitHub\Metalborne2\Solution\Project1\game.cpp(296,25): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+  Generating Code...
   Project1.vcxproj -> C:\Users\polmd\Documents\GitHub\Metalborne2\Solution\x64\Debug\Project1.exe

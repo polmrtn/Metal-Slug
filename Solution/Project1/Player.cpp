@@ -13,14 +13,14 @@ void Player::SetNormalHitbox() {
     hitboxWidth = 20.0f * SCALE;
     hitboxHeight = 40.0f * SCALE;
     hitboxOffsetX = 2.0f * SCALE;
-    hitboxOffsetY = 8.0f * SCALE;
+    hitboxOffsetY = 0.0f * SCALE;
 }
 
 void Player::SetCrouchHitbox() {
     hitboxWidth = 20.0f * SCALE;
     hitboxHeight = 25.0f * SCALE;
     hitboxOffsetX = 2.0f * SCALE;
-    hitboxOffsetY = 23.0f * SCALE;
+    hitboxOffsetY = 0.0f * SCALE;
 }
 
 void Player::Update(float CameraLeftLimit) {
@@ -45,19 +45,23 @@ void Player::Update(float CameraLeftLimit) {
         return;
     }
 
-    // Física
+    // ========== FÍSICA ==========
     if (!grounded) {
         vel.y += GRAVITY;
+        pos.y += vel.y;
     }
-    else if (vel.y > 0) {
+    else {
         vel.y = 0;
+        // No mover Y
     }
 
-    pos.y += vel.y;
+    // Actualizar X normalmente
     pos.x += vel.x;
 
+    // Limitar por cámara
     if (pos.x < CameraLeftLimit) pos.x = CameraLeftLimit;
 }
+
 
 void Player::Draw() {
     if (crouching) {
@@ -85,7 +89,7 @@ void Player::DrawCrouch() {
     if (anim.IsCrouchShooting()) {
         rowY = anim.GetCrouchShootRowY();
         currentHeight = 34.0f;
-        yOffset = 65.0f;
+        yOffset = -28.0f; //65 to - 28
 
         // CADA SPRITE OCUPA 68 PÍXELES DE ANCHO
         sourceRect = {
@@ -104,7 +108,7 @@ void Player::DrawCrouch() {
     else if (anim.IsCrouchWalking()) {
         rowY = anim.GetCrouchWalkRowY();
         currentHeight = 34.0f;
-        yOffset = 75.0f;
+        yOffset = -13.0f;
         sourceRect = {
             (float)(anim.GetCrouchWalkFrame() * 34.0f),
             rowY,
@@ -119,7 +123,7 @@ void Player::DrawCrouch() {
     else if (anim.IsCrouchTransition()) {
         rowY = 18 * 34.0f;
         currentHeight = 68.0f;
-        yOffset = -72.0f;
+        yOffset = -115.0f;
         sourceRect = {
             (float)(anim.GetCrouchFrame() * 34.0f),
             rowY,
@@ -134,7 +138,7 @@ void Player::DrawCrouch() {
     else {
         rowY = 20 * 34.0f;
         currentHeight = 34.0f;
-        yOffset = 75.0f;
+        yOffset = -13.0f;
         sourceRect = {
             (float)(anim.GetCrouchFrame() * 34.0f),
             rowY,
@@ -159,7 +163,7 @@ void Player::DrawCrouch() {
 
 void Player::DrawSeparated() {
     float w = anim.GetW(), h = anim.GetH();
-    float baseY = pos.y + GetHeight() - (h * SCALE);
+    float baseY = pos.y + GetHeight() - (h * SCALE) - 35.0f;
     VisualOffsets off = anim.GetOffsets();
 
     // ========== 1. PIERNAS ==========
@@ -339,6 +343,11 @@ Rectangle Player::GetHitBox() {
     }
 
     float hitboxY = pos.y + hitboxOffsetY;
+
+    // DEPURACIÓN
+    TraceLog(LOG_INFO, "GetHitBox - pos.y: %.1f, offsetY: %.1f, hitboxY: %.1f, height: %.1f",
+        pos.y, hitboxOffsetY, hitboxY, hitboxHeight);
+
     return Rectangle{ hitboxX, hitboxY, GetWidth(), GetHeight() };
 }
 

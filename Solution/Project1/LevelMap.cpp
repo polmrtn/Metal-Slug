@@ -6,7 +6,7 @@ Block::Block(float x, float y, float width, float height) {
 }
 
 void Block::Draw() {
-    DrawRectangleRec(rect, GRAY);
+    DrawRectangleLines(rect.x, rect.y, rect.width, rect.height, BLUE);
 }
 
 Rectangle Block::GetRect() const {
