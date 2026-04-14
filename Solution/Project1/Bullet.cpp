@@ -1,7 +1,7 @@
 #include "bullet.hpp"
 
 Bullet::Bullet(Vector2 position, int speed, int directionX, int directionY) {
-	image = LoadTexture("Graphics/BulletTest.png");
+	image = LoadTexture("Graphics/bullet.png");
 	this->position = position;
 	this->speed = speed;
 	this->directionX = directionX;

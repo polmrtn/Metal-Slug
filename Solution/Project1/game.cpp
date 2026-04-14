@@ -319,8 +319,8 @@ std::vector<Block> Game::CreateBlocks() {
 	std::vector<Block> blocks;
 
 	// Bloque de suelo a y=800 (para que el jugador caiga desde y=100 hasta y=800)
-	blocks.emplace_back(Block(0, 800, 2700, 100));
-	blocks.emplace_back(Block(2700, 900, 2700, 100));
+	blocks.emplace_back(Block(0, 850, 2700, 100));
+	blocks.emplace_back(Block(2700, 950, 2700, 100));
 
 	return blocks;
 }
