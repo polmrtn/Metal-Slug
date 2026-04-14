@@ -156,7 +156,7 @@ void Soldier::UpdateAI(Player& player)
         (soldierAnim.IsAnimationFinished() && currentState != SoldierState::DEAD)) {
         stateTimer = 0.0f;
         direction = (GetRandomValue(0, 1) == 0) ? -1 : 1;
-        int randomBehaviour = GetRandomValue(0, 1);
+        int randomBehaviour = GetRandomValue(0, 2);
 
         switch (randomBehaviour)
         {
@@ -168,6 +168,11 @@ void Soldier::UpdateAI(Player& player)
         case 1:
             SetSoliderState(SoldierState::WALKING);
             soldierAnim.SetAnimation(SoldierState::WALKING);
+            break;
+
+        case 2:
+            SetSoliderState(SoldierState::SNEAK);
+            soldierAnim.SetAnimation(SoldierState::SNEAK);
             break;
         }
     }
@@ -193,12 +198,12 @@ void Soldier::UpdateAI(Player& player)
     else if (currentState == SoldierState::WALKING && isGrounded && isAlive) {
         
         if (direction == 1) {
-            velocity.x = 2;
+            velocity.x = 5;
             facingRight = true;
         }
         else
         {
-            velocity.x = -2;
+            velocity.x = -5;
             facingRight = false;
         }
     }
@@ -219,6 +224,17 @@ void Soldier::UpdateAI(Player& player)
         velocity.x = 0;
         position.x = position.x;
 
+    }
+    else if (currentState == SoldierState::SNEAK && isAlive && isGrounded) {
+        if (direction == 1) {
+            velocity.x = 2;
+            facingRight = true;
+        }
+        else
+        {
+            velocity.x = -2;
+            facingRight = false;
+        }
     }
 }
 void Soldier::TriggerDeath() {
