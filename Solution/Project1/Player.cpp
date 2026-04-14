@@ -13,14 +13,14 @@ void Player::SetNormalHitbox() {
     hitboxWidth = 20.0f * SCALE;
     hitboxHeight = 40.0f * SCALE;
     hitboxOffsetX = 2.0f * SCALE;
-    hitboxOffsetY = 8.0f * SCALE;
+    hitboxOffsetY = 0.0f * SCALE;
 }
 
 void Player::SetCrouchHitbox() {
     hitboxWidth = 20.0f * SCALE;
     hitboxHeight = 25.0f * SCALE;
     hitboxOffsetX = 2.0f * SCALE;
-    hitboxOffsetY = 23.0f * SCALE;
+    hitboxOffsetY = 0.0f * SCALE;
 }
 
 void Player::Update(float CameraLeftLimit) {
@@ -45,19 +45,23 @@ void Player::Update(float CameraLeftLimit) {
         return;
     }
 
-    // Física
+    // ========== FÍSICA ==========
     if (!grounded) {
         vel.y += GRAVITY;
+        pos.y += vel.y;
     }
-    else if (vel.y > 0) {
+    else {
         vel.y = 0;
+        // No mover Y
     }
 
-    pos.y += vel.y;
+    // Actualizar X normalmente
     pos.x += vel.x;
 
+    // Limitar por cámara
     if (pos.x < CameraLeftLimit) pos.x = CameraLeftLimit;
 }
+
 
 void Player::Draw() {
     if (crouching) {
@@ -79,45 +83,90 @@ void Player::DrawCrouch() {
     float currentHeight;
     float rowY;
     float yOffset;
+    float drawX = pos.x;
 
-    if (anim.IsCrouchTransition()) {
+    // PRIORIDAD 1: Disparo agachado
+    if (anim.IsCrouchShooting()) {
+        rowY = anim.GetCrouchShootRowY();
+        currentHeight = 34.0f;
+        yOffset = -30.0f; //65 to - 28
+
+        // CADA SPRITE OCUPA 68 PÍXELES DE ANCHO
+        sourceRect = {
+            (float)(anim.GetCrouchShootFrame() * 68.0f),  // ← 68, no 34
+            rowY,
+            anim.GetCrouchShootW(),  // 68px de ancho
+            currentHeight
+        };
+
+        if (dir == PlayerDirection::LEFT) {
+            sourceRect.width = -anim.GetCrouchShootW();
+            drawX = pos.x - (anim.GetCrouchShootW() - 34.0f) * SCALE;
+        }
+    }
+    // PRIORIDAD 2: Caminar agachado
+    else if (anim.IsCrouchWalking()) {
+        rowY = anim.GetCrouchWalkRowY();
+        currentHeight = 34.0f;
+        yOffset = -15.0f;
+        sourceRect = {
+            (float)(anim.GetCrouchWalkFrame() * 34.0f),
+            rowY,
+            34.0f,
+            currentHeight
+        };
+        if (dir == PlayerDirection::LEFT) {
+            sourceRect.width = -34.0f;
+        }
+    }
+    // PRIORIDAD 3: Transición de agachado
+    else if (anim.IsCrouchTransition()) {
         rowY = 18 * 34.0f;
         currentHeight = 68.0f;
-        yOffset = -72.0f;
+        yOffset = -165.0f;
+        sourceRect = {
+            (float)(anim.GetCrouchFrame() * 34.0f),
+            rowY,
+            34.0f,
+            currentHeight
+        };
+        if (dir == PlayerDirection::LEFT) {
+            sourceRect.width = -34.0f;
+        }
     }
+    // PRIORIDAD 4: Idle agachado
     else {
         rowY = 20 * 34.0f;
         currentHeight = 34.0f;
-        yOffset = 75.0f;
-    }
-
-    sourceRect = {
-        (float)(anim.GetCrouchFrame() * 34.0f),
-        rowY,
-        34.0f,
-        currentHeight
-    };
-
-    if (dir == PlayerDirection::LEFT) {
-        sourceRect.width = -sourceRect.width;
+        yOffset = -15.0f;
+        sourceRect = {
+            (float)(anim.GetCrouchFrame() * 34.0f),
+            rowY,
+            34.0f,
+            currentHeight
+        };
+        if (dir == PlayerDirection::LEFT) {
+            sourceRect.width = -34.0f;
+        }
     }
 
     Rectangle destRect = {
-        pos.x,
+        drawX,
         pos.y + yOffset,
-        34.0f * SCALE,
+        (anim.IsCrouchShooting() ? anim.GetCrouchShootW() : 34.0f) * SCALE,
         currentHeight * SCALE
     };
 
     DrawTexturePro(anim.GetSheet(), sourceRect, destRect, { 0,0 }, 0, WHITE);
 }
 
+
 void Player::DrawSeparated() {
     float w = anim.GetW(), h = anim.GetH();
-    float baseY = pos.y + GetHeight() - (h * SCALE);
+    float baseY = pos.y + GetHeight() - (h * SCALE) - 35.0f;
     VisualOffsets off = anim.GetOffsets();
 
-    // Piernas
+    // ========== 1. PIERNAS ==========
     Rectangle legSrc;
     switch (anim.GetLegsAnim()) {
     case LegsAnim::WALKING:
@@ -140,11 +189,12 @@ void Player::DrawSeparated() {
         { pos.x + offX * SCALE, baseY + off.legsY * SCALE, w * SCALE, h * SCALE },
         { 0,0 }, 0, WHITE);
 
-    // Torso
+    // ========== 2. TORSO ==========
     float torsoX = pos.x;
     Rectangle torsoSrc;
-    Color tint = aimingUp ? YELLOW : WHITE;
+    Color tint = WHITE;
 
+    // PRIORIDAD 1: Disparo normal (horizontal)
     if (anim.IsShooting()) {
         torsoSrc = { anim.GetShootFrame() * anim.GetShootW(), anim.GetRowShoot(), anim.GetShootW(), h };
         if (dir == PlayerDirection::LEFT) {
@@ -157,7 +207,35 @@ void Player::DrawSeparated() {
         return;
     }
 
-    // AIMING UP (apuntar arriba)
+    // PRIORIDAD 2: Disparo hacia arriba (shooting up)
+    if (aimingUp && anim.IsShootingUp()) {
+        torsoSrc = {
+            (float)(anim.GetShootUpFrame() * w),
+            anim.GetShootUpRowY(),
+            w,
+            anim.GetShootUpH()
+        };
+
+        // CALCULAR POSICIÓN X SEGÚN DIRECCIÓN
+        float shootUpX;
+
+        if (dir == PlayerDirection::LEFT) {
+            torsoSrc.width = -w;
+            shootUpX = pos.x + 20.0f;  // Ajusta este valor para izquierda
+        }
+        else {
+            shootUpX = pos.x - 10.0f;  // Ajusta este valor para derecha
+        }
+
+        float shootUpBaseY = baseY - 140;
+
+        DrawTexturePro(anim.GetSheet(), torsoSrc,
+            { shootUpX, shootUpBaseY, w * SCALE, anim.GetShootUpH() * SCALE },
+            { 0,0 }, 0, tint);
+        return;
+    }
+
+    // PRIORIDAD 3: Aiming up (solo apuntar)
     if (aimingUp) {
         if (anim.IsAimingTransition()) {
             torsoSrc = {
@@ -174,7 +252,7 @@ void Player::DrawSeparated() {
             };
         }
     }
-    // Torso normal
+    // PRIORIDAD 4: Torso normal
     else {
         switch (anim.GetTorsoAnim()) {
         case TorsoAnim::WALKING:
@@ -248,10 +326,8 @@ float Player::GetHeight() const {
 Rectangle Player::GetHitBox() {
     float hitboxX;
 
-    // Detectar si está saltando (no está en el suelo)
     if (!grounded && !crouching) {
         float jumpOffsetX = 6.0f * SCALE;
-
         if (dir == PlayerDirection::LEFT) {
             hitboxX = pos.x + (34.0f * SCALE - hitboxWidth - jumpOffsetX);
         }
@@ -269,6 +345,11 @@ Rectangle Player::GetHitBox() {
     }
 
     float hitboxY = pos.y + hitboxOffsetY;
+
+    // DEPURACIÓN
+    TraceLog(LOG_INFO, "GetHitBox - pos.y: %.1f, offsetY: %.1f, hitboxY: %.1f, height: %.1f",
+        pos.y, hitboxOffsetY, hitboxY, hitboxHeight);
+
     return Rectangle{ hitboxX, hitboxY, GetWidth(), GetHeight() };
 }
 
@@ -280,20 +361,22 @@ Vector2 Player::GetPosition() {
 void Player::MoveLeft() {
     if (mode != Mode::FULL_BODY && !crouching) {
         vel.x = -MOVE_SPEED;
-        if (!aimingUp) dir = PlayerDirection::LEFT;
+        dir = PlayerDirection::LEFT;
     }
-    else if (crouching) {
+    else if (crouching && !anim.IsCrouchShooting()) {  // ← Solo mover si NO está disparando agachado
         vel.x = -CROUCH_SPEED;
+        dir = PlayerDirection::LEFT;
     }
 }
 
 void Player::MoveRight() {
     if (mode != Mode::FULL_BODY && !crouching) {
         vel.x = MOVE_SPEED;
-        if (!aimingUp) dir = PlayerDirection::RIGHT;
+        dir = PlayerDirection::RIGHT;
     }
-    else if (crouching) {
+    else if (crouching && !anim.IsCrouchShooting()) {  // ← Solo mover si NO está disparando agachado
         vel.x = CROUCH_SPEED;
+        dir = PlayerDirection::RIGHT;
     }
 }
 
@@ -319,10 +402,16 @@ void Player::StopAimingUp() {
 
 void Player::StartCrouching() {
     if (grounded && !crouching && mode != Mode::FULL_BODY) {
+        // Guardar la posición de los pies antes de agacharse
+        float feetY = pos.y + GetHeight();
+
         crouching = true;
         aimingUp = false;
         SetCrouchHitbox();
         anim.ForceCrouch();
+
+        // Mantener los pies en la misma posición después de agacharse
+        pos.y = feetY - GetHeight();
     }
 }
 
@@ -334,8 +423,22 @@ void Player::StopCrouching() {
 }
 
 void Player::Shoot() {
-    if (mode != Mode::FULL_BODY && !crouching) {
-        anim.StartShoot();
+    if (mode != Mode::FULL_BODY) {
+        if (crouching) {
+            // Al disparar agachado, detener el movimiento horizontal
+            vel.x = 0;
+            anim.StartCrouchShoot();
+        }
+        else if (aimingUp) {
+            // Forzar la interrupción del disparo horizontal si está activo
+            if (anim.IsShooting()) {
+                anim.ForceStopShoot();  // ← Forzar fin del disparo horizontal
+            }
+            anim.StartShootUp();
+        }
+        else {
+            anim.StartShoot();
+        }
     }
 }
 

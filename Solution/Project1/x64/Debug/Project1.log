@@ -1,0 +1,24 @@
+﻿  AudioManager.cpp
+  AudioManager.hpp
+  BackgroundManager.cpp
+  Bullet.cpp
+  CameraManager.cpp
+  game.cpp
+C:\Users\polmd\Documents\GitHub\Metal-Slug\Solution\Project1\game.cpp(299,24): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\polmd\Documents\GitHub\Metal-Slug\Solution\Project1\game.cpp(300,25): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+  LevelMap.cpp
+C:\Users\polmd\Documents\GitHub\Metal-Slug\Solution\Project1\LevelMap.cpp(9,56): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\polmd\Documents\GitHub\Metal-Slug\Solution\Project1\LevelMap.cpp(9,44): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\polmd\Documents\GitHub\Metal-Slug\Solution\Project1\LevelMap.cpp(9,36): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\polmd\Documents\GitHub\Metal-Slug\Solution\Project1\LevelMap.cpp(9,28): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+  main.cpp
+  Player.cpp
+  playerAnim.cpp
+  SceneManager.cpp
+  Soldier.cpp
+C:\Users\polmd\Documents\GitHub\Metal-Slug\Solution\Project1\Soldier.cpp(125,22): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+  UiManager.cpp
+  Generating Code...
+x64\Debug\AudioManager.obj : warning LNK4042: object specified more than once; extras ignored
+LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
+  Project1.vcxproj -> C:\Users\polmd\Documents\GitHub\Metal-Slug\Solution\x64\Debug\Project1.exe

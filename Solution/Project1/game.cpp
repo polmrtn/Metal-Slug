@@ -29,7 +29,9 @@ void Game::Draw()
 	for (auto& bullet : bullets) {
 		bullet.Draw();
 	}
-	
+	for (auto& block : blocks) {
+		block.Draw();
+	}
 	camera.End();
 
 	UiManager.DrawCredits(camera.GetCamera());
@@ -42,7 +44,6 @@ void Game::Timers()
 }
 void Game::Update()
 {
-	
 	if (sceneManager.GetGamestate() == SceneManager::INTRO) {
 		BeginDrawing();
 		ClearBackground(BLACK);
@@ -61,36 +62,44 @@ void Game::Update()
 	}
 	else if (sceneManager.GetGamestate() == SceneManager::GAME) {
 		UiManager.Update();
+
+		// ========== 1. ACTUALIZAR JUGADOR ==========
+		player.Update(camera.GetLeftLimit());
+
+		// ========== 2. COLISIONES ==========
 		ResolveCollisions();
-		camera.Update(player.GetPosition(), backgroundManager.GetWidth(), backgroundManager.GetHeight(),player.GetIsGrounded());
+
+		// ========== 3. ACTUALIZAR CÁMARA ==========
+		camera.Update(player.GetPosition(), backgroundManager.GetWidth(), backgroundManager.GetHeight(), player.GetIsGrounded());
+
+		// ========== 4. ACTUALIZAR SOLDADOS Y BALAS ==========
+		for (auto& soldier : soldiers) {
+			soldier.UpdateAI(player);
+			soldier.Update();
+		}
+		for (auto& bullet : bullets) {
+			bullet.Update();
+		}
+
+		// ========== 5. DIBUJAR ==========
 		BeginDrawing();
 		ClearBackground(BLACK);
 		Draw();
 		Timers();
+
+		// ========== 6. AUDIO ==========
 		if (!musicStarted)
 		{
 			audioManager.PlayMusic(audioManager.GetGameMusic());
 			musicStarted = true;
 		}
 		audioManager.UpdateMusic(audioManager.GetGameMusic());
-		player.Update(camera.GetLeftLimit());
-		for (auto& soldier : soldiers) {
-			soldier.Update();
-			soldier.UpdateAI(player);
-		
-		}
-		for (auto& bullet : bullets) {
-			bullet.Update();
-			//update all bullets
-		}
-		
 	}
 }
 
 
 void Game::Shoot()
 {
-
 	Vector2 playerPos = player.GetPosition();
 	float playerWidth = player.GetWidth();  // Siempre el mismo ancho
 	float playerHeight = player.GetHeight(); // Cambia si está agachado
@@ -101,17 +110,25 @@ void Game::Shoot()
 	int directionX = 0;
 	int directionY = 0;
 
+	// Detectar si está agachado y disparando
+	bool isCrouching = player.IsCrouching();
+
+	// Altura de disparo (ajusta estos valores)
+	float normalYOffset = -20.0f;   // Altura normal (desde el centro)
+	float crouchYOffset = -20.0f;   // Altura cuando está agachado
+	float upYOffset = -20.0f;      // Altura cuando dispara hacia arriba
+
 	switch (aimDir) {
 	case PlayerDirection::LEFT:
-		bulletPos = { playerPos.x, playerPos.y + playerHeight / 2 };
+		bulletPos = { playerPos.x, playerPos.y + playerHeight / 2 + (isCrouching ? crouchYOffset : normalYOffset) };
 		directionX = -1;
 		break;
 	case PlayerDirection::RIGHT:
-		bulletPos = { playerPos.x + playerWidth, playerPos.y + playerHeight / 2 };
+		bulletPos = { playerPos.x + playerWidth, playerPos.y + playerHeight / 2 + (isCrouching ? crouchYOffset : normalYOffset) };
 		directionX = 1;
 		break;
 	case PlayerDirection::UP:
-		bulletPos = { playerPos.x + playerWidth / 2, playerPos.y };
+		bulletPos = { playerPos.x + playerWidth / 2, playerPos.y + upYOffset };
 		directionY = -1;
 		break;
 	case PlayerDirection::DOWN:
@@ -120,7 +137,6 @@ void Game::Shoot()
 		break;
 	}
 	bullets.emplace_back(bulletPos, bulletSpeed, directionX, directionY);
-
 }
 
 
@@ -239,21 +255,15 @@ void Game::BulletsCollision() {
 
 void Game::BlockCollisions()
 {
-
-	Rectangle playerRect = player.GetHitBox();
-	auto It = soldiers.begin();
+	bool onGround = false;
+	const float GROUND_TOLERANCE = 5.0f;  // Tolerancia de 5 píxeles
 
 	for (const auto& block : blocks) {
+		Rectangle playerRect = player.GetHitBox();
 		Rectangle blockRect = block.GetRect();
 
-		if (CheckCollisionRecs(playerRect, blockRect)) {
-			if (player.GetVelocityY() > 0) {
-				player.SetY(blockRect.y - player.GetHeight());
-				player.SetVelocityY(0);
-				player.SetGrounded(true);
-				break;
-			}
-		}
+		float feetY = playerRect.y + playerRect.height;
+		float blockTopY = blockRect.y;
 
 		while (It != soldiers.end()) {
 			if (CheckCollisionRecs(It->GetHurtBox(), blockRect))
@@ -268,11 +278,26 @@ void Game::BlockCollisions()
 			else {
 				++It;
 			}
+		// Verificar si el jugador está sobre el bloque (con tolerancia)
+		bool isOverBlock = (playerRect.x + playerRect.width > blockRect.x + GROUND_TOLERANCE &&
+			playerRect.x < blockRect.x + blockRect.width - GROUND_TOLERANCE);
+
+		// Si los pies están cerca del bloque (dentro de 10 píxeles)
+		if (isOverBlock && feetY >= blockTopY - 10.0f && player.GetVelocityY() >= 0) {
+			float newY = blockTopY - playerRect.height;
+			player.SetY(newY);
+			player.SetVelocityY(0);
+			onGround = true;
+			break;  // Salir del bucle después de la primera colisión
 		}
-		
-	
 	}
 
+	player.SetGrounded(onGround);
+
+	// Si está en el suelo, asegurar que la velocidad Y es 0
+	if (onGround) {
+		player.SetVelocityY(0);
+	}
 }
 
 
@@ -310,6 +335,9 @@ std::vector<Bullet> Game::CreateBullets() {
 std::vector<Block> Game::CreateBlocks() {
 	std::vector<Block> blocks;
 
-	blocks.emplace_back(Block(0, 1000, 2000, 100));
+	// Bloque de suelo a y=800 (para que el jugador caiga desde y=100 hasta y=800)
+	blocks.emplace_back(Block(0, 850, 2700, 100));
+	blocks.emplace_back(Block(2700, 950, 2700, 100));
+
 	return blocks;
 }

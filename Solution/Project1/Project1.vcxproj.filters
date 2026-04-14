@@ -27,9 +27,6 @@
     <ClCompile Include="Soldier.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="AudioManager.hpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="AudioManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -54,8 +51,8 @@
     <ClCompile Include="UiManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SoldierAnim.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="AudioManager.hpp">
+      <Filter>Header Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -100,6 +97,8 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="LevelMap.hpp" />
+    <None Include="LevelMap.hpp">
+      <Filter>Header Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

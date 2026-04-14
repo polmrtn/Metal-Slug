@@ -33,11 +33,15 @@ public:
     float GetHeight() const;
     bool GetIsGrounded() const { return grounded; }
     float GetY() const { return pos.y; }
+    float GetVelocityX() const { return vel.x; }
     float GetVelocityY() const { return vel.y; }
+    bool IsCrouching() const { return crouching; }
 
     // Setters
     void SetY(float newY) { pos.y = newY; }
+    void SetX(float newX) { pos.x = newX; }
     void SetVelocityY(float newVelY) { vel.y = newVelY; }
+    void SetVelocityX(float newVelX) { vel.x = newVelX; }  // ← AÑADIR
     void SetGrounded(bool g) { grounded = g; }
 
     // Hitbox
@@ -52,14 +56,15 @@ private:
     bool grounded = false;
     bool aimingUp = false;
     bool crouching = false;
+
     PlayerDirection dir = PlayerDirection::RIGHT;
 
     // Constantes físicas
     static constexpr float SCALE = 4.0f;
     static constexpr float GRAVITY = 2.5f;
     static constexpr float JUMP_FORCE = -42.0f;
-    static constexpr float MOVE_SPEED = 15.0f;
-    static constexpr float CROUCH_SPEED = 2.5f;
+    static constexpr float MOVE_SPEED = 10.0f;
+    static constexpr float CROUCH_SPEED = 4.0f;
     static constexpr float NORMAL_H = 34.0f;
 
     // ========== HITBOX ==========
