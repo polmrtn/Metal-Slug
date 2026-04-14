@@ -50,15 +50,12 @@ public:
 
 private:
     PlayerAnim anim;
-
     Vector2 pos = { 0, 100 };
     Vector2 vel = { 0, 0 };
     bool grounded = false;
     bool aimingUp = false;
     bool crouching = false;
-
     PlayerDirection dir = PlayerDirection::RIGHT;
-
     // Constantes físicas
     static constexpr float SCALE = 4.0f;
     static constexpr float GRAVITY = 2.5f;
@@ -66,19 +63,16 @@ private:
     static constexpr float MOVE_SPEED = 10.0f;
     static constexpr float CROUCH_SPEED = 4.0f;
     static constexpr float NORMAL_H = 34.0f;
-
     // ========== HITBOX ==========
     float hitboxWidth;
     float hitboxHeight;
     float hitboxOffsetX;
     float hitboxOffsetY;
-
     enum class Mode { SEPARATED, FULL_BODY };
     Mode mode = Mode::SEPARATED;
     SpecialAnim special = SpecialAnim::NONE;
     float specialTimer = 0;
     float specialDuration = 0;
-
     void DrawSeparated();
     void DrawFullBody();
     void DrawCrouch();

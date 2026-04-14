@@ -223,6 +223,11 @@ void Game::HandleInput()
 	}
 
 }
+void Game::ResolveCollisions()
+{
+	BlockCollisions();
+	BulletsCollision();
+}
 void Game::BulletsCollision() {
 	auto bIt = bullets.begin();
 	while (bIt != bullets.end()) {
@@ -257,7 +262,7 @@ void Game::BlockCollisions()
 {
 	bool onGround = false;
 	const float GROUND_TOLERANCE = 5.0f;  // Tolerancia de 5 píxeles
-
+	auto It = soldiers.begin();
 	for (const auto& block : blocks) {
 		Rectangle playerRect = player.GetHitBox();
 		Rectangle blockRect = block.GetRect();
@@ -278,61 +283,59 @@ void Game::BlockCollisions()
 			else {
 				++It;
 			}
-		// Verificar si el jugador está sobre el bloque (con tolerancia)
-		bool isOverBlock = (playerRect.x + playerRect.width > blockRect.x + GROUND_TOLERANCE &&
-			playerRect.x < blockRect.x + blockRect.width - GROUND_TOLERANCE);
+			// Verificar si el jugador está sobre el bloque (con tolerancia)
+			bool isOverBlock = (playerRect.x + playerRect.width > blockRect.x + GROUND_TOLERANCE &&
+				playerRect.x < blockRect.x + blockRect.width - GROUND_TOLERANCE);
 
-		// Si los pies están cerca del bloque (dentro de 10 píxeles)
-		if (isOverBlock && feetY >= blockTopY - 10.0f && player.GetVelocityY() >= 0) {
-			float newY = blockTopY - playerRect.height;
-			player.SetY(newY);
-			player.SetVelocityY(0);
-			onGround = true;
-			break;  // Salir del bucle después de la primera colisión
+			// Si los pies están cerca del bloque (dentro de 10 píxeles)
+			if (isOverBlock && feetY >= blockTopY - 10.0f && player.GetVelocityY() >= 0) {
+				float newY = blockTopY - playerRect.height;
+				player.SetY(newY);
+				player.SetVelocityY(0);
+				onGround = true;
+				break;  // Salir del bucle después de la primera colisión
+			}
 		}
-	}
 
-	player.SetGrounded(onGround);
+		player.SetGrounded(onGround);
 
-	// Si está en el suelo, asegurar que la velocidad Y es 0
-	if (onGround) {
-		player.SetVelocityY(0);
+		// Si está en el suelo, asegurar que la velocidad Y es 0
+		if (onGround) {
+			player.SetVelocityY(0);
+		}
+
 	}
 }
 
-
-void Game::ResolveCollisions() {
-	BlockCollisions();
-	BulletsCollision();
-	
-}
-
-std::vector<Soldier>  Game::CreateSoldiers()
+std::vector<Bullet> Game::CreateBullets()
 {
-	std::vector<Soldier> soldiers;
-	soldiers.reserve(2);
-	for (int i = 0; i < 2; ++i) {
-		float xpos, ypos;
-		ypos = (10 * i + 40) + 100;
-		xpos = (100 * i + 40) + 500;
-		soldiers.emplace_back(Soldier(1, { xpos,ypos }));
-	}
-
-	return soldiers;
-}
-std::vector<Bullet> Game::CreateBullets() {
 	std::vector<Bullet> bullets;
 	for (int i = 0; i < bullets.size(); i++) {
 
 		if (bullets[i].GetX() < 0 || bullets[i].GetX() > GetScreenWidth()) {
 			bullets.erase(bullets.begin() + i);
-			i--; 
+			i--;
 		}
 	}
 	return bullets;
 }
 
-std::vector<Block> Game::CreateBlocks() {
+std::vector<Soldier>  Game::CreateSoldiers()
+	{
+		std::vector<Soldier> soldiers;
+		soldiers.reserve(2);
+		for (int i = 0; i < 2; ++i) {
+			float xpos, ypos;
+			ypos = (10 * i + 40) + 100;
+			xpos = (100 * i + 40) + 500;
+			soldiers.emplace_back(Soldier(1, { xpos,ypos }));
+		}
+
+		return soldiers;
+	}
+
+std::vector<Block> Game::CreateBlocks()
+{
 	std::vector<Block> blocks;
 
 	// Bloque de suelo a y=800 (para que el jugador caiga desde y=100 hasta y=800)
@@ -341,3 +344,4 @@ std::vector<Block> Game::CreateBlocks() {
 
 	return blocks;
 }
+
