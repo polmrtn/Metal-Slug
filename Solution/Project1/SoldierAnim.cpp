@@ -44,6 +44,12 @@ void SoldierAnim::Update()
         if (currentAnim == SoldierState::ATTACKING) { // logica para que se devuelva la animacion ya que haya terminado
             if (animForward) {
                 frame++;
+                if (frame <= 3) {
+                    SetAttackAnimFps(6);
+                }
+                else if (frame >= 3) {
+                    SetAttackAnimFps(25);
+                }
                 if (frame >= clip.frames - 1) {
                     attackPeakReached = true;
                     animForward = false;

@@ -326,13 +326,15 @@ std::vector<Bullet> Game::CreateBullets()
 std::vector<Soldier>  Game::CreateSoldiers()
 	{
 		std::vector<Soldier> soldiers;
-		soldiers.reserve(2);
-		for (int i = 0; i < 2; ++i) {
+		soldiers.reserve(4);
+		for (int i = 0; i < 1; ++i) {
 			float xpos, ypos;
 			ypos = (10 * i + 40) + 100;
 			xpos = (100 * i + 40) + 500;
-			soldiers.emplace_back(Soldier(1, { xpos,ypos }));
+			/*soldiers.emplace_back(Soldier(1, { xpos,ypos }));*/
+			soldiers.emplace_back(Soldier(2, { xpos,ypos }));
 		}
+		soldiers.emplace_back(Soldier(1, {200, 200}));
 
 		return soldiers;
 	}

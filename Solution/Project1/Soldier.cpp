@@ -2,6 +2,7 @@
 #include "Player.hpp"
 #include <raylib.h>
 int direction = 1;
+
 Soldier::Soldier(int type, Vector2 position)
 {
     
@@ -17,6 +18,7 @@ Soldier::Soldier(int type, Vector2 position)
     // Inicializar IA
     this->currentState = SoldierState::IDLE;
     this->stateTimer = 0;
+    
 
     switch (type)
     {
@@ -24,7 +26,7 @@ Soldier::Soldier(int type, Vector2 position)
         soldierAnim.LoadTexture();
         
         break;
-    default:
+    case 2:
         soldierAnim.LoadTexture();
         
         break;
@@ -46,7 +48,8 @@ Soldier::Soldier(const Soldier& other)
     facingRight = other.facingRight;
     switch (type) {
     case 1:
-    default:
+        image = soldierAnim.GetSheet();
+    case 2:
         image = soldierAnim.GetSheet();
 
         break;
@@ -63,14 +66,32 @@ Rectangle Soldier::GetHurtBox()
     return Rectangle{ position.x + GetWidth() / 3, position.y + GetHeight() / 2 , GetWidth() / 3, GetHeight()/ 2};
 }
 Rectangle Soldier::GetHitBox() {
-    float rayLength = 50.f;
-    float rayX ;
-    if (!facingRight) {
-        rayX = position.x - rayLength + 48 ;
+    float rayLength = 0;
+    float rayX = 0;
+    if (GetType() == 1) {
+         rayLength = 50.f;
+         
+         if (!facingRight) {
+             rayX = position.x - rayLength + rayLength;
+         }
+         else {
+             rayX = position.x + rayLength * 2;
+         }
     }
-    else {
-        rayX = position.x + rayLength * 2;
+    else if(GetType() == 2)
+    {
+         rayLength = 300.f;
+         if (!facingRight) {
+             rayX = position.x - rayLength + 50 ;
+         }
+         else {
+             rayX = position.x + 100;
+         }
     }
+    
+    
+    
+   
     return Rectangle{ rayX , position.y + GetHeight() / 2, rayLength, GetHeight() / 2};
 }
 void Soldier::SetSoliderState(SoldierState newState)
@@ -97,7 +118,13 @@ void Soldier::Draw() {
     if (soldierAnim.GetCurrentAnim() == SoldierState::ATTACKING) {
         destW = (34.f + 34.f) * scale;
         if (!facingRight) {
-            offsetX = -138.f;
+            if (GetType() == 1) {
+                offsetX = -138.f;
+            }
+            else if (GetType() == 2)
+            {
+                offsetX = -250;
+            }
         }
         else
         {
@@ -107,6 +134,11 @@ void Soldier::Draw() {
     }
     else if (soldierAnim.GetCurrentAnim() == SoldierState::DEAD) {
         destW = 34.f * scale;
+        offsetX = 0.f;
+    }
+    else if(soldierAnim.GetCurrentAnim() == SoldierState::BOMB && GetType() == 2)
+    {
+        destW = 44.f * scale;
         offsetX = 0.f;
     }
     else {
@@ -178,11 +210,20 @@ void Soldier::UpdateAI(Player& player)
     }
     else if (IsVisionRay(player) && isAlive) {
         if (currentState != SoldierState::ATTACKING) {
-            SetSoliderState(SoldierState::ATTACKING);
-            soldierAnim.ForceAnimation(SoldierState::ATTACKING);
+            if (GetType() == 1) {
+                SetSoliderState(SoldierState::ATTACKING);
+                soldierAnim.ForceAnimation(SoldierState::ATTACKING);
+            }
+            else if(GetType() == 2)
+            {
+                SetSoliderState(SoldierState::ATTACKING);
+                soldierAnim.ForceAnimation(SoldierState::BOMB);
+
+            }
         }
         attackTimer = 0.0f;
     }
+    
     else if(!isAlive && currentState != SoldierState::DEAD)
     {
 
@@ -211,11 +252,16 @@ void Soldier::UpdateAI(Player& player)
         velocity.x = 0;
 
         if (soldierAnim.IsAnimationFinished()) {
-            if (soldierAnim.IsAttackPeak()) {
+            if (soldierAnim.IsAttackPeak() && GetType()== 1) {
                 Attack(player);
+            }
+            else if (GetType() == 2)
+            {
+                TraceLog(LOG_INFO, "Soldier bomba ");
             }
             SetSoliderState(SoldierState::IDLE); 
         }
+        
         return;
     }
     else if(currentState == SoldierState::DEAD && !isAlive)
