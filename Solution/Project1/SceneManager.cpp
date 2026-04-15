@@ -2,26 +2,35 @@
 
 SceneManager::SceneManager()
 {
-	currentState = TITLE;
+    currentState = INTRO;
+    introBackground = LoadTexture("Graphics/MetalSlug_title.png");
 }
 SceneManager::~SceneManager()
 {
+    UnloadTexture(introBackground);
 }
 SceneManager::Gamestates SceneManager::GetGamestate()
 {
-	return currentState;
+    return currentState;
 }
 void SceneManager::SetGameState(Gamestates gamestate)
 {
     currentState = gamestate;
 }
-void SceneManager::DrawTexts() 
+void SceneManager::DrawTexts()
 {
     if (currentState == TITLE) {
+        ClearBackground(BLACK);
         DrawText("METAL SLUG", 450, 300, 50, WHITE);
         DrawText("Press ENTER to start", 420, 400, 20, GRAY);
     }
     else if (currentState == GAME) {
+        ClearBackground(BLACK);
         DrawText("FUCK YOU", 420, 400, 20, GRAY);
+    }
+    else if (currentState == INTRO) {
+        ClearBackground(BLACK);
+        DrawTextureEx(introBackground, { 0, 0 }, 0.0f, 4.0f, WHITE);
+        DrawText("Press ENTER to start", 520, 800, 20, GRAY);
     }
 }
