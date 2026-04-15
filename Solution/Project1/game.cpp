@@ -284,25 +284,28 @@ void Game::BlockCollisions()
 				++It;
 			}
 			// Verificar si el jugador está sobre el bloque (con tolerancia)
-			bool isOverBlock = (playerRect.x + playerRect.width > blockRect.x + GROUND_TOLERANCE &&
-				playerRect.x < blockRect.x + blockRect.width - GROUND_TOLERANCE);
-
-			// Si los pies están cerca del bloque (dentro de 10 píxeles)
-			if (isOverBlock && feetY >= blockTopY - 10.0f && player.GetVelocityY() >= 0) {
-				float newY = blockTopY - playerRect.height;
-				player.SetY(newY);
-				player.SetVelocityY(0);
-				onGround = true;
-				break;  // Salir del bucle después de la primera colisión
-			}
+			
 		}
+		bool isOverBlock = (playerRect.x + playerRect.width > blockRect.x + GROUND_TOLERANCE &&
+			playerRect.x < blockRect.x + blockRect.width - GROUND_TOLERANCE);
 
-		player.SetGrounded(onGround);
-
-		// Si está en el suelo, asegurar que la velocidad Y es 0
-		if (onGround) {
+		// Si los pies están cerca del bloque (dentro de 10 píxeles)
+		if (isOverBlock && feetY >= blockTopY - 10.0f && player.GetVelocityY() >= 0) {
+			float newY = blockTopY - playerRect.height;
+			player.SetY(newY);
 			player.SetVelocityY(0);
+			onGround = true;
+			break;  // Salir del bucle después de la primera colisión
 		}
+		
+
+		
+		
+	}
+	player.SetGrounded(onGround);
+	// Si está en el suelo, asegurar que la velocidad Y es 0
+	if (onGround) {
+		player.SetVelocityY(0);
 
 	}
 }

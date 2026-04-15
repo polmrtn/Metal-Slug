@@ -27,7 +27,7 @@ SoldierAnim::~SoldierAnim()
 
 void SoldierAnim::LoadTexture()
 {
-	Image img = LoadImage("Graphics/NEW/Sprite-0002.png");
+	Image img = LoadImage("Graphics/enemy.png");
 	spriteSheet = LoadTextureFromImage(img);
 	SetTextureFilter(spriteSheet, TEXTURE_FILTER_POINT);
 }
