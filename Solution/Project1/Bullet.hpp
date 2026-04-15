@@ -4,6 +4,7 @@
 class Bullet {
 public:
 	Bullet(Vector2 position, int speed, int directionX, int directionY, int type);
+	Bullet(const Bullet& other);
 	void Update();
 	void Draw();
 	float GetWidth() { return (float)image.width * scale; }

@@ -101,42 +101,43 @@ void Game::Update()
 void Game::Shoot()
 {
 	Vector2 playerPos = player.GetPosition();
-	float playerWidth = player.GetWidth();  // Siempre el mismo ancho
-	float playerHeight = player.GetHeight(); // Cambia si está agachado
+	float playerWidth = player.GetWidth();
+	float playerHeight = player.GetHeight();
 
 	Vector2 bulletPos;
 	PlayerDirection aimDir = player.GetAimDirection();
-	int bulletSpeed = 30;
-	int directionX = 0;
-	int directionY = 0;
 
-	// Detectar si está agachado y disparando
+	// Cambiamos a float para coincidir con la nueva estructura
+	float bulletSpeed = 600.0f;
+	float directionX = 0;
+	float directionY = 0;
+	int bulletType = 1; // 1 para bala normal, 2 para granada
+
 	bool isCrouching = player.IsCrouching();
-
-	// Altura de disparo (ajusta estos valores)
-	float normalYOffset = -20.0f;   // Altura normal (desde el centro)
-	float crouchYOffset = -20.0f;   // Altura cuando está agachado
-	float upYOffset = -20.0f;      // Altura cuando dispara hacia arriba
+	float yOffset = -20.0f;
 
 	switch (aimDir) {
 	case PlayerDirection::LEFT:
-		bulletPos = { playerPos.x, playerPos.y + playerHeight / 2 + (isCrouching ? crouchYOffset : normalYOffset) };
-		directionX = -1;
+		bulletPos = { playerPos.x, playerPos.y + playerHeight / 2 + yOffset };
+		directionX = -1.0f;
 		break;
 	case PlayerDirection::RIGHT:
-		bulletPos = { playerPos.x + playerWidth, playerPos.y + playerHeight / 2 + (isCrouching ? crouchYOffset : normalYOffset) };
-		directionX = 1;
+		bulletPos = { playerPos.x + playerWidth, playerPos.y + playerHeight / 2 + yOffset };
+		directionX = 1.0f;
 		break;
 	case PlayerDirection::UP:
-		bulletPos = { playerPos.x + playerWidth / 2, playerPos.y + upYOffset };
-		directionY = -1;
+		bulletPos = { playerPos.x + playerWidth / 2, playerPos.y + yOffset };
+		directionY = -1.0f;
 		break;
 	case PlayerDirection::DOWN:
 		bulletPos = { playerPos.x + playerWidth / 2, playerPos.y + playerHeight };
-		directionY = 1;
+		directionY = 1.0f;
 		break;
 	}
-	bullets.emplace_back(bulletPos, bulletSpeed, directionX, directionY);
+
+	// AHORA PASAMOS LOS 5 ARGUMENTOS:
+	// 1. pos, 2. speed, 3. dirX, 4. dirY, 5. type
+	bullets.emplace_back(bulletPos, bulletSpeed, directionX, directionY, bulletType);
 }
 
 

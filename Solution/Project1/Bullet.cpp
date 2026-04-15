@@ -15,13 +15,14 @@ Bullet::Bullet(Vector2 position, int speed, int directionX, int directionY, int 
 		break;
 	case 2:
 		image = LoadTexture("Graphics/grenade_enemy.png");
-		this->directionY += gravity * GetFrameTime();
+		this->directionY += this->gravity * GetFrameTime();
 		
 		break;
 	}
 	
 }
-Bullet::Bullet(const Bullet& other) {
+Bullet::Bullet(const Bullet& other) 
+{
 	image = LoadTexture("Graphics/bullet.png");
 	position = other.position;
 	speed = other.speed;

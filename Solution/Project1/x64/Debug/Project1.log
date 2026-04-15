@@ -1,2 +1,38 @@
-﻿  Soldier.cpp
+﻿  Bullet.cpp
+C:\Users\sergionr\Documents\GitHub\Metal-Slug\Solution\Project1\Bullet.cpp(18,37): warning C4244: '+=': conversion from 'float' to 'int', possible loss of data
+C:\Users\sergionr\Documents\GitHub\Metal-Slug\Solution\Project1\Bullet.cpp(40,31): warning C4244: '+=': conversion from 'float' to 'int', possible loss of data
+  game.cpp
+C:\Users\sergionr\Documents\GitHub\Metal-Slug\Solution\Project1\game.cpp(333,25): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\sergionr\Documents\GitHub\Metal-Slug\Solution\Project1\game.cpp(334,26): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\xmemory(732,103): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+  (compiling source file 'game.cpp')
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\xmemory(732,103):
+      the template instantiation context (the oldest one first) is
+          C:\Users\sergionr\Documents\GitHub\Metal-Slug\Solution\Project1\game.cpp(140,10):
+          see reference to function template instantiation 'void std::vector<Bullet,std::allocator<Bullet>>::emplace_back<Vector2&,float&,float&,float&,int&>(Vector2 &,float &,float &,float &,int &)' being compiled
+              C:\Users\sergionr\Documents\GitHub\Metal-Slug\Solution\Project1\game.cpp(140,22):
+              see the first reference to 'std::vector<Bullet,std::allocator<Bullet>>::emplace_back' in 'Game::Shoot'
+          C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\vector(924,24):
+          see reference to function template instantiation '_Ty &std::vector<_Ty,std::allocator<_Ty>>::_Emplace_one_at_back<Vector2&,float&,float&,float&,int&>(Vector2 &,float &,float &,float &,int &)' being compiled
+          with
+          [
+              _Ty=Bullet
+          ]
+          C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\vector(845,20):
+          see reference to function template instantiation '_Ty &std::vector<_Ty,std::allocator<_Ty>>::_Emplace_back_with_unused_capacity<Vector2&,float&,float&,float&,int&>(Vector2 &,float &,float &,float &,int &)' being compiled
+          with
+          [
+              _Ty=Bullet
+          ]
+          C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\vector(863,27):
+          see reference to function template instantiation 'void std::_Default_allocator_traits<_Alloc>::construct<_Ty,Vector2&,float&,float&,float&,int&>(_Alloc &,_Objty *const ,Vector2 &,float &,float &,float &,int &)' being compiled
+          with
+          [
+              _Alloc=std::allocator<Bullet>,
+              _Ty=Bullet,
+              _Objty=Bullet
+          ]
+  
+  main.cpp
+  Generating Code...
   Project1.vcxproj -> C:\Users\sergionr\Documents\GitHub\Metal-Slug\Solution\x64\Debug\Project1.exe
