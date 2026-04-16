@@ -76,6 +76,14 @@ void Game::Update()
 		for (auto& soldier : soldiers) {
 			soldier.UpdateAI(player);
 			soldier.Update();
+			if (soldier.WantsToShoot()) {
+				// Llamamos a la función Shoot que arreglamos antes
+				Shoot(2, soldier.GetPosition(), soldier.IsFacingRight());
+
+				// IMPORTANTE: Resetear la bandera para que no dispare 60 balas por segundo
+				soldier.ResetShootWants();
+			}
+	
 		}
 		for (auto& bullet : bullets) {
 			bullet.Update();
@@ -98,48 +106,63 @@ void Game::Update()
 }
 
 
-void Game::Shoot()
+void Game::Shoot(int BulletType, Vector2 startPos, bool faceRight)
 {
-	Vector2 playerPos = player.GetPosition();
-	float playerWidth = player.GetWidth();
-	float playerHeight = player.GetHeight();
-
-	Vector2 bulletPos;
-	PlayerDirection aimDir = player.GetAimDirection();
-
-	// Cambiamos a float para coincidir con la nueva estructura
-	float bulletSpeed = 600.0f;
+	// Variables base para la nueva bala
+	Vector2 bulletPos = { 0, 0 };
 	float directionX = 0;
 	float directionY = 0;
-	int bulletType = 1; // 1 para bala normal, 2 para granada
-
-	bool isCrouching = player.IsCrouching();
+	float bulletSpeed = 1000.0f;
 	float yOffset = -20.0f;
 
-	switch (aimDir) {
-	case PlayerDirection::LEFT:
-		bulletPos = { playerPos.x, playerPos.y + playerHeight / 2 + yOffset };
-		directionX = -1.0f;
-		break;
-	case PlayerDirection::RIGHT:
-		bulletPos = { playerPos.x + playerWidth, playerPos.y + playerHeight / 2 + yOffset };
-		directionX = 1.0f;
-		break;
-	case PlayerDirection::UP:
-		bulletPos = { playerPos.x + playerWidth / 2, playerPos.y + yOffset };
-		directionY = -1.0f;
-		break;
-	case PlayerDirection::DOWN:
-		bulletPos = { playerPos.x + playerWidth / 2, playerPos.y + playerHeight };
-		directionY = 1.0f;
-		break;
+	// --- LÓGICA PARA BALA TIPO 1 (JUGADOR) ---
+	if (BulletType == 1)
+	{
+		Vector2 pPos = player.GetPosition();
+		float pW = player.GetWidth();
+		float pH = player.GetHeight();
+		PlayerDirection aimDir = player.GetAimDirection();
+		bulletSpeed = 1000.0f;
+
+		switch (aimDir) {
+		case PlayerDirection::LEFT:
+			bulletPos = { pPos.x, pPos.y + pH / 2 + yOffset };
+			directionX = -1.0f;
+			break;
+		case PlayerDirection::RIGHT:
+			bulletPos = { pPos.x + pW, pPos.y + pH / 2 + yOffset };
+			directionX = 1.0f;
+			break;
+		case PlayerDirection::UP:
+			bulletPos = { pPos.x + pW / 2, pPos.y + yOffset };
+			directionY = -1.0f;
+			break;
+		case PlayerDirection::DOWN:
+			bulletPos = { pPos.x + pW / 2, pPos.y + pH };
+			directionY = 1.0f;
+			break;
+		}
+	}
+	// --- LÓGICA PARA BALA TIPO 2 (SOLDADO / GRANADA) ---
+	else if (BulletType == 2)
+	{
+		bulletPos = startPos;
+		bulletSpeed = 50.0f;
+		// Velocidad horizontal (qué tan lejos llega)
+		bulletSpeed = 400.0f;
+
+		directionX = faceRight ? 1.0f : -1.0f;
+
+		// IMPULSO HACIA ARRIBA: Debe ser negativo para que "salte"
+		// Prueba con -4.0f para un arco alto o -2.0f para un arco bajo
+		directionY = -5.0f;
+
+	
 	}
 
-	// AHORA PASAMOS LOS 5 ARGUMENTOS:
-	// 1. pos, 2. speed, 3. dirX, 4. dirY, 5. type
-	bullets.emplace_back(bulletPos, bulletSpeed, directionX, directionY, bulletType);
+	// Finalmente, añadimos la bala al vector con los datos calculados
+	bullets.emplace_back(bulletPos, bulletSpeed, directionX, directionY, BulletType);
 }
-
 
 
 
@@ -219,7 +242,7 @@ void Game::HandleInput()
 	if (IsKeyPressed(KEY_D) || IsKeyDown(KEY_D) && shootTimer >= shootDelay)
 	{
 		player.Shoot();
-		Shoot();
+		Shoot(1, player.GetPosition(), (player.GetAimDirection() != PlayerDirection::LEFT));
 		shootTimer = 0;
 	}
 
@@ -231,8 +254,10 @@ void Game::ResolveCollisions()
 }
 void Game::BulletsCollision() {
 	auto bIt = bullets.begin();
+	
 	while (bIt != bullets.end()) {
 		bool bulletHit = false;
+		
 		auto sIt = soldiers.begin();
 		while (sIt != soldiers.end()) {
 			if (sIt->GetisAlive() && CheckCollisionRecs(sIt->GetHurtBox(), bIt->GetHitbox())) {
@@ -244,7 +269,7 @@ void Game::BulletsCollision() {
 			++sIt;
 		}
 		if (bulletHit) bIt = bullets.erase(bIt);
-		else           ++bIt;
+		else ++bIt;
 	}
 
 	// ── Borrar soldados muertos DESPUÉS del loop de balas ────────────────────
@@ -267,7 +292,7 @@ void Game::BlockCollisions()
 	for (const auto& block : blocks) {
 		Rectangle playerRect = player.GetHitBox();
 		Rectangle blockRect = block.GetRect();
-
+		auto bIt = bullets.begin();
 		float feetY = playerRect.y + playerRect.height;
 		float blockTopY = blockRect.y;
 
@@ -298,8 +323,7 @@ void Game::BlockCollisions()
 			onGround = true;
 			break;  // Salir del bucle después de la primera colisión
 		}
-		
-
+	
 		
 		
 	}
@@ -309,6 +333,43 @@ void Game::BlockCollisions()
 		player.SetVelocityY(0);
 
 	}
+	auto bIt = bullets.begin();
+	while (bIt != bullets.end()) {
+		bool bulletJustHit = false;
+
+		// 1. Si NO está explotando, checar colisión con bloques
+		if (!bIt->IsExploding()) {
+			for (const auto& block : blocks) {
+				if (CheckCollisionRecs(bIt->GetHitbox(), block.GetRect())) {
+					bulletJustHit = true;
+					break;
+				}
+			}
+		}
+
+		// 2. Manejar el impacto
+		if (bulletJustHit) {
+			if (bIt->GetType() == 1) {
+				bIt = bullets.erase(bIt);
+				continue; // ← ya avanza el iterador, no llega al ++bIt
+			}
+			else if (bIt->GetType() == 2) {
+				if (!bIt->IsExploding()) {
+					// Solo activar la explosión UNA vez al tocar el suelo
+					bIt->SetExploding(true);
+					bIt->GetAnim().SetAnimation(BulletState::EXPLOSIONSOLDIER);
+				}
+
+				if (bIt->GetAnim().IsAnimationFinished()) {
+					bIt = bullets.erase(bIt);
+					continue; // ← importante para no hacer ++bIt después
+				}
+			}
+		}
+		++bIt;
+
+		// 4. Si no se borró en ningún paso anterior, avanzar
+	}
 }
 
 std::vector<Bullet> Game::CreateBullets()
@@ -317,6 +378,7 @@ std::vector<Bullet> Game::CreateBullets()
 	for (int i = 0; i < bullets.size(); i++) {
 
 		if (bullets[i].GetX() < 0 || bullets[i].GetX() > GetScreenWidth()) {
+		
 			bullets.erase(bullets.begin() + i);
 			i--;
 		}
@@ -327,15 +389,16 @@ std::vector<Bullet> Game::CreateBullets()
 std::vector<Soldier>  Game::CreateSoldiers()
 	{
 		std::vector<Soldier> soldiers;
-		soldiers.reserve(4);
+		soldiers.reserve(1);
 		for (int i = 0; i < 1; ++i) {
 			float xpos, ypos;
 			ypos = (10 * i + 40) + 100;
 			xpos = (100 * i + 40) + 500;
 			/*soldiers.emplace_back(Soldier(1, { xpos,ypos }));*/
 			soldiers.emplace_back(Soldier(2, { xpos,ypos }));
+			
 		}
-		soldiers.emplace_back(Soldier(1, {200, 200}));
+		soldiers.emplace_back(Soldier(1, { 200, 200 }));
 
 		return soldiers;
 	}

@@ -44,11 +44,13 @@ public:
     void SetVelocityX(float newVelX) { vel.x = newVelX; }  // ← AÑADIR
     void SetGrounded(bool g) { grounded = g; }
 
+
     // Hitbox
     void SetNormalHitbox();
     void SetCrouchHitbox();
 
 private:
+
     PlayerAnim anim;
     Vector2 pos = { 0, 100 };
     Vector2 vel = { 0, 0 };

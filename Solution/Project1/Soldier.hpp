@@ -20,6 +20,8 @@ public:
     Rectangle GetHitBox();
     void SetSoliderState(SoldierState newState);
     int GetType();
+    bool GetWantsToShoot() { return wantsToShoot; }
+    void ResetShootFlag() { wantsToShoot = false; }
 
 
     float GetWidth() { return 34.f * scale; }
@@ -38,6 +40,9 @@ public:
     void SetGrounded(bool grounded) { isGrounded = grounded; }
     void SetisAlive(bool isalive) { isAlive = isalive; }
     float GetVelocityY() const { return velocity.y; }
+    bool WantsToShoot() const { return wantsToShoot; }
+    void ResetShootWants() { wantsToShoot = false; }
+    bool IsFacingRight() const { return facingRight; }
 
 private:
     //reference soldier animation
@@ -46,7 +51,7 @@ private:
     Vector2 position;
     Vector2 velocity;
     int type;
-
+    bool wantsToShoot = false;
     float scale;
     float gravity;
     

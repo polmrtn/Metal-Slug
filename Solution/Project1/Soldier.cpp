@@ -48,9 +48,9 @@ Soldier::Soldier(const Soldier& other)
     facingRight = other.facingRight;
     switch (type) {
     case 1:
-        image = soldierAnim.GetSheet();
+         soldierAnim.GetSheet();
     case 2:
-        image = soldierAnim.GetSheet();
+        soldierAnim.GetSheet();
 
         break;
     }
@@ -166,7 +166,11 @@ void Soldier::Update()
     else if (isGrounded) {
         velocity.y = 0;
     }
-
+    if (soldierAnim.CheckShootTrigger()) {
+        if (this->type == 2) { // Si es el de las bombas
+            this->wantsToShoot = true; // El Game verá esto y llamará a Shoot()
+        }
+    }
     // Aplicar Movimiento
     position.y += velocity.y;
     position.x += velocity.x;
@@ -214,11 +218,13 @@ void Soldier::UpdateAI(Player& player)
                 SetSoliderState(SoldierState::ATTACKING);
                 soldierAnim.ForceAnimation(SoldierState::ATTACKING);
             }
-            else if(GetType() == 2)
+            else if (GetType() == 2)
             {
-                SetSoliderState(SoldierState::ATTACKING);
-                soldierAnim.ForceAnimation(SoldierState::BOMB);
-
+                if (currentState != SoldierState::ATTACKING) {
+                    SetSoliderState(SoldierState::ATTACKING);
+                    soldierAnim.ForceAnimation(SoldierState::BOMB);
+                    wantsToShoot = true; // <--- Seteamos la bandera aquí
+                }
             }
         }
         attackTimer = 0.0f;

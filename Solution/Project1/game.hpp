@@ -20,7 +20,7 @@ class Game {
 		void Update();
 		void HandleInput();
 		void BlockCollisions();
-		void Shoot();
+		void Shoot(int BulletType, Vector2 startPos, bool faceRight);
 		void Timers();
 		void BulletsCollision();
 		void ResolveCollisions();
