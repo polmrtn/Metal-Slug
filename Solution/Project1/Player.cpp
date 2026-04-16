@@ -32,7 +32,7 @@ void Player::Update(float CameraLeftLimit) {
         SetNormalHitbox();
     }
 
-    anim.Update(grounded, vel.x, crouching, aimingUp, GetFrameTime());
+    anim.Update(grounded, inputVelX, crouching, aimingUp, GetFrameTime());
 
     if (mode == Mode::FULL_BODY && !crouching) {
         specialTimer += GetFrameTime();
@@ -364,6 +364,8 @@ Rectangle Player::GetHitBox() {
 }
 
 Rectangle Player::GetLeftHitBox() {
+    Rectangle mainHitBox = GetHitBox();
+
     // La hitbox izquierda es más pequeña en altura
     float reducedHeight = hitboxHeight * 0.6f;  // 60% de la altura original
     float offsetY = (hitboxHeight - reducedHeight) / 2.0f;  // Centrada verticalmente
@@ -378,6 +380,7 @@ Rectangle Player::GetLeftHitBox() {
 }
 
 Rectangle Player::GetRightHitBox() {
+    Rectangle mainHitBox = GetHitBox();
     // La hitbox derecha es más pequeña en altura
     float reducedHeight = hitboxHeight * 0.6f;
     float offsetY = (hitboxHeight - reducedHeight) / 2.0f;
@@ -398,7 +401,7 @@ Vector2 Player::GetPosition() {
 // ========== MOVIMIENTO E INPUT ==========
 void Player::MoveLeft() {
     if (mode != Mode::FULL_BODY && !crouching) {
-        // No mover si hay colisión a la izquierda
+        inputVelX = -MOVE_SPEED;  // Guardar velocidad deseada para animación
         if (!leftCollision) {
             vel.x = -MOVE_SPEED;
         }
@@ -408,6 +411,7 @@ void Player::MoveLeft() {
         dir = PlayerDirection::LEFT;
     }
     else if (crouching && !anim.IsCrouchShooting()) {
+        inputVelX = -CROUCH_SPEED;
         if (!leftCollision) {
             vel.x = -CROUCH_SPEED;
         }
@@ -420,7 +424,7 @@ void Player::MoveLeft() {
 
 void Player::MoveRight() {
     if (mode != Mode::FULL_BODY && !crouching) {
-        // No mover si hay colisión a la derecha
+        inputVelX = MOVE_SPEED;
         if (!rightCollision) {
             vel.x = MOVE_SPEED;
         }
@@ -430,6 +434,7 @@ void Player::MoveRight() {
         dir = PlayerDirection::RIGHT;
     }
     else if (crouching && !anim.IsCrouchShooting()) {
+        inputVelX = CROUCH_SPEED;
         if (!rightCollision) {
             vel.x = CROUCH_SPEED;
         }
@@ -441,6 +446,7 @@ void Player::MoveRight() {
 }
 
 void Player::StopMovingHorizontal() {
+    inputVelX = 0;
     vel.x = 0;
 }
 

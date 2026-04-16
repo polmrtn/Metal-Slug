@@ -94,4 +94,5 @@ private:
     bool leftCollision = false;
     bool rightCollision = false;
 
+    float inputVelX = 0.0f;  // Velocidad deseada por input (para animación)
 };

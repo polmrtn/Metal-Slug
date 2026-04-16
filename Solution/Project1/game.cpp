@@ -1,5 +1,6 @@
 ﻿#include "game.hpp"
 #include <raymath.h>
+
 bool musicStarted = false;
 
 Game::Game() : camera({ 1280.0f/2 , 896/2  })
@@ -42,6 +43,7 @@ void Game::Timers()
 {
 	shootTimer += GetFrameTime();
 }
+
 void Game::Update()
 {
 	if (sceneManager.GetGamestate() == SceneManager::INTRO) {
@@ -97,7 +99,6 @@ void Game::Update()
 	}
 }
 
-
 void Game::Shoot()
 {
 	Vector2 playerPos = player.GetPosition();
@@ -138,10 +139,6 @@ void Game::Shoot()
 	}
 	bullets.emplace_back(bulletPos, bulletSpeed, directionX, directionY);
 }
-
-
-
-
 
 void Game::HandleInput()
 {
@@ -223,11 +220,13 @@ void Game::HandleInput()
 	}
 
 }
+
 void Game::ResolveCollisions()
 {
 	BlockCollisions();
 	BulletsCollision();
 }
+
 void Game::BulletsCollision() {
 	auto bIt = bullets.begin();
 	while (bIt != bullets.end()) {
@@ -345,8 +344,8 @@ std::vector<Block> Game::CreateBlocks()
 	std::vector<Block> blocks;
 
 	// Bloque de suelo a y=800 (para que el jugador caiga desde y=100 hasta y=800)
-	blocks.emplace_back(Block(0, 850, 2700, 100));
-	blocks.emplace_back(Block(2700, 950, 2700, 100));
+	blocks.emplace_back(Block(0, 850, 500, 100));
+	blocks.emplace_back(Block(500, 950, 500, 100));
 
 	return blocks;
 }
