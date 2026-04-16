@@ -1,18 +1,6 @@
-﻿  LevelMap.cpp
-E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\LevelMap.cpp(9,56): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
-E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\LevelMap.cpp(9,44): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
-E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\LevelMap.cpp(9,36): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
-E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\LevelMap.cpp(9,28): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
-  Player.cpp
+﻿  Player.cpp
 E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\Player.cpp(72,78): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
 E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\Player.cpp(72,68): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
 E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\Player.cpp(84,74): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
 E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\Player.cpp(84,64): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
-  Soldier.cpp
-  game.cpp
-E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\game.cpp(332,25): warning C4244: '=': conversión de 'int' a 'float'; posible pérdida de datos
-E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\game.cpp(333,26): warning C4244: '=': conversión de 'int' a 'float'; posible pérdida de datos
-  main.cpp
-  playerAnim.cpp
-  Generando código...
   Project1.vcxproj -> E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\x64\Debug\Project1.exe

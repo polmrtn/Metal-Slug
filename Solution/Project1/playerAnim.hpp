@@ -6,7 +6,7 @@ enum class LegsAnim { IDLE, WALKING, JUMPING };
 enum class TorsoAnim { IDLE, WALKING, JUMPING, SHOOTING };
 
 // Offsets visuales SOLO para piernas
-struct VisualOffsets { float legsX, legsY; };
+struct VisualOffsets { float legsX, legsY, torsoX, torsoY; };
 
 class PlayerAnim {
 public:
@@ -148,8 +148,8 @@ private:
     bool shootingUp = false;
 
     // Offsets
-    VisualOffsets idleOffset = { -2.0f, 9.0f };
-    VisualOffsets walkOffset = { -4.0f, 15.0f };
-    VisualOffsets jumpOffset = { 0.0f, 20.0f };
-    VisualOffsets jumpShootOffset = { -6.0f, 20.0f };
+    VisualOffsets idleOffset = { 1.0f, 9.0f, 3.0f, 0.0f };
+    VisualOffsets walkOffset = { -1.0f, 15.0f, 3.0f, 0.0f };
+    VisualOffsets jumpOffset = { 0.0f, 20.0f, 0.0f, 0.0f };
+    VisualOffsets jumpShootOffset = { -6.0f, 20.0f, 0.0f, 0.0f };
 };

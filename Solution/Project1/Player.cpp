@@ -172,6 +172,15 @@ void Player::DrawSeparated() {
     float baseY = pos.y + GetHeight() - (h * SCALE) - 35.0f;
     VisualOffsets off = anim.GetOffsets();
 
+    // ========== INVERTIR OFFSETS PARA IZQUIERDA (APLICA A TODO) ==========
+    float legsOffsetX = off.legsX;
+    float torsoOffsetX = off.torsoX;
+
+    if (dir == PlayerDirection::LEFT) {
+        legsOffsetX = -off.legsX;
+        torsoOffsetX = -off.torsoX;  // ← INVERTIR PARA TODOS LOS CASOS
+    }
+
     // ========== 1. PIERNAS ==========
     Rectangle legSrc;
     switch (anim.GetLegsAnim()) {
@@ -185,30 +194,42 @@ void Player::DrawSeparated() {
         legSrc = { 4 * w, anim.GetRowIdle(), w, h };
     }
 
-    float offX = off.legsX;
     if (dir == PlayerDirection::LEFT) {
         legSrc.width = -w;
-        offX = -off.legsX;
     }
 
     DrawTexturePro(anim.GetSheet(), legSrc,
-        { pos.x + offX * SCALE, baseY + off.legsY * SCALE, w * SCALE, h * SCALE },
+        { pos.x + legsOffsetX * SCALE, baseY + off.legsY * SCALE, w * SCALE, h * SCALE },
         { 0,0 }, 0, WHITE);
 
     // ========== 2. TORSO ==========
-    float torsoX = pos.x;
+    float torsoDrawX = pos.x + torsoOffsetX * SCALE;
+    float torsoDrawY = baseY + off.torsoY * SCALE;
     Rectangle torsoSrc;
     Color tint = WHITE;
+
+    // DEBUG
+    TraceLog(LOG_INFO, "TORSO DEBUG - dir: %s, torsoOffsetX: %.2f, torsoDrawX: %.2f",
+        dir == PlayerDirection::LEFT ? "LEFT" : "RIGHT", torsoOffsetX, torsoDrawX);
 
     // PRIORIDAD 1: Disparo normal (horizontal)
     if (anim.IsShooting()) {
         torsoSrc = { anim.GetShootFrame() * anim.GetShootW(), anim.GetRowShoot(), anim.GetShootW(), h };
+
+        float shootDrawX = torsoDrawX;
+        float shootDrawY = torsoDrawY;
+
         if (dir == PlayerDirection::LEFT) {
             torsoSrc.width = -anim.GetShootW();
-            torsoX = pos.x - (anim.GetShootW() - w) * SCALE;
+            float compensacion = -140.0;
+            shootDrawX = torsoDrawX + compensacion;
         }
+
+        float subirTorsoY = 5.0f;  
+        shootDrawY = torsoDrawY - subirTorsoY;
+
         DrawTexturePro(anim.GetSheet(), torsoSrc,
-            { torsoX, baseY, anim.GetShootW() * SCALE, h * SCALE },
+            { shootDrawX, shootDrawY, anim.GetShootW() * SCALE, h * SCALE },
             { 0,0 }, 0, tint);
         return;
     }
@@ -221,22 +242,12 @@ void Player::DrawSeparated() {
             w,
             anim.GetShootUpH()
         };
-
-        // CALCULAR POSICIÓN X SEGÚN DIRECCIÓN
-        float shootUpX;
-
         if (dir == PlayerDirection::LEFT) {
             torsoSrc.width = -w;
-            shootUpX = pos.x + 20.0f;  // Ajusta este valor para izquierda
         }
-        else {
-            shootUpX = pos.x - 10.0f;  // Ajusta este valor para derecha
-        }
-
-        float shootUpBaseY = baseY - 140;
-
+        float shootUpBaseY = baseY - 140 + (off.torsoY * SCALE);
         DrawTexturePro(anim.GetSheet(), torsoSrc,
-            { shootUpX, shootUpBaseY, w * SCALE, anim.GetShootUpH() * SCALE },
+            { torsoDrawX, shootUpBaseY, w * SCALE, anim.GetShootUpH() * SCALE },
             { 0,0 }, 0, tint);
         return;
     }
@@ -277,7 +288,7 @@ void Player::DrawSeparated() {
     }
 
     DrawTexturePro(anim.GetSheet(), torsoSrc,
-        { pos.x, baseY, w * SCALE, h * SCALE },
+        { torsoDrawX, torsoDrawY, w * SCALE, h * SCALE },
         { 0,0 }, 0, tint);
 }
 
