@@ -148,7 +148,7 @@ private:
     bool shootingUp = false;
 
     // Offsets
-    VisualOffsets idleOffset = { -3.0f, 9.0f };
+    VisualOffsets idleOffset = { -2.0f, 9.0f };
     VisualOffsets walkOffset = { -4.0f, 15.0f };
     VisualOffsets jumpOffset = { 0.0f, 20.0f };
     VisualOffsets jumpShootOffset = { -6.0f, 20.0f };

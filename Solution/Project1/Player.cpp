@@ -12,14 +12,14 @@ Player::~Player() {
 void Player::SetNormalHitbox() {
     hitboxWidth = 20.0f * SCALE;
     hitboxHeight = 40.0f * SCALE;
-    hitboxOffsetX = 2.0f * SCALE;
+    hitboxOffsetX = 0.0f * SCALE;
     hitboxOffsetY = 0.0f * SCALE;
 }
 
 void Player::SetCrouchHitbox() {
     hitboxWidth = 20.0f * SCALE;
     hitboxHeight = 25.0f * SCALE;
-    hitboxOffsetX = 2.0f * SCALE;
+    hitboxOffsetX = 0.0f * SCALE;
     hitboxOffsetY = 0.0f * SCALE;
 }
 
@@ -67,6 +67,9 @@ void Player::Draw() {
     if (crouching) {
         DrawCrouch();
         DrawHitBox();
+
+        // DEBUG: Mostrar pos.x y pos.y
+        DrawText(TextFormat("pos: (%.0f, %.0f)", pos.x, pos.y), pos.x, pos.y - 30, 20, YELLOW);
         return;
     }
     if (mode == Mode::FULL_BODY) {
@@ -76,6 +79,9 @@ void Player::Draw() {
         DrawSeparated();
     }
     DrawHitBox();
+
+    // DEBUG: Mostrar pos.x y pos.y
+    DrawText(TextFormat("pos: (%.0f, %.0f)", pos.x, pos.y), pos.x, pos.y - 30, 20, YELLOW);
 }
 
 void Player::DrawCrouch() {
@@ -324,33 +330,21 @@ float Player::GetHeight() const {
 }
 
 Rectangle Player::GetHitBox() {
-    float hitboxX;
-
-    if (!grounded && !crouching) {
-        float jumpOffsetX = 6.0f * SCALE;
-        if (dir == PlayerDirection::LEFT) {
-            hitboxX = pos.x + (34.0f * SCALE - hitboxWidth - jumpOffsetX);
-        }
-        else {
-            hitboxX = pos.x + jumpOffsetX;
-        }
-    }
-    else {
-        if (dir == PlayerDirection::LEFT) {
-            hitboxX = pos.x + (34.0f * SCALE - hitboxWidth - hitboxOffsetX);
-        }
-        else {
-            hitboxX = pos.x + hitboxOffsetX;
-        }
-    }
-
+    // Calcular hitbox centrada en el personaje
+    float spriteTotalWidth = 34.0f * SCALE;  // 136 píxeles
+    float hitboxX = pos.x + (spriteTotalWidth - hitboxWidth) / 2.0f;
     float hitboxY = pos.y + hitboxOffsetY;
 
-    // DEPURACIÓN
-    TraceLog(LOG_INFO, "GetHitBox - pos.y: %.1f, offsetY: %.1f, hitboxY: %.1f, height: %.1f",
-        pos.y, hitboxOffsetY, hitboxY, hitboxHeight);
+    // DEBUG
+    TraceLog(LOG_INFO, "=== GET HITBOX (NUEVA CENTRADA) ===");
+    TraceLog(LOG_INFO, "dir: %s", dir == PlayerDirection::LEFT ? "LEFT" : "RIGHT");
+    TraceLog(LOG_INFO, "grounded: %d, crouching: %d", grounded, crouching);
+    TraceLog(LOG_INFO, "pos: (%.1f, %.1f)", pos.x, pos.y);
+    TraceLog(LOG_INFO, "spriteTotalWidth: %.1f, hitboxWidth: %.1f", spriteTotalWidth, hitboxWidth);
+    TraceLog(LOG_INFO, "hitboxX: %.1f, hitboxY: %.1f", hitboxX, hitboxY);
+    TraceLog(LOG_INFO, "hitboxWidth: %.1f, hitboxHeight: %.1f", hitboxWidth, hitboxHeight);
 
-    return Rectangle{ hitboxX, hitboxY, GetWidth(), GetHeight() };
+    return Rectangle{ hitboxX, hitboxY, hitboxWidth, hitboxHeight };
 }
 
 Vector2 Player::GetPosition() {
