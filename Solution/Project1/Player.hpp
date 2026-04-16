@@ -10,6 +10,7 @@ public:
     Player();
     ~Player();
 
+    // Actualización y dibujo
     void Update(float CameraLeftLimit);
     void Draw();
     void DrawHitBox();
@@ -42,31 +43,43 @@ public:
     void SetY(float newY) { pos.y = newY; }
     void SetX(float newX) { pos.x = newX; }
     void SetVelocityY(float newVelY) { vel.y = newVelY; }
-    void SetVelocityX(float newVelX) { vel.x = newVelX; }  // ← AÑADIR
+    void SetVelocityX(float newVelX) { vel.x = newVelX; }
     void SetGrounded(bool g) { grounded = g; }
+    void SetInputVelX(float val) { inputVelX = val; }
 
     // Hitbox
     void SetNormalHitbox();
     void SetCrouchHitbox();
 
-    // Getters para hitboxes laterales
+    // Hitboxes laterales
     Rectangle GetLeftHitBox();
     Rectangle GetRightHitBox();
 
-    // Setters para control de colisiones laterales
+    // Colisiones laterales
     void SetLeftCollision(bool colliding) { leftCollision = colliding; }
     void SetRightCollision(bool colliding) { rightCollision = colliding; }
     bool GetLeftCollision() const { return leftCollision; }
     bool GetRightCollision() const { return rightCollision; }
 
 private:
+    // Animación
     PlayerAnim anim;
-    Vector2 pos = { 0, 100 };
-    Vector2 vel = { 0, 0 };
+
+    // Posición y física
+    Vector2 pos = { 0.0f, 100.0f };
+    Vector2 vel = { 0.0f, 0.0f };
+    float inputVelX = 0.0f;  // Velocidad deseada por input (para animación)
+
+    // Estados
     bool grounded = false;
     bool aimingUp = false;
     bool crouching = false;
     PlayerDirection dir = PlayerDirection::RIGHT;
+
+    // Colisiones laterales
+    bool leftCollision = false;
+    bool rightCollision = false;
+
     // Constantes físicas
     static constexpr float SCALE = 4.0f;
     static constexpr float GRAVITY = 2.5f;
@@ -74,25 +87,24 @@ private:
     static constexpr float MOVE_SPEED = 10.0f;
     static constexpr float CROUCH_SPEED = 4.0f;
     static constexpr float NORMAL_H = 34.0f;
-    // ========== HITBOX ==========
+
+    // Hitbox
     float hitboxWidth;
     float hitboxHeight;
     float hitboxOffsetX;
     float hitboxOffsetY;
+
+    // Modos de animación
     enum class Mode { SEPARATED, FULL_BODY };
     Mode mode = Mode::SEPARATED;
     SpecialAnim special = SpecialAnim::NONE;
-    float specialTimer = 0;
-    float specialDuration = 0;
+    float specialTimer = 0.0f;
+    float specialDuration = 0.0f;
+
+    // Métodos de dibujo
     void DrawSeparated();
     void DrawFullBody();
     void DrawCrouch();
     Rectangle GetFullBodyRect();
     float GetFullBodyH() const;
-
-    // Colisiones laterales
-    bool leftCollision = false;
-    bool rightCollision = false;
-
-    float inputVelX = 0.0f;  // Velocidad deseada por input (para animación)
 };

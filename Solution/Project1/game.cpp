@@ -288,9 +288,20 @@ void Game::BlockCollisions() {
 		if (CheckCollisionRecs(leftHitBox, blockRect)) {
 			// Ajustar posición X del jugador para que no atraviese el bloque
 			float newX = blockRect.x + blockRect.width;
+
+			// DEBUG DETALLADO
+			TraceLog(LOG_INFO, "=== COLISION IZQUIERDA DETALLE ===");
+			TraceLog(LOG_INFO, "player pos.x: %.2f", player.GetX());
+			TraceLog(LOG_INFO, "player hitbox x: %.2f, w: %.2f", playerRect.x, playerRect.width);
+			TraceLog(LOG_INFO, "leftHitBox x: %.2f, w: %.2f", leftHitBox.x, leftHitBox.width);
+			TraceLog(LOG_INFO, "blockRect x: %.2f, w: %.2f, right edge: %.2f", blockRect.x, blockRect.width, blockRect.x + blockRect.width);
+			TraceLog(LOG_INFO, "newX calculado: %.2f", newX);
+			TraceLog(LOG_INFO, "player.GetX() < newX: %d", player.GetX() < newX);
+
 			if (player.GetX() < newX) {
 				player.SetX(newX);
 				player.SetLeftCollision(true);
+				TraceLog(LOG_INFO, "APLICANDO COLISION - nueva pos.x: %.2f", player.GetX());
 			}
 		}
 
@@ -302,6 +313,7 @@ void Game::BlockCollisions() {
 			if (player.GetX() + player.GetWidth() > blockRect.x) {
 				player.SetX(newX);
 				player.SetRightCollision(true);
+				TraceLog(LOG_INFO, "COLISION DERECHA - newX: %.2f, playerX: %.2f", newX, player.GetX());
 			}
 		}
 	}
@@ -346,7 +358,7 @@ std::vector<Block> Game::CreateBlocks()
 	// Bloque de suelo a y=800 (para que el jugador caiga desde y=100 hasta y=800)
 	blocks.emplace_back(Block(0, 850, 500, 100));
 	blocks.emplace_back(Block(500, 950, 500, 100));
-
+	blocks.emplace_back(Block(950, 550, 500, 100));
 	return blocks;
 }
 

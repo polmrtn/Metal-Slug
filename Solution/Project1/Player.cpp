@@ -32,6 +32,15 @@ void Player::Update(float CameraLeftLimit) {
         SetNormalHitbox();
     }
 
+    // DEBUG POSICION CADA FRAME (solo cuando está agachado)
+    if (crouching) {
+        static int frameCount = 0;
+        if (frameCount++ % 10 == 0) {  // Cada 10 frames
+            TraceLog(LOG_INFO, "AGACHADO - pos.x: %.2f, leftCollision: %d, rightCollision: %d, vel.x: %.2f, inputVelX: %.2f",
+                pos.x, leftCollision, rightCollision, vel.x, inputVelX);
+        }
+    }
+
     anim.Update(grounded, inputVelX, crouching, aimingUp, GetFrameTime());
 
     if (mode == Mode::FULL_BODY && !crouching) {
@@ -40,23 +49,35 @@ void Player::Update(float CameraLeftLimit) {
             mode = Mode::SEPARATED;
             special = SpecialAnim::NONE;
         }
-        pos.x += vel.x;
+        // Movimiento X con colisiones laterales
+        if ((vel.x < 0 && !leftCollision) || (vel.x > 0 && !rightCollision)) {
+            pos.x += vel.x;
+        }
         if (pos.x < CameraLeftLimit) pos.x = CameraLeftLimit;
         return;
     }
 
-    // ========== FÍSICA ==========
+    // ========== FÍSICA Y MOVIMIENTO ==========
+
+    // Movimiento en Y (gravedad)
     if (!grounded) {
         vel.y += GRAVITY;
         pos.y += vel.y;
     }
     else {
         vel.y = 0;
-        // No mover Y
     }
 
-    // Actualizar X normalmente
-    pos.x += vel.x;
+    // Movimiento en X SOLO si no hay colisión en esa dirección
+    if ((vel.x < 0 && !leftCollision) || (vel.x > 0 && !rightCollision)) {
+        pos.x += vel.x;
+    }
+    else if (vel.x != 0) {
+        // Hay colisión, resetear inputVelX para que la animación no parpadee
+        inputVelX = 0;
+        TraceLog(LOG_INFO, "COLISION BLOQUEA MOVIMIENTO - vel.x: %.2f, leftCollision: %d, rightCollision: %d",
+            vel.x, leftCollision, rightCollision);
+    }
 
     // Limitar por cámara
     if (pos.x < CameraLeftLimit) pos.x = CameraLeftLimit;
@@ -351,46 +372,34 @@ Rectangle Player::GetHitBox() {
     float hitboxX = pos.x + (spriteTotalWidth - hitboxWidth) / 2.0f;
     float hitboxY = pos.y + hitboxOffsetY;
 
-    // DEBUG
-    TraceLog(LOG_INFO, "=== GET HITBOX (NUEVA CENTRADA) ===");
-    TraceLog(LOG_INFO, "dir: %s", dir == PlayerDirection::LEFT ? "LEFT" : "RIGHT");
-    TraceLog(LOG_INFO, "grounded: %d, crouching: %d", grounded, crouching);
-    TraceLog(LOG_INFO, "pos: (%.1f, %.1f)", pos.x, pos.y);
-    TraceLog(LOG_INFO, "spriteTotalWidth: %.1f, hitboxWidth: %.1f", spriteTotalWidth, hitboxWidth);
-    TraceLog(LOG_INFO, "hitboxX: %.1f, hitboxY: %.1f", hitboxX, hitboxY);
-    TraceLog(LOG_INFO, "hitboxWidth: %.1f, hitboxHeight: %.1f", hitboxWidth, hitboxHeight);
-
     return Rectangle{ hitboxX, hitboxY, hitboxWidth, hitboxHeight };
 }
 
 Rectangle Player::GetLeftHitBox() {
-    Rectangle mainHitBox = GetHitBox();
-
-    // La hitbox izquierda es más pequeña en altura
-    float reducedHeight = hitboxHeight * 0.6f;  // 60% de la altura original
-    float offsetY = (hitboxHeight - reducedHeight) / 2.0f;  // Centrada verticalmente
-
-    // Posición X: dentro de la hitbox principal pero sobresaliendo hacia la izquierda
-    float hitboxX = GetHitBox().x - (hitboxWidth * 0.3f);  // 30% fuera hacia la izquierda
-    float hitboxY = GetHitBox().y + offsetY;
-    float hitboxW = hitboxWidth * 0.4f;  // 40% del ancho de la hitbox principal
+    Rectangle mainHitBox = GetHitBox();  // Obtener hitbox actualizada
+    
+    float reducedHeight = mainHitBox.height * 0.6f;  // Usar height actual
+    float offsetY = (mainHitBox.height - reducedHeight) / 2.0f;
+    
+    float hitboxX = mainHitBox.x - (mainHitBox.width * 0.3f);
+    float hitboxY = mainHitBox.y + offsetY;
+    float hitboxW = mainHitBox.width * 0.4f;
     float hitboxH = reducedHeight;
-
+    
     return Rectangle{ hitboxX, hitboxY, hitboxW, hitboxH };
 }
 
 Rectangle Player::GetRightHitBox() {
     Rectangle mainHitBox = GetHitBox();
-    // La hitbox derecha es más pequeña en altura
-    float reducedHeight = hitboxHeight * 0.6f;
-    float offsetY = (hitboxHeight - reducedHeight) / 2.0f;
-
-    // Posición X: dentro de la hitbox principal pero sobresaliendo hacia la derecha
-    float hitboxX = GetHitBox().x + hitboxWidth - (hitboxWidth * 0.1f);  // 10% fuera hacia la derecha
-    float hitboxY = GetHitBox().y + offsetY;
-    float hitboxW = hitboxWidth * 0.4f;
+    
+    float reducedHeight = mainHitBox.height * 0.6f;
+    float offsetY = (mainHitBox.height - reducedHeight) / 2.0f;
+    
+    float hitboxX = mainHitBox.x + mainHitBox.width - (mainHitBox.width * 0.1f);
+    float hitboxY = mainHitBox.y + offsetY;
+    float hitboxW = mainHitBox.width * 0.4f;
     float hitboxH = reducedHeight;
-
+    
     return Rectangle{ hitboxX, hitboxY, hitboxW, hitboxH };
 }
 
