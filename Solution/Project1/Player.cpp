@@ -62,7 +62,6 @@ void Player::Update(float CameraLeftLimit) {
     if (pos.x < CameraLeftLimit) pos.x = CameraLeftLimit;
 }
 
-
 void Player::Draw() {
     if (crouching) {
         DrawCrouch();
@@ -165,7 +164,6 @@ void Player::DrawCrouch() {
 
     DrawTexturePro(anim.GetSheet(), sourceRect, destRect, { 0,0 }, 0, WHITE);
 }
-
 
 void Player::DrawSeparated() {
     float w = anim.GetW(), h = anim.GetH();
@@ -308,7 +306,14 @@ void Player::DrawFullBody() {
 }
 
 void Player::DrawHitBox() {
+    // Hitbox principal (blanca)
     DrawRectangleLinesEx(GetHitBox(), 2, WHITE);
+
+    // Hitbox izquierda (roja)
+    DrawRectangleLinesEx(GetLeftHitBox(), 2, RED);
+
+    // Hitbox derecha (azul)
+    DrawRectangleLinesEx(GetRightHitBox(), 2, BLUE);
 }
 
 Rectangle Player::GetFullBodyRect() {
@@ -358,6 +363,34 @@ Rectangle Player::GetHitBox() {
     return Rectangle{ hitboxX, hitboxY, hitboxWidth, hitboxHeight };
 }
 
+Rectangle Player::GetLeftHitBox() {
+    // La hitbox izquierda es más pequeña en altura
+    float reducedHeight = hitboxHeight * 0.6f;  // 60% de la altura original
+    float offsetY = (hitboxHeight - reducedHeight) / 2.0f;  // Centrada verticalmente
+
+    // Posición X: dentro de la hitbox principal pero sobresaliendo hacia la izquierda
+    float hitboxX = GetHitBox().x - (hitboxWidth * 0.3f);  // 30% fuera hacia la izquierda
+    float hitboxY = GetHitBox().y + offsetY;
+    float hitboxW = hitboxWidth * 0.4f;  // 40% del ancho de la hitbox principal
+    float hitboxH = reducedHeight;
+
+    return Rectangle{ hitboxX, hitboxY, hitboxW, hitboxH };
+}
+
+Rectangle Player::GetRightHitBox() {
+    // La hitbox derecha es más pequeña en altura
+    float reducedHeight = hitboxHeight * 0.6f;
+    float offsetY = (hitboxHeight - reducedHeight) / 2.0f;
+
+    // Posición X: dentro de la hitbox principal pero sobresaliendo hacia la derecha
+    float hitboxX = GetHitBox().x + hitboxWidth - (hitboxWidth * 0.1f);  // 10% fuera hacia la derecha
+    float hitboxY = GetHitBox().y + offsetY;
+    float hitboxW = hitboxWidth * 0.4f;
+    float hitboxH = reducedHeight;
+
+    return Rectangle{ hitboxX, hitboxY, hitboxW, hitboxH };
+}
+
 Vector2 Player::GetPosition() {
     return pos;
 }
@@ -365,22 +398,44 @@ Vector2 Player::GetPosition() {
 // ========== MOVIMIENTO E INPUT ==========
 void Player::MoveLeft() {
     if (mode != Mode::FULL_BODY && !crouching) {
-        vel.x = -MOVE_SPEED;
+        // No mover si hay colisión a la izquierda
+        if (!leftCollision) {
+            vel.x = -MOVE_SPEED;
+        }
+        else {
+            vel.x = 0;
+        }
         dir = PlayerDirection::LEFT;
     }
-    else if (crouching && !anim.IsCrouchShooting()) {  // ← Solo mover si NO está disparando agachado
-        vel.x = -CROUCH_SPEED;
+    else if (crouching && !anim.IsCrouchShooting()) {
+        if (!leftCollision) {
+            vel.x = -CROUCH_SPEED;
+        }
+        else {
+            vel.x = 0;
+        }
         dir = PlayerDirection::LEFT;
     }
 }
 
 void Player::MoveRight() {
     if (mode != Mode::FULL_BODY && !crouching) {
-        vel.x = MOVE_SPEED;
+        // No mover si hay colisión a la derecha
+        if (!rightCollision) {
+            vel.x = MOVE_SPEED;
+        }
+        else {
+            vel.x = 0;
+        }
         dir = PlayerDirection::RIGHT;
     }
-    else if (crouching && !anim.IsCrouchShooting()) {  // ← Solo mover si NO está disparando agachado
-        vel.x = CROUCH_SPEED;
+    else if (crouching && !anim.IsCrouchShooting()) {
+        if (!rightCollision) {
+            vel.x = CROUCH_SPEED;
+        }
+        else {
+            vel.x = 0;
+        }
         dir = PlayerDirection::RIGHT;
     }
 }

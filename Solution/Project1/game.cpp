@@ -258,55 +258,58 @@ void Game::BulletsCollision() {
 	}
 }
 
-void Game::BlockCollisions()
-{
+void Game::BlockCollisions() {
 	bool onGround = false;
-	const float GROUND_TOLERANCE = 5.0f;  // Tolerancia de 5 píxeles
-	auto It = soldiers.begin();
+	const float GROUND_TOLERANCE = 5.0f;
+
+	// Resetear colisiones laterales cada frame
+	player.SetLeftCollision(false);
+	player.SetRightCollision(false);
+
 	for (const auto& block : blocks) {
 		Rectangle playerRect = player.GetHitBox();
 		Rectangle blockRect = block.GetRect();
 
+		// ========== COLISIÓN SUELO (existente) ==========
 		float feetY = playerRect.y + playerRect.height;
 		float blockTopY = blockRect.y;
 
-		while (It != soldiers.end()) {
-			if (CheckCollisionRecs(It->GetHurtBox(), blockRect))
-			{
-				if (It->GetVelocityY() >= 0) {
-					It->SetY(blockRect.y - It->GetHeight());
-					It->SetVelocityY(0);
-					It->SetGrounded(true);
-					break;
-				}
-			}
-			else {
-				++It;
-			}
-			// Verificar si el jugador está sobre el bloque (con tolerancia)
-			
-		}
 		bool isOverBlock = (playerRect.x + playerRect.width > blockRect.x + GROUND_TOLERANCE &&
 			playerRect.x < blockRect.x + blockRect.width - GROUND_TOLERANCE);
 
-		// Si los pies están cerca del bloque (dentro de 10 píxeles)
 		if (isOverBlock && feetY >= blockTopY - 10.0f && player.GetVelocityY() >= 0) {
 			float newY = blockTopY - playerRect.height;
 			player.SetY(newY);
 			player.SetVelocityY(0);
 			onGround = true;
-			break;  // Salir del bucle después de la primera colisión
 		}
-		
 
-		
-		
+		// ========== NUEVO: COLISIÓN LATERAL IZQUIERDA ==========
+		Rectangle leftHitBox = player.GetLeftHitBox();
+		if (CheckCollisionRecs(leftHitBox, blockRect)) {
+			// Ajustar posición X del jugador para que no atraviese el bloque
+			float newX = blockRect.x + blockRect.width;
+			if (player.GetX() < newX) {
+				player.SetX(newX);
+				player.SetLeftCollision(true);
+			}
+		}
+
+		// ========== NUEVO: COLISIÓN LATERAL DERECHA ==========
+		Rectangle rightHitBox = player.GetRightHitBox();
+		if (CheckCollisionRecs(rightHitBox, blockRect)) {
+			// Ajustar posición X del jugador para que no atraviese el bloque
+			float newX = blockRect.x - player.GetWidth();
+			if (player.GetX() + player.GetWidth() > blockRect.x) {
+				player.SetX(newX);
+				player.SetRightCollision(true);
+			}
+		}
 	}
+
 	player.SetGrounded(onGround);
-	// Si está en el suelo, asegurar que la velocidad Y es 0
 	if (onGround) {
 		player.SetVelocityY(0);
-
 	}
 }
 

@@ -32,6 +32,7 @@ public:
     float GetWidth() const { return hitboxWidth; }
     float GetHeight() const;
     bool GetIsGrounded() const { return grounded; }
+    float GetX() const { return pos.x; }
     float GetY() const { return pos.y; }
     float GetVelocityX() const { return vel.x; }
     float GetVelocityY() const { return vel.y; }
@@ -47,6 +48,16 @@ public:
     // Hitbox
     void SetNormalHitbox();
     void SetCrouchHitbox();
+
+    // Getters para hitboxes laterales
+    Rectangle GetLeftHitBox();
+    Rectangle GetRightHitBox();
+
+    // Setters para control de colisiones laterales
+    void SetLeftCollision(bool colliding) { leftCollision = colliding; }
+    void SetRightCollision(bool colliding) { rightCollision = colliding; }
+    bool GetLeftCollision() const { return leftCollision; }
+    bool GetRightCollision() const { return rightCollision; }
 
 private:
     PlayerAnim anim;
@@ -78,4 +89,9 @@ private:
     void DrawCrouch();
     Rectangle GetFullBodyRect();
     float GetFullBodyH() const;
+
+    // Colisiones laterales
+    bool leftCollision = false;
+    bool rightCollision = false;
+
 };
