@@ -474,7 +474,8 @@ void Player::StopAimingUp() {
 
 void Player::StartCrouching() {
     if (grounded && !crouching && mode != Mode::FULL_BODY) {
-        // Guardar la posición de los pies antes de agacharse
+
+        // Guardar la posición de los pies
         float feetY = pos.y + GetHeight();
 
         crouching = true;
@@ -482,15 +483,18 @@ void Player::StartCrouching() {
         SetCrouchHitbox();
         anim.ForceCrouch();
 
-        // Mantener los pies en la misma posición después de agacharse
+        // Reposicionar para mantener los pies en el mismo lugar
         pos.y = feetY - GetHeight();
     }
 }
 
 void Player::StopCrouching() {
     if (crouching) {
+        float currentY = pos.y;
         crouching = false;
         SetNormalHitbox();
+
+        pos.y = currentY - 60.0f; 
     }
 }
 

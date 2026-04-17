@@ -24,6 +24,9 @@ class Game {
 		void Timers();
 		void BulletsCollision();
 		void ResolveCollisions();
+		// En la sección public o private, al final
+		void SaveBlocksToFile(const char* filename);
+		void LoadBlocksFromFile(const char* filename);
 	private:
 		float shootTimer = 0.0f;
 		float shootDelay = 1.0f;
@@ -40,4 +43,9 @@ class Game {
 		std::vector<Soldier> CreateSoldiers();
 		std::vector<Block> blocks;
 		std::vector<Block> CreateBlocks();
+
+		// Modo editor
+		bool editorMode = false;
+		float gridSize = 50.0f;
+		Vector2 gridOffset = { 0.0f, 0.0f };
 };

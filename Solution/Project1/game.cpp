@@ -1,4 +1,5 @@
-﻿#include "game.hpp"
+﻿#define _CRT_SECURE_NO_WARNINGS
+#include "game.hpp"
 #include "LevelMap.hpp" 
 #include <raymath.h>
 
@@ -6,10 +7,16 @@ bool musicStarted = false;
 
 Game::Game() : camera({ 1280.0f/2 , 896/2  })
 {
+	FILE* file = fopen("level_blocks.txt", "r");
+	if (file) {
+		fclose(file);
+		LoadBlocksFromFile("level_blocks.txt");
+	}
+	else {
+		blocks = CreateBlocks();  // Solo si no hay archivo
+	}
 	soldiers = CreateSoldiers();
-	bullets = CreateBullets();
-	blocks = CreateBlocks();
-	
+	bullets = CreateBullets();	
 }
 
 Game::~Game()
@@ -37,6 +44,25 @@ void Game::Draw()
 	camera.End();
 
 	UiManager.DrawCredits(camera.GetCamera());
+
+	if (editorMode) {
+		// Dibujar grid
+		for (float x = fmod(gridOffset.x, gridSize); x < GetScreenWidth(); x += gridSize) {
+			DrawLineV({ x, 0 }, { x, (float)GetScreenHeight() }, GRAY);
+		}
+		for (float y = fmod(gridOffset.y, gridSize); y < GetScreenHeight(); y += gridSize) {
+			DrawLineV({ 0, y }, { (float)GetScreenWidth(), y }, GRAY);
+		}
+
+		// Texto de ayuda
+		DrawText("EDITOR MODE - F1: Salir | Click: Suelo | Right: Plataforma | Middle: Borrar | F5: Guardar",
+			10, 10, 15, RED);
+
+		// Posición del ratón en el mundo
+		Vector2 mousePos = GetMousePosition();
+		Vector2 worldPos = camera.GetScreenToWorld(mousePos);
+		DrawText(TextFormat("World: (%.0f, %.0f)", worldPos.x, worldPos.y), 10, 35, 15, YELLOW);
+	}
 	
 }
 
@@ -224,6 +250,61 @@ void Game::HandleInput()
 		Shoot();
 		shootTimer = 0;
 	}
+	// ========== MODO EDITOR ==========
+	static float f1Cooldown = 0.0f;
+	if (IsKeyPressed(KEY_F1) && f1Cooldown <= 0.0f) {
+		editorMode = !editorMode;
+		f1Cooldown = 0.2f;
+		TraceLog(LOG_INFO, "Editor mode: %s", editorMode ? "ON" : "OFF");
+	}
+	if (f1Cooldown > 0.0f) {
+		f1Cooldown -= GetFrameTime();
+	}
+
+	if (editorMode) {
+		// Mover grid con WASD
+		if (IsKeyDown(KEY_W)) gridOffset.y -= 5;
+		if (IsKeyDown(KEY_S)) gridOffset.y += 5;
+		if (IsKeyDown(KEY_A)) gridOffset.x -= 5;
+		if (IsKeyDown(KEY_D)) gridOffset.x += 5;
+
+		// Obtener posición del ratón en el mundo
+		Vector2 mousePos = GetMousePosition();
+		Vector2 worldPos = camera.GetScreenToWorld(mousePos);
+
+		int tileX = (int)floor((worldPos.x - gridOffset.x) / gridSize);
+		int tileY = (int)floor((worldPos.y - gridOffset.y) / gridSize);
+
+		float blockX = gridOffset.x + tileX * gridSize;
+		float blockY = gridOffset.y + tileY * gridSize;
+
+		// Click izquierdo: añadir suelo sólido
+		if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+			blocks.emplace_back(blockX, blockY, gridSize, gridSize, true);
+			TraceLog(LOG_INFO, "Suelo añadido en (%.0f, %.0f)", blockX, blockY);
+		}
+
+		// Click derecho: añadir plataforma
+		if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) {
+			blocks.emplace_back(blockX, blockY, gridSize, gridSize, false);
+			TraceLog(LOG_INFO, "Plataforma añadida en (%.0f, %.0f)", blockX, blockY);
+		}
+
+		// Click medio: borrar bloque
+		if (IsMouseButtonPressed(MOUSE_BUTTON_MIDDLE)) {
+			auto it = std::remove_if(blocks.begin(), blocks.end(),
+				[blockX, blockY](const Block& b) {
+					return b.GetRect().x == blockX && b.GetRect().y == blockY;
+				});
+			blocks.erase(it, blocks.end());
+			TraceLog(LOG_INFO, "Bloque borrado en (%.0f, %.0f)", blockX, blockY);
+		}
+
+		// F5: Guardar bloques
+		if (IsKeyPressed(KEY_F5)) {
+			SaveBlocksToFile("level_blocks.txt");
+		}
+	}
 
 }
 
@@ -323,10 +404,10 @@ void Game::BlockCollisions() {
 			if (block.IsGround()) {
 				// Suelo sólido: siempre colisiona
 				float newY = blockTopY - playerRect.height;
+				TraceLog(LOG_INFO, "SUELO DETECTADO - newY: %.2f, player actual Y: %.2f", newY, player.GetY());
 				player.SetY(newY);
 				player.SetVelocityY(0);
 				onGround = true;
-				TraceLog(LOG_INFO, "SUELO SOLIDO - newY: %.2f", newY);
 			}
 			else {
 				// Plataforma: solo colisiona si NO viene desde abajo (ya lo tenemos con !wasBelow)
@@ -334,7 +415,6 @@ void Game::BlockCollisions() {
 				player.SetY(newY);
 				player.SetVelocityY(0);
 				onGround = true;
-				TraceLog(LOG_INFO, "PLATAFORMA - newY: %.2f", newY);
 			}
 		}
 
@@ -347,7 +427,6 @@ void Game::BlockCollisions() {
 				if (player.GetX() < newX) {
 					player.SetX(newX);
 					player.SetLeftCollision(true);
-					TraceLog(LOG_INFO, "COLISION IZQUIERDA - newX: %.2f", newX);
 				}
 				else {
 					player.SetLeftCollision(true);
@@ -361,7 +440,6 @@ void Game::BlockCollisions() {
 				if (player.GetX() + player.GetWidth() > blockRect.x) {
 					player.SetX(newX);
 					player.SetRightCollision(true);
-					TraceLog(LOG_INFO, "COLISION DERECHA - newX: %.2f", newX);
 				}
 				else {
 					player.SetRightCollision(true);
@@ -407,14 +485,43 @@ std::vector<Soldier>  Game::CreateSoldiers()
 std::vector<Block> Game::CreateBlocks()
 {
 	std::vector<Block> blocks;
-
-	// Suelos sólidos (isGround = true)
-	blocks.emplace_back(Block(0, 850, 500, 100, true));
-	blocks.emplace_back(Block(500, 950, 500, 100, true));
-
-	// Plataforma elevada (isGround = false - atravesable desde abajo)
-	blocks.emplace_back(Block(600, 550, 500, 100, false));
-	
 	return blocks;
+}
+
+void Game::SaveBlocksToFile(const char* filename) {
+	FILE* file;
+	fopen_s(&file, filename, "w");
+	if (!file) {
+		TraceLog(LOG_ERROR, "No se pudo guardar el archivo %s", filename);
+		return;
+	}
+
+	for (const auto& block : blocks) {
+		Rectangle rect = block.GetRect();
+		fprintf(file, "%.0f,%.0f,%.0f,%.0f,%d\n",
+			rect.x, rect.y, rect.width, rect.height, block.IsGround() ? 1 : 0);
+	}
+
+	fclose(file);
+	TraceLog(LOG_INFO, "Bloques guardados en %s (%d bloques)", filename, (int)blocks.size());
+}
+
+void Game::LoadBlocksFromFile(const char* filename) {
+	blocks.clear();
+	FILE* file;
+	fopen_s(&file, filename, "r");
+	if (!file) {
+		TraceLog(LOG_WARNING, "No se pudo cargar el archivo %s", filename);
+		return;
+	}
+
+	float x, y, w, h;
+	int isGround;
+	while (fscanf_s(file, "%f,%f,%f,%f,%d\n", &x, &y, &w, &h, &isGround) == 5) {
+		blocks.emplace_back(x, y, w, h, isGround == 1);
+	}
+
+	fclose(file);
+	TraceLog(LOG_INFO, "Bloques cargados desde %s (%d bloques)", filename, (int)blocks.size());
 }
 

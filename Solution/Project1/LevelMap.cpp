@@ -8,10 +8,10 @@ Block::Block(float x, float y, float width, float height, bool ground) {
 
 void Block::Draw() {
     if (isGround) {
-        DrawRectangleLines(rect.x, rect.y, rect.width, rect.height, BLUE);
+        DrawRectangle(rect.x, rect.y, rect.width, rect.height, ColorAlpha(BLUE, 0.3f));
     }
     else {
-        DrawRectangleLines(rect.x, rect.y, rect.width, rect.height, GREEN);
+        DrawRectangle(rect.x, rect.y, rect.width, rect.height, ColorAlpha(GREEN, 0.3f));
     }
 }
 
