@@ -1,4 +1,5 @@
 ﻿#include "game.hpp"
+#include "LevelMap.hpp" 
 #include <raymath.h>
 
 bool musicStarted = false;
@@ -44,8 +45,7 @@ void Game::Timers()
 	shootTimer += GetFrameTime();
 }
 
-void Game::Update()
-{
+void Game::Update(){
 	if (sceneManager.GetGamestate() == SceneManager::INTRO) {
 		BeginDrawing();
 		ClearBackground(BLACK);
@@ -65,16 +65,22 @@ void Game::Update()
 	else if (sceneManager.GetGamestate() == SceneManager::GAME) {
 		UiManager.Update();
 
-		// ========== 1. ACTUALIZAR JUGADOR ==========
+		// ========== 1. GUARDAR POSICIÓN ANTERIOR ==========
+		player.SavePreviousPosition();
+
+		// ========== 2. INPUT ==========
+		HandleInput();
+
+		// ========== 3. ACTUALIZAR JUGADOR (FÍSICA Y MOVIMIENTO) ==========
 		player.Update(camera.GetLeftLimit());
 
-		// ========== 2. COLISIONES ==========
+		// ========== 4. COLISIONES ==========
 		ResolveCollisions();
 
-		// ========== 3. ACTUALIZAR CÁMARA ==========
+		// ========== 5. ACTUALIZAR CÁMARA ==========
 		camera.Update(player.GetPosition(), backgroundManager.GetWidth(), backgroundManager.GetHeight(), player.GetIsGrounded());
 
-		// ========== 4. ACTUALIZAR SOLDADOS Y BALAS ==========
+		// ========== 6. ACTUALIZAR SOLDADOS Y BALAS ==========
 		for (auto& soldier : soldiers) {
 			soldier.UpdateAI(player);
 			soldier.Update();
@@ -83,13 +89,13 @@ void Game::Update()
 			bullet.Update();
 		}
 
-		// ========== 5. DIBUJAR ==========
+		// ========== 7. DIBUJAR ==========
 		BeginDrawing();
 		ClearBackground(BLACK);
 		Draw();
 		Timers();
 
-		// ========== 6. AUDIO ==========
+		// ========== 8. AUDIO ==========
 		if (!musicStarted)
 		{
 			audioManager.PlayMusic(audioManager.GetGameMusic());
@@ -221,8 +227,37 @@ void Game::HandleInput()
 
 }
 
-void Game::ResolveCollisions()
-{
+void Game::ResolveCollisions(){
+	Rectangle playerHB = player.GetHitBox();
+	bool onGround = false;
+
+	for (const auto& block : blocks) {
+		Rectangle blockRect = block.GetRect();
+
+		// 1. Verificamos si hay colisión general (AABB)
+		if (CheckCollisionRecs(playerHB, blockRect)) {
+
+			// 2. Lógica para SUELO (Solo si el jugador cae)
+			// Chequeamos si la velocidad Y es positiva (cayendo) 
+			// y si la base del jugador estaba por encima del bloque antes del frame actual
+			if (player.GetVelocityY() >= 0 &&
+				(player.GetY() + player.GetHeight() - player.GetVelocityY() <= blockRect.y + 5.0f)) {
+
+				player.SetY(blockRect.y - player.GetHeight());
+				player.SetVelocityY(0);
+				onGround = true;
+			}
+
+			// 3. Lógica lateral (Paredes)
+			// Solo si el bloque es realmente una pared (puedes añadir un bool al Block)
+			// O si la diferencia de altura es suficiente para chocar lateralmente
+			else {
+				// Aquí iría tu lógica de SetRightCollision que ya tenías
+				// Pero asegurándote de que no se ejecute si ya detectamos que es suelo
+			}
+		}
+	}
+	player.SetGrounded(onGround);
 	BlockCollisions();
 	BulletsCollision();
 }
@@ -269,53 +304,71 @@ void Game::BlockCollisions() {
 		Rectangle playerRect = player.GetHitBox();
 		Rectangle blockRect = block.GetRect();
 
-		// ========== COLISIÓN SUELO (existente) ==========
+		// ========== COLISIÓN SUELO (con detección de atravesar desde abajo) ==========
 		float feetY = playerRect.y + playerRect.height;
 		float blockTopY = blockRect.y;
+		float previousFeetY = player.GetPreviousY() + player.GetHeight();
 
+		// Si la velocidad Y es negativa (está subiendo), probablemente viene desde abajo
+		bool wasBelow = (player.GetVelocityY() < 0 && previousFeetY <= blockTopY);
+
+		float verticalDistance = feetY - blockTopY;
+		bool isVerticalNear = (verticalDistance >= 0 && verticalDistance <= 50.0f);
 		bool isOverBlock = (playerRect.x + playerRect.width > blockRect.x + GROUND_TOLERANCE &&
 			playerRect.x < blockRect.x + blockRect.width - GROUND_TOLERANCE);
 
-		if (isOverBlock && feetY >= blockTopY - 10.0f && player.GetVelocityY() >= 0) {
-			float newY = blockTopY - playerRect.height;
-			player.SetY(newY);
-			player.SetVelocityY(0);
-			onGround = true;
-		}
-
-		// ========== NUEVO: COLISIÓN LATERAL IZQUIERDA ==========
-		Rectangle leftHitBox = player.GetLeftHitBox();
-		if (CheckCollisionRecs(leftHitBox, blockRect)) {
-			// Ajustar posición X del jugador para que no atraviese el bloque
-			float newX = blockRect.x + blockRect.width;
-
-			// DEBUG DETALLADO
-			TraceLog(LOG_INFO, "=== COLISION IZQUIERDA DETALLE ===");
-			TraceLog(LOG_INFO, "player pos.x: %.2f", player.GetX());
-			TraceLog(LOG_INFO, "player hitbox x: %.2f, w: %.2f", playerRect.x, playerRect.width);
-			TraceLog(LOG_INFO, "leftHitBox x: %.2f, w: %.2f", leftHitBox.x, leftHitBox.width);
-			TraceLog(LOG_INFO, "blockRect x: %.2f, w: %.2f, right edge: %.2f", blockRect.x, blockRect.width, blockRect.x + blockRect.width);
-			TraceLog(LOG_INFO, "newX calculado: %.2f", newX);
-			TraceLog(LOG_INFO, "player.GetX() < newX: %d", player.GetX() < newX);
-
-			if (player.GetX() < newX) {
-				player.SetX(newX);
-				player.SetLeftCollision(true);
-				TraceLog(LOG_INFO, "APLICANDO COLISION - nueva pos.x: %.2f", player.GetX());
+		// Solo colisionar si NO viene desde abajo y está cayendo
+		if (isOverBlock && isVerticalNear && player.GetVelocityY() >= 0 && !wasBelow && verticalDistance <= 20.0f) {
+			// Verificar si es suelo sólido o plataforma
+			if (block.IsGround()) {
+				// Suelo sólido: siempre colisiona
+				float newY = blockTopY - playerRect.height;
+				player.SetY(newY);
+				player.SetVelocityY(0);
+				onGround = true;
+				TraceLog(LOG_INFO, "SUELO SOLIDO - newY: %.2f", newY);
+			}
+			else {
+				// Plataforma: solo colisiona si NO viene desde abajo (ya lo tenemos con !wasBelow)
+				float newY = blockTopY - playerRect.height;
+				player.SetY(newY);
+				player.SetVelocityY(0);
+				onGround = true;
+				TraceLog(LOG_INFO, "PLATAFORMA - newY: %.2f", newY);
 			}
 		}
 
-		// ========== NUEVO: COLISIÓN LATERAL DERECHA ==========
-		Rectangle rightHitBox = player.GetRightHitBox();
-		if (CheckCollisionRecs(rightHitBox, blockRect)) {
-			// Ajustar posición X del jugador para que no atraviese el bloque
-			float newX = blockRect.x - player.GetWidth();
-			if (player.GetX() + player.GetWidth() > blockRect.x) {
-				player.SetX(newX);
-				player.SetRightCollision(true);
-				TraceLog(LOG_INFO, "COLISION DERECHA - newX: %.2f, playerX: %.2f", newX, player.GetX());
+		// ========== COLISIONES LATERALES (SOLO PARA SUELOS SÓLIDOS) ==========
+		if (block.IsGround()) {
+			// Colisión lateral izquierda
+			Rectangle leftHitBox = player.GetLeftHitBox();
+			if (CheckCollisionRecs(leftHitBox, blockRect)) {
+				float newX = blockRect.x + blockRect.width;
+				if (player.GetX() < newX) {
+					player.SetX(newX);
+					player.SetLeftCollision(true);
+					TraceLog(LOG_INFO, "COLISION IZQUIERDA - newX: %.2f", newX);
+				}
+				else {
+					player.SetLeftCollision(true);
+				}
+			}
+
+			// Colisión lateral derecha
+			Rectangle rightHitBox = player.GetRightHitBox();
+			if (CheckCollisionRecs(rightHitBox, blockRect)) {
+				float newX = blockRect.x - player.GetWidth();
+				if (player.GetX() + player.GetWidth() > blockRect.x) {
+					player.SetX(newX);
+					player.SetRightCollision(true);
+					TraceLog(LOG_INFO, "COLISION DERECHA - newX: %.2f", newX);
+				}
+				else {
+					player.SetRightCollision(true);
+				}
 			}
 		}
+		// Si es plataforma (isGround = false), NO se aplican colisiones laterales
 	}
 
 	player.SetGrounded(onGround);
@@ -355,10 +408,13 @@ std::vector<Block> Game::CreateBlocks()
 {
 	std::vector<Block> blocks;
 
-	// Bloque de suelo a y=800 (para que el jugador caiga desde y=100 hasta y=800)
-	blocks.emplace_back(Block(0, 850, 500, 100));
-	blocks.emplace_back(Block(500, 950, 500, 100));
-	blocks.emplace_back(Block(950, 550, 500, 100));
+	// Suelos sólidos (isGround = true)
+	blocks.emplace_back(Block(0, 850, 500, 100, true));
+	blocks.emplace_back(Block(500, 950, 500, 100, true));
+
+	// Plataforma elevada (isGround = false - atravesable desde abajo)
+	blocks.emplace_back(Block(600, 550, 500, 100, false));
+	
 	return blocks;
 }
 

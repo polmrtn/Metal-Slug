@@ -38,6 +38,7 @@ public:
     float GetVelocityX() const { return vel.x; }
     float GetVelocityY() const { return vel.y; }
     bool IsCrouching() const { return crouching; }
+    float GetPreviousY() const { return previousY; }
 
     // Setters
     void SetY(float newY) { pos.y = newY; }
@@ -46,6 +47,7 @@ public:
     void SetVelocityX(float newVelX) { vel.x = newVelX; }
     void SetGrounded(bool g) { grounded = g; }
     void SetInputVelX(float val) { inputVelX = val; }
+    void SavePreviousPosition() { previousY = pos.y; }
 
     // Hitbox
     void SetNormalHitbox();
@@ -69,6 +71,7 @@ private:
     Vector2 pos = { 0.0f, 100.0f };
     Vector2 vel = { 0.0f, 0.0f };
     float inputVelX = 0.0f;  // Velocidad deseada por input (para animación)
+    float previousY = 0.0f;
 
     // Estados
     bool grounded = false;

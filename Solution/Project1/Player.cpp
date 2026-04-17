@@ -36,8 +36,7 @@ void Player::Update(float CameraLeftLimit) {
     if (crouching) {
         static int frameCount = 0;
         if (frameCount++ % 10 == 0) {  // Cada 10 frames
-            TraceLog(LOG_INFO, "AGACHADO - pos.x: %.2f, leftCollision: %d, rightCollision: %d, vel.x: %.2f, inputVelX: %.2f",
-                pos.x, leftCollision, rightCollision, vel.x, inputVelX);
+                pos.x, leftCollision, rightCollision, vel.x, inputVelX;
         }
     }
 
@@ -75,8 +74,6 @@ void Player::Update(float CameraLeftLimit) {
     else if (vel.x != 0) {
         // Hay colisión, resetear inputVelX para que la animación no parpadee
         inputVelX = 0;
-        TraceLog(LOG_INFO, "COLISION BLOQUEA MOVIMIENTO - vel.x: %.2f, leftCollision: %d, rightCollision: %d",
-            vel.x, leftCollision, rightCollision);
     }
 
     // Limitar por cámara
