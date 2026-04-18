@@ -404,7 +404,6 @@ void Game::BlockCollisions() {
 			if (block.IsGround()) {
 				// Suelo sólido: siempre colisiona
 				float newY = blockTopY - playerRect.height;
-				TraceLog(LOG_INFO, "SUELO DETECTADO - newY: %.2f, player actual Y: %.2f", newY, player.GetY());
 				player.SetY(newY);
 				player.SetVelocityY(0);
 				onGround = true;
