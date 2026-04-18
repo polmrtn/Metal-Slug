@@ -140,15 +140,19 @@ void Soldier::Update()
     position.x += velocity.x;
     soldierAnim.Update();
 }
+
 void Soldier::Attack(Player& player) {
     if (IsVisionRay(player)) {
-        TraceLog(LOG_INFO, "Soldier attacked ");
+        if (!player.IsInvincible()) {  // ← Si implementaste invencibilidad
+            TraceLog(LOG_INFO, "Soldier attacked and HIT the player!");
+            player.TakeDamage();
+        }
+        else {
+            TraceLog(LOG_INFO, "Soldier attacked but missed");
+        }
     }
-    else {
-        TraceLog(LOG_INFO, "Soldier attacked but missed");
-    }
-    
 }
+
 void Soldier::UpdateAI(Player& player)
 {
     stateTimer += GetFrameTime();
@@ -180,6 +184,7 @@ void Soldier::UpdateAI(Player& player)
         if (currentState != SoldierState::ATTACKING) {
             SetSoliderState(SoldierState::ATTACKING);
             soldierAnim.ForceAnimation(SoldierState::ATTACKING);
+            attackTriggered = false; 
         }
         attackTimer = 0.0f;
     }
@@ -210,11 +215,15 @@ void Soldier::UpdateAI(Player& player)
     else if (currentState == SoldierState::ATTACKING && isAlive && isGrounded) {
         velocity.x = 0;
 
+        //primero verificar si esta en el pico del ataque
+        if (soldierAnim.IsAttackPeak() && !attackTriggered) {
+            attackTriggered = true;
+            Attack(player);
+        }
+        //después verificar si la animación terminó
         if (soldierAnim.IsAnimationFinished()) {
-            if (soldierAnim.IsAttackPeak()) {
-                Attack(player);
-            }
-            SetSoliderState(SoldierState::IDLE); 
+            SetSoliderState(SoldierState::IDLE);
+            attackTriggered = false;
         }
         return;
     }

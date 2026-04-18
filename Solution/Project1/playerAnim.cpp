@@ -5,7 +5,7 @@ PlayerAnim::PlayerAnim() : spriteSheet{ 0 } {}
 PlayerAnim::~PlayerAnim() {}
 
 void PlayerAnim::LoadTextures() {
-    Image img = LoadImage("Graphics/MarcoRossi.png");
+    Image img = LoadImage("Graphics/marco_sprites.png");
     spriteSheet = LoadTextureFromImage(img);
     UnloadImage(img);
     SetTextureFilter(spriteSheet, TEXTURE_FILTER_POINT);

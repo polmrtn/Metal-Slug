@@ -3,7 +3,7 @@
 #include "playerAnim.hpp"
 
 enum class PlayerDirection { LEFT, RIGHT, UP, DOWN };
-enum class SpecialAnim { NONE, FALLING_START, CROUCH, CROUCH_SHOOT };
+enum class SpecialAnim { NONE, FALLING_START, CROUCH, CROUCH_SHOOT, DEATH };
 
 class Player {
 public:
@@ -63,6 +63,13 @@ public:
     bool GetLeftCollision() const { return leftCollision; }
     bool GetRightCollision() const { return rightCollision; }
 
+    //Muerte
+    void TakeDamage();           
+    bool IsAlive() const { return isAlive; }  
+    void Respawn();              
+    Vector2 GetDeathPosition() const { return deathPosition; }
+    bool IsInvincible() const { return invincibilityTimer > 0.0f; }
+
 private:
     // Animación
     PlayerAnim anim;
@@ -104,10 +111,21 @@ private:
     float specialTimer = 0.0f;
     float specialDuration = 0.0f;
 
+    // Añade esto para la animación de muerte
+    float deathAnimTimer = 0.0f;
+    float deathAnimDuration = 1.0f;  // Duración de la animación de muerte
+    bool isDying = false;  // para saber si está en animación de muerte
+
     // Métodos de dibujo
     void DrawSeparated();
     void DrawFullBody();
     void DrawCrouch();
+    void DrawDeathAnimation();
     Rectangle GetFullBodyRect();
     float GetFullBodyH() const;
+
+    bool isAlive = true;        
+    Vector2 deathPosition = { 0.0f, 0.0f };
+    float invincibilityTimer = 0.0f; 
+    float invincibilityDuration = 1.0f;
 };

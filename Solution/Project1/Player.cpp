@@ -24,20 +24,30 @@ void Player::SetCrouchHitbox() {
 }
 
 void Player::Update(float CameraLeftLimit) {
+
+    if (invincibilityTimer > 0.0f) {
+        invincibilityTimer -= GetFrameTime();
+    }
+
+    // ========== MANEJAR ANIMACIÓN DE MUERTE ==========
+    // Si está muerto pero en animación, solo actualizar el timer
+    if (!isAlive) {
+        if (mode == Mode::FULL_BODY && special == SpecialAnim::DEATH) {
+            specialTimer += GetFrameTime();
+            if (specialTimer >= specialDuration) {
+                // Animación terminada, el jugador queda muerto en el último frame
+                specialTimer = specialDuration;
+            }
+        }
+        return;  // No procesar física/input
+    }
+
     // ========== ACTUALIZAR HITBOX SEGÚN ESTADO ==========
     if (crouching) {
         SetCrouchHitbox();
     }
     else {
         SetNormalHitbox();
-    }
-
-    // DEBUG POSICION CADA FRAME (solo cuando está agachado)
-    if (crouching) {
-        static int frameCount = 0;
-        if (frameCount++ % 10 == 0) {  // Cada 10 frames
-                pos.x, leftCollision, rightCollision, vel.x, inputVelX;
-        }
     }
 
     anim.Update(grounded, inputVelX, crouching, aimingUp, GetFrameTime());
@@ -81,24 +91,21 @@ void Player::Update(float CameraLeftLimit) {
 }
 
 void Player::Draw() {
+    // Si está en FULL_BODY (muerte, caída, agachado), usar DrawFullBody
+    if (mode == Mode::FULL_BODY) {
+        DrawFullBody();
+        DrawHitBox();
+        return;
+    }
+
     if (crouching) {
         DrawCrouch();
         DrawHitBox();
-
-        // DEBUG: Mostrar pos.x y pos.y
-        DrawText(TextFormat("pos: (%.0f, %.0f)", pos.x, pos.y), pos.x, pos.y - 30, 20, YELLOW);
         return;
     }
-    if (mode == Mode::FULL_BODY) {
-        DrawFullBody();
-    }
-    else {
-        DrawSeparated();
-    }
-    DrawHitBox();
 
-    // DEBUG: Mostrar pos.x y pos.y
-    DrawText(TextFormat("pos: (%.0f, %.0f)", pos.x, pos.y), pos.x, pos.y - 30, 20, YELLOW);
+    DrawSeparated();
+    DrawHitBox();
 }
 
 void Player::DrawCrouch() {
@@ -310,6 +317,49 @@ void Player::DrawSeparated() {
 
 void Player::DrawFullBody() {
     Rectangle sourceRect = GetFullBodyRect();
+
+    // Si es animación de muerte, calcular el frame actual
+    if (special == SpecialAnim::DEATH) {
+        const float DEATH_FRAME_WIDTH = 68.0f;
+        const float DEATH_FRAME_HEIGHT = 68.0f;
+        const int DEATH_TOTAL_FRAMES = 19;  // Ajusta según tu sprite sheet
+        const float DEATH_ANIM_SPEED = 12.0f;  // Frames por segundo
+
+        int currentFrame = (int)(specialTimer * DEATH_ANIM_SPEED);
+        if (currentFrame >= DEATH_TOTAL_FRAMES) {
+            currentFrame = DEATH_TOTAL_FRAMES - 1;
+        }
+
+        // Fila 32
+        float startRowY = 31.0f * 34.0f;
+
+        sourceRect = {
+            currentFrame * DEATH_FRAME_WIDTH,
+            startRowY,
+            DEATH_FRAME_WIDTH,
+            DEATH_FRAME_HEIGHT
+        };
+
+        if (dir == PlayerDirection::LEFT) {
+            sourceRect.width = -DEATH_FRAME_WIDTH;
+        }
+
+        // Ajusta estos valores para centrar la animación
+        float offsetX = 10.0f;   // Ajusta según necesites
+        float offsetY = -100.0f;   // Ajusta según necesites
+
+        Rectangle destRect = {
+            pos.x + offsetX,
+            pos.y + offsetY,
+            DEATH_FRAME_WIDTH * SCALE,
+            DEATH_FRAME_HEIGHT * SCALE
+        };
+
+        DrawTexturePro(anim.GetSheet(), sourceRect, destRect, { 0, 0 }, 0, WHITE);
+        return;
+    }
+
+    // Animación normal FULL_BODY
     if (dir == PlayerDirection::LEFT) sourceRect.width = -sourceRect.width;
     float currentHeight = GetFullBodyH();
 
@@ -341,6 +391,7 @@ Rectangle Player::GetFullBodyRect() {
     case SpecialAnim::CROUCH: row = 0; h = 20; break;
     case SpecialAnim::CROUCH_SHOOT: row = 1; h = 20; break;
     case SpecialAnim::FALLING_START: row = 2; h = 48; break;
+    case SpecialAnim::DEATH: row = 32; h = 64; break; 
     default: break;
     }
     return { 0, row * 34.0f, 34.0f, (float)h };
@@ -353,6 +404,8 @@ float Player::GetFullBodyH() const {
         return 20.0f;
     case SpecialAnim::FALLING_START:
         return 48.0f;
+    case SpecialAnim::DEATH:
+        return 64.0f;
     default:
         return 34.0f;
     }
@@ -522,3 +575,30 @@ PlayerDirection Player::GetAimDirection() const {
     if (aimingUp) return PlayerDirection::UP;
     return dir;
 }
+
+void Player::TakeDamage() {
+    if (!isAlive) return;
+    if (IsInvincible()) return;
+
+    isAlive = false;
+    deathPosition = pos;
+
+    mode = Mode::FULL_BODY;
+    special = SpecialAnim::DEATH;
+    specialTimer = 0.0f;
+    specialDuration = 1.0f; 
+
+    vel = { 0.0f, 0.0f };
+    inputVelX = 0; 
+
+    TraceLog(LOG_INFO, "PLAYER DIED - Playing death animation");
+}
+
+void Player::Respawn() {
+    isAlive = true;
+    pos = deathPosition;  // ← RESPAWNEA DONDE MURIÓ
+    vel = { 0.0f, 0.0f };
+    invincibilityTimer = invincibilityDuration;
+    TraceLog(LOG_INFO, "PLAYER RESPAWNED at (%.2f, %.2f)", pos.x, pos.y);
+}
+

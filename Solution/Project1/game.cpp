@@ -72,6 +72,7 @@ void Game::Timers()
 }
 
 void Game::Update(){
+
 	if (sceneManager.GetGamestate() == SceneManager::INTRO) {
 		BeginDrawing();
 		ClearBackground(BLACK);
@@ -90,6 +91,21 @@ void Game::Update(){
 	}
 	else if (sceneManager.GetGamestate() == SceneManager::GAME) {
 		UiManager.Update();
+
+		if (!player.IsAlive()) {
+			BeginDrawing();
+
+			// Mostrar mensaje con la posición de muerte
+			Vector2 deathPos = player.GetDeathPosition();
+			DrawText(TextFormat("YOU DIED at (%.0f, %.0f)", deathPos.x, deathPos.y),
+				GetScreenWidth() / 2 - 200, GetScreenHeight() / 2 - 50, 20, RED);
+			DrawText("Press R to respawn at death position",
+				GetScreenWidth() / 2 - 200, GetScreenHeight() / 2, 20, WHITE);
+
+			if (IsKeyPressed(KEY_R)) {
+				player.Respawn();
+			}
+		}
 
 		// ========== 1. GUARDAR POSICIÓN ANTERIOR ==========
 		player.SavePreviousPosition();
@@ -377,6 +393,7 @@ void Game::BlockCollisions() {
 	bool onGround = false;
 	const float GROUND_TOLERANCE = 5.0f;
 
+
 	// Resetear colisiones laterales cada frame
 	player.SetLeftCollision(false);
 	player.SetRightCollision(false);
@@ -384,6 +401,22 @@ void Game::BlockCollisions() {
 	for (const auto& block : blocks) {
 		Rectangle playerRect = player.GetHitBox();
 		Rectangle blockRect = block.GetRect();
+
+		// ========== COLISIÓN SOLDADOS ==========
+		// Reiniciar iterador para CADA bloque
+		auto It = soldiers.begin();
+		while (It != soldiers.end()) {
+			if (CheckCollisionRecs(It->GetHurtBox(), blockRect)) {
+				if (It->GetVelocityY() >= 0) {
+					It->SetY(blockRect.y - It->GetHeight());
+					It->SetVelocityY(0);
+					It->SetGrounded(true);
+					break;  // Salir del while, pasar al siguiente bloque
+				}
+			}
+			++It;  // Mover al siguiente soldado
+		}
+
 
 		// ========== COLISIÓN SUELO (con detección de atravesar desde abajo) ==========
 		float feetY = playerRect.y + playerRect.height;
