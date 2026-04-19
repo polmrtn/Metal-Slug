@@ -716,3 +716,27 @@ void Player::Respawn() {
     invincibilityTimer = invincibilityDuration;
 }
 
+GrenadeThrowData Player::ThrowGrenade() {
+    GrenadeThrowData data;
+    data.startPos = pos;
+    data.power = 800.0f;
+    data.valid = true;
+    
+    switch (dir) {
+    case PlayerDirection::LEFT:
+        data.targetPos = { pos.x - 300, pos.y + 50 };
+        break;
+    case PlayerDirection::RIGHT:
+        data.targetPos = { pos.x + 300, pos.y + 50 };
+        break;
+    case PlayerDirection::UP:
+        data.targetPos = { pos.x, pos.y - 150 };
+        break;
+    default:
+        data.targetPos = { pos.x + 250, pos.y + 50 };
+        break;
+    }
+    
+    return data;
+}
+

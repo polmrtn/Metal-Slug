@@ -5,6 +5,13 @@
 enum class PlayerDirection { LEFT, RIGHT, UP, DOWN };
 enum class SpecialAnim { NONE, FALLING_START, CROUCH, CROUCH_SHOOT, DEATH, RESPAWN };
 
+struct GrenadeThrowData {
+    Vector2 startPos;
+    Vector2 targetPos;
+    float power;
+    bool valid;
+};
+
 class Player {
 public:
     Player();
@@ -69,6 +76,8 @@ public:
     void Respawn();              
     Vector2 GetDeathPosition() const { return deathPosition; }
     bool IsInvincible() const { return invincibilityTimer > 0.0f; }
+
+    GrenadeThrowData ThrowGrenade();
 
 private:
     // Animación

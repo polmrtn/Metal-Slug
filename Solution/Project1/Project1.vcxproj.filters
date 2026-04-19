@@ -57,6 +57,9 @@
     <ClCompile Include="AudioManager.hpp">
       <Filter>Header Files</Filter>
     </ClCompile>
+    <ClCompile Include="Grenade.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="libraries\raylib\include\raylib.h">
@@ -99,6 +102,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="SoldierState.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Grenade.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

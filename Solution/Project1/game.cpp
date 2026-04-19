@@ -41,6 +41,10 @@ void Game::Draw()
 	for (auto& block : blocks) {
 		block.Draw();
 	}
+	for (auto& grenade : grenades) {
+		grenade.Draw();
+	}
+
 	camera.End();
 
 	UiManager.DrawCredits(camera.GetCamera());
@@ -130,6 +134,18 @@ void Game::Update(){
 		for (auto& bullet : bullets) {
 			bullet.Update();
 		}
+		for (auto& grenade : grenades) {
+			grenade.Update();
+		}
+
+		// Actualizar cooldown de granada
+		if (grenadeCooldown > 0.0f) {
+			grenadeCooldown -= GetFrameTime();
+		}
+
+		// Limpiar granadas inactivas
+		grenades.erase(std::remove_if(grenades.begin(), grenades.end(),
+			[](const Grenade& g) { return !g.IsActive(); }), grenades.end());
 
 		// ========== 7. DIBUJAR ==========
 		BeginDrawing();
@@ -163,9 +179,9 @@ void Game::Shoot()
 	bool isCrouching = player.IsCrouching();
 
 	// Altura de disparo (ajusta estos valores)
-	float normalYOffset = -20.0f;   // Altura normal (desde el centro)
-	float crouchYOffset = -20.0f;   // Altura cuando está agachado
-	float upYOffset = -20.0f;      // Altura cuando dispara hacia arriba
+	float normalYOffset = -50.0f;   // Altura normal (desde el centro)
+	float crouchYOffset = -40.0f;   // Altura cuando está agachado
+	float upYOffset = -40.0f;      // Altura cuando dispara hacia arriba
 
 	switch (aimDir) {
 	case PlayerDirection::LEFT:
@@ -266,6 +282,15 @@ void Game::HandleInput()
 		Shoot();
 		shootTimer = 0;
 	}
+
+	if (IsKeyPressed(KEY_S) && player.IsAlive() && grenadeCooldown <= 0.0f) {
+		GrenadeThrowData data = player.ThrowGrenade();
+		if (data.valid) {
+			grenades.emplace_back(data.startPos, data.targetPos, data.power);
+			grenadeCooldown = grenadeDelay;
+		}
+	}
+
 	// ========== MODO EDITOR ==========
 	static float f1Cooldown = 0.0f;
 	if (IsKeyPressed(KEY_F1) && f1Cooldown <= 0.0f) {

@@ -9,6 +9,7 @@
 #include "LevelMap.hpp"
 #include "UiManager.hpp"
 #include "SoldierAnim.hpp"
+#include "Grenade.hpp" 
 #include <vector>
 
 
@@ -30,6 +31,8 @@ class Game {
 	private:
 		float shootTimer = 0.0f;
 		float shootDelay = 1.0f;
+		float grenadeCooldown = 0.0f;
+		float grenadeDelay = 1.0f;
 		SoldierAnim soldierAnim;
 		CameraManager camera;
 		Player player;
@@ -43,6 +46,7 @@ class Game {
 		std::vector<Soldier> CreateSoldiers();
 		std::vector<Block> blocks;
 		std::vector<Block> CreateBlocks();
+		std::vector<Grenade> grenades;
 
 		// Modo editor
 		bool editorMode = false;
