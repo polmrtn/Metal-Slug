@@ -334,42 +334,45 @@ void Game::BlockCollisions()
 
 	}
 	auto bIt = bullets.begin();
-	while (bIt != bullets.end()) {
-		bool bulletJustHit = false;
+while (bIt != bullets.end()) {
+    bool bulletJustHit = false;
 
-		// 1. Si NO está explotando, checar colisión con bloques
-		if (!bIt->IsExploding()) {
-			for (const auto& block : blocks) {
-				if (CheckCollisionRecs(bIt->GetHitbox(), block.GetRect())) {
-					bulletJustHit = true;
-					break;
-				}
-			}
-		}
+    // Solo chequear colisión si NO está explotando
+    if (!bIt->IsExploding()) {
+    // Para tipo 2, solo colisionar cuando ya va hacia abajo
+    bool canCollide = (bIt->GetType() != 2 || bIt->GetPosition().y > 0);
+    if (canCollide) {
+        for (const auto& block : blocks) {
+            if (CheckCollisionRecs(bIt->GetHitbox(), block.GetRect())) {
+                bulletJustHit = true;
+                break;
+            }
+        }
+    }
+}
 
-		// 2. Manejar el impacto
-		if (bulletJustHit) {
-			if (bIt->GetType() == 1) {
-				bIt = bullets.erase(bIt);
-				continue; // ← ya avanza el iterador, no llega al ++bIt
-			}
-			else if (bIt->GetType() == 2) {
-				if (!bIt->IsExploding()) {
-					// Solo activar la explosión UNA vez al tocar el suelo
-					bIt->SetExploding(true);
-					bIt->GetAnim().SetAnimation(BulletState::EXPLOSIONSOLDIER);
-				}
+    // Activar explosión al primer impacto
+    if (bulletJustHit) {
+        if (bIt->GetType() == 1) {
+            bIt = bullets.erase(bIt);
+            continue;
+        }
+        else if (bIt->GetType() == 2) {
+            bIt->SetExploding(true);
+            bIt->GetAnim().SetAnimation(BulletState::EXPLOSIONSOLDIER);
+        }
+    }
 
-				if (bIt->GetAnim().IsAnimationFinished()) {
-					bIt = bullets.erase(bIt);
-					continue; // ← importante para no hacer ++bIt después
-				}
-			}
-		}
-		++bIt;
+    // ← FUERA del if(bulletJustHit): chequear si la explosión terminó
+    if (bIt->GetType() == 2 && bIt->IsExploding()) {
+        if (bIt->GetAnim().IsAnimationFinished()) {
+            bIt = bullets.erase(bIt);
+            continue;
+        }
+    }
 
-		// 4. Si no se borró en ningún paso anterior, avanzar
-	}
+    ++bIt;
+}
 }
 
 std::vector<Bullet> Game::CreateBullets()

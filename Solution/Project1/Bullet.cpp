@@ -1,4 +1,4 @@
-#include "bullet.hpp"
+#include "Bullet.hpp"
 #include "BulletAnim.hpp"
 
 Bullet::Bullet(Vector2 position, int speed, int directionX, int directionY, int type) {
@@ -7,6 +7,8 @@ Bullet::Bullet(Vector2 position, int speed, int directionX, int directionY, int 
 	this->directionX = directionX;
 	this->directionY = directionY;
 	this->type = type;
+	this->isExploding = false;
+	
 	switch (type)
 	{
 	case 1:
@@ -29,19 +31,11 @@ Bullet::Bullet(const Bullet& other)
 	directionY = other.directionY;
 	gravity = other.gravity;
 	type = other.type;
+	isExploding = other.isExploding; // ‚Üê a√±adir
+ 
+    bulletAnim = other.bulletAnim;
 
-	switch (type)
-	{
-	case 1:
-		bulletAnim.GetBulletPlayerImg();
-
-		break;
-	case 2:
-		bulletAnim.GetSheet();
-		directionY += gravity * GetFrameTime();
-
-		break;
-	}
+	
 
 }
 
@@ -50,7 +44,7 @@ void Bullet::Update() {
 	float dt = GetFrameTime();
 
 	if (type == 1) {
-		// Bala normal: lÌnea recta perfecta
+		// Bala normal: lÔøΩnea recta perfecta
 		position.x += (directionX * speed) * dt;
 		position.y += (directionY * speed) * dt;
 	}
@@ -66,7 +60,7 @@ void Bullet::Update() {
 
 Rectangle Bullet::GetHitbox()
 {
-	// Si es tipo 2, forzamos el tamaÒo a 20x20 (multiplicado por la escala)
+	// Si es tipo 2, forzamos el tamaÔøΩo a 20x20 (multiplicado por la escala)
 	if (type == 2) {
 		float hW = 20.0f * scale;
 		float hH = 20.0f * scale;
@@ -79,7 +73,7 @@ Rectangle Bullet::GetHitbox()
 		return Rectangle{ position.x + offsetX, position.y + offsetY, hW, hH };
 	}
 
-	// Si es tipo 1 (o cualquier otro), usa el tamaÒo normal de la imagen
+	// Si es tipo 1 (o cualquier otro), usa el tamaÔøΩo normal de la imagen
 	return Rectangle{ position.x, position.y, GetWidth(), GetHeight() };
 }
 void Bullet::DrawHitBox()
@@ -102,13 +96,13 @@ void Bullet::Draw() {
 	Rectangle destRect = {
 		position.x,
 		position.y,
-		GetWidth(),  // Ahora din·mico
-		GetHeight()  // Ahora din·mico
+		GetWidth(),  // Ahora dinÔøΩmico
+		GetHeight()  // Ahora dinÔøΩmico
 	};
 
 	Vector2 origin = { 0, 0 };
 	DrawTexturePro(textureToDraw, sourceRect, destRect, origin, 0.0f, WHITE);
 
-	// Esto ahora dibujar· el recuadro exactamente sobre la textura escalada
+	// Esto ahora dibujarÔøΩ el recuadro exactamente sobre la textura escalada
 	DrawHitBox();
 }

@@ -1,10 +1,12 @@
 #include "BulletAnim.hpp"
 BulletAnim::BulletAnim() {
-    SetAnimation(BulletState::GRENADESOLDIER);
+    currentAnim = (BulletState)-1;
+    
     frame = 0;
     timer = 0;
     animForward = true;
     animCompleted = false;
+    SetAnimation(BulletState::GRENADESOLDIER);
 }
 
 BulletAnim::~BulletAnim()
@@ -12,11 +14,11 @@ BulletAnim::~BulletAnim()
 
 }// En BulletAnim.cpp
 bool BulletAnim::IsAnimationFinished() {
-    // Si la animación actual es la explosión
+    // Si la animaciï¿½n actual es la explosiï¿½n
     int index = (int)currentAnim;
 
-    // Suponiendo que CLIPS tiene un tamaño definido (ej. 5)
-    // Cambia '5' por el número real de animaciones que tengas
+    // Suponiendo que CLIPS tiene un tamaï¿½o definido (ej. 5)
+    // Cambia '5' por el nï¿½mero real de animaciones que tengas
     if (index < 0 || index >= (sizeof(CLIPS) / sizeof(CLIPS[0]))) {
         return false;
     }

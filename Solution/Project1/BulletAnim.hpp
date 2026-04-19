@@ -46,7 +46,7 @@ private:
 	AnimClipBullet CLIPS[2] = {
 		//  rowY   cellW  cellH  frames  fps    loop  
 			{ 0,   34,    34,    5,      10,   true},  // [0] GRENADE SOLDIER
-			{ 34,   34,    34,    8,     12,   true },  // [1] EXPLOSION SOLDIER
+			{ 34,   34,    34,    8,     12,   false },  // [1] EXPLOSION SOLDIER
 	};
 
 };

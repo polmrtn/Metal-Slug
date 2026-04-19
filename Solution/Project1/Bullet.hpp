@@ -10,11 +10,11 @@ public:
 	void Draw();
 	float GetWidth() {
 		if (type == 2) {
-			// Si es tipo 2 (Granada) y está en estado GRENADESOLDIER
+			// Si es tipo 2 (Granada) y estï¿½ en estado GRENADESOLDIER
 			if (bulletAnim.GetCurrentAnim() == BulletState::GRENADESOLDIER) {
 				return 34.0f * scale;
 			}
-			// Si es la explosión u otro estado, puedes mantener el tamaño del clip (34)
+			// Si es la explosiï¿½n u otro estado, puedes mantener el tamaï¿½o del clip (34)
 			return 34.0f * scale;
 		}
 
@@ -33,23 +33,25 @@ public:
 		return (float)bulletAnim.GetBulletPlayerImg().height * scale;
 	}
 	void StartExplosion() {
+		bulletAnim.SetAnimation(BulletState::EXPLOSIONSOLDIER);
 		isExploding = true;
 		this->speed = 0;      // Detenemos movimiento horizontal
 		this->directionY = 0;
-		bulletAnim.SetAnimation(BulletState::EXPLOSIONSOLDIER);
+		
+		
 	}
 	void SetExploding(bool val) { isExploding = val; }
 	bool IsExploding() const { return isExploding; }
-	float GetX() const { return position.x; }  // Getter para la posición X
+	float GetX() const { return position.x; }  // Getter para la posiciï¿½n X
 	Vector2 GetPosition() const { return position; }
 	void SetPosition(Vector2 newPosition) {
 		position = newPosition;
-	}// Getter para toda la posición
+	}// Getter para toda la posiciï¿½n
 	Rectangle GetHitbox();
 	bool active = true;
 	void DrawHitBox();
 	int GetType() { return type; }
-	BulletAnim GetAnim() { return bulletAnim; }
+	BulletAnim& GetAnim() { return bulletAnim; }
 
 	
 	
@@ -57,7 +59,7 @@ private:
 	BulletAnim bulletAnim;
 	Vector2 position;
 	float gravity = 9.8f;
-	bool isExploding;
+	bool isExploding = false;
 	int type;
 	float speed;        // <--- DEBE SER FLOAT
 	float directionX;   // <--- DEBE SER FLOAT
