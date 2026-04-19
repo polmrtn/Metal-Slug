@@ -27,6 +27,15 @@ private:
     float explosionDuration = 0.3f;
     float explosionRadius = 50.0f;
 
+    // Animación de la granada
+    Texture2D texture;
+    float animationTimer = 0.0f;
+    int currentFrame = 0;
+    int totalFrames = 16;
+    float frameDelay = 0.05f;  // Velocidad de animación
+
     void CalculateTrajectory(float power);
     void Explode();
+    void LoadGrenadeTexture();      
+    void UnloadGrenadeTexture();  
 };

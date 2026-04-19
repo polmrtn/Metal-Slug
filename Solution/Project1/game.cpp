@@ -206,6 +206,14 @@ void Game::Shoot()
 
 void Game::HandleInput()
 {
+	if (!player.IsAlive()) {
+
+		if (IsKeyPressed(KEY_R)) {
+			player.Respawn();
+		}
+		return;  // Salir de la función, no procesar más inputs
+	}
+
 	if (IsKeyPressed(KEY_L))
 	{
 		UiManager.NextLevel();
