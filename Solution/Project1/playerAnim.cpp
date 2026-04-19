@@ -75,6 +75,19 @@ void PlayerAnim::Update(bool grounded, float velX, bool crouchingInput, bool aim
         }
     }
 
+    // ========== LANZAR GRANADA ==========
+    if (isThrowing) {
+        throwTimer += dt;
+        if (throwTimer >= throwDelay) {
+            throwTimer = 0.0f;
+            throwFrame++;
+            if (throwFrame >= throwFrameCount) {
+                throwFrame = 0;
+                isThrowing = false;
+            }
+        }
+    }
+
     // ========== AGACHADO ==========
     if (crouchingInput && !crouching) {
         crouching = true;
@@ -254,4 +267,11 @@ void PlayerAnim::ForceStopShoot() {
     shooting = false;
     shootFrame = 0;
     shootTimer = 0.0f;
+}
+
+void PlayerAnim::StartThrow() {
+    if (isThrowing) return;
+    isThrowing = true;
+    throwFrame = 0;
+    throwTimer = 0.0f;
 }

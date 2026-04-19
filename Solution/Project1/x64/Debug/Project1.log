@@ -1,6 +1,2 @@
-﻿  game.cpp
-E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\game.cpp(54,16): warning C4244: 'inicializando': conversión de 'double' a 'float'; posible pérdida de datos
-E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\game.cpp(57,16): warning C4244: 'inicializando': conversión de 'double' a 'float'; posible pérdida de datos
-E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\game.cpp(542,25): warning C4244: '=': conversión de 'int' a 'float'; posible pérdida de datos
-E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\game.cpp(543,26): warning C4244: '=': conversión de 'int' a 'float'; posible pérdida de datos
+﻿  Grenade.cpp
   Project1.vcxproj -> E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\x64\Debug\Project1.exe

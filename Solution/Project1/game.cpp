@@ -204,6 +204,35 @@ void Game::Shoot()
 	bullets.emplace_back(bulletPos, bulletSpeed, directionX, directionY);
 }
 
+void Game::ThrowGrenade() {
+	// Calcular el suelo buscando en los bloques
+	float groundY = 650.0f;  // Valor por defecto
+	Rectangle playerRect = player.GetHitBox();
+
+	for (const auto& block : blocks) {
+		Rectangle blockRect = block.GetRect();
+		// Buscar bloques que estén debajo del jugador
+		if (blockRect.x < playerRect.x + playerRect.width &&
+			blockRect.x + blockRect.width > playerRect.x &&
+			blockRect.y > playerRect.y) {
+			// Encontrar el bloque más cercano por debajo
+			if (groundY == 650.0f || blockRect.y < groundY) {
+				groundY = blockRect.y;
+			}
+		}
+	}
+	TraceLog(LOG_INFO, "Grenade groundY: %.2f", groundY);  // ← Debug
+
+	// Obtener datos del lanzamiento
+	GrenadeThrowData data = player.ThrowGrenade();
+	data.targetPos.y = groundY;  // ← Actualizar con el suelo real
+
+	if (data.valid) {
+		grenades.emplace_back(data.startPos, data.targetPos, data.power);
+		TraceLog(LOG_INFO, "Grenade thrown! GroundY: %.2f", groundY);
+	}
+}
+
 void Game::HandleInput()
 {
 	if (!player.IsAlive()) {
@@ -284,7 +313,7 @@ void Game::HandleInput()
 		}
 	}
 
-	if (IsKeyPressed(KEY_D) || IsKeyDown(KEY_D) && shootTimer >= shootDelay)
+	if (IsKeyPressed(KEY_D) && shootTimer >= shootDelay)
 	{
 		player.Shoot();
 		Shoot();
@@ -292,11 +321,8 @@ void Game::HandleInput()
 	}
 
 	if (IsKeyPressed(KEY_S) && player.IsAlive() && grenadeCooldown <= 0.0f) {
-		GrenadeThrowData data = player.ThrowGrenade();
-		if (data.valid) {
-			grenades.emplace_back(data.startPos, data.targetPos, data.power);
-			grenadeCooldown = grenadeDelay;
-		}
+		ThrowGrenade(); 
+		grenadeCooldown = grenadeDelay;
 	}
 
 	// ========== MODO EDITOR ==========
@@ -390,6 +416,7 @@ void Game::ResolveCollisions(){
 	player.SetGrounded(onGround);
 	BlockCollisions();
 	BulletsCollision();
+	GrenadesCollision();
 }
 
 void Game::BulletsCollision() {
@@ -418,6 +445,22 @@ void Game::BulletsCollision() {
 		}
 		else {
 			++sIt;
+		}
+	}
+}
+
+void Game::GrenadesCollision() {
+	for (auto& grenade : grenades) {
+		if (grenade.HasExploded()) {
+			Rectangle explosionBox = grenade.GetExplosionHitBox();
+
+			for (auto& soldier : soldiers) {
+				if (soldier.GetisAlive() && CheckCollisionRecs(soldier.GetHurtBox(), explosionBox)) {
+					soldier.TriggerDeath();
+					UiManager.AddScore(100);
+					TraceLog(LOG_INFO, "Soldier killed by grenade explosion");
+				}
+			}
 		}
 	}
 }

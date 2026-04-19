@@ -281,6 +281,29 @@ void Player::DrawSeparated() {
     TraceLog(LOG_INFO, "TORSO DEBUG - dir: %s, torsoOffsetX: %.2f, torsoDrawX: %.2f",
         dir == PlayerDirection::LEFT ? "LEFT" : "RIGHT", torsoOffsetX, torsoDrawX);
 
+    // PRIORIDAD 1: Lanzar granada (por encima del disparo)
+    if (anim.IsThrowing()) {
+        torsoSrc = {
+            anim.GetThrowFrame() * w,
+            anim.GetThrowRowY(),
+            w,
+            h
+        };
+
+        if (dir == PlayerDirection::LEFT) {
+            torsoSrc.width = -w;
+        }
+
+        // Ajusta offset si es necesario
+        float throwOffsetX = 0.0f;
+        float throwOffsetY = 0.0f;
+
+        DrawTexturePro(anim.GetSheet(), torsoSrc,
+            { torsoDrawX + throwOffsetX, torsoDrawY + throwOffsetY, w * SCALE, h * SCALE },
+            { 0,0 }, 0, tint);
+        return;
+    }
+
     // PRIORIDAD 1: Disparo normal (horizontal)
     if (anim.IsShooting()) {
         torsoSrc = { anim.GetShootFrame() * anim.GetShootW(), anim.GetRowShoot(), anim.GetShootW(), h };
@@ -717,26 +740,28 @@ void Player::Respawn() {
 }
 
 GrenadeThrowData Player::ThrowGrenade() {
+    anim.StartThrow();
+
     GrenadeThrowData data;
     data.startPos = pos;
-    data.power = 800.0f;
+    data.power = 1500.0f;
     data.valid = true;
-    
+
     switch (dir) {
     case PlayerDirection::LEFT:
-        data.targetPos = { pos.x - 300, pos.y + 50 };
+        data.targetPos = { pos.x - 300, 0 };  // Y se reemplazará después
         break;
     case PlayerDirection::RIGHT:
-        data.targetPos = { pos.x + 300, pos.y + 50 };
+        data.targetPos = { pos.x + 300, 0 };
         break;
     case PlayerDirection::UP:
         data.targetPos = { pos.x, pos.y - 150 };
         break;
     default:
-        data.targetPos = { pos.x + 250, pos.y + 50 };
+        data.targetPos = { pos.x + 250, 0 };
         break;
     }
-    
+
     return data;
 }
 

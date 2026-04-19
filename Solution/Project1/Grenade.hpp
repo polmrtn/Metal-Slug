@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <raylib.h>
 
 class Grenade {
@@ -26,16 +26,26 @@ private:
     float explosionTimer = 0.0f;
     float explosionDuration = 0.3f;
     float explosionRadius = 50.0f;
+    bool hasBounced = false;  // ← Si ya ha rebotado
+    float bounceDamping = 0.6f;  // ← Pérdida de velocidad al rebotar (0.6 = 60% de velocidad)
 
-    // Animaci�n de la granada
-    Texture2D texture;
+    // Animación de la granada
+    static Texture2D texture;  
+    static bool textureLoaded;
     float animationTimer = 0.0f;
     int currentFrame = 0;
     int totalFrames = 16;
-    float frameDelay = 0.05f;  // Velocidad de animaci�n
+    float frameDelay = 0.05f;  // Velocidad de animación
 
     void CalculateTrajectory(float power);
     void Explode();
-    void LoadGrenadeTexture();      
-    void UnloadGrenadeTexture();  
+
+    // Animación de explosión
+    float explosionAnimTimer = 0.0f;
+    int explosionFrame = 0;
+    int explosionTotalFrames = 27;
+    float explosionFrameDelay = 0.03f;  // Velocidad de la explosión
+    bool isExploding = false;
+
+    void StartExplosion();
 };

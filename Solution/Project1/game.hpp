@@ -22,9 +22,11 @@ class Game {
 		void HandleInput();
 		void BlockCollisions();
 		void Shoot();
+		void ThrowGrenade();
 		void Timers();
 		void BulletsCollision();
 		void ResolveCollisions();
+		void GrenadesCollision();
 		// En la sección public o private, al final
 		void SaveBlocksToFile(const char* filename);
 		void LoadBlocksFromFile(const char* filename);

@@ -10,6 +10,7 @@ struct GrenadeThrowData {
     Vector2 targetPos;
     float power;
     bool valid;
+    float groundY;
 };
 
 class Player {
