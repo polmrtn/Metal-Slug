@@ -5,7 +5,7 @@ PlayerAnim::PlayerAnim() : spriteSheet{ 0 } {}
 PlayerAnim::~PlayerAnim() {}
 
 void PlayerAnim::LoadTextures() {
-    Image img = LoadImage("Graphics/MarcoRossi.png");
+    Image img = LoadImage("Graphics/marco_sprites.png");
     spriteSheet = LoadTextureFromImage(img);
     UnloadImage(img);
     SetTextureFilter(spriteSheet, TEXTURE_FILTER_POINT);
@@ -71,6 +71,19 @@ void PlayerAnim::Update(bool grounded, float velX, bool crouchingInput, bool aim
             if (++shootFrame >= 10) {
                 shootFrame = 0;
                 shooting = false;
+            }
+        }
+    }
+
+    // ========== LANZAR GRANADA ==========
+    if (isThrowing) {
+        throwTimer += dt;
+        if (throwTimer >= throwDelay) {
+            throwTimer = 0.0f;
+            throwFrame++;
+            if (throwFrame >= throwFrameCount) {
+                throwFrame = 0;
+                isThrowing = false;
             }
         }
     }
@@ -254,4 +267,11 @@ void PlayerAnim::ForceStopShoot() {
     shooting = false;
     shootFrame = 0;
     shootTimer = 0.0f;
+}
+
+void PlayerAnim::StartThrow() {
+    if (isThrowing) return;
+    isThrowing = true;
+    throwFrame = 0;
+    throwTimer = 0.0f;
 }

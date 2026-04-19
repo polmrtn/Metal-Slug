@@ -3,10 +3,10 @@
 
 // Estados de animación para piernas y torso
 enum class LegsAnim { IDLE, WALKING, JUMPING };
-enum class TorsoAnim { IDLE, WALKING, JUMPING, SHOOTING };
+enum class TorsoAnim { IDLE, WALKING, JUMPING, SHOOTING, THROWING };
 
 // Offsets visuales SOLO para piernas
-struct VisualOffsets { float legsX, legsY; };
+struct VisualOffsets { float legsX, legsY, torsoX, torsoY; };
 
 class PlayerAnim {
 public:
@@ -72,6 +72,11 @@ public:
     float GetAimingTransitionRowY() const { return 14 * 34.0f; }
     float GetAimingIdleRowY() const { return 15 * 34.0f; }
 
+    void StartThrow();
+    bool IsThrowing() const { return isThrowing; }
+    int GetThrowFrame() const { return throwFrame; }
+    float GetThrowRowY() const { return 13 * 34.0f; }  // Fila 13
+
     // Getters para shooting up
     int GetShootUpFrame() const { return shootUpFrame; }
     bool IsShootingUp() const { return shootingUp; }
@@ -85,6 +90,8 @@ public:
     void ResetJump();
     void ForceCrouch();
     void ForceStopShoot();
+
+
 
 private:
     Texture2D spriteSheet;
@@ -147,9 +154,16 @@ private:
     int shootUpFrameCount = 10;
     bool shootingUp = false;
 
+    // Animación de lanzar granada
+    int throwFrame = 0;
+    float throwTimer = 0.0f;
+    float throwDelay = 0.05f;  // Velocidad de la animación
+    int throwFrameCount = 6;
+    bool isThrowing = false;
+
     // Offsets
-    VisualOffsets idleOffset = { -3.0f, 9.0f };
-    VisualOffsets walkOffset = { -4.0f, 15.0f };
-    VisualOffsets jumpOffset = { 0.0f, 20.0f };
-    VisualOffsets jumpShootOffset = { -6.0f, 20.0f };
+    VisualOffsets idleOffset = { 1.0f, 9.0f, 3.0f, 0.0f };
+    VisualOffsets walkOffset = { -1.0f, 15.0f, 3.0f, 0.0f };
+    VisualOffsets jumpOffset = { 0.0f, 20.0f, 0.0f, 0.0f };
+    VisualOffsets jumpShootOffset = { -6.0f, 20.0f, 0.0f, 0.0f };
 };

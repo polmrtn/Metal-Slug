@@ -54,3 +54,7 @@ void CameraManager::Begin() {
 void CameraManager::End() {
     EndMode2D();
 }
+
+Vector2 CameraManager::GetScreenToWorld(Vector2 screenPos) {
+    return GetScreenToWorld2D(screenPos, camera);
+}

@@ -146,6 +146,7 @@
     <ClCompile Include="Bullet.cpp" />
     <ClCompile Include="CameraManager.cpp" />
     <ClCompile Include="game.cpp" />
+    <ClCompile Include="Grenade.cpp" />
     <ClCompile Include="LevelMap.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Player.cpp" />
@@ -159,6 +160,7 @@
     <ClInclude Include="BackgroundManager.hpp" />
     <ClInclude Include="Bullet.hpp" />
     <ClInclude Include="CameraManager.hpp" />
+    <ClInclude Include="Grenade.hpp" />
     <ClInclude Include="playerAnim.hpp" />
     <ClInclude Include="SceneManager.hpp" />
     <ClInclude Include="Soldier.hpp" />

@@ -9,6 +9,7 @@
 #include "LevelMap.hpp"
 #include "UiManager.hpp"
 #include "SoldierAnim.hpp"
+#include "Grenade.hpp" 
 #include <vector>
 
 
@@ -21,12 +22,19 @@ class Game {
 		void HandleInput();
 		void BlockCollisions();
 		void Shoot();
+		void ThrowGrenade();
 		void Timers();
 		void BulletsCollision();
 		void ResolveCollisions();
+		void GrenadesCollision();
+		// En la sección public o private, al final
+		void SaveBlocksToFile(const char* filename);
+		void LoadBlocksFromFile(const char* filename);
 	private:
 		float shootTimer = 0.0f;
 		float shootDelay = 1.0f;
+		float grenadeCooldown = 0.0f;
+		float grenadeDelay = 1.0f;
 		SoldierAnim soldierAnim;
 		CameraManager camera;
 		Player player;
@@ -40,4 +48,10 @@ class Game {
 		std::vector<Soldier> CreateSoldiers();
 		std::vector<Block> blocks;
 		std::vector<Block> CreateBlocks();
+		std::vector<Grenade> grenades;
+
+		// Modo editor
+		bool editorMode = false;
+		float gridSize = 50.0f;
+		Vector2 gridOffset = { 0.0f, 0.0f };
 };

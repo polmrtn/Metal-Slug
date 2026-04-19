@@ -12,18 +12,43 @@ Player::~Player() {
 void Player::SetNormalHitbox() {
     hitboxWidth = 20.0f * SCALE;
     hitboxHeight = 40.0f * SCALE;
-    hitboxOffsetX = 2.0f * SCALE;
+    hitboxOffsetX = 0.0f * SCALE;
     hitboxOffsetY = 0.0f * SCALE;
 }
 
 void Player::SetCrouchHitbox() {
     hitboxWidth = 20.0f * SCALE;
     hitboxHeight = 25.0f * SCALE;
-    hitboxOffsetX = 2.0f * SCALE;
+    hitboxOffsetX = 0.0f * SCALE;
     hitboxOffsetY = 0.0f * SCALE;
 }
 
 void Player::Update(float CameraLeftLimit) {
+
+    if (invincibilityTimer > 0.0f) {
+        invincibilityTimer -= GetFrameTime();
+    }
+
+    // ========== MANEJAR ANIMACIÓN DE MUERTE ==========
+    // Si está muerto pero en animación, solo actualizar el timer
+    if (!isAlive) {
+        deathTimer += GetFrameTime();
+
+        if (deathTimer >= disappearDelay && !isDisappeared) {
+            isDisappeared = true; 
+            mode = Mode::SEPARATED;
+            TraceLog(LOG_INFO, "PLAYER DISAPPEARED");
+        }
+        if (!isDisappeared && mode == Mode::FULL_BODY && special == SpecialAnim::DEATH) {
+            specialTimer += GetFrameTime();
+            if (specialTimer >= specialDuration) {
+                // Animación terminada, el jugador queda muerto en el último frame
+                specialTimer = specialDuration;
+            }
+        }
+        return;  // No procesar física/input
+    }
+
     // ========== ACTUALIZAR HITBOX SEGÚN ESTADO ==========
     if (crouching) {
         SetCrouchHitbox();
@@ -32,49 +57,100 @@ void Player::Update(float CameraLeftLimit) {
         SetNormalHitbox();
     }
 
-    anim.Update(grounded, vel.x, crouching, aimingUp, GetFrameTime());
+    anim.Update(grounded, inputVelX, crouching, aimingUp, GetFrameTime());
 
     if (mode == Mode::FULL_BODY && !crouching) {
         specialTimer += GetFrameTime();
-        if (specialTimer >= specialDuration) {
+        if (special == SpecialAnim::RESPAWN && specialTimer >= specialDuration) {
             mode = Mode::SEPARATED;
             special = SpecialAnim::NONE;
         }
-        pos.x += vel.x;
+
+        // Para animación de muerte
+        if (special == SpecialAnim::DEATH && specialTimer >= specialDuration) {
+            specialTimer = specialDuration;
+        }
+
+        // Movimiento X con colisiones laterales
+        if (special != SpecialAnim::RESPAWN) {
+            if ((vel.x < 0 && !leftCollision) || (vel.x > 0 && !rightCollision)) {
+                pos.x += vel.x;
+            }
+        }
+
         if (pos.x < CameraLeftLimit) pos.x = CameraLeftLimit;
         return;
     }
 
-    // ========== FÍSICA ==========
+    // ========== FÍSICA Y MOVIMIENTO ==========
+
+    // Movimiento en Y (gravedad)
     if (!grounded) {
         vel.y += GRAVITY;
         pos.y += vel.y;
     }
     else {
         vel.y = 0;
-        // No mover Y
     }
 
-    // Actualizar X normalmente
-    pos.x += vel.x;
+    // Movimiento en X SOLO si no hay colisión en esa dirección
+    if ((vel.x < 0 && !leftCollision) || (vel.x > 0 && !rightCollision)) {
+        pos.x += vel.x;
+    }
+    else if (vel.x != 0) {
+        // Hay colisión, resetear inputVelX para que la animación no parpadee
+        inputVelX = 0;
+    }
 
     // Limitar por cámara
     if (pos.x < CameraLeftLimit) pos.x = CameraLeftLimit;
 }
 
-
 void Player::Draw() {
+    // Si está desaparecido, NO dibujar nada
+    if (!isAlive && isDisappeared) {
+        return;
+    }
+    
+    // ========== EFECTO PARPADEO ANTES DE DESAPARECER ==========
+    bool shouldDraw = true;
+    
+    if (!isAlive && !isDisappeared) {
+        // Calcular cuánto tiempo falta para desaparecer
+        float timeUntilDisappear = disappearDelay - deathTimer;
+        
+        // En el último medio segundo (0.5f), parpadear
+        if (timeUntilDisappear < 0.5f && timeUntilDisappear > 0.0f) {
+            // Parpadeo cada 0.1 segundos (10 veces por segundo)
+            float blinkInterval = 0.1f;
+            int blinkPhase = (int)(deathTimer * 20);  // 20 cambios por segundo
+            shouldDraw = (blinkPhase % 2 == 0);
+        }
+    }
+
+    // ========== EFECTO PARPADEO POR INVINCIBILIDAD ==========
+    if (isAlive && IsInvincible()) {
+        // Parpadeo rápido: cambia cada 0.1 segundos
+        int blinkPhase = (int)(GetTime() * 15);  // 20 parpadeos por segundo
+        shouldDraw = (blinkPhase % 2 == 0);
+    }
+    
+    if (!shouldDraw) return;
+    
+    // Si está en FULL_BODY (muerte, caída, agachado), usar DrawFullBody
+    if (mode == Mode::FULL_BODY) {
+        DrawFullBody();
+        DrawHitBox();
+        return;
+    }
+
     if (crouching) {
         DrawCrouch();
         DrawHitBox();
         return;
     }
-    if (mode == Mode::FULL_BODY) {
-        DrawFullBody();
-    }
-    else {
-        DrawSeparated();
-    }
+
+    DrawSeparated();
     DrawHitBox();
 }
 
@@ -160,11 +236,19 @@ void Player::DrawCrouch() {
     DrawTexturePro(anim.GetSheet(), sourceRect, destRect, { 0,0 }, 0, WHITE);
 }
 
-
 void Player::DrawSeparated() {
     float w = anim.GetW(), h = anim.GetH();
     float baseY = pos.y + GetHeight() - (h * SCALE) - 35.0f;
     VisualOffsets off = anim.GetOffsets();
+
+    // ========== INVERTIR OFFSETS PARA IZQUIERDA (APLICA A TODO) ==========
+    float legsOffsetX = off.legsX;
+    float torsoOffsetX = off.torsoX;
+
+    if (dir == PlayerDirection::LEFT) {
+        legsOffsetX = -off.legsX;
+        torsoOffsetX = -off.torsoX;  // ← INVERTIR PARA TODOS LOS CASOS
+    }
 
     // ========== 1. PIERNAS ==========
     Rectangle legSrc;
@@ -179,30 +263,65 @@ void Player::DrawSeparated() {
         legSrc = { 4 * w, anim.GetRowIdle(), w, h };
     }
 
-    float offX = off.legsX;
     if (dir == PlayerDirection::LEFT) {
         legSrc.width = -w;
-        offX = -off.legsX;
     }
 
     DrawTexturePro(anim.GetSheet(), legSrc,
-        { pos.x + offX * SCALE, baseY + off.legsY * SCALE, w * SCALE, h * SCALE },
+        { pos.x + legsOffsetX * SCALE, baseY + off.legsY * SCALE, w * SCALE, h * SCALE },
         { 0,0 }, 0, WHITE);
 
     // ========== 2. TORSO ==========
-    float torsoX = pos.x;
+    float torsoDrawX = pos.x + torsoOffsetX * SCALE;
+    float torsoDrawY = baseY + off.torsoY * SCALE;
     Rectangle torsoSrc;
     Color tint = WHITE;
+
+    // DEBUG
+    TraceLog(LOG_INFO, "TORSO DEBUG - dir: %s, torsoOffsetX: %.2f, torsoDrawX: %.2f",
+        dir == PlayerDirection::LEFT ? "LEFT" : "RIGHT", torsoOffsetX, torsoDrawX);
+
+    // PRIORIDAD 1: Lanzar granada (por encima del disparo)
+    if (anim.IsThrowing()) {
+        torsoSrc = {
+            anim.GetThrowFrame() * w,
+            anim.GetThrowRowY(),
+            w,
+            h
+        };
+
+        if (dir == PlayerDirection::LEFT) {
+            torsoSrc.width = -w;
+        }
+
+        // Ajusta offset si es necesario
+        float throwOffsetX = 0.0f;
+        float throwOffsetY = 0.0f;
+
+        DrawTexturePro(anim.GetSheet(), torsoSrc,
+            { torsoDrawX + throwOffsetX, torsoDrawY + throwOffsetY, w * SCALE, h * SCALE },
+            { 0,0 }, 0, tint);
+        return;
+    }
 
     // PRIORIDAD 1: Disparo normal (horizontal)
     if (anim.IsShooting()) {
         torsoSrc = { anim.GetShootFrame() * anim.GetShootW(), anim.GetRowShoot(), anim.GetShootW(), h };
+
+        float shootDrawX = torsoDrawX;
+        float shootDrawY = torsoDrawY;
+
         if (dir == PlayerDirection::LEFT) {
             torsoSrc.width = -anim.GetShootW();
-            torsoX = pos.x - (anim.GetShootW() - w) * SCALE;
+            float compensacion = -140.0;
+            shootDrawX = torsoDrawX + compensacion;
         }
+
+        float subirTorsoY = 5.0f;  
+        shootDrawY = torsoDrawY - subirTorsoY;
+
         DrawTexturePro(anim.GetSheet(), torsoSrc,
-            { torsoX, baseY, anim.GetShootW() * SCALE, h * SCALE },
+            { shootDrawX, shootDrawY, anim.GetShootW() * SCALE, h * SCALE },
             { 0,0 }, 0, tint);
         return;
     }
@@ -215,22 +334,12 @@ void Player::DrawSeparated() {
             w,
             anim.GetShootUpH()
         };
-
-        // CALCULAR POSICIÓN X SEGÚN DIRECCIÓN
-        float shootUpX;
-
         if (dir == PlayerDirection::LEFT) {
             torsoSrc.width = -w;
-            shootUpX = pos.x + 20.0f;  // Ajusta este valor para izquierda
         }
-        else {
-            shootUpX = pos.x - 10.0f;  // Ajusta este valor para derecha
-        }
-
-        float shootUpBaseY = baseY - 140;
-
+        float shootUpBaseY = baseY - 140 + (off.torsoY * SCALE);
         DrawTexturePro(anim.GetSheet(), torsoSrc,
-            { shootUpX, shootUpBaseY, w * SCALE, anim.GetShootUpH() * SCALE },
+            { torsoDrawX, shootUpBaseY, w * SCALE, anim.GetShootUpH() * SCALE },
             { 0,0 }, 0, tint);
         return;
     }
@@ -271,12 +380,111 @@ void Player::DrawSeparated() {
     }
 
     DrawTexturePro(anim.GetSheet(), torsoSrc,
-        { pos.x, baseY, w * SCALE, h * SCALE },
+        { torsoDrawX, torsoDrawY, w * SCALE, h * SCALE },
         { 0,0 }, 0, tint);
 }
 
 void Player::DrawFullBody() {
     Rectangle sourceRect = GetFullBodyRect();
+
+    // ========== ANIMACIÓN DE REAPARICIÓN ==========
+    if (special == SpecialAnim::RESPAWN) {
+        const float RESPAWN_FRAME_WIDTH = 34.0f;
+        const float RESPAWN_FRAME_HEIGHT = 238.0f;  
+        const int RESPAWN_TOTAL_FRAMES = 7;
+        const float RESPAWN_ANIM_SPEED = 20.0f;
+
+        int currentFrame = (int)(specialTimer * RESPAWN_ANIM_SPEED);
+        if (currentFrame >= RESPAWN_TOTAL_FRAMES) {
+            currentFrame = RESPAWN_TOTAL_FRAMES - 1;
+            if (specialTimer >= specialDuration) {
+                mode = Mode::SEPARATED;
+                special = SpecialAnim::NONE;
+            }
+        }
+
+        // Fila 6
+        float startRowY = 0.0f * 34.0f;
+
+        sourceRect = {
+            currentFrame * RESPAWN_FRAME_WIDTH,
+            startRowY,
+            RESPAWN_FRAME_WIDTH,
+            RESPAWN_FRAME_HEIGHT
+        };
+
+        if (dir == PlayerDirection::LEFT) {
+            sourceRect.width = -RESPAWN_FRAME_WIDTH;
+        }
+
+        // Misma posición que el jugador normal
+        float offsetX = 0.0f;
+        float offsetY = -RESPAWN_FRAME_HEIGHT * SCALE + 165.0f;
+
+        Rectangle destRect = {
+            pos.x + offsetX,
+            pos.y + offsetY,
+            RESPAWN_FRAME_WIDTH * SCALE,
+            RESPAWN_FRAME_HEIGHT * SCALE
+        };
+
+        DrawTexturePro(anim.GetSheet(), sourceRect, destRect, { 0, 0 }, 0, WHITE);
+        return;
+    }
+
+    // Si es animación de muerte, calcular el frame actual
+    if (special == SpecialAnim::DEATH) {
+        const float DEATH_FRAME_WIDTH = 68.0f;
+        const float DEATH_FRAME_HEIGHT = 68.0f;
+        const int DEATH_TOTAL_FRAMES = 19;  // Ajusta según tu sprite sheet
+        const float DEATH_ANIM_SPEED = 12.0f;  // Frames por segundo
+
+        int currentFrame = (int)(specialTimer * DEATH_ANIM_SPEED);
+        if (currentFrame >= DEATH_TOTAL_FRAMES) {
+            currentFrame = DEATH_TOTAL_FRAMES - 1;
+        }
+
+        // Fila 32
+        float startRowY = 31.0f * 34.0f;
+
+        sourceRect = {
+            currentFrame * DEATH_FRAME_WIDTH,
+            startRowY,
+            DEATH_FRAME_WIDTH,
+            DEATH_FRAME_HEIGHT
+        };
+
+        if (dir == PlayerDirection::LEFT) {
+            sourceRect.width = -DEATH_FRAME_WIDTH;
+        }
+
+        // Ajusta estos valores para centrar la animación
+        float offsetX;   // Ajusta según necesites
+        float offsetY = -110.0f;   // Ajusta según necesites
+
+        if (dir == PlayerDirection::RIGHT) {
+            sourceRect.width = DEATH_FRAME_WIDTH;  // Positivo
+            // Offset para derecha: el personaje está a la izquierda del frame
+            offsetX = 10.0f;  // Ajusta este valor
+        }
+        else {
+            sourceRect.width = -DEATH_FRAME_WIDTH;  // Negativo (flipeado)
+            // Offset para izquierda: compensa el flip
+            offsetX = -150.0f;  // Puede ser el mismo o diferente
+        }
+
+        Rectangle destRect = {
+            pos.x + offsetX,
+            pos.y + offsetY,
+            DEATH_FRAME_WIDTH * SCALE,
+            DEATH_FRAME_HEIGHT * SCALE
+        };
+
+        DrawTexturePro(anim.GetSheet(), sourceRect, destRect, { 0, 0 }, 0, WHITE);
+        return;
+    }
+
+    // Animación normal FULL_BODY
     if (dir == PlayerDirection::LEFT) sourceRect.width = -sourceRect.width;
     float currentHeight = GetFullBodyH();
 
@@ -291,7 +499,14 @@ void Player::DrawFullBody() {
 }
 
 void Player::DrawHitBox() {
+    // Hitbox principal (blanca)
     DrawRectangleLinesEx(GetHitBox(), 2, WHITE);
+
+    // Hitbox izquierda (roja)
+    DrawRectangleLinesEx(GetLeftHitBox(), 2, RED);
+
+    // Hitbox derecha (azul)
+    DrawRectangleLinesEx(GetRightHitBox(), 2, BLUE);
 }
 
 Rectangle Player::GetFullBodyRect() {
@@ -301,6 +516,8 @@ Rectangle Player::GetFullBodyRect() {
     case SpecialAnim::CROUCH: row = 0; h = 20; break;
     case SpecialAnim::CROUCH_SHOOT: row = 1; h = 20; break;
     case SpecialAnim::FALLING_START: row = 2; h = 48; break;
+    case SpecialAnim::DEATH: row = 32; h = 64; break; 
+    case SpecialAnim::RESPAWN: row = 6; h = 238; break;
     default: break;
     }
     return { 0, row * 34.0f, 34.0f, (float)h };
@@ -313,6 +530,10 @@ float Player::GetFullBodyH() const {
         return 20.0f;
     case SpecialAnim::FALLING_START:
         return 48.0f;
+    case SpecialAnim::DEATH:
+        return 64.0f;
+    case SpecialAnim::RESPAWN:
+        return 238.0f;
     default:
         return 34.0f;
     }
@@ -324,33 +545,40 @@ float Player::GetHeight() const {
 }
 
 Rectangle Player::GetHitBox() {
-    float hitboxX;
-
-    if (!grounded && !crouching) {
-        float jumpOffsetX = 6.0f * SCALE;
-        if (dir == PlayerDirection::LEFT) {
-            hitboxX = pos.x + (34.0f * SCALE - hitboxWidth - jumpOffsetX);
-        }
-        else {
-            hitboxX = pos.x + jumpOffsetX;
-        }
-    }
-    else {
-        if (dir == PlayerDirection::LEFT) {
-            hitboxX = pos.x + (34.0f * SCALE - hitboxWidth - hitboxOffsetX);
-        }
-        else {
-            hitboxX = pos.x + hitboxOffsetX;
-        }
-    }
-
+    // Calcular hitbox centrada en el personaje
+    float spriteTotalWidth = 34.0f * SCALE;  // 136 píxeles
+    float hitboxX = pos.x + (spriteTotalWidth - hitboxWidth) / 2.0f;
     float hitboxY = pos.y + hitboxOffsetY;
 
-    // DEPURACIÓN
-    TraceLog(LOG_INFO, "GetHitBox - pos.y: %.1f, offsetY: %.1f, hitboxY: %.1f, height: %.1f",
-        pos.y, hitboxOffsetY, hitboxY, hitboxHeight);
+    return Rectangle{ hitboxX, hitboxY, hitboxWidth, hitboxHeight };
+}
 
-    return Rectangle{ hitboxX, hitboxY, GetWidth(), GetHeight() };
+Rectangle Player::GetLeftHitBox() {
+    Rectangle mainHitBox = GetHitBox();  // Obtener hitbox actualizada
+    
+    float reducedHeight = mainHitBox.height * 0.6f;  // Usar height actual
+    float offsetY = (mainHitBox.height - reducedHeight) / 2.0f;
+    
+    float hitboxX = mainHitBox.x - (mainHitBox.width * 0.3f);
+    float hitboxY = mainHitBox.y + offsetY;
+    float hitboxW = mainHitBox.width * 0.4f;
+    float hitboxH = reducedHeight;
+    
+    return Rectangle{ hitboxX, hitboxY, hitboxW, hitboxH };
+}
+
+Rectangle Player::GetRightHitBox() {
+    Rectangle mainHitBox = GetHitBox();
+    
+    float reducedHeight = mainHitBox.height * 0.6f;
+    float offsetY = (mainHitBox.height - reducedHeight) / 2.0f;
+    
+    float hitboxX = mainHitBox.x + mainHitBox.width - (mainHitBox.width * 0.1f);
+    float hitboxY = mainHitBox.y + offsetY;
+    float hitboxW = mainHitBox.width * 0.4f;
+    float hitboxH = reducedHeight;
+    
+    return Rectangle{ hitboxX, hitboxY, hitboxW, hitboxH };
 }
 
 Vector2 Player::GetPosition() {
@@ -360,27 +588,52 @@ Vector2 Player::GetPosition() {
 // ========== MOVIMIENTO E INPUT ==========
 void Player::MoveLeft() {
     if (mode != Mode::FULL_BODY && !crouching) {
-        vel.x = -MOVE_SPEED;
+        inputVelX = -MOVE_SPEED;  // Guardar velocidad deseada para animación
+        if (!leftCollision) {
+            vel.x = -MOVE_SPEED;
+        }
+        else {
+            vel.x = 0;
+        }
         dir = PlayerDirection::LEFT;
     }
-    else if (crouching && !anim.IsCrouchShooting()) {  // ← Solo mover si NO está disparando agachado
-        vel.x = -CROUCH_SPEED;
+    else if (crouching && !anim.IsCrouchShooting()) {
+        inputVelX = -CROUCH_SPEED;
+        if (!leftCollision) {
+            vel.x = -CROUCH_SPEED;
+        }
+        else {
+            vel.x = 0;
+        }
         dir = PlayerDirection::LEFT;
     }
 }
 
 void Player::MoveRight() {
     if (mode != Mode::FULL_BODY && !crouching) {
-        vel.x = MOVE_SPEED;
+        inputVelX = MOVE_SPEED;
+        if (!rightCollision) {
+            vel.x = MOVE_SPEED;
+        }
+        else {
+            vel.x = 0;
+        }
         dir = PlayerDirection::RIGHT;
     }
-    else if (crouching && !anim.IsCrouchShooting()) {  // ← Solo mover si NO está disparando agachado
-        vel.x = CROUCH_SPEED;
+    else if (crouching && !anim.IsCrouchShooting()) {
+        inputVelX = CROUCH_SPEED;
+        if (!rightCollision) {
+            vel.x = CROUCH_SPEED;
+        }
+        else {
+            vel.x = 0;
+        }
         dir = PlayerDirection::RIGHT;
     }
 }
 
 void Player::StopMovingHorizontal() {
+    inputVelX = 0;
     vel.x = 0;
 }
 
@@ -402,7 +655,8 @@ void Player::StopAimingUp() {
 
 void Player::StartCrouching() {
     if (grounded && !crouching && mode != Mode::FULL_BODY) {
-        // Guardar la posición de los pies antes de agacharse
+
+        // Guardar la posición de los pies
         float feetY = pos.y + GetHeight();
 
         crouching = true;
@@ -410,15 +664,18 @@ void Player::StartCrouching() {
         SetCrouchHitbox();
         anim.ForceCrouch();
 
-        // Mantener los pies en la misma posición después de agacharse
+        // Reposicionar para mantener los pies en el mismo lugar
         pos.y = feetY - GetHeight();
     }
 }
 
 void Player::StopCrouching() {
     if (crouching) {
+        float currentY = pos.y;
         crouching = false;
         SetNormalHitbox();
+
+        pos.y = currentY - 60.0f; 
     }
 }
 
@@ -446,3 +703,65 @@ PlayerDirection Player::GetAimDirection() const {
     if (aimingUp) return PlayerDirection::UP;
     return dir;
 }
+
+void Player::TakeDamage() {
+    if (!isAlive) return;
+    if (IsInvincible()) return;
+
+    isAlive = false;
+    deathPosition = pos;
+    deathTimer = 0.0f; 
+    isDisappeared = false; 
+
+    mode = Mode::FULL_BODY;
+    special = SpecialAnim::DEATH;
+    specialTimer = 0.0f;
+    specialDuration = 1.0f; 
+
+    vel = { 0.0f, 0.0f };
+    inputVelX = 0; 
+
+    TraceLog(LOG_INFO, "PLAYER DIED - Playing death animation");
+}
+
+void Player::Respawn() {
+    isAlive = true;
+    isDisappeared = false;      
+    deathTimer = 0.0f;        
+
+    mode = Mode::FULL_BODY;     
+    special = SpecialAnim::RESPAWN; 
+    specialTimer = 0.0f;
+    specialDuration = 0.6f;
+
+    pos = deathPosition;  
+    vel = { 0.0f, 0.0f };
+    invincibilityTimer = invincibilityDuration;
+}
+
+GrenadeThrowData Player::ThrowGrenade() {
+    anim.StartThrow();
+
+    GrenadeThrowData data;
+    data.startPos = pos;
+    data.power = 1500.0f;
+    data.valid = true;
+
+    switch (dir) {
+    case PlayerDirection::LEFT:
+        data.targetPos = { pos.x - 300, 0 };  // Y se reemplazará después
+        break;
+    case PlayerDirection::RIGHT:
+        data.targetPos = { pos.x + 300, 0 };
+        break;
+    case PlayerDirection::UP:
+        data.targetPos = { pos.x, pos.y - 150 };
+        break;
+    default:
+        data.targetPos = { pos.x + 250, 0 };
+        break;
+    }
+
+    return data;
+}
+
