@@ -32,7 +32,14 @@ void Player::Update(float CameraLeftLimit) {
     // ========== MANEJAR ANIMACIÓN DE MUERTE ==========
     // Si está muerto pero en animación, solo actualizar el timer
     if (!isAlive) {
-        if (mode == Mode::FULL_BODY && special == SpecialAnim::DEATH) {
+        deathTimer += GetFrameTime();
+
+        if (deathTimer >= disappearDelay && !isDisappeared) {
+            isDisappeared = true; 
+            mode = Mode::SEPARATED;
+            TraceLog(LOG_INFO, "PLAYER DISAPPEARED");
+        }
+        if (!isDisappeared && mode == Mode::FULL_BODY && special == SpecialAnim::DEATH) {
             specialTimer += GetFrameTime();
             if (specialTimer >= specialDuration) {
                 // Animación terminada, el jugador queda muerto en el último frame
@@ -91,6 +98,29 @@ void Player::Update(float CameraLeftLimit) {
 }
 
 void Player::Draw() {
+    // Si está desaparecido, NO dibujar nada
+    if (!isAlive && isDisappeared) {
+        return;
+    }
+    
+    // ========== EFECTO PARPADEO ANTES DE DESAPARECER ==========
+    bool shouldDraw = true;
+    
+    if (!isAlive && !isDisappeared) {
+        // Calcular cuánto tiempo falta para desaparecer
+        float timeUntilDisappear = disappearDelay - deathTimer;
+        
+        // En el último medio segundo (0.5f), parpadear
+        if (timeUntilDisappear < 0.5f && timeUntilDisappear > 0.0f) {
+            // Parpadeo cada 0.1 segundos (10 veces por segundo)
+            float blinkInterval = 0.1f;
+            int blinkPhase = (int)(deathTimer * 20);  // 20 cambios por segundo
+            shouldDraw = (blinkPhase % 2 == 0);
+        }
+    }
+    
+    if (!shouldDraw) return;
+    
     // Si está en FULL_BODY (muerte, caída, agachado), usar DrawFullBody
     if (mode == Mode::FULL_BODY) {
         DrawFullBody();
@@ -345,8 +375,19 @@ void Player::DrawFullBody() {
         }
 
         // Ajusta estos valores para centrar la animación
-        float offsetX = 10.0f;   // Ajusta según necesites
-        float offsetY = -100.0f;   // Ajusta según necesites
+        float offsetX;   // Ajusta según necesites
+        float offsetY = -110.0f;   // Ajusta según necesites
+
+        if (dir == PlayerDirection::RIGHT) {
+            sourceRect.width = DEATH_FRAME_WIDTH;  // Positivo
+            // Offset para derecha: el personaje está a la izquierda del frame
+            offsetX = 10.0f;  // Ajusta este valor
+        }
+        else {
+            sourceRect.width = -DEATH_FRAME_WIDTH;  // Negativo (flipeado)
+            // Offset para izquierda: compensa el flip
+            offsetX = -150.0f;  // Puede ser el mismo o diferente
+        }
 
         Rectangle destRect = {
             pos.x + offsetX,
@@ -582,6 +623,8 @@ void Player::TakeDamage() {
 
     isAlive = false;
     deathPosition = pos;
+    deathTimer = 0.0f; 
+    isDisappeared = false; 
 
     mode = Mode::FULL_BODY;
     special = SpecialAnim::DEATH;
@@ -596,6 +639,10 @@ void Player::TakeDamage() {
 
 void Player::Respawn() {
     isAlive = true;
+    isDisappeared = false;      // ← NUEVO: reaparecer
+    deathTimer = 0.0f;          // ← NUEVO: resetear timer
+    mode = Mode::SEPARATED;     // ← NUEVO: volver a modo normal
+    special = SpecialAnim::NONE; // ← NUEVO: quitar animación especial
     pos = deathPosition;  // ← RESPAWNEA DONDE MURIÓ
     vel = { 0.0f, 0.0f };
     invincibilityTimer = invincibilityDuration;

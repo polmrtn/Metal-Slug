@@ -82,6 +82,8 @@ void Soldier::SetSoliderState(SoldierState newState)
 }
 bool Soldier::IsVisionRay(Player& player)
 {
+    // Si el jugador no está vivo o está desaparecido, no detectarlo
+    if (!player.IsAlive()) return false;
     return CheckCollisionRecs(GetHitBox(), player.GetHitBox());
 }
 void Soldier::DrawHitBox()
@@ -142,6 +144,9 @@ void Soldier::Update()
 }
 
 void Soldier::Attack(Player& player) {
+    // Solo atacar si el jugador está vivo
+    if (!player.IsAlive()) return;
+
     if (IsVisionRay(player)) {
         if (!player.IsInvincible()) {  // ← Si implementaste invencibilidad
             TraceLog(LOG_INFO, "Soldier attacked and HIT the player!");

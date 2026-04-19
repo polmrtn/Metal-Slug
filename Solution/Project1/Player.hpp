@@ -128,4 +128,7 @@ private:
     Vector2 deathPosition = { 0.0f, 0.0f };
     float invincibilityTimer = 0.0f; 
     float invincibilityDuration = 1.0f;
+    float deathTimer = 0.0f;
+    float disappearDelay = 1.0f;
+    bool isDisappeared = false; 
 };
