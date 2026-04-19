@@ -61,14 +61,23 @@ void Player::Update(float CameraLeftLimit) {
 
     if (mode == Mode::FULL_BODY && !crouching) {
         specialTimer += GetFrameTime();
-        if (specialTimer >= specialDuration) {
+        if (special == SpecialAnim::RESPAWN && specialTimer >= specialDuration) {
             mode = Mode::SEPARATED;
             special = SpecialAnim::NONE;
         }
-        // Movimiento X con colisiones laterales
-        if ((vel.x < 0 && !leftCollision) || (vel.x > 0 && !rightCollision)) {
-            pos.x += vel.x;
+
+        // Para animación de muerte
+        if (special == SpecialAnim::DEATH && specialTimer >= specialDuration) {
+            specialTimer = specialDuration;
         }
+
+        // Movimiento X con colisiones laterales
+        if (special != SpecialAnim::RESPAWN) {
+            if ((vel.x < 0 && !leftCollision) || (vel.x > 0 && !rightCollision)) {
+                pos.x += vel.x;
+            }
+        }
+
         if (pos.x < CameraLeftLimit) pos.x = CameraLeftLimit;
         return;
     }
@@ -117,6 +126,13 @@ void Player::Draw() {
             int blinkPhase = (int)(deathTimer * 20);  // 20 cambios por segundo
             shouldDraw = (blinkPhase % 2 == 0);
         }
+    }
+
+    // ========== EFECTO PARPADEO POR INVINCIBILIDAD ==========
+    if (isAlive && IsInvincible()) {
+        // Parpadeo rápido: cambia cada 0.1 segundos
+        int blinkPhase = (int)(GetTime() * 15);  // 20 parpadeos por segundo
+        shouldDraw = (blinkPhase % 2 == 0);
     }
     
     if (!shouldDraw) return;
@@ -348,6 +364,51 @@ void Player::DrawSeparated() {
 void Player::DrawFullBody() {
     Rectangle sourceRect = GetFullBodyRect();
 
+    // ========== ANIMACIÓN DE REAPARICIÓN ==========
+    if (special == SpecialAnim::RESPAWN) {
+        const float RESPAWN_FRAME_WIDTH = 34.0f;
+        const float RESPAWN_FRAME_HEIGHT = 238.0f;  
+        const int RESPAWN_TOTAL_FRAMES = 7;
+        const float RESPAWN_ANIM_SPEED = 20.0f;
+
+        int currentFrame = (int)(specialTimer * RESPAWN_ANIM_SPEED);
+        if (currentFrame >= RESPAWN_TOTAL_FRAMES) {
+            currentFrame = RESPAWN_TOTAL_FRAMES - 1;
+            if (specialTimer >= specialDuration) {
+                mode = Mode::SEPARATED;
+                special = SpecialAnim::NONE;
+            }
+        }
+
+        // Fila 6
+        float startRowY = 0.0f * 34.0f;
+
+        sourceRect = {
+            currentFrame * RESPAWN_FRAME_WIDTH,
+            startRowY,
+            RESPAWN_FRAME_WIDTH,
+            RESPAWN_FRAME_HEIGHT
+        };
+
+        if (dir == PlayerDirection::LEFT) {
+            sourceRect.width = -RESPAWN_FRAME_WIDTH;
+        }
+
+        // Misma posición que el jugador normal
+        float offsetX = 0.0f;
+        float offsetY = -RESPAWN_FRAME_HEIGHT * SCALE + 165.0f;
+
+        Rectangle destRect = {
+            pos.x + offsetX,
+            pos.y + offsetY,
+            RESPAWN_FRAME_WIDTH * SCALE,
+            RESPAWN_FRAME_HEIGHT * SCALE
+        };
+
+        DrawTexturePro(anim.GetSheet(), sourceRect, destRect, { 0, 0 }, 0, WHITE);
+        return;
+    }
+
     // Si es animación de muerte, calcular el frame actual
     if (special == SpecialAnim::DEATH) {
         const float DEATH_FRAME_WIDTH = 68.0f;
@@ -433,6 +494,7 @@ Rectangle Player::GetFullBodyRect() {
     case SpecialAnim::CROUCH_SHOOT: row = 1; h = 20; break;
     case SpecialAnim::FALLING_START: row = 2; h = 48; break;
     case SpecialAnim::DEATH: row = 32; h = 64; break; 
+    case SpecialAnim::RESPAWN: row = 6; h = 238; break;
     default: break;
     }
     return { 0, row * 34.0f, 34.0f, (float)h };
@@ -447,6 +509,8 @@ float Player::GetFullBodyH() const {
         return 48.0f;
     case SpecialAnim::DEATH:
         return 64.0f;
+    case SpecialAnim::RESPAWN:
+        return 238.0f;
     default:
         return 34.0f;
     }
@@ -639,13 +703,16 @@ void Player::TakeDamage() {
 
 void Player::Respawn() {
     isAlive = true;
-    isDisappeared = false;      // ← NUEVO: reaparecer
-    deathTimer = 0.0f;          // ← NUEVO: resetear timer
-    mode = Mode::SEPARATED;     // ← NUEVO: volver a modo normal
-    special = SpecialAnim::NONE; // ← NUEVO: quitar animación especial
-    pos = deathPosition;  // ← RESPAWNEA DONDE MURIÓ
+    isDisappeared = false;      
+    deathTimer = 0.0f;        
+
+    mode = Mode::FULL_BODY;     
+    special = SpecialAnim::RESPAWN; 
+    specialTimer = 0.0f;
+    specialDuration = 0.6f;
+
+    pos = deathPosition;  
     vel = { 0.0f, 0.0f };
     invincibilityTimer = invincibilityDuration;
-    TraceLog(LOG_INFO, "PLAYER RESPAWNED at (%.2f, %.2f)", pos.x, pos.y);
 }
 

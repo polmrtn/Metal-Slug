@@ -3,7 +3,7 @@
 #include "playerAnim.hpp"
 
 enum class PlayerDirection { LEFT, RIGHT, UP, DOWN };
-enum class SpecialAnim { NONE, FALLING_START, CROUCH, CROUCH_SHOOT, DEATH };
+enum class SpecialAnim { NONE, FALLING_START, CROUCH, CROUCH_SHOOT, DEATH, RESPAWN };
 
 class Player {
 public:
@@ -127,7 +127,7 @@ private:
     bool isAlive = true;        
     Vector2 deathPosition = { 0.0f, 0.0f };
     float invincibilityTimer = 0.0f; 
-    float invincibilityDuration = 1.0f;
+    float invincibilityDuration = 2.0f;
     float deathTimer = 0.0f;
     float disappearDelay = 1.0f;
     bool isDisappeared = false; 
