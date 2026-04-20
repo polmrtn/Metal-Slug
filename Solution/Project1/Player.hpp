@@ -92,7 +92,7 @@ private:
     PlayerAnim anim;
 
     // Posición y física
-    Vector2 pos = { 0.0f, 100.0f };
+    Vector2 pos = { 13000.0f, 100.0f };
     Vector2 vel = { 0.0f, 0.0f };
     float inputVelX = 0.0f;  // Velocidad deseada por input (para animación)
     float previousY = 0.0f;
@@ -111,7 +111,7 @@ private:
     static constexpr float SCALE = 4.0f;
     static constexpr float GRAVITY = 2.5f;
     static constexpr float JUMP_FORCE = -42.0f;
-    static constexpr float MOVE_SPEED = 50.0f;
+    static constexpr float MOVE_SPEED = 10.0f;
     static constexpr float CROUCH_SPEED = 4.0f;
     static constexpr float NORMAL_H = 34.0f;
 
