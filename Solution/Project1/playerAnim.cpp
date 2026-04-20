@@ -15,53 +15,159 @@ void PlayerAnim::UnloadTextures() {
     UnloadTexture(spriteSheet);
 }
 
-void PlayerAnim::Update(bool grounded, float velX, bool crouchingInput, bool aimingUpInput, float dt) {
-    // ========== DISPARO HACIA ARRIBA (shooting up) ==========
-    if (shootingUp) {
-        shootUpTimer += dt;
-        if (shootUpTimer >= shootUpDelay) {
-            shootUpTimer = 0.0f;
-            shootUpFrame++;
-            if (shootUpFrame >= shootUpFrameCount) {
-                shootUpFrame = 0;
-                shootingUp = false;
+void PlayerAnim::Update(bool grounded, float velX, bool crouchingInput, bool aimingUpInput, bool hasMachinegun, float dt) {
+        // ========== DISPARO HACIA ARRIBA (shooting up) ==========
+        if (shootingUp) {
+            shootUpTimer += dt;
+            if (shootUpTimer >= shootUpDelay) {
+                shootUpTimer = 0.0f;
+                shootUpFrame++;
+                if (shootUpFrame >= shootUpFrameCount) {
+                    shootUpFrame = 0;
+                    shootingUp = false;
+                }
             }
         }
-    }
 
-    // ========== AIMING UP (apuntar, sin disparar) ==========
-    if (aimingUpInput && !aimingUp) {
-        aimingUp = true;
-        aimingTransition = true;
-        aimingFrame = 0;
-        aimingTimer = 0.0f;
-    }
-    else if (!aimingUpInput && aimingUp) {
-        aimingUp = false;
-        aimingTransition = true;
-        aimingFrame = 0;
-        aimingTimer = 0.0f;
-    }
+        // ========== MACHINEGUN IDLE ==========
+        if (machinegunIdle) {
+            machinegunIdleTimer += dt;
+            if (machinegunIdleTimer >= machinegunIdleDelay) {
+                machinegunIdleTimer = 0.0f;
+                machinegunIdleFrame++;
+                if (machinegunIdleFrame >= machinegunIdleFrameCount) {
+                    machinegunIdleFrame = 0;
+                }
+            }
+            if (!machinegunAimingUp) torsoAnim = TorsoAnim::MACHINEGUN_IDLE;
+        }
 
-    if (aimingUp && !shootingUp) {
-        aimingTimer += dt;
-        if (aimingTimer >= aimingDelay) {
+        // ========== MACHINEGUN SHOOTING ==========
+        if (machinegunShooting) {
+            machinegunShootTimer += dt;
+            if (machinegunShootTimer >= machinegunShootDelay) {
+                machinegunShootTimer = 0.0f;
+                machinegunShootFrame++;
+                if (machinegunShootFrame >= machinegunShootFrameCount) {
+                    machinegunShootFrame = machinegunShootFrameCount - 1;
+                }
+            }
+            torsoAnim = TorsoAnim::MACHINEGUN_SHOOTING;
+
+            machinegunShootCooldown += dt;
+            if (machinegunShootCooldown >= machinegunShootCooldownMax) {
+                machinegunShooting = false;
+                machinegunIdle = true;
+                machinegunShootCooldown = 0.0f;
+                machinegunShootFrame = 0;
+                torsoAnim = TorsoAnim::MACHINEGUN_IDLE;
+            }
+        }
+
+        // ========== MACHINEGUN THROWING ==========
+        if (machinegunThrowing) {
+            machinegunThrowTimer += dt;
+            if (machinegunThrowTimer >= machinegunThrowDelay) {
+                machinegunThrowTimer = 0.0f;
+                machinegunThrowFrame++;
+                if (machinegunThrowFrame >= machinegunThrowFrameCount) {
+                    machinegunThrowFrame = machinegunThrowFrameCount - 1;
+                }
+            }
+            torsoAnim = TorsoAnim::MACHINEGUN_THROWING;
+
+            machinegunThrowCooldown += dt;
+            if (machinegunThrowCooldown >= machinegunThrowCooldownMax) {
+                machinegunThrowing = false;
+                machinegunIdle = true;
+                machinegunThrowCooldown = 0.0f;
+                machinegunThrowFrame = 0;
+                torsoAnim = TorsoAnim::MACHINEGUN_IDLE;
+            }
+        }
+
+        // ========== MACHINEGUN AIMING UP ==========
+        if (hasMachinegun) {
+            if (aimingUpInput && !machinegunAimingUp) {
+                machinegunAimingUp = true;
+                machinegunAimingTransition = true;
+                machinegunAimingFrame = 0;
+                machinegunAimingTimer = 0.0f;
+            }
+            else if (!aimingUpInput && machinegunAimingUp) {
+                machinegunAimingUp = false;
+                machinegunAimingTransition = true;
+                machinegunAimingFrame = 0;
+                machinegunAimingTimer = 0.0f;
+            }
+
+            if (machinegunAimingUp && !machinegunShooting) {
+                machinegunAimingTimer += dt;
+                if (machinegunAimingTimer >= machinegunAimingDelay) {
+                    machinegunAimingTimer = 0.0f;
+                    machinegunAimingFrame++;
+
+                    if (machinegunAimingTransition) {
+                        if (machinegunAimingFrame >= 2) {
+                            machinegunAimingTransition = false;
+                            machinegunAimingFrame = 0;
+                        }
+                    }
+                    else {
+                        if (machinegunAimingFrame >= 4) {
+                            machinegunAimingFrame = 0;
+                        }
+                    }
+                }
+                torsoAnim = TorsoAnim::MACHINEGUN_AIMING_TRANSITION;
+            }
+        }
+        if (machinegunShootingUp) {
+            machinegunShootUpTimer += dt;
+            if (machinegunShootUpTimer >= machinegunShootUpDelay) {
+                machinegunShootUpTimer = 0.0f;
+                machinegunShootUpFrame++;
+                if (machinegunShootUpFrame >= machinegunShootUpFrameCount) {
+                    machinegunShootUpFrame = 0;
+                    machinegunShootingUp = false;
+                }
+            }
+        }
+
+        // ========== AIMING UP (pistola) ==========
+        if (aimingUpInput && !aimingUp) {
+            aimingUp = true;
+            aimingTransition = true;
+            aimingFrame = 0;
             aimingTimer = 0.0f;
-            aimingFrame++;
+        }
+        else if (!aimingUpInput && aimingUp) {
+            aimingUp = false;
+            aimingTransition = true;
+            aimingFrame = 0;
+            aimingTimer = 0.0f;
+        }
 
-            if (aimingTransition) {
-                if (aimingFrame >= 2) {
-                    aimingTransition = false;
-                    aimingFrame = 0;
+        if (aimingUp && !shootingUp) {
+            aimingTimer += dt;
+            if (aimingTimer >= aimingDelay) {
+                aimingTimer = 0.0f;
+                aimingFrame++;
+
+                if (aimingTransition) {
+                    if (aimingFrame >= 2) {
+                        aimingTransition = false;
+                        aimingFrame = 0;
+                    }
                 }
-            }
-            else {
-                if (aimingFrame >= 4) {
-                    aimingFrame = 0;
+                else {
+                    if (aimingFrame >= 4) {
+                        aimingFrame = 0;
+                    }
                 }
             }
         }
-    }
+
 
     // ========== DISPARO NORMAL (horizontal) ==========
     if (shooting) {
@@ -109,7 +215,6 @@ void PlayerAnim::Update(bool grounded, float velX, bool crouchingInput, bool aim
     }
 
     if (crouching) {
-        // ========== DISPARO AGACHADO ==========
         if (crouchShooting) {
             crouchShootTimer += dt;
             if (crouchShootTimer >= crouchShootDelay) {
@@ -122,7 +227,6 @@ void PlayerAnim::Update(bool grounded, float velX, bool crouchingInput, bool aim
             }
         }
 
-        // ========== CAMINAR AGACHADO ==========
         if (velX != 0 && !crouchTransition && !crouchShooting) {
             crouchWalking = true;
             crouchWalkTimer += dt;
@@ -140,7 +244,6 @@ void PlayerAnim::Update(bool grounded, float velX, bool crouchingInput, bool aim
             crouchWalkTimer = 0.0f;
         }
 
-        // ========== TRANSICIÓN E IDLE AGACHADO ==========
         if (!crouchShooting) {
             crouchTimer += dt;
             float currentDelay = crouchTransition ? crouchTransitionDelay : crouchIdleDelay;
@@ -167,18 +270,26 @@ void PlayerAnim::Update(bool grounded, float velX, bool crouchingInput, bool aim
     // ========== ANIMACIONES NORMALES ==========
     if (!grounded) {
         legsAnim = LegsAnim::JUMPING;
-        torsoAnim = TorsoAnim::JUMPING;
     }
     else if (velX != 0 && !crouchingInput) {
         legsAnim = LegsAnim::WALKING;
-        torsoAnim = TorsoAnim::WALKING;
     }
     else {
         legsAnim = LegsAnim::IDLE;
-        torsoAnim = TorsoAnim::IDLE;
     }
 
-    // IDLE
+    if (!machinegunIdle && !machinegunShooting && !machinegunAimingUp) {
+        if (!grounded) {
+            torsoAnim = TorsoAnim::JUMPING;
+        }
+        else if (velX != 0 && !crouchingInput) {
+            torsoAnim = TorsoAnim::WALKING;
+        }
+        else {
+            torsoAnim = TorsoAnim::IDLE;
+        }
+    }
+
     if (torsoAnim == TorsoAnim::IDLE) {
         idleTimer += dt;
         if (idleTimer >= 0.15f) {
@@ -187,7 +298,6 @@ void PlayerAnim::Update(bool grounded, float velX, bool crouchingInput, bool aim
         }
     }
 
-    // WALKING
     if (legsAnim == LegsAnim::WALKING) {
         walkLegsTimer += dt;
         if (walkLegsTimer >= walkLegsDelay) {
@@ -201,7 +311,6 @@ void PlayerAnim::Update(bool grounded, float velX, bool crouchingInput, bool aim
         }
     }
 
-    // JUMPING
     if (legsAnim == LegsAnim::JUMPING && !jumpComplete) {
         jumpLegsTimer += dt;
         if (jumpLegsTimer >= 0.08f) {
@@ -274,4 +383,62 @@ void PlayerAnim::StartThrow() {
     isThrowing = true;
     throwFrame = 0;
     throwTimer = 0.0f;
+}
+
+void PlayerAnim::StartMachinegunIdle() {
+    machinegunShooting = false;
+    machinegunIdle = true;
+    machinegunIdleFrame = 0;
+    machinegunIdleTimer = 0.0f;
+    machinegunShootCooldown = 0.0f;
+    torsoAnim = TorsoAnim::MACHINEGUN_IDLE;
+}
+
+void PlayerAnim::StartMachinegunShoot() {
+    machinegunIdle = false;
+    machinegunShooting = true;
+    machinegunShootFrame = 0;
+    machinegunShootTimer = 0.0f;
+    machinegunShootCooldown = 0.0f;
+    torsoAnim = TorsoAnim::MACHINEGUN_SHOOTING;
+}
+
+void PlayerAnim::StopMachinegun() {
+    machinegunIdle = false;
+    machinegunShooting = false;
+    machinegunIdleFrame = 0;
+    machinegunShootFrame = 0;
+    machinegunShootCooldown = 0.0f;
+    torsoAnim = TorsoAnim::IDLE;
+}
+
+void PlayerAnim::StartMachinegunThrow() {
+    machinegunIdle = false;
+    machinegunShooting = false;
+    machinegunThrowing = true;
+    machinegunThrowFrame = 0;
+    machinegunThrowTimer = 0.0f;
+    machinegunThrowCooldown = 0.0f;
+    torsoAnim = TorsoAnim::MACHINEGUN_THROWING;
+}
+
+void PlayerAnim::StartMachinegunAiming() {
+    machinegunAimingUp = true;
+    machinegunAimingTransition = true;
+    machinegunAimingFrame = 0;
+    machinegunAimingTimer = 0.0f;
+}
+
+void PlayerAnim::StopMachinegunAiming() {
+    machinegunAimingUp = false;
+    machinegunAimingTransition = true;
+    machinegunAimingFrame = 0;
+    machinegunAimingTimer = 0.0f;
+    torsoAnim = TorsoAnim::IDLE;  // <- añadir esto
+}
+
+void PlayerAnim::StartMachinegunShootUp() {
+    machinegunShootingUp = true;
+    machinegunShootUpFrame = 0;
+    machinegunShootUpTimer = 0.0f;
 }

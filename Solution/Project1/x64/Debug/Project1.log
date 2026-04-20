@@ -1,3 +1,8 @@
+<<<<<<< HEAD
+﻿  Player.cpp
+  Project1.vcxproj -> E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\x64\Debug\Project1.exe
+=======
 ﻿  BackgroundManager.cpp
 C:\Users\USUARIO\Desktop\Barcos\Metal-Slug\Solution\Project1\BackgroundManager.cpp(89,67): warning C4244: '=': conversión de 'double' a 'float'; posible pérdida de datos
   Project1.vcxproj -> C:\Users\USUARIO\Desktop\Barcos\Metal-Slug\Solution\x64\Debug\Project1.exe
+>>>>>>> main
