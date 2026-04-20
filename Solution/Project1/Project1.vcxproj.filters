@@ -57,7 +57,7 @@
     <ClCompile Include="AudioManager.hpp">
       <Filter>Header Files</Filter>
     </ClCompile>
-    <ClCompile Include="BulletAnim.cpp">
+    <ClCompile Include="Grenade.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -104,7 +104,7 @@
     <ClInclude Include="SoldierState.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="BulletAnim.hpp">
+    <ClInclude Include="Grenade.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

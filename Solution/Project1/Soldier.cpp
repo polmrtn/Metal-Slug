@@ -2,7 +2,6 @@
 #include "Player.hpp"
 #include <raylib.h>
 int direction = 1;
-
 Soldier::Soldier(int type, Vector2 position)
 {
     
@@ -18,7 +17,6 @@ Soldier::Soldier(int type, Vector2 position)
     // Inicializar IA
     this->currentState = SoldierState::IDLE;
     this->stateTimer = 0;
-    
 
     switch (type)
     {
@@ -26,7 +24,7 @@ Soldier::Soldier(int type, Vector2 position)
         soldierAnim.LoadTexture();
         
         break;
-    case 2:
+    default:
         soldierAnim.LoadTexture();
         
         break;
@@ -48,9 +46,8 @@ Soldier::Soldier(const Soldier& other)
     facingRight = other.facingRight;
     switch (type) {
     case 1:
-         soldierAnim.GetSheet();
-    case 2:
-        soldierAnim.GetSheet();
+    default:
+        image = soldierAnim.GetSheet();
 
         break;
     }
@@ -66,32 +63,14 @@ Rectangle Soldier::GetHurtBox()
     return Rectangle{ position.x + GetWidth() / 3, position.y + GetHeight() / 2 , GetWidth() / 3, GetHeight()/ 2};
 }
 Rectangle Soldier::GetHitBox() {
-    float rayLength = 0;
-    float rayX = 0;
-    if (GetType() == 1) {
-         rayLength = 50.f;
-         
-         if (!facingRight) {
-             rayX = position.x - rayLength + rayLength;
-         }
-         else {
-             rayX = position.x + rayLength * 2;
-         }
+    float rayLength = 50.f;
+    float rayX ;
+    if (!facingRight) {
+        rayX = position.x - rayLength + 48 ;
     }
-    else if(GetType() == 2)
-    {
-         rayLength = 300.f;
-         if (!facingRight) {
-             rayX = position.x - rayLength + 50 ;
-         }
-         else {
-             rayX = position.x + 100;
-         }
+    else {
+        rayX = position.x + rayLength * 2;
     }
-    
-    
-    
-   
     return Rectangle{ rayX , position.y + GetHeight() / 2, rayLength, GetHeight() / 2};
 }
 void Soldier::SetSoliderState(SoldierState newState)
@@ -103,7 +82,8 @@ void Soldier::SetSoliderState(SoldierState newState)
 }
 bool Soldier::IsVisionRay(Player& player)
 {
-	/*if (!player.isAlive()) return false;*/
+    // Si el jugador no está vivo o está desaparecido, no detectarlo
+    if (!player.IsAlive()) return false;
     return CheckCollisionRecs(GetHitBox(), player.GetHitBox());
 }
 void Soldier::DrawHitBox()
@@ -119,13 +99,7 @@ void Soldier::Draw() {
     if (soldierAnim.GetCurrentAnim() == SoldierState::ATTACKING) {
         destW = (34.f + 34.f) * scale;
         if (!facingRight) {
-            if (GetType() == 1) {
-                offsetX = -138.f;
-            }
-            else if (GetType() == 2)
-            {
-                offsetX = -250;
-            }
+            offsetX = -138.f;
         }
         else
         {
@@ -135,11 +109,6 @@ void Soldier::Draw() {
     }
     else if (soldierAnim.GetCurrentAnim() == SoldierState::DEAD) {
         destW = 34.f * scale;
-        offsetX = 0.f;
-    }
-    else if(soldierAnim.GetCurrentAnim() == SoldierState::BOMB && GetType() == 2)
-    {
-        destW = 44.f * scale;
         offsetX = 0.f;
     }
     else {
@@ -167,32 +136,28 @@ void Soldier::Update()
     else if (isGrounded) {
         velocity.y = 0;
     }
-    if (type == 2 && currentState == SoldierState::ATTACKING) {
-        int peak = soldierAnim.GetCurrentClipFrames() - 1;
-        int triggerFrame = peak - 5; // 5 frames antes del peak
-        if (soldierAnim.GetFrame() >= triggerFrame && !hasShot) {
-            wantsToShoot = true;
-            hasShot = true; // ← solo una vez por animación
-        }
-    }
+
     // Aplicar Movimiento
     position.y += velocity.y;
     position.x += velocity.x;
     soldierAnim.Update();
 }
+
 void Soldier::Attack(Player& player) {
-   /* if (!player.isAlive()) return;*/
+    // Solo atacar si el jugador está vivo
+    if (!player.IsAlive()) return;
+
     if (IsVisionRay(player)) {
-      /*  if(!player.IsInvincible()) {
+        if (!player.IsInvincible()) {  // ← Si implementaste invencibilidad
+            TraceLog(LOG_INFO, "Soldier attacked and HIT the player!");
             player.TakeDamage();
-		}*/
-        TraceLog(LOG_INFO, "Soldier attacked ");
+        }
+        else {
+            TraceLog(LOG_INFO, "Soldier attacked but missed");
+        }
     }
-    else {
-        TraceLog(LOG_INFO, "Soldier attacked but missed");
-    }
-    
 }
+
 void Soldier::UpdateAI(Player& player)
 {
     stateTimer += GetFrameTime();
@@ -222,26 +187,12 @@ void Soldier::UpdateAI(Player& player)
     }
     else if (IsVisionRay(player) && isAlive) {
         if (currentState != SoldierState::ATTACKING) {
-            if (GetType() == 1) {
-                SetSoliderState(SoldierState::ATTACKING);
-                soldierAnim.ForceAnimation(SoldierState::ATTACKING);
-            }
-            else if (GetType() == 2)
-            {
-                if (currentState != SoldierState::ATTACKING) {
-                    SetSoliderState(SoldierState::ATTACKING);
-                    soldierAnim.ForceAnimation(SoldierState::BOMB);
-                    if (soldierAnim.IsAnimationFinished())
-                    {
-                        hasShot = false;
-                    }
-                    // <--- Seteamos la bandera aquí
-                }
-            }
+            SetSoliderState(SoldierState::ATTACKING);
+            soldierAnim.ForceAnimation(SoldierState::ATTACKING);
+            attackTriggered = false; 
         }
         attackTimer = 0.0f;
     }
-    
     else if(!isAlive && currentState != SoldierState::DEAD)
     {
 
@@ -253,10 +204,9 @@ void Soldier::UpdateAI(Player& player)
     if (currentState == SoldierState::IDLE && isGrounded && isAlive) {
        
         velocity.x = 0;
-        hasShot = false;
     }
     else if (currentState == SoldierState::WALKING && isGrounded && isAlive) {
-        hasShot = false;
+        
         if (direction == 1) {
             velocity.x = 5;
             facingRight = true;
@@ -270,16 +220,15 @@ void Soldier::UpdateAI(Player& player)
     else if (currentState == SoldierState::ATTACKING && isAlive && isGrounded) {
         velocity.x = 0;
 
+        //primero verificar si esta en el pico del ataque
+        if (soldierAnim.IsAttackPeak() && !attackTriggered) {
+            attackTriggered = true;
+            Attack(player);
+        }
+        //después verificar si la animación terminó
         if (soldierAnim.IsAnimationFinished()) {
-            if (soldierAnim.IsAttackPeak() && GetType() == 1) {
-                Attack(player);
-            }
-            else if (GetType() == 2)
-            {
-                TraceLog(LOG_INFO, "Soldier bomba ");
-            }
-             // ← resetear aquí
             SetSoliderState(SoldierState::IDLE);
+            attackTriggered = false;
         }
         return;
     }
@@ -291,7 +240,6 @@ void Soldier::UpdateAI(Player& player)
 
     }
     else if (currentState == SoldierState::SNEAK && isAlive && isGrounded) {
-        hasShot = false;
         if (direction == 1) {
             velocity.x = 2;
             facingRight = true;
