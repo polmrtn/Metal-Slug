@@ -9,6 +9,7 @@ public:
     void Draw();
     float GetWidth() { return destination.width; }
     float GetHeight() { return destination.height; }
+ 
 
 private:
 	Texture2D parallax1, background, parallax2;
@@ -18,4 +19,7 @@ private:
     float xposSprite;
     float yposSprite;
     float scale;
+    float parallaxOffset1 = 0.0f;
+    float parallaxOffset2 = 0.0f;
+    
 };

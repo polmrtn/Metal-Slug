@@ -27,7 +27,7 @@ BackgroundManager::BackgroundManager()
     
     destination = { 0, 0 + yOffset,scaledWidth, scaledHeight };
 	destination1 = { 0, yposSprite ,  (float)parallax1.width * scale , (float)parallax1.height * scale };
-    destination2 = { 1845, yposSprite ,  (float)parallax2.width * scale , (float)parallax2.height * scale };
+    destination2 = { 9500, yposSprite + 4 ,  (float)parallax2.width * scale + 5 , (float)parallax2.height * scale };
    
 
     this->scale = scale;
@@ -45,9 +45,11 @@ void BackgroundManager::FollowPlayer(Vector2 cameraPos)
 {
     float maxX = parallax1.width - (destination.width / scale);
     source1.x = cameraPos.x * 0.5f; // ← parallax más lento
-    source2.x = cameraPos.x * 0.3f; // ← parallax aún más lento
+    source2.x = cameraPos.x *4.0f; // ← parallax aún más lento
     if (source1.x < 0) source1.x = 0;
     if (source2.x < 0) source2.x = 0;
+    parallaxOffset1 = cameraPos.x * 0.2f; // ← capa lenta
+    parallaxOffset2 = cameraPos.x * 0.5f;
     // ← source del background NO se toca aquí
 }
 
@@ -55,16 +57,18 @@ void BackgroundManager::Draw()
 {
     float imgWidth1 = destination1.width;
 
-    for (int i = 0; i < 2; i++) {
+    // Parallax capa 1 — loopea 2 veces
+    for (int i = 0; i < 10; i++) {
         Rectangle dest1 = destination1;
-        dest1.x = imgWidth1 * i;
+        dest1.x = imgWidth1 * i - fmod(parallaxOffset1, imgWidth1);
         DrawTexturePro(parallax1, source1, dest1, origin, 0, WHITE);
-
-        Rectangle dest2 = destination2;
-        dest2.x = imgWidth1 * i; // ← o destination2.width * i si tienen distinto tamaño
-        DrawTexturePro(parallax2, source2, dest2, origin, 0, WHITE);
     }
 
-    // Background siempre fijo con su source sin modificar
+    // Parallax capa 2
+    Rectangle dest2 = destination2;
+    dest2.x = destination2.x - parallaxOffset2;
+    DrawTexturePro(parallax2, source2, dest2, origin, 0, WHITE);
+
+    // Background fijo
     DrawTexturePro(background, source, destination, origin, 0, WHITE);
 }
