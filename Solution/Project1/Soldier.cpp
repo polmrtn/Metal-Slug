@@ -183,6 +183,7 @@ void Soldier::UpdateAI(Player& player)
     if ((stateTimer >= 3.0f && !IsVisionRay(player) && isAlive) ||
         (soldierAnim.IsAnimationFinished() && currentState != SoldierState::DEAD)) {
         stateTimer = 0.0f;
+        hasShot = false;
         direction = (GetRandomValue(0, 1) == 0) ? -1 : 1;
         int randomBehaviour = GetRandomValue(0, 2);
 
@@ -259,10 +260,12 @@ void Soldier::UpdateAI(Player& player)
         return;
     }
     else if (currentState == SoldierState::DEAD && !isAlive) {
+
         soldierAnim.SetAnimation(SoldierState::DEAD);
         velocity.x = 0;
     }
     else if (currentState == SoldierState::SNEAK && isAlive && isGrounded) {
+        hasShot = false;
         if (direction == 1) {
             velocity.x = 2;
             facingRight = true;
