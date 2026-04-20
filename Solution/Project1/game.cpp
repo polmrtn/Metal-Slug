@@ -3,6 +3,7 @@
 #include "LevelMap.hpp" 
 #include <raymath.h>
 
+
 bool musicStarted = false;
 
 Game::Game() : camera({ 1280.0f/2 , 896/2  })
@@ -28,25 +29,23 @@ Game::~Game()
 void Game::Draw()
 {
 	camera.Begin();
-	
+
 	backgroundManager.Draw();
 	player.Draw();
 
 	for (auto& Soldier : soldiers) {
 		Soldier.Draw();
 	}
-	// Dibujar bloques con rotación
+
+	// Dibujar bloques
 	for (auto& block : blocks) {
-		if (block.GetRotation() != 0.0f) {
-			block.Draw(block.GetRotation());
-		}
-		else {
-			block.Draw();
-		}
+		block.Draw();
 	}
+
 	for (auto& bullet : bullets) {
 		bullet.Draw();
 	}
+
 	for (auto& grenade : grenades) {
 		grenade.Draw();
 	}
@@ -335,7 +334,6 @@ void Game::HandleInput()
 			}
 		}
 		else {
-			// Pistola normal
 			player.Shoot();
 			Shoot(1, { 0, 0 }, true);
 			shootTimer = shootDelayPistol;
@@ -375,10 +373,10 @@ void Game::HandleInput()
 
 	if (editorMode) {
 		// Mover grid con WASD
-		if (IsKeyDown(KEY_W)) gridOffset.y -= 1;
-		if (IsKeyDown(KEY_S)) gridOffset.y += 1;
-		if (IsKeyDown(KEY_A)) gridOffset.x -= 1;
-		if (IsKeyDown(KEY_D)) gridOffset.x += 1;
+		if (IsKeyDown(KEY_W)) gridOffset.y -= 5;
+		if (IsKeyDown(KEY_S)) gridOffset.y += 5;
+		if (IsKeyDown(KEY_A)) gridOffset.x -= 5;
+		if (IsKeyDown(KEY_D)) gridOffset.x += 5;
 
 		Vector2 mousePos = GetMousePosition();
 		Vector2 worldPos = camera.GetScreenToWorld(mousePos);
@@ -389,13 +387,23 @@ void Game::HandleInput()
 		float blockX = gridOffset.x + tileX * gridSize;
 		float blockY = gridOffset.y + tileY * gridSize;
 
-		// Click izquierdo: añadir suelo sólido
+		// Click izquierdo: suelo normal
 		if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
 			blocks.emplace_back(blockX, blockY, gridSize, gridSize, true);
 		}
-		// Click derecho: añadir plataforma
+		// Click derecho: plataforma
 		if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) {
 			blocks.emplace_back(blockX, blockY, gridSize, gridSize, false);
+		}
+		// Tecla R: rampa que sube
+		if (IsKeyPressed(KEY_R)) {
+			blocks.emplace_back(blockX, blockY, gridSize, gridSize, BlockType::RAMP_UP);
+			TraceLog(LOG_INFO, "Rampa UP creada en (%.0f, %.0f)", blockX, blockY);
+		}
+		// Tecla T: rampa que baja
+		if (IsKeyPressed(KEY_T)) {
+			blocks.emplace_back(blockX, blockY, gridSize, gridSize, BlockType::RAMP_DOWN);
+			TraceLog(LOG_INFO, "Rampa DOWN creada en (%.0f, %.0f)", blockX, blockY);
 		}
 		// Click medio: borrar bloque
 		if (IsMouseButtonPressed(MOUSE_BUTTON_MIDDLE)) {
@@ -404,27 +412,7 @@ void Game::HandleInput()
 					return b.GetRect().x == blockX && b.GetRect().y == blockY;
 				});
 			blocks.erase(it, blocks.end());
-		}
-
-		// ========== ROTAR BLOQUE SELECCIONADO ==========
-		if (IsKeyPressed(KEY_P)) {
-			TraceLog(LOG_INFO, "P key pressed, checking blocks...");
-			TraceLog(LOG_INFO, "World position: (%.0f, %.0f)", worldPos.x, worldPos.y);
-			TraceLog(LOG_INFO, "Number of blocks: %d", (int)blocks.size());
-
-			for (auto& block : blocks) {
-				Rectangle rect = block.GetRect();
-				TraceLog(LOG_INFO, "Block at (%.0f, %.0f) size (%.0f, %.0f)",
-					rect.x, rect.y, rect.width, rect.height);
-
-				if (CheckCollisionPointRec(worldPos, rect)) {
-					float newRot = block.GetRotation() + 45.0f;
-					if (newRot >= 360.0f) newRot = 0.0f;
-					block.SetRotation(newRot);
-					TraceLog(LOG_INFO, "Block rotated to: %.0f", newRot);
-					break;
-				}
-			}
+			TraceLog(LOG_INFO, "Bloque borrado en (%.0f, %.0f)", blockX, blockY);
 		}
 
 		// Guardar nivel
@@ -534,8 +522,6 @@ void Game::BlockCollisions() {
 	bool onGround = false;
 	const float GROUND_TOLERANCE = 5.0f;
 
-
-	// Resetear colisiones laterales cada frame
 	player.SetLeftCollision(false);
 	player.SetRightCollision(false);
 
@@ -543,8 +529,28 @@ void Game::BlockCollisions() {
 		Rectangle playerRect = player.GetHitBox();
 		Rectangle blockRect = block.GetRect();
 
-		// ========== COLISIÓN SOLDADOS ==========
-		// Reiniciar iterador para CADA bloque
+		// ========== COLISIÓN CON RAMPAS ==========
+		if (block.IsRamp()) {
+			// Centro X del jugador
+			float playerCenterX = playerRect.x + playerRect.width / 2;
+
+			// Solo aplicar rampa si el jugador está dentro del rango X de la rampa
+			if (playerCenterX >= blockRect.x && playerCenterX <= blockRect.x + blockRect.width) {
+				float rampHeight = block.GetHeightAtX(playerCenterX);
+				float playerFeetY = playerRect.y + playerRect.height;
+
+				// Si los pies están en o cerca de la rampa
+				if (playerFeetY >= rampHeight && playerFeetY <= rampHeight + 20.0f) {
+					float newY = rampHeight - playerRect.height;
+					player.SetY(newY);
+					player.SetVelocityY(0);
+					onGround = true;
+				}
+			}
+			continue;
+		}
+
+		// ========== COLISIÓN SOLDADOS CON BLOQUES ==========
 		auto It = soldiers.begin();
 		while (It != soldiers.end()) {
 			if (CheckCollisionRecs(It->GetHurtBox(), blockRect)) {
@@ -552,48 +558,31 @@ void Game::BlockCollisions() {
 					It->SetY(blockRect.y - It->GetHeight());
 					It->SetVelocityY(0);
 					It->SetGrounded(true);
-					break;  // Salir del while, pasar al siguiente bloque
+					break;
 				}
 			}
-			++It;  // Mover al siguiente soldado
+			++It;
 		}
 
-
-		// ========== COLISIÓN SUELO (con detección de atravesar desde abajo) ==========
+		// ========== COLISIÓN JUGADOR CON SUELO NORMAL ==========
 		float feetY = playerRect.y + playerRect.height;
 		float blockTopY = blockRect.y;
 		float previousFeetY = player.GetPreviousY() + player.GetHeight();
-
-		// Si la velocidad Y es negativa (está subiendo), probablemente viene desde abajo
 		bool wasBelow = (player.GetVelocityY() < 0 && previousFeetY <= blockTopY);
-
 		float verticalDistance = feetY - blockTopY;
 		bool isVerticalNear = (verticalDistance >= 0 && verticalDistance <= 50.0f);
 		bool isOverBlock = (playerRect.x + playerRect.width > blockRect.x + GROUND_TOLERANCE &&
 			playerRect.x < blockRect.x + blockRect.width - GROUND_TOLERANCE);
 
-		// Solo colisionar si NO viene desde abajo y está cayendo
 		if (isOverBlock && isVerticalNear && player.GetVelocityY() >= 0 && !wasBelow && verticalDistance <= 20.0f) {
-			// Verificar si es suelo sólido o plataforma
-			if (block.IsGround()) {
-				// Suelo sólido: siempre colisiona
-				float newY = blockTopY - playerRect.height;
-				player.SetY(newY);
-				player.SetVelocityY(0);
-				onGround = true;
-			}
-			else {
-				// Plataforma: solo colisiona si NO viene desde abajo (ya lo tenemos con !wasBelow)
-				float newY = blockTopY - playerRect.height;
-				player.SetY(newY);
-				player.SetVelocityY(0);
-				onGround = true;
-			}
+			float newY = blockTopY - playerRect.height;
+			player.SetY(newY);
+			player.SetVelocityY(0);
+			onGround = true;
 		}
 
-		// ========== COLISIONES LATERALES (SOLO PARA SUELOS SÓLIDOS) ==========
+		// ========== COLISIONES LATERALES ==========
 		if (block.IsGround()) {
-			// Colisión lateral izquierda
 			Rectangle leftHitBox = player.GetLeftHitBox();
 			if (CheckCollisionRecs(leftHitBox, blockRect)) {
 				float newX = blockRect.x + blockRect.width;
@@ -606,7 +595,6 @@ void Game::BlockCollisions() {
 				}
 			}
 
-			// Colisión lateral derecha
 			Rectangle rightHitBox = player.GetRightHitBox();
 			if (CheckCollisionRecs(rightHitBox, blockRect)) {
 				float newX = blockRect.x - player.GetWidth();
@@ -619,57 +607,12 @@ void Game::BlockCollisions() {
 				}
 			}
 		}
-		// Si es plataforma (isGround = false), NO se aplican colisiones laterales
 	}
 
 	player.SetGrounded(onGround);
 	if (onGround) {
 		player.SetVelocityY(0);
 	}
-	auto bIt = bullets.begin();
-while (bIt != bullets.end()) {
-    bool bulletJustHit = false;
-
-    // Solo chequear colisión si NO está explotando
-    if (!bIt->IsExploding()) {
-    // Para tipo 2, solo colisionar cuando ya va hacia abajo
-    bool canCollide = (bIt->GetType() != 2 || bIt->GetPosition().y > 0);
-    if (canCollide) {
-        for (const auto& block : blocks) {
-            if (CheckCollisionRecs(bIt->GetHitbox(), block.GetRect())) {
-				bIt->SetPosition({ bIt->GetPosition().x, block.GetRect().y - bIt->GetHeight() });
-
-                bulletJustHit = true;
-                break;
-            }
-        }
-    }
-}
-
-    // Activar explosión al primer impacto
-    if (bulletJustHit) {
-        if (bIt->GetType() == 1) {
-            bIt = bullets.erase(bIt);
-            continue;
-        }
-        else if (bIt->GetType() == 2) {
-			
-            bIt->SetExploding(true);
-            bIt->GetAnim().SetAnimation(BulletState::EXPLOSIONSOLDIER);
-
-        }
-    }
-
-    // ← FUERA del if(bulletJustHit): chequear si la explosión terminó
-    if (bIt->GetType() == 2 && bIt->IsExploding()) {
-        if (bIt->GetAnim().IsAnimationFinished()) {
-            bIt = bullets.erase(bIt);
-            continue;
-        }
-    }
-
-    ++bIt;
-}
 }
 
 std::vector<Bullet> Game::CreateBullets()
@@ -716,10 +659,13 @@ void Game::SaveBlocksToFile(const char* filename) {
 
 	for (const auto& block : blocks) {
 		Rectangle rect = block.GetRect();
-		fprintf(file, "%.0f,%.0f,%.0f,%.0f,%d,%.0f\n",
-			rect.x, rect.y, rect.width, rect.height,
-			block.IsGround() ? 1 : 0,
-			block.GetRotation());  // ← Guardar rotación
+		int typeValue = 0;
+		if (block.GetType() == BlockType::RAMP_UP) typeValue = 2;
+		else if (block.GetType() == BlockType::RAMP_DOWN) typeValue = 3;
+		else typeValue = block.IsGround() ? 1 : 0;
+
+		fprintf(file, "%.0f,%.0f,%.0f,%.0f,%d\n",
+			rect.x, rect.y, rect.width, rect.height, typeValue);
 	}
 	fclose(file);
 }
@@ -733,28 +679,17 @@ void Game::LoadBlocksFromFile(const char* filename) {
 		return;
 	}
 
-	float x, y, w, h, rotation = 0.0f;
-	int isGround;
-	int valoresLeidos;
-
-	while (true) {
-		// Intentar leer 6 valores (formato nuevo con rotación)
-		valoresLeidos = fscanf_s(file, "%f,%f,%f,%f,%d,%f\n", &x, &y, &w, &h, &isGround, &rotation);
-
-		if (valoresLeidos == 6) {
-			// Formato nuevo con rotación
-			Block block(x, y, w, h, isGround == 1);
-			block.SetRotation(rotation);
-			blocks.emplace_back(block);
+	float x, y, w, h;
+	int typeValue;
+	while (fscanf_s(file, "%f,%f,%f,%f,%d\n", &x, &y, &w, &h, &typeValue) == 5) {
+		if (typeValue == 2) {
+			blocks.emplace_back(x, y, w, h, BlockType::RAMP_UP);
 		}
-		else if (valoresLeidos == 5) {
-			// Formato viejo sin rotación
-			Block block(x, y, w, h, isGround == 1);
-			block.SetRotation(0.0f);
-			blocks.emplace_back(block);
+		else if (typeValue == 3) {
+			blocks.emplace_back(x, y, w, h, BlockType::RAMP_DOWN);
 		}
 		else {
-			break;  // Fin del archivo o error
+			blocks.emplace_back(x, y, w, h, typeValue == 1);
 		}
 	}
 
