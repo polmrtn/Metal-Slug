@@ -38,7 +38,7 @@ void CameraManager::Update(Vector2 playerPos, float bgWidth, float bgHeight, boo
     // desplazamos los límites hacia arriba para permitir que la cámara suba
     if (playerPos.x > 14000.0f) {
         // Ajusta este valor (ej: -400.0f) según qué tan arriba esté tu jefe final
-        float elevacionBoss = -500.0f;
+        float elevacionBoss = -400.0f;
         minY += elevacionBoss;
         maxY += elevacionBoss;
     }
