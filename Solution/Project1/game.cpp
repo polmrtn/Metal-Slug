@@ -17,6 +17,7 @@ Game::Game() : camera({ 1280.0f/2 , 896/2  })
 	}
 	soldiers = CreateSoldiers();
 	bullets = CreateBullets();	
+	items = CreateItems();
 }
 
 Game::~Game()
@@ -45,6 +46,10 @@ void Game::Draw()
 		grenade.Draw();
 	}
 
+	for (auto& item : items) {
+		item.Draw();
+	}
+
 	camera.End();
 
 	UiManager.DrawCredits(camera.GetCamera());
@@ -70,10 +75,10 @@ void Game::Draw()
 	
 }
 
-void Game::Timers()
-{
-	shootTimer += GetFrameTime();
-}
+//void Game::Timers()
+//{
+//	shootTimer += GetFrameTime();
+//}
 
 void Game::Update(){
 
@@ -123,6 +128,20 @@ void Game::Update(){
 		// ========== 4. COLISIONES ==========
 		ResolveCollisions();
 
+		for (auto& item : items) {
+			if (item.IsActive() && CheckCollisionRecs(item.GetHitBox(), player.GetHitBox())) {
+				if (item.GetType() == ItemType::SHOTGUN) {
+					player.EquipMachinegun();  
+					TraceLog(LOG_INFO, "Machinegun collected! Ammo: 20");
+				}
+				item.Collect();
+			}
+		}
+
+		// Limpiar items inactivos
+		items.erase(std::remove_if(items.begin(), items.end(),
+			[](const Item& i) { return !i.IsActive(); }), items.end());
+
 		// ========== 5. ACTUALIZAR CÁMARA ==========
 		camera.Update(player.GetPosition(), backgroundManager.GetWidth(), backgroundManager.GetHeight(), player.GetIsGrounded());
 
@@ -143,6 +162,11 @@ void Game::Update(){
 			grenadeCooldown -= GetFrameTime();
 		}
 
+		// Actualizar cooldown de disparo
+		if (shootTimer > 0.0f) {
+			shootTimer -= GetFrameTime();
+		}
+
 		// Limpiar granadas inactivas
 		grenades.erase(std::remove_if(grenades.begin(), grenades.end(),
 			[](const Grenade& g) { return !g.IsActive(); }), grenades.end());
@@ -151,7 +175,6 @@ void Game::Update(){
 		BeginDrawing();
 		ClearBackground(BLACK);
 		Draw();
-		Timers();
 
 		// ========== 8. AUDIO ==========
 		if (!musicStarted)
@@ -236,71 +259,82 @@ void Game::ThrowGrenade() {
 void Game::HandleInput()
 {
 	if (!player.IsAlive()) {
-
 		if (IsKeyPressed(KEY_R)) {
 			player.Respawn();
 		}
-		return;  // Salir de la función, no procesar más inputs
+		return;
 	}
 
-	if (IsKeyPressed(KEY_L))
-	{
+	if (IsKeyPressed(KEY_L)) {
 		UiManager.NextLevel();
 	}
-	if (IsKeyPressed(KEY_J)) 
-	{
+	if (IsKeyPressed(KEY_J)) {
 		UiManager.AddScore(100);
 	}
-	if (IsKeyPressed(KEY_C))
-	{
-		if (UiManager.GetCredits() < 99) 
-		{
+	if (IsKeyPressed(KEY_C)) {
+		if (UiManager.GetCredits() < 99) {
 			UiManager.SetCredits(1);
 		}
-			
 	}
-	if (IsKeyDown(KEY_LEFT))
-	{
+
+	// ========== MOVIMIENTO ==========
+	if (IsKeyDown(KEY_LEFT)) {
 		player.MoveLeft();
 	}
-	else if (IsKeyDown(KEY_RIGHT))
-	{
+	else if (IsKeyDown(KEY_RIGHT)) {
 		player.MoveRight();
 	}
-	else
-	{
+	else {
 		player.StopMovingHorizontal();
 	}
 
-	//AIMING UP
-	if (IsKeyDown(KEY_UP))
-	{
+	// ========== AIMING UP ==========
+	if (IsKeyDown(KEY_UP)) {
 		player.StartAimingUp();
 	}
-	else
-	{
+	else {
 		player.StopAimingUp();
 	}
 
-	//CROUCHING
-	if (IsKeyDown(KEY_DOWN))
-	{
+	// ========== CROUCHING ==========
+	if (IsKeyDown(KEY_DOWN)) {
 		player.StartCrouching();
 	}
-	else
-	{
+	else {
 		player.StopCrouching();
 	}
 
-	//JUMP
-	if (IsKeyPressed(KEY_SPACE))
-	{
+	// ========== JUMP ==========
+	if (IsKeyPressed(KEY_SPACE)) {
 		player.Jump();
 	}
 
-	//CHANGE SCENE
-	if (IsKeyPressed(KEY_ENTER))
-	{
+	// ========== DISPARO ==========
+	if (IsKeyPressed(KEY_D) && shootTimer <= 0.0f) {
+		if (player.GetCurrentWeapon() == WeaponType::MACHINEGUN) {
+			if (player.GetAmmo() > 0) {
+				player.Shoot();
+				Shoot();
+				player.UseAmmo();
+				shootTimer = shootDelayMachinegun;
+			}
+		}
+		else {
+			// Pistola normal
+			player.Shoot();
+			Shoot();
+			shootTimer = shootDelayPistol;
+		}
+	}
+
+	// ========== GRANADA ==========
+	if (IsKeyPressed(KEY_S) && player.IsAlive() && grenadeCooldown <= 0.0f) {
+		ThrowGrenade();
+		grenadeCooldown = grenadeDelay;
+	}
+
+	// ========== CHANGE SCENE ==========
+	if (IsKeyPressed(KEY_ENTER)) {
 		if (sceneManager.currentState == SceneManager::TITLE) {
 			audioManager.StopMusic(audioManager.GetTitleMusic());
 			audioManager.PlaySound(audioManager.GetGameSound());
@@ -311,18 +345,6 @@ void Game::HandleInput()
 			sceneManager.SetGameState(SceneManager::TITLE);
 			musicStarted = false;
 		}
-	}
-
-	if (IsKeyPressed(KEY_D) && shootTimer >= shootDelay)
-	{
-		player.Shoot();
-		Shoot();
-		shootTimer = 0;
-	}
-
-	if (IsKeyPressed(KEY_S) && player.IsAlive() && grenadeCooldown <= 0.0f) {
-		ThrowGrenade(); 
-		grenadeCooldown = grenadeDelay;
 	}
 
 	// ========== MODO EDITOR ==========
@@ -337,13 +359,11 @@ void Game::HandleInput()
 	}
 
 	if (editorMode) {
-		// Mover grid con WASD
 		if (IsKeyDown(KEY_W)) gridOffset.y -= 5;
 		if (IsKeyDown(KEY_S)) gridOffset.y += 5;
 		if (IsKeyDown(KEY_A)) gridOffset.x -= 5;
 		if (IsKeyDown(KEY_D)) gridOffset.x += 5;
 
-		// Obtener posición del ratón en el mundo
 		Vector2 mousePos = GetMousePosition();
 		Vector2 worldPos = camera.GetScreenToWorld(mousePos);
 
@@ -353,34 +373,23 @@ void Game::HandleInput()
 		float blockX = gridOffset.x + tileX * gridSize;
 		float blockY = gridOffset.y + tileY * gridSize;
 
-		// Click izquierdo: añadir suelo sólido
 		if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
 			blocks.emplace_back(blockX, blockY, gridSize, gridSize, true);
-			TraceLog(LOG_INFO, "Suelo añadido en (%.0f, %.0f)", blockX, blockY);
 		}
-
-		// Click derecho: añadir plataforma
 		if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) {
 			blocks.emplace_back(blockX, blockY, gridSize, gridSize, false);
-			TraceLog(LOG_INFO, "Plataforma añadida en (%.0f, %.0f)", blockX, blockY);
 		}
-
-		// Click medio: borrar bloque
 		if (IsMouseButtonPressed(MOUSE_BUTTON_MIDDLE)) {
 			auto it = std::remove_if(blocks.begin(), blocks.end(),
 				[blockX, blockY](const Block& b) {
 					return b.GetRect().x == blockX && b.GetRect().y == blockY;
 				});
 			blocks.erase(it, blocks.end());
-			TraceLog(LOG_INFO, "Bloque borrado en (%.0f, %.0f)", blockX, blockY);
 		}
-
-		// F5: Guardar bloques
 		if (IsKeyPressed(KEY_F5)) {
 			SaveBlocksToFile("level_blocks.txt");
 		}
 	}
-
 }
 
 void Game::ResolveCollisions(){
@@ -633,3 +642,9 @@ void Game::LoadBlocksFromFile(const char* filename) {
 	TraceLog(LOG_INFO, "Bloques cargados desde %s (%d bloques)", filename, (int)blocks.size());
 }
 
+std::vector<Item> Game::CreateItems() {
+	std::vector<Item> items;
+	// X=800, Y=600 (asumiendo que el suelo está en Y=600-650)
+	items.emplace_back(Vector2{ 800.0f, 600.0f }, ItemType::SHOTGUN);
+	return items;
+}

@@ -4,6 +4,7 @@
 
 enum class PlayerDirection { LEFT, RIGHT, UP, DOWN };
 enum class SpecialAnim { NONE, FALLING_START, CROUCH, CROUCH_SHOOT, DEATH, RESPAWN };
+enum class WeaponType { PISTOL, MACHINEGUN };
 
 struct GrenadeThrowData {
     Vector2 startPos;
@@ -80,6 +81,12 @@ public:
 
     GrenadeThrowData ThrowGrenade();
 
+    void EquipMachinegun();
+    void UseAmmo();
+    int GetAmmo() const { return machinegunAmmo; }
+    WeaponType GetCurrentWeapon() const { return currentWeapon; }
+    bool HasMachinegun() const { return machinegunAmmo > 0; }
+
 private:
     // Animación
     PlayerAnim anim;
@@ -141,4 +148,8 @@ private:
     float deathTimer = 0.0f;
     float disappearDelay = 1.0f;
     bool isDisappeared = false; 
+
+    WeaponType currentWeapon = WeaponType::PISTOL;
+    int machinegunAmmo = 0;
+    static constexpr int MACHINEGUN_MAX_AMMO = 20;
 };

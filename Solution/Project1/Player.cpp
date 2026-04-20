@@ -277,10 +277,6 @@ void Player::DrawSeparated() {
     Rectangle torsoSrc;
     Color tint = WHITE;
 
-    // DEBUG
-    TraceLog(LOG_INFO, "TORSO DEBUG - dir: %s, torsoOffsetX: %.2f, torsoDrawX: %.2f",
-        dir == PlayerDirection::LEFT ? "LEFT" : "RIGHT", torsoOffsetX, torsoDrawX);
-
     // PRIORIDAD 1: Lanzar granada (por encima del disparo)
     if (anim.IsThrowing()) {
         torsoSrc = {
@@ -763,5 +759,22 @@ GrenadeThrowData Player::ThrowGrenade() {
     }
 
     return data;
+}
+
+void Player::EquipMachinegun() {
+    currentWeapon = WeaponType::MACHINEGUN;
+    machinegunAmmo = MACHINEGUN_MAX_AMMO;
+    TraceLog(LOG_INFO, "Machinegun equipped! Ammo: %d", machinegunAmmo);
+}
+
+void Player::UseAmmo() {
+    if (currentWeapon == WeaponType::MACHINEGUN) {
+        machinegunAmmo--;
+        if (machinegunAmmo <= 0) {
+            currentWeapon = WeaponType::PISTOL;
+            machinegunAmmo = 0;
+            TraceLog(LOG_INFO, "Machinegun out of ammo, switched to pistol");
+        }
+    }
 }
 
