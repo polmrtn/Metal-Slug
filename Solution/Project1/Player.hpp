@@ -92,7 +92,7 @@ private:
     PlayerAnim anim;
 
     // Posición y física
-    Vector2 pos = { 0.0f, 100.0f };
+    Vector2 pos = { 13000.0f, 100.0f };
     Vector2 vel = { 0.0f, 0.0f };
     float inputVelX = 0.0f;  // Velocidad deseada por input (para animación)
     float previousY = 0.0f;

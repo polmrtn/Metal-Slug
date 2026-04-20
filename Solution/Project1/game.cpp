@@ -4,7 +4,7 @@
 #include <raymath.h>
 
 bool musicStarted = false;
-
+Color BGCOLOR = { 195, 195, 170 };
 Game::Game() : camera({ 1280.0f/2 , 896/2  })
 {
 	FILE* file = fopen("level_blocks.txt", "r");
@@ -181,8 +181,10 @@ void Game::Update(){
 
 		// ========== 7. DIBUJAR ==========
 		BeginDrawing();
-		ClearBackground(BLACK);
+		ClearBackground(BGCOLOR);
 		Draw();
+		backgroundManager.FollowPlayer(camera.GetCamera().target);
+		backgroundManager.Update(GetFrameTime());
 
 		// ========== 8. AUDIO ==========
 		if (!musicStarted)
