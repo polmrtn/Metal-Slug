@@ -144,8 +144,11 @@
     <ClCompile Include="AudioManager.hpp" />
     <ClCompile Include="BackgroundManager.cpp" />
     <ClCompile Include="Bullet.cpp" />
+    <ClCompile Include="BulletAnim.cpp" />
     <ClCompile Include="CameraManager.cpp" />
     <ClCompile Include="game.cpp" />
+    <ClCompile Include="Grenade.cpp" />
+    <ClCompile Include="item.cpp" />
     <ClCompile Include="LevelMap.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Player.cpp" />
@@ -158,7 +161,10 @@
   <ItemGroup>
     <ClInclude Include="BackgroundManager.hpp" />
     <ClInclude Include="Bullet.hpp" />
+    <ClInclude Include="BulletAnim.hpp" />
     <ClInclude Include="CameraManager.hpp" />
+    <ClInclude Include="Grenade.hpp" />
+    <ClInclude Include="item.hpp" />
     <ClInclude Include="playerAnim.hpp" />
     <ClInclude Include="SceneManager.hpp" />
     <ClInclude Include="Soldier.hpp" />

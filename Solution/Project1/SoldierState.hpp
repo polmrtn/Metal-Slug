@@ -6,5 +6,6 @@ enum class SoldierState {
     WALKING,
     SNEAK,
     ATTACKING,
-    DEAD
+    DEAD,
+    BOMB
 };
