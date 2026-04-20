@@ -1,31 +1,44 @@
 #include "UiManager.hpp"
 #include <cstdio>
+#include <cstring>
 
-static const float TICK_INTERVAL = 5.0f;
+// ============================================================
+//  Stale
+// ============================================================
+static const float TICK_INTERVAL = 1.0f;   // odliczanie co sekunde
+
 const float UiManager::INTRO_DURATION = 3.0f;
-const float UiManager::BLINK_INTERVAL = 0.25f;  // co ile sekund zmienia widocznosc
+const float UiManager::BLINK_INTERVAL = 0.25f;
 
+// ============================================================
+//  Konstruktor / Destruktor
+// ============================================================
 UiManager::UiManager()
+    : credits(0), score(0), level(1), timeLeft(60),
+    timeAccum(0.0f), introTimer(0.0f),
+    blinkAccum(0.0f), blinkVisible(true)
 {
-    credits = 0;
-    score = 0;
-    level = 1;
-    timeLeft = 60;
-    timeAccum = 0.0f;
-    introTimer = 0.0f;
-    blinkAccum = 0.0f;
-    blinkVisible = true;
+    texMetalNumbers = LoadTexture("Graphics/letters/metal_numbers.png");
+    texTimeNumbers = LoadTexture("Graphics/letters/time_numbers.png");
+    texYellowLetters = LoadTexture("Graphics/letters/yellow_numbers_and_letters.png");
 }
 
-UiManager::~UiManager() {}
+UiManager::~UiManager()
+{
+    UnloadTexture(texMetalNumbers);
+    UnloadTexture(texTimeNumbers);
+    UnloadTexture(texYellowLetters);
+}
 
+// ============================================================
+//  Update
+// ============================================================
 void UiManager::Update()
 {
     if (introTimer < INTRO_DURATION)
     {
         introTimer += GetFrameTime();
 
-        // miganie tylko podczas intro
         blinkAccum += GetFrameTime();
         if (blinkAccum >= BLINK_INTERVAL)
         {
@@ -51,128 +64,324 @@ bool UiManager::IsMissionIntroOver() const
     return introTimer >= INTRO_DURATION;
 }
 
+// ============================================================
+//  Rysowanie pojedynczych znakow - metal_numbers
+//  Kolejnosc w spritesheet: 1 2 3 4 5 6 7 8 9 0
+//  wiec indeks cyfry 0 -> kolumna 9, cyfry 1 -> kolumna 0, itd.
+// ============================================================
+void UiManager::DrawMetalDigit(int digit, Vector2 pos, float scale) const
+{
+    // digit: 0-9
+    int col = (digit == 0) ? 9 : digit - 1;
+
+    Rectangle src = {
+        (float)(col * METAL_W),
+        0.0f,
+        (float)METAL_W,
+        (float)METAL_H
+    };
+    Rectangle dst = {
+        pos.x,
+        pos.y,
+        (float)METAL_W * scale,
+        (float)METAL_H * scale
+    };
+    DrawTexturePro(texMetalNumbers, src, dst, { 0, 0 }, 0.0f, WHITE);
+}
+
+void UiManager::DrawMetalNumber(int value, int digits, Vector2 pos, float scale) const
+{
+    char buf[16];
+    if (digits > 0)
+        std::snprintf(buf, sizeof(buf), "%0*d", digits, value);
+    else
+        std::snprintf(buf, sizeof(buf), "%d", value);
+
+    float x = pos.x;
+    for (int i = 0; buf[i] != '\0'; ++i)
+    {
+        int d = buf[i] - '0';
+        DrawMetalDigit(d, { x, pos.y }, scale);
+        x += METAL_W * scale;
+    }
+}
+
+float UiManager::MeasureMetalNumber(int digits, float scale) const
+{
+    return digits * METAL_W * scale;
+}
+
+// ============================================================
+//  Rysowanie pojedynczych znakow - time_numbers
+//  Kolejnosc w spritesheet: 0 1 2 3 4 5 6 7 8 9 : .
+// ============================================================
+void UiManager::DrawTimeDigit(char c, Vector2 pos, float scale) const
+{
+    int col = -1;
+    if (c >= '0' && c <= '9') col = c - '0';
+    else if (c == ':')         col = 10;
+    else if (c == '.')         col = 11;
+
+    if (col < 0) return;
+
+    Rectangle src = {
+        (float)(col * TIME_W),
+        0.0f,
+        (float)TIME_W,
+        (float)TIME_H
+    };
+    Rectangle dst = {
+        pos.x,
+        pos.y,
+        (float)TIME_W * scale,
+        (float)TIME_H * scale
+    };
+    DrawTexturePro(texTimeNumbers, src, dst, { 0, 0 }, 0.0f, WHITE);
+}
+
+void UiManager::DrawTimeString(const char* str, Vector2 pos, float scale) const
+{
+    float x = pos.x;
+    for (int i = 0; str[i] != '\0'; ++i)
+    {
+        DrawTimeDigit(str[i], { x, pos.y }, scale);
+        x += TIME_W * scale;
+    }
+}
+
+float UiManager::MeasureTimeString(const char* str, float scale) const
+{
+    int len = 0;
+    for (int i = 0; str[i] != '\0'; ++i) ++len;
+    return len * TIME_W * scale;
+}
+
+// ============================================================
+//  Rysowanie pojedynczych znakow - yellow_letters
+//  Kolejnosc: A-Z (26) + 0-9 (10) + ! ?   = 38 znakow, 32px kazdy
+// ============================================================
+void UiManager::DrawYellowChar(char c, Vector2 pos, float scale) const
+{
+    int col = -1;
+
+    if (c >= 'A' && c <= 'Z')        col = c - 'A';          // 0-25
+    else if (c >= 'a' && c <= 'z')   col = c - 'a';          // tez 0-25 (male jak duze)
+    else if (c >= '0' && c <= '9')   col = 26 + (c - '0');   // 26-35
+    else if (c == '!')                col = 36;
+    else if (c == '?')                col = 37;
+    // spacja i inne: pomijamy
+
+    if (col < 0) return;
+
+    Rectangle src = {
+        (float)(col * YELLOW_W),
+        0.0f,
+        (float)YELLOW_W,
+        (float)YELLOW_H
+    };
+    Rectangle dst = {
+        pos.x,
+        pos.y,
+        (float)YELLOW_W * scale,
+        (float)YELLOW_H * scale
+    };
+    DrawTexturePro(texYellowLetters, src, dst, { 0, 0 }, 0.0f, WHITE);
+}
+
+void UiManager::DrawYellowText(const char* str, Vector2 pos, float scale) const
+{
+    float x = pos.x;
+    for (int i = 0; str[i] != '\0'; ++i)
+    {
+        if (str[i] == ' ')
+        {
+            x += YELLOW_W * scale * 0.6f;  // spacja = 60% szerokosci znaku
+            continue;
+        }
+        DrawYellowChar(str[i], { x, pos.y }, scale);
+        x += YELLOW_W * scale;
+    }
+}
+
+float UiManager::MeasureYellowText(const char* str, float scale) const
+{
+    float w = 0.0f;
+    for (int i = 0; str[i] != '\0'; ++i)
+    {
+        if (str[i] == ' ')
+            w += YELLOW_W * scale * 0.6f;
+        else
+            w += YELLOW_W * scale;
+    }
+    return w;
+}
+
+// ============================================================
+//  DrawMissionIntro
+// ============================================================
 void UiManager::DrawMissionIntro()
 {
     if (IsMissionIntroOver()) return;
-    if (!blinkVisible) return;      // miganie - co druga klatka nie rysuj
+    if (!blinkVisible)        return;
 
     int screenW = GetScreenWidth();
     int screenH = GetScreenHeight();
 
-    char missionText[32];
+    // "MISSION X" - skalujemy yellow_letters do rozmiaru ~72px (scale = 72/32 = 2.25)
+    float bigScale = 2.25f;
+    float smallScale = 1.125f;  // ~36px
+
+    char missionText[16];
     std::snprintf(missionText, sizeof(missionText), "MISSION %d", level);
 
-    int bigSize = 72;
-    int mw = MeasureText(missionText, bigSize);
-    int mx = screenW / 2 - mw / 2;
-    int my = screenH / 2 - bigSize;
+    float mw = MeasureYellowText(missionText, bigScale);
+    float mx = screenW / 2.0f - mw / 2.0f;
+    float my = screenH / 2.0f - YELLOW_H * bigScale;
 
-    DrawText(missionText, mx + 3, my + 3, bigSize, BLACK);
-    DrawText(missionText, mx, my, bigSize, WHITE);
+    DrawYellowText(missionText, { mx, my }, bigScale);
 
-    char startText[] = "Start!";
-    int smallSize = 36;
-    int sw = MeasureText(startText, smallSize);
-    int sx = screenW / 2 - sw / 2;
-    int sy = my + bigSize + 16;
+    // "Start!" pod spodem
+    const char* startText = "START";
+    float sw = MeasureYellowText(startText, smallScale);
+    float sx = screenW / 2.0f - sw / 2.0f;
+    float sy = my + YELLOW_H * bigScale + 16.0f;
 
-    DrawText(startText, sx + 2, sy + 2, smallSize, BLACK);
-    DrawText(startText, sx, sy, smallSize, YELLOW);
+    DrawYellowText(startText, { sx, sy }, smallScale);
 }
 
+// ============================================================
+//  DrawCredits  (glowne HUD)
+// ============================================================
 void UiManager::DrawCredits(Camera2D camera)
 {
-    int fontSize = 32;
-    int labelSize = 24;
-    int padding = 16;
-    int screenW = GetScreenWidth();
-    int screenH = GetScreenHeight();
+    int   screenW = GetScreenWidth();
+    int   screenH = GetScreenHeight();
 
-    // offset od krawedzi - taki sam dla SCORE i CREDITS
-    char scoreValue[32];
-    std::snprintf(scoreValue, sizeof(scoreValue), "%07d", score);
-    int scoreBlockW = MeasureText(scoreValue, fontSize);
-    int offsetFromEdge = screenW / 4 - scoreBlockW / 2;
+    Color silver = { 192, 192, 192, 255 };
 
-    // --- SCORE - lewy gorny ---
-    char scoreLabel[] = "SCORE";
-    int sx = offsetFromEdge;
-    int sy = padding;
+    // Duze skale - wyraznie widoczne
+    float labelScale = 1.1f;   // ARMS, BOMB, INF
+    float scoreScale = 1.1f;   // 1UP
+    float metalScale = 0.75f;  // cyfry score - mniejsze
+    float timerScale = 4.5f;   // timer
+    float bottomScale = 1.1f;   // LEVEL, CREDIT
 
-    DrawText(scoreLabel, sx + 2, sy + 2, labelSize, BLACK);
-    DrawText(scoreLabel, sx, sy, labelSize, YELLOW);
-    DrawText(scoreValue, sx + 2, sy + labelSize + 4 + 2, fontSize, BLACK);
-    DrawText(scoreValue, sx, sy + labelSize + 4, fontSize, WHITE);
+    float topY = 4.0f;
+    float padL = 30.0f;
+    float padR = 20.0f;
+    float bottomY = (float)screenH - YELLOW_H * bottomScale - 8.0f;
 
-    // --- AMMO - miedzy SCORE a TIME ---
-    int ammoX = screenW / 4 + screenW / 8 - MeasureText("AMMO", labelSize) / 2;
-    int ammoY = padding;
+    // --- pomocnicza lambda do srebrnego tekstu ---
+    auto DrawSilver = [&](const char* str, float x, float y, float scale)
+        {
+            for (int i = 0; str[i] != '\0'; ++i)
+            {
+                char c = str[i];
+                if (c == ' ') { x += YELLOW_W * scale * 0.6f; continue; }
+                if (c == '-') { x += YELLOW_W * scale * 0.4f; continue; }
+                int col = -1;
+                if (c >= 'A' && c <= 'Z')      col = c - 'A';
+                else if (c >= 'a' && c <= 'z') col = c - 'a';
+                else if (c >= '0' && c <= '9') col = 26 + (c - '0');
+                else if (c == '!')             col = 36;
+                else if (c == '?')             col = 37;
+                if (col < 0) { x += YELLOW_W * scale; continue; }
+                Rectangle src = { (float)(col * YELLOW_W), 0.0f, (float)YELLOW_W, (float)YELLOW_H };
+                Rectangle dst = { x, y, YELLOW_W * scale, YELLOW_H * scale };
+                DrawTexturePro(texYellowLetters, src, dst, { 0, 0 }, 0.0f, silver);
+                x += YELLOW_W * scale;
+            }
+        };
 
-    char ammoLabel[] = "AMMO";
-    char ammoSymbol[] = "\xe2\x88\x9e";
+    // --------------------------------------------------------
+    //  1UP + SCORE  - lewy gorny
+    // --------------------------------------------------------
+    {
+        float lx = padL;
+        float ly = topY;
+        DrawYellowText("1UP", { lx, ly }, scoreScale);
+        float scoreY = ly + YELLOW_H * scoreScale + 2.0f;
+        DrawMetalNumber(score, 7, { lx, scoreY }, metalScale);
+    }
 
-    DrawText(ammoLabel, ammoX + 2, ammoY + 2, labelSize, BLACK);
-    DrawText(ammoLabel, ammoX, ammoY, labelSize, YELLOW);
-    DrawText(ammoSymbol, ammoX + 2, ammoY + labelSize + 4 + 2, fontSize, BLACK);
-    DrawText(ammoSymbol, ammoX, ammoY + labelSize + 4, fontSize, WHITE);
+    // --------------------------------------------------------
+    //  ARMS + BOMB  - po lewej stronie (1/4 ekranu)
+    // --------------------------------------------------------
+    {
+        float cx = padL + MeasureMetalNumber(7, metalScale) + 8.0f;
+        float ly = topY;
+        float ammoY = ly + YELLOW_H * labelScale + 2.0f;
 
-    // --- TIMER - srodek na gorze ---
-    int timerSize = 56;
+        DrawSilver("ARMS", cx, ly, labelScale);
+        DrawSilver("INF", cx, ammoY, labelScale);
 
-    char timerText[8];
-    std::snprintf(timerText, sizeof(timerText), "%d", timeLeft);
-    Color timerColor = (timeLeft <= 10) ? RED : WHITE;
+        float bombX = cx + MeasureYellowText("ARMS", labelScale) + 16.0f;
+        DrawSilver("BOMB", bombX, ly, labelScale);
+        DrawMetalNumber(10, 2, { bombX, ammoY }, metalScale * 0.75f);
+    }
 
-    int tw = MeasureText(timerText, timerSize);
-    int tx = screenW / 2 - tw / 2;
-    int ty = padding;
+    // --------------------------------------------------------
+    //  TIMER - dokladnie na srodku
+    // --------------------------------------------------------
+    {
+        char timerStr[8];
+        std::snprintf(timerStr, sizeof(timerStr), "%d", timeLeft);
+        float timerW = MeasureTimeString(timerStr, timerScale);
+        float tx = screenW / 2.0f - timerW / 2.0f;
+        float ty = topY;
 
-    char timeLabel[] = "TIME";
-    int  tlw = MeasureText(timeLabel, labelSize);
-    int  tlx = screenW / 2 - tlw / 2;
+        Color timerTint = (timeLeft <= 10) ? RED : WHITE;
+        float x = tx;
+        for (int i = 0; timerStr[i] != '\0'; ++i)
+        {
+            int col = timerStr[i] - '0';
+            Rectangle src = { (float)(col * TIME_W), 0.0f, (float)TIME_W, (float)TIME_H };
+            Rectangle dst = { x, ty, (float)TIME_W * timerScale, (float)TIME_H * timerScale };
+            DrawTexturePro(texTimeNumbers, src, dst, { 0, 0 }, 0.0f, timerTint);
+            x += TIME_W * timerScale;
+        }
+    }
 
-    DrawText(timeLabel, tlx + 2, ty + 2, labelSize, BLACK);
-    DrawText(timeLabel, tlx, ty, labelSize, YELLOW);
-    DrawText(timerText, tx + 2, ty + labelSize + 4 + 2, timerSize, BLACK);
-    DrawText(timerText, tx, ty + labelSize + 4, timerSize, timerColor);
+    // --------------------------------------------------------
+    //  LEVEL  - dol lewy, srebrny
+    // --------------------------------------------------------
+    {
+        char levelText[16];
+        std::snprintf(levelText, sizeof(levelText), "LEVEL-%d", level);
+        DrawSilver(levelText, padL, bottomY, bottomScale);
+    }
 
-    // --- CREDITS - dol po prawej, symetrycznie do SCORE ---
-    char creditsLabel[] = "CREDITS";
-    char creditsValue[8];
-    std::snprintf(creditsValue, sizeof(creditsValue), "%02d", credits);
+    // --------------------------------------------------------
+    //  CREDIT + numer  - dol prawy, srebrny
+    // --------------------------------------------------------
+    {
+        char credStr[8];
+        std::snprintf(credStr, sizeof(credStr), "%02d", credits);
+        float totalW = MeasureYellowText("CREDIT", bottomScale)
+            + 8.0f
+            + MeasureYellowText(credStr, bottomScale);
+        float cx = (float)screenW - totalW - padR;
+        DrawSilver("CREDIT", cx, bottomY, bottomScale);
+        DrawSilver(credStr, cx + MeasureYellowText("CREDIT", bottomScale) + 8.0f, bottomY, bottomScale);
+    }
 
-    int creditsValueW = MeasureText(creditsValue, fontSize);
-    int cx = screenW - offsetFromEdge - creditsValueW;
-    int cy = screenH - labelSize - fontSize - padding - 4;
-
-    DrawText(creditsLabel, cx + 2, cy + 2, labelSize, BLACK);
-    DrawText(creditsLabel, cx, cy, labelSize, YELLOW);
-    DrawText(creditsValue, cx + 2, cy + labelSize + 4 + 2, fontSize, BLACK);
-    DrawText(creditsValue, cx, cy + labelSize + 4, fontSize, WHITE);
-
-    // --- LEVEL - dol na srodku ---
-    char levelText[32];
-    std::snprintf(levelText, sizeof(levelText), "LEVEL %d", level);
-
-    int lw = MeasureText(levelText, fontSize);
-    int lx = screenW / 2 - lw / 2;
-    int ly = screenH - fontSize - padding;
-
-    DrawText(levelText, lx + 2, ly + 2, fontSize, BLACK);
-    DrawText(levelText, lx, ly, fontSize, WHITE);
-
-    // --- MISSION INTRO ---
+    // --------------------------------------------------------
+    //  MISSION INTRO
+    // --------------------------------------------------------
     DrawMissionIntro();
 }
 
+// ============================================================
+//  Settery / Gettery
+// ============================================================
 void UiManager::SetCredits(int amount)
 {
     credits += amount;
     if (credits > 99) credits = 99;
-    if (credits < 0) credits = 0;
+    if (credits < 0)  credits = 0;
 }
 
-int UiManager::GetCredits() const { return credits; }
+int  UiManager::GetCredits()  const { return credits; }
 
 void UiManager::AddScore(int amount)
 {

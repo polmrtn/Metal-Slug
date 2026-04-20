@@ -152,6 +152,7 @@ void Game::Update(){
 		ClearBackground(BLACK);
 		Draw();
 		Timers();
+		
 
 		// ========== 8. AUDIO ==========
 		if (!musicStarted)
