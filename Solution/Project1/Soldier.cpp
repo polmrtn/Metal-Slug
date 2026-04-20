@@ -253,9 +253,10 @@ void Soldier::UpdateAI(Player& player)
     if (currentState == SoldierState::IDLE && isGrounded && isAlive) {
        
         velocity.x = 0;
+        hasShot = false;
     }
     else if (currentState == SoldierState::WALKING && isGrounded && isAlive) {
-        
+        hasShot = false;
         if (direction == 1) {
             velocity.x = 5;
             facingRight = true;
@@ -270,16 +271,16 @@ void Soldier::UpdateAI(Player& player)
         velocity.x = 0;
 
         if (soldierAnim.IsAnimationFinished()) {
-            if (soldierAnim.IsAttackPeak() && GetType()== 1) {
+            if (soldierAnim.IsAttackPeak() && GetType() == 1) {
                 Attack(player);
             }
             else if (GetType() == 2)
             {
                 TraceLog(LOG_INFO, "Soldier bomba ");
             }
-            SetSoliderState(SoldierState::IDLE); 
+             // ← resetear aquí
+            SetSoliderState(SoldierState::IDLE);
         }
-        
         return;
     }
     else if(currentState == SoldierState::DEAD && !isAlive)
@@ -290,6 +291,7 @@ void Soldier::UpdateAI(Player& player)
 
     }
     else if (currentState == SoldierState::SNEAK && isAlive && isGrounded) {
+        hasShot = false;
         if (direction == 1) {
             velocity.x = 2;
             facingRight = true;
