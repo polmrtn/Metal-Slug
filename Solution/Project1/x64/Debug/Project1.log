@@ -1,8 +1,17 @@
-﻿  game.cpp
-C:\Users\polmd\Documents\GitHub\Metalborne2\Solution\Project1\game.cpp(59,16): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\polmd\Documents\GitHub\Metalborne2\Solution\Project1\game.cpp(62,16): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\polmd\Documents\GitHub\Metalborne2\Solution\Project1\game.cpp(668,25): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\polmd\Documents\GitHub\Metalborne2\Solution\Project1\game.cpp(669,26): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+﻿  LevelMap.cpp
+  game.cpp
+C:\Users\polmd\Documents\GitHub\Metalborne2\Solution\Project1\LevelMap.cpp(13,55): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\polmd\Documents\GitHub\Metalborne2\Solution\Project1\LevelMap.cpp(13,43): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\polmd\Documents\GitHub\Metalborne2\Solution\Project1\LevelMap.cpp(13,35): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\polmd\Documents\GitHub\Metalborne2\Solution\Project1\LevelMap.cpp(13,27): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\polmd\Documents\GitHub\Metalborne2\Solution\Project1\LevelMap.cpp(16,55): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\polmd\Documents\GitHub\Metalborne2\Solution\Project1\LevelMap.cpp(16,43): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\polmd\Documents\GitHub\Metalborne2\Solution\Project1\LevelMap.cpp(16,35): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\polmd\Documents\GitHub\Metalborne2\Solution\Project1\LevelMap.cpp(16,27): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\polmd\Documents\GitHub\Metalborne2\Solution\Project1\game.cpp(64,16): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\polmd\Documents\GitHub\Metalborne2\Solution\Project1\game.cpp(67,16): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\polmd\Documents\GitHub\Metalborne2\Solution\Project1\game.cpp(695,25): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\polmd\Documents\GitHub\Metalborne2\Solution\Project1\game.cpp(696,26): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
 C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\xmemory(732,103): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
   (compiling source file 'game.cpp')
       C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\xmemory(732,103):
@@ -32,4 +41,5 @@ C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.3520
               _Objty=Bullet
           ]
   
+  Generating Code...
   Project1.vcxproj -> C:\Users\polmd\Documents\GitHub\Metalborne2\Solution\x64\Debug\Project1.exe

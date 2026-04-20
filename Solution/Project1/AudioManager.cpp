@@ -38,7 +38,7 @@ void AudioManager::StopSound(Sound sound)
 
 AudioManager::~AudioManager()
 {
-
     UnloadSound(gameSound);
     UnloadMusicStream(titleMusic);
+    UnloadMusicStream(gameMusic);
 }

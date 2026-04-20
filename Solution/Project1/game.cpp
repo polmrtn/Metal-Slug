@@ -35,12 +35,17 @@ void Game::Draw()
 	for (auto& Soldier : soldiers) {
 		Soldier.Draw();
 	}
-
+	// Dibujar bloques con rotación
+	for (auto& block : blocks) {
+		if (block.GetRotation() != 0.0f) {
+			block.Draw(block.GetRotation());
+		}
+		else {
+			block.Draw();
+		}
+	}
 	for (auto& bullet : bullets) {
 		bullet.Draw();
-	}
-	for (auto& block : blocks) {
-		block.Draw();
 	}
 	for (auto& grenade : grenades) {
 		grenade.Draw();
@@ -74,11 +79,6 @@ void Game::Draw()
 	}
 	
 }
-
-//void Game::Timers()
-//{
-//	shootTimer += GetFrameTime();
-//}
 
 void Game::Update(){
 
@@ -374,10 +374,11 @@ void Game::HandleInput()
 	}
 
 	if (editorMode) {
-		if (IsKeyDown(KEY_W)) gridOffset.y -= 5;
-		if (IsKeyDown(KEY_S)) gridOffset.y += 5;
-		if (IsKeyDown(KEY_A)) gridOffset.x -= 5;
-		if (IsKeyDown(KEY_D)) gridOffset.x += 5;
+		// Mover grid con WASD
+		if (IsKeyDown(KEY_W)) gridOffset.y -= 1;
+		if (IsKeyDown(KEY_S)) gridOffset.y += 1;
+		if (IsKeyDown(KEY_A)) gridOffset.x -= 1;
+		if (IsKeyDown(KEY_D)) gridOffset.x += 1;
 
 		Vector2 mousePos = GetMousePosition();
 		Vector2 worldPos = camera.GetScreenToWorld(mousePos);
@@ -388,12 +389,15 @@ void Game::HandleInput()
 		float blockX = gridOffset.x + tileX * gridSize;
 		float blockY = gridOffset.y + tileY * gridSize;
 
+		// Click izquierdo: añadir suelo sólido
 		if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
 			blocks.emplace_back(blockX, blockY, gridSize, gridSize, true);
 		}
+		// Click derecho: añadir plataforma
 		if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) {
 			blocks.emplace_back(blockX, blockY, gridSize, gridSize, false);
 		}
+		// Click medio: borrar bloque
 		if (IsMouseButtonPressed(MOUSE_BUTTON_MIDDLE)) {
 			auto it = std::remove_if(blocks.begin(), blocks.end(),
 				[blockX, blockY](const Block& b) {
@@ -401,6 +405,29 @@ void Game::HandleInput()
 				});
 			blocks.erase(it, blocks.end());
 		}
+
+		// ========== ROTAR BLOQUE SELECCIONADO ==========
+		if (IsKeyPressed(KEY_P)) {
+			TraceLog(LOG_INFO, "P key pressed, checking blocks...");
+			TraceLog(LOG_INFO, "World position: (%.0f, %.0f)", worldPos.x, worldPos.y);
+			TraceLog(LOG_INFO, "Number of blocks: %d", (int)blocks.size());
+
+			for (auto& block : blocks) {
+				Rectangle rect = block.GetRect();
+				TraceLog(LOG_INFO, "Block at (%.0f, %.0f) size (%.0f, %.0f)",
+					rect.x, rect.y, rect.width, rect.height);
+
+				if (CheckCollisionPointRec(worldPos, rect)) {
+					float newRot = block.GetRotation() + 45.0f;
+					if (newRot >= 360.0f) newRot = 0.0f;
+					block.SetRotation(newRot);
+					TraceLog(LOG_INFO, "Block rotated to: %.0f", newRot);
+					break;
+				}
+			}
+		}
+
+		// Guardar nivel
 		if (IsKeyPressed(KEY_F5)) {
 			SaveBlocksToFile("level_blocks.txt");
 		}
@@ -685,19 +712,16 @@ std::vector<Block> Game::CreateBlocks()
 void Game::SaveBlocksToFile(const char* filename) {
 	FILE* file;
 	fopen_s(&file, filename, "w");
-	if (!file) {
-		TraceLog(LOG_ERROR, "No se pudo guardar el archivo %s", filename);
-		return;
-	}
+	if (!file) return;
 
 	for (const auto& block : blocks) {
 		Rectangle rect = block.GetRect();
-		fprintf(file, "%.0f,%.0f,%.0f,%.0f,%d\n",
-			rect.x, rect.y, rect.width, rect.height, block.IsGround() ? 1 : 0);
+		fprintf(file, "%.0f,%.0f,%.0f,%.0f,%d,%.0f\n",
+			rect.x, rect.y, rect.width, rect.height,
+			block.IsGround() ? 1 : 0,
+			block.GetRotation());  // ← Guardar rotación
 	}
-
 	fclose(file);
-	TraceLog(LOG_INFO, "Bloques guardados en %s (%d bloques)", filename, (int)blocks.size());
 }
 
 void Game::LoadBlocksFromFile(const char* filename) {
@@ -709,10 +733,29 @@ void Game::LoadBlocksFromFile(const char* filename) {
 		return;
 	}
 
-	float x, y, w, h;
+	float x, y, w, h, rotation = 0.0f;
 	int isGround;
-	while (fscanf_s(file, "%f,%f,%f,%f,%d\n", &x, &y, &w, &h, &isGround) == 5) {
-		blocks.emplace_back(x, y, w, h, isGround == 1);
+	int valoresLeidos;
+
+	while (true) {
+		// Intentar leer 6 valores (formato nuevo con rotación)
+		valoresLeidos = fscanf_s(file, "%f,%f,%f,%f,%d,%f\n", &x, &y, &w, &h, &isGround, &rotation);
+
+		if (valoresLeidos == 6) {
+			// Formato nuevo con rotación
+			Block block(x, y, w, h, isGround == 1);
+			block.SetRotation(rotation);
+			blocks.emplace_back(block);
+		}
+		else if (valoresLeidos == 5) {
+			// Formato viejo sin rotación
+			Block block(x, y, w, h, isGround == 1);
+			block.SetRotation(0.0f);
+			blocks.emplace_back(block);
+		}
+		else {
+			break;  // Fin del archivo o error
+		}
 	}
 
 	fclose(file);
