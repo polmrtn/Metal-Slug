@@ -10,52 +10,76 @@
 #include "UiManager.hpp"
 #include "SoldierAnim.hpp"
 #include "Grenade.hpp" 
+#include "Item.hpp"
 #include "BulletAnim.hpp"
 #include <vector>
 
-
 class Game {
-	public:
-		Game();
-		~Game();
-		void Draw();
-		void Update();
-		void HandleInput();
-		void BlockCollisions();
-		void Shoot(int BulletType, Vector2 startPos, bool faceRight);
-		void Shoot();
-		void ThrowGrenade();
-		void Timers();
-		void BulletsCollision();
-		void ResolveCollisions();
-		void GrenadesCollision();
-		// En la secci�n public o private, al final
-		void SaveBlocksToFile(const char* filename);
-		void LoadBlocksFromFile(const char* filename);
-	private:
-		float shootTimer = 0.0f;
-		float shootDelay = 1.0f;
-		float grenadeCooldown = 0.0f;
-		float grenadeDelay = 1.0f;
-		SoldierAnim soldierAnim;
-		CameraManager camera;
-		
-		BulletAnim bulletAnim;
-		Player player;
-		UiManager UiManager;
-		AudioManager audioManager;
-		SceneManager sceneManager;
-		BackgroundManager backgroundManager;
-		std::vector<Bullet> bullets;
-		std::vector<Bullet> CreateBullets();
-		std::vector<Soldier> soldiers; 
-		std::vector<Soldier> CreateSoldiers();
-		std::vector<Block> blocks;
-		std::vector<Block> CreateBlocks();
-		std::vector<Grenade> grenades;
+public:
+	Game();
+	~Game();
 
-		// Modo editor
-		bool editorMode = false;
-		float gridSize = 50.0f;
-		Vector2 gridOffset = { 0.0f, 0.0f };
+    // Ciclo principal
+    void Update();
+    void Draw();
+
+    // Input
+    void HandleInput();
+
+    // Disparo y granadas
+    void Shoot();
+    void Shoot(int BulletType, Vector2 startPos, bool faceRight);
+    void ThrowGrenade();
+
+    // Colisiones
+    void ResolveCollisions();
+    void BlockCollisions();
+    void BulletsCollision();
+    void GrenadesCollision();
+
+    // Guardar/Cargar nivel
+    void SaveBlocksToFile(const char* filename);
+    void LoadBlocksFromFile(const char* filename);
+
+private:
+    // ========== TEMPORIZADORES ==========
+    float shootTimer = 0.0f;
+    float grenadeCooldown = 0.0f;
+
+    // Delays de armas
+    float shootDelayPistol = 0.2f;
+    float shootDelayMachinegun = 0.1f;
+    float grenadeDelay = 1.0f;
+
+    // ========== GESTORES ==========
+    CameraManager camera;
+    BackgroundManager backgroundManager;
+    AudioManager audioManager;
+    SceneManager sceneManager;
+    UiManager UiManager;
+    BulletAnim bulletAnim;
+
+    // ========== JUGADOR ==========
+    Player player;
+
+    // ========== ENTIDADES ==========
+    std::vector<Bullet> bullets;
+    std::vector<Soldier> soldiers;
+    std::vector<Grenade> grenades;
+    std::vector<Item> items;
+    std::vector<Block> blocks;
+
+    // ========== ANIMACIONES ==========
+    SoldierAnim soldierAnim;
+
+    // ========== M�TODOS DE CREACI�N ==========
+    std::vector<Bullet> CreateBullets();
+    std::vector<Soldier> CreateSoldiers();
+    std::vector<Block> CreateBlocks();
+    std::vector<Item> CreateItems();
+
+    // ========== MODO EDITOR ==========
+    bool editorMode = false;
+    float gridSize = 50.0f;
+    Vector2 gridOffset = { 0.0f, 0.0f };
 };

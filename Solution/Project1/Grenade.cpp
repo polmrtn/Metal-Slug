@@ -40,8 +40,6 @@ void Grenade::Update() {
     if (!isActive) return;
 
     if (hasExploded) {
-        TraceLog(LOG_INFO, "Updating explosion - Frame: %d", explosionFrame);
-
         explosionAnimTimer += GetFrameTime();
         if (explosionAnimTimer >= explosionFrameDelay) {
             explosionAnimTimer = 0.0f;
@@ -49,20 +47,17 @@ void Grenade::Update() {
             if (explosionFrame >= explosionTotalFrames) {
                 explosionFrame = explosionTotalFrames - 1;
                 isExploding = false;
-                TraceLog(LOG_INFO, "Explosion animation finished");
             }
         }
 
         explosionTimer += GetFrameTime();
-        // NO desactivar hasta que la animación termine
         if (explosionTimer >= explosionDuration && explosionFrame >= explosionTotalFrames - 1) {
             isActive = false;
-            TraceLog(LOG_INFO, "Grenade deactivated after explosion");
         }
         return;
     }
 
-    // Actualizar animación
+    // Actualizar animación de la granada
     animationTimer += GetFrameTime();
     if (animationTimer >= frameDelay) {
         animationTimer = 0.0f;
@@ -72,31 +67,24 @@ void Grenade::Update() {
         }
     }
 
-    // Guardar posición anterior
-    float previousY = position.y;
-
     velocity.y += gravity * GetFrameTime();
     position.x += velocity.x * GetFrameTime();
     position.y += velocity.y * GetFrameTime();
 
     // ========== REBOTE EN EL SUELO ==========
-    // Detectar colisión con el suelo (targetPos.y es el nivel del suelo)
     if (position.y >= targetPos.y && !hasBounced && !hasExploded) {
-        position.y = targetPos.y;                 // Ajustar al suelo
-        velocity.y = -velocity.y * bounceDamping; // Rebote vertical
-        velocity.x = velocity.x * bounceDamping;   // Reducción horizontal
+        position.y = targetPos.y;
+        velocity.y = -velocity.y * bounceDamping;
+        // No reducir velocidad horizontal para mantener la dirección
         hasBounced = true;
-        TraceLog(LOG_INFO, "Grenade bounced! VelY: %.2f", velocity.y);
+        TraceLog(LOG_INFO, "Grenade bounced! VelY: %.2f, VelX: %.2f", velocity.y, velocity.x);
     }
     // Si ya rebotó y toca el suelo de nuevo, explotar
     else if (position.y >= targetPos.y && hasBounced && !hasExploded) {
         Explode();
     }
 
-    // Límite para no irse demasiado lejos
-    if (position.x > targetPos.x + 300 || position.x < startPos.x - 300) {
-        if (!hasExploded) Explode();
-    }
+    // ELIMINA o COMENTA el límite de distancia
 }
 
 void Grenade::Explode() {
@@ -189,7 +177,7 @@ void Grenade::Draw() {
 
     float scale = 3.0f;
     Rectangle destRect = {
-        position.x - (frameWidth * scale) / 2,
+        position.x - (frameWidth * scale) / 2 + 90.0f,
         position.y - (frameHeight * scale) / 2,
         frameWidth * scale,
         frameHeight * scale
