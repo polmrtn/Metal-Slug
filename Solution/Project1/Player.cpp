@@ -239,7 +239,7 @@ GrenadeThrowData Player::ThrowGrenade() {
             anim.StartMachinegunCrouchThrow();
         }
         else {
-            anim.StartThrow(); // o el throw agachado de pistola si lo tienes
+            anim.StartCrouchThrow();
         }
     }
     else if (currentWeapon == WeaponType::MACHINEGUN) {
@@ -508,6 +508,26 @@ void Player::DrawCrouch() {
     }
 
     // ========== PISTOLA CROUCH ==========
+
+    if (anim.IsCrouchThrowing()) {
+        rowY = anim.GetCrouchThrowRowY();
+        currentHeight = 34.0f;
+        yOffset = -25.0f;  // ajustar a ojo
+        sourceRect = {
+            (float)(anim.GetCrouchThrowFrame() * 68.0f),
+            rowY,
+            anim.GetCrouchThrowW(),
+            currentHeight
+        };
+        if (dir == PlayerDirection::LEFT) {
+            sourceRect.width = -anim.GetCrouchThrowW();
+            drawX = pos.x - (anim.GetCrouchThrowW() - 34.0f) * SCALE;
+        }
+        Rectangle destRect = { drawX, pos.y + yOffset, anim.GetCrouchThrowW() * SCALE, currentHeight * SCALE };
+        DrawTexturePro(anim.GetSheet(), sourceRect, destRect, { 0,0 }, 0, WHITE);
+        return;
+    }
+
     if (anim.IsCrouchShooting()) {
         rowY = anim.GetCrouchShootRowY();
         currentHeight = 34.0f;

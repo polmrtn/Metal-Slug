@@ -212,18 +212,14 @@ void PlayerAnim::Update(bool grounded, float velX, bool crouchingInput, bool aim
         // Granada agachado
         if (machinegunCrouchThrowing) {
             machinegunCrouchThrowTimer += dt;
-            if (machinegunCrouchThrowTimer >= machinegunCrouchThrowDelay) {
+            float currentDelay = (machinegunCrouchThrowFrame >= 4) ? machinegunCrouchThrowEndDelay : machinegunCrouchThrowDelay;
+            if (machinegunCrouchThrowTimer >= currentDelay) {
                 machinegunCrouchThrowTimer = 0.0f;
                 machinegunCrouchThrowFrame++;
                 if (machinegunCrouchThrowFrame >= machinegunCrouchThrowFrameCount) {
-                    machinegunCrouchThrowFrame = machinegunCrouchThrowFrameCount - 1;
+                    machinegunCrouchThrowFrame = 0;
+                    machinegunCrouchThrowing = false;
                 }
-            }
-            machinegunCrouchThrowCooldown += dt;
-            if (machinegunCrouchThrowCooldown >= machinegunCrouchThrowCooldownMax) {
-                machinegunCrouchThrowing = false;
-                machinegunCrouchThrowFrame = 0;
-                machinegunCrouchThrowCooldown = 0.0f;
             }
         }
 
@@ -287,6 +283,8 @@ void PlayerAnim::Update(bool grounded, float velX, bool crouchingInput, bool aim
         crouchTimer = 0.0f;
         crouchWalkFrame = 0;
         crouchShootFrame = 0;
+        crouchThrowFrame = 0;  
+        crouchThrowing = false;
     }
 
     if (crouching) {
@@ -298,6 +296,19 @@ void PlayerAnim::Update(bool grounded, float velX, bool crouchingInput, bool aim
                 if (crouchShootFrame >= crouchShootFrameCount) {
                     crouchShootFrame = 0;
                     crouchShooting = false;
+                }
+            }
+        }
+
+        if (crouchThrowing) {
+            crouchThrowTimer += dt;
+            float currentDelay = (crouchThrowFrame >= 4) ? crouchThrowEndDelay : crouchThrowDelay;
+            if (crouchThrowTimer >= currentDelay) {
+                crouchThrowTimer = 0.0f;
+                crouchThrowFrame++;
+                if (crouchThrowFrame >= crouchThrowFrameCount) {
+                    crouchThrowFrame = 0;
+                    crouchThrowing = false;
                 }
             }
         }
@@ -551,4 +562,11 @@ void PlayerAnim::StartMachinegunCrouchShoot() {
     machinegunCrouchShooting = true;
     machinegunCrouchShootFrame = 0;
     machinegunCrouchShootTimer = 0.0f;
+}
+
+void PlayerAnim::StartCrouchThrow() {
+    if (crouchThrowing) return;
+    crouchThrowing = true;
+    crouchThrowFrame = 0;
+    crouchThrowTimer = 0.0f;
 }
