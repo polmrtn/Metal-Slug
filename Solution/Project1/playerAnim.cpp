@@ -134,6 +134,7 @@ void PlayerAnim::Update(bool grounded, float velX, bool crouchingInput, bool aim
             }
         }
 
+
         // ========== AIMING UP (pistola) ==========
         if (aimingUpInput && !aimingUp) {
             aimingUp = true;
@@ -193,6 +194,80 @@ void PlayerAnim::Update(bool grounded, float velX, bool crouchingInput, bool aim
             }
         }
     }
+
+    if (machinegunCrouching) {
+        // Disparo agachado
+        if (machinegunCrouchShooting) {
+            machinegunCrouchShootTimer += dt;
+            if (machinegunCrouchShootTimer >= machinegunCrouchShootDelay) {
+                machinegunCrouchShootTimer = 0.0f;
+                machinegunCrouchShootFrame++;
+                if (machinegunCrouchShootFrame >= machinegunCrouchShootFrameCount) {
+                    machinegunCrouchShootFrame = 0;
+                    machinegunCrouchShooting = false;
+                }
+            }
+        }
+
+        // Granada agachado
+        if (machinegunCrouchThrowing) {
+            machinegunCrouchThrowTimer += dt;
+            if (machinegunCrouchThrowTimer >= machinegunCrouchThrowDelay) {
+                machinegunCrouchThrowTimer = 0.0f;
+                machinegunCrouchThrowFrame++;
+                if (machinegunCrouchThrowFrame >= machinegunCrouchThrowFrameCount) {
+                    machinegunCrouchThrowFrame = machinegunCrouchThrowFrameCount - 1;
+                }
+            }
+            machinegunCrouchThrowCooldown += dt;
+            if (machinegunCrouchThrowCooldown >= machinegunCrouchThrowCooldownMax) {
+                machinegunCrouchThrowing = false;
+                machinegunCrouchThrowFrame = 0;
+                machinegunCrouchThrowCooldown = 0.0f;
+            }
+        }
+
+        // Caminar agachado
+        if (velX != 0 && !machinegunCrouchTransition && !machinegunCrouchShooting && !machinegunCrouchThrowing) {
+            machinegunCrouchWalking = true;
+            machinegunCrouchWalkTimer += dt;
+            if (machinegunCrouchWalkTimer >= machinegunCrouchWalkDelay) {
+                machinegunCrouchWalkTimer = 0.0f;
+                machinegunCrouchWalkFrame++;
+                if (machinegunCrouchWalkFrame >= machinegunCrouchWalkFrameCount) {
+                    machinegunCrouchWalkFrame = 0;
+                }
+            }
+        }
+        else {
+            machinegunCrouchWalking = false;
+            machinegunCrouchWalkFrame = 0;
+            machinegunCrouchWalkTimer = 0.0f;
+        }
+
+        // Transición e idle
+        if (!machinegunCrouchShooting && !machinegunCrouchThrowing) {
+            machinegunCrouchTimer += dt;
+            float currentDelay = machinegunCrouchTransition ? machinegunCrouchTransitionDelay : machinegunCrouchIdleDelay;
+            if (machinegunCrouchTimer >= currentDelay) {
+                machinegunCrouchTimer = 0.0f;
+                machinegunCrouchFrame++;
+
+                if (machinegunCrouchTransition) {
+                    if (machinegunCrouchFrame >= machinegunCrouchTransitionFrameCount) {
+                        machinegunCrouchTransition = false;
+                        machinegunCrouchFrame = 0;
+                    }
+                }
+                else {
+                    if (!machinegunCrouchWalking && machinegunCrouchFrame >= machinegunCrouchIdleFrameCount) {
+                        machinegunCrouchFrame = 0;
+                    }
+                }
+            }
+        }
+    }
+
 
     // ========== AGACHADO ==========
     if (crouchingInput && !crouching) {
@@ -266,6 +341,7 @@ void PlayerAnim::Update(bool grounded, float velX, bool crouchingInput, bool aim
         }
         return;
     }
+
 
     // ========== ANIMACIONES NORMALES ==========
     if (!grounded) {
@@ -441,4 +517,38 @@ void PlayerAnim::StartMachinegunShootUp() {
     machinegunShootingUp = true;
     machinegunShootUpFrame = 0;
     machinegunShootUpTimer = 0.0f;
+}
+
+void PlayerAnim::StartMachinegunCrouch() {
+    machinegunCrouching = true;
+    machinegunCrouchTransition = true;
+    machinegunCrouchFrame = 0;
+    machinegunCrouchTimer = 0.0f;
+}
+
+void PlayerAnim::StopMachinegunCrouch() {
+    machinegunCrouching = false;
+    machinegunCrouchTransition = false;
+    machinegunCrouchFrame = 0;
+    machinegunCrouchTimer = 0.0f;
+    machinegunCrouchWalking = false;
+    machinegunCrouchWalkFrame = 0;
+    machinegunCrouchShooting = false;
+    machinegunCrouchShootFrame = 0;
+    machinegunCrouchThrowing = false;
+    machinegunCrouchThrowFrame = 0;
+    machinegunCrouchThrowCooldown = 0.0f;
+}
+
+void PlayerAnim::StartMachinegunCrouchThrow() {
+    machinegunCrouchThrowing = true;
+    machinegunCrouchThrowFrame = 0;
+    machinegunCrouchThrowTimer = 0.0f;
+    machinegunCrouchThrowCooldown = 0.0f;
+}
+
+void PlayerAnim::StartMachinegunCrouchShoot() {
+    machinegunCrouchShooting = true;
+    machinegunCrouchShootFrame = 0;
+    machinegunCrouchShootTimer = 0.0f;
 }
