@@ -55,7 +55,7 @@ void Player::Update(float CameraLeftLimit) {
         SetNormalHitbox();
     }
 
-    anim.Update(grounded, inputVelX, crouching, aimingUp, GetFrameTime());
+    anim.Update(grounded, inputVelX, crouching, aimingUp, currentWeapon == WeaponType::MACHINEGUN, GetFrameTime());
 
     // Manejar animaciones FULL_BODY
     if (mode == Mode::FULL_BODY && !crouching) {
@@ -144,11 +144,19 @@ void Player::Jump() {
 }
 
 void Player::StartAimingUp() {
-    if (!crouching && mode != Mode::FULL_BODY) aimingUp = true;
+    if (!crouching && mode != Mode::FULL_BODY) {
+        aimingUp = true;
+        if (currentWeapon == WeaponType::MACHINEGUN) {
+            anim.StartMachinegunAiming();
+        }
+    }
 }
 
 void Player::StopAimingUp() {
     aimingUp = false;
+    if (currentWeapon == WeaponType::MACHINEGUN) {
+        anim.StopMachinegunAiming();
+    }
 }
 
 void Player::StartCrouching() {
@@ -178,11 +186,21 @@ void Player::Shoot() {
             anim.StartCrouchShoot();
         }
         else if (aimingUp) {
-            if (anim.IsShooting()) anim.ForceStopShoot();
-            anim.StartShootUp();
+            if (currentWeapon == WeaponType::MACHINEGUN) {
+                anim.StartMachinegunShootUp();
+            }
+            else {
+                if (anim.IsShooting()) anim.ForceStopShoot();
+                anim.StartShootUp();
+            }
         }
         else {
-            anim.StartShoot();
+            if (currentWeapon == WeaponType::MACHINEGUN) {
+                anim.StartMachinegunShoot();
+            }
+            else {
+                anim.StartShoot();
+            }
         }
     }
 }
@@ -195,7 +213,12 @@ PlayerDirection Player::GetAimDirection() const {
 
 // ========== GRANADA ==========
 GrenadeThrowData Player::ThrowGrenade() {
-    anim.StartThrow();
+    if (currentWeapon == WeaponType::MACHINEGUN) {
+        anim.StartMachinegunThrow();
+    }
+    else {
+        anim.StartThrow();
+    }
 
     GrenadeThrowData data;
     data.startPos = pos;
@@ -223,6 +246,7 @@ GrenadeThrowData Player::ThrowGrenade() {
 void Player::EquipMachinegun() {
     currentWeapon = WeaponType::MACHINEGUN;
     machinegunAmmo = MACHINEGUN_MAX_AMMO;
+    anim.StartMachinegunIdle();
 }
 
 void Player::UseAmmo() {
@@ -230,7 +254,8 @@ void Player::UseAmmo() {
         machinegunAmmo--;
         if (machinegunAmmo <= 0) {
             currentWeapon = WeaponType::PISTOL;
-            machinegunAmmo = 0;
+            anim.StopMachinegun();
+            anim.StopMachinegunAiming();
         }
     }
 }
@@ -487,6 +512,89 @@ void Player::DrawSeparated() {
         DrawTexturePro(anim.GetSheet(), torsoSrc,
             { torsoDrawX, torsoDrawY, w * SCALE, h * SCALE },
             { 0,0 }, 0, tint);
+        return;
+    }
+
+    // Prioridad: Machinegun Idle
+    if (anim.IsMachinegunIdle() && !anim.IsMachinegunAiming()) {
+        torsoSrc = { anim.GetMachinegunIdleFrame() * 68.0f, anim.GetRowMachinegunIdle(), 68.0f, h };
+        float idleDrawX = torsoDrawX;
+        if (dir == PlayerDirection::LEFT) {
+            torsoSrc.width = -68.0f;
+            idleDrawX = torsoDrawX - 140.0f;
+        }
+        DrawTexturePro(anim.GetSheet(), torsoSrc,
+            { idleDrawX, torsoDrawY, 68.0f * SCALE, h * SCALE },
+            { 0,0 }, 0, tint);
+        return;
+    }
+
+    // Prioridad: Machinegun Shooting
+    if (anim.IsMachinegunShooting()) {
+        torsoSrc = { anim.GetMachinegunShootFrame() * 68.0f, anim.GetRowMachinegunShoot(), 68.0f, h };
+        float shootDrawX = torsoDrawX;
+        if (dir == PlayerDirection::LEFT) {
+            torsoSrc.width = -68.0f;
+            shootDrawX = torsoDrawX - 140.0f;
+        }
+        DrawTexturePro(anim.GetSheet(), torsoSrc,
+            { shootDrawX, torsoDrawY, 68.0f * SCALE, h * SCALE },
+            { 0,0 }, 0, tint);
+        return;
+    }
+
+    // Prioridad: Machinegun Throwing
+    if (anim.IsMachinegunThrowing()) {
+        torsoSrc = { anim.GetMachinegunThrowFrame() * 68.0f, anim.GetRowMachinegunThrow(), 68.0f, h };
+        float throwDrawX = torsoDrawX;
+        if (dir == PlayerDirection::LEFT) {
+            torsoSrc.width = -68.0f;
+            throwDrawX = torsoDrawX - 140.0f;
+        }
+        DrawTexturePro(anim.GetSheet(), torsoSrc,
+            { throwDrawX, torsoDrawY, 68.0f * SCALE, h * SCALE },
+            { 0,0 }, 0, tint);
+        return;
+    }
+
+    // Prioridad: Machinegun Shooting Up
+    if (anim.IsMachinegunAiming() && anim.IsMachinegunShootingUp()) {
+        torsoSrc = { (float)(anim.GetMachinegunShootUpFrame() * 34.0f), anim.GetMachinegunShootUpRowY(), 34.0f, anim.GetMachinegunShootUpH() };
+        float shootUpBaseY = torsoDrawY - (68.0f * SCALE) - 20.0f;
+        float shootUpBaseX = torsoDrawX - 60.0f;
+        if (dir == PlayerDirection::LEFT) torsoSrc.width = -34.0f;
+        DrawTexturePro(anim.GetSheet(), torsoSrc,
+            { torsoDrawX, shootUpBaseY, 34.0f * SCALE, anim.GetMachinegunShootUpH() * SCALE },
+            { 0,0 }, 0, tint);
+        return;
+    }
+
+    // Prioridad: Machinegun Aiming
+    if (anim.IsMachinegunAiming()) {
+        if (anim.IsMachinegunAimingTransition()) {
+            // Transición: fila 39, 68 ancho x 34 alto
+            torsoSrc = { anim.GetMachinegunAimingFrame() * 68.0f, anim.GetRowMachinegunAiming(), 68.0f, h };
+            float aimDrawX = torsoDrawX;
+            if (dir == PlayerDirection::LEFT) {
+                torsoSrc.width = -68.0f;
+                aimDrawX = torsoDrawX - 140.0f;
+            }
+            DrawTexturePro(anim.GetSheet(), torsoSrc,
+                { aimDrawX, torsoDrawY, 68.0f * SCALE, h * SCALE },
+                { 0,0 }, 0, tint);
+        }
+        else {
+            // Idle: fila 40-41, 34 ancho x 68 alto
+            torsoSrc = { anim.GetMachinegunAimingFrame() * 34.0f, anim.GetRowMachinegunAimingIdle(), 34.0f, 68.0f };
+            float aimDrawX = torsoDrawX;
+            float aimDrawY = torsoDrawY - (34.0f * SCALE); // ajustar Y porque el sprite es más alto
+            if (dir == PlayerDirection::LEFT) {
+                torsoSrc.width = -34.0f;
+            }
+            DrawTexturePro(anim.GetSheet(), torsoSrc,
+                { aimDrawX, aimDrawY, 34.0f * SCALE, 68.0f * SCALE },
+                { 0,0 }, 0, tint);
+        }
         return;
     }
 

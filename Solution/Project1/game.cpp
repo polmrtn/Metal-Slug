@@ -303,10 +303,10 @@ void Game::HandleInput()
 	}
 
 	// ========== AIMING UP ==========
-	if (IsKeyDown(KEY_UP)) {
+	if (IsKeyPressed(KEY_UP)) {
 		player.StartAimingUp();
 	}
-	else {
+	if (IsKeyReleased(KEY_UP)) {
 		player.StopAimingUp();
 	}
 
