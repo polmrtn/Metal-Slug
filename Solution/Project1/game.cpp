@@ -1,4 +1,4 @@
-﻿#define _CRT_SECURE_NO_WARNINGS
+#define _CRT_SECURE_NO_WARNINGS
 #include "game.hpp"
 #include "LevelMap.hpp" 
 #include <raymath.h>
@@ -130,6 +130,14 @@ void Game::Update(){
 		for (auto& soldier : soldiers) {
 			soldier.UpdateAI(player);
 			soldier.Update();
+			if (soldier.WantsToShoot()) {
+				// Llamamos a la función Shoot que arreglamos antes
+				Shoot(2, soldier.GetPosition(), soldier.IsFacingRight());
+
+				// IMPORTANTE: Resetear la bandera para que no dispare 60 balas por segundo
+				soldier.ResetShootWants();
+			}
+	
 		}
 		for (auto& bullet : bullets) {
 			bullet.Update();
@@ -163,47 +171,53 @@ void Game::Update(){
 	}
 }
 
-void Game::Shoot()
+void Game::Shoot(int BulletType, Vector2 startPos, bool faceRight)
 {
-	Vector2 playerPos = player.GetPosition();
-	float playerWidth = player.GetWidth();  // Siempre el mismo ancho
-	float playerHeight = player.GetHeight(); // Cambia si está agachado
+	Vector2 bulletPos = { 0, 0 };
+	float directionX = 0;
+	float directionY = 0;
+	float bulletSpeed = 1000.0f;
+	float yOffset = -20.0f;
 
-	Vector2 bulletPos;
-	PlayerDirection aimDir = player.GetAimDirection();
-	int bulletSpeed = 30;
-	int directionX = 0;
-	int directionY = 0;
+	if (BulletType == 1)
+	{
+		Vector2 pPos = player.GetPosition();
+		float pW = player.GetWidth();
+		float pH = player.GetHeight();
+		PlayerDirection aimDir = player.GetAimDirection();
+		bool isCrouching = player.IsCrouching();
+		float normalYOffset = -50.0f;
+		float crouchYOffset = -40.0f;
 
-	// Detectar si está agachado y disparando
-	bool isCrouching = player.IsCrouching();
-
-	// Altura de disparo (ajusta estos valores)
-	float normalYOffset = -50.0f;   // Altura normal (desde el centro)
-	float crouchYOffset = -40.0f;   // Altura cuando está agachado
-	float upYOffset = -40.0f;      // Altura cuando dispara hacia arriba
-
-	switch (aimDir) {
-	case PlayerDirection::LEFT:
-		bulletPos = { playerPos.x, playerPos.y + playerHeight / 2 + (isCrouching ? crouchYOffset : normalYOffset) };
-		directionX = -1;
-		break;
-	case PlayerDirection::RIGHT:
-		bulletPos = { playerPos.x + playerWidth, playerPos.y + playerHeight / 2 + (isCrouching ? crouchYOffset : normalYOffset) };
-		directionX = 1;
-		break;
-	case PlayerDirection::UP:
-		bulletPos = { playerPos.x + playerWidth / 2, playerPos.y + upYOffset };
-		directionY = -1;
-		break;
-	case PlayerDirection::DOWN:
-		bulletPos = { playerPos.x + playerWidth / 2, playerPos.y + playerHeight };
-		directionY = 1;
-		break;
+		switch (aimDir) {
+		case PlayerDirection::LEFT:
+			bulletPos = { pPos.x, pPos.y + pH / 2 + (isCrouching ? crouchYOffset : normalYOffset) };
+			directionX = -1.0f;
+			break;
+		case PlayerDirection::RIGHT:
+			bulletPos = { pPos.x + pW, pPos.y + pH / 2 + (isCrouching ? crouchYOffset : normalYOffset) };
+			directionX = 1.0f;
+			break;
+		case PlayerDirection::UP:
+			bulletPos = { pPos.x + pW / 2, pPos.y + yOffset };
+			directionY = -1.0f;
+			break;
+		case PlayerDirection::DOWN:
+			bulletPos = { pPos.x + pW / 2, pPos.y + pH };
+			directionY = 1.0f;
+			break;
+		}
 	}
-	bullets.emplace_back(bulletPos, bulletSpeed, directionX, directionY);
-}
+	else if (BulletType == 2)
+	{
+		bulletPos = startPos;
+		bulletSpeed = 400.0f;
+		directionX = faceRight ? 1.0f : -1.0f;
+		directionY = -5.0f;
+	}
 
+	bullets.emplace_back(bulletPos, bulletSpeed, directionX, directionY, BulletType);
+}
 void Game::ThrowGrenade() {
 	// Calcular el suelo buscando en los bloques
 	float groundY = 650.0f;  // Valor por defecto
@@ -316,7 +330,7 @@ void Game::HandleInput()
 	if (IsKeyPressed(KEY_D) && shootTimer >= shootDelay)
 	{
 		player.Shoot();
-		Shoot();
+		Shoot(1, player.GetPosition(), (player.GetAimDirection() != PlayerDirection::LEFT));
 		shootTimer = 0;
 	}
 
@@ -421,8 +435,10 @@ void Game::ResolveCollisions(){
 
 void Game::BulletsCollision() {
 	auto bIt = bullets.begin();
+	
 	while (bIt != bullets.end()) {
 		bool bulletHit = false;
+		
 		auto sIt = soldiers.begin();
 		while (sIt != soldiers.end()) {
 			if (sIt->GetisAlive() && CheckCollisionRecs(sIt->GetHurtBox(), bIt->GetHitbox())) {
@@ -434,7 +450,7 @@ void Game::BulletsCollision() {
 			++sIt;
 		}
 		if (bulletHit) bIt = bullets.erase(bIt);
-		else           ++bIt;
+		else ++bIt;
 	}
 
 	// ── Borrar soldados muertos DESPUÉS del loop de balas ────────────────────
@@ -561,6 +577,50 @@ void Game::BlockCollisions() {
 	if (onGround) {
 		player.SetVelocityY(0);
 	}
+	auto bIt = bullets.begin();
+while (bIt != bullets.end()) {
+    bool bulletJustHit = false;
+
+    // Solo chequear colisión si NO está explotando
+    if (!bIt->IsExploding()) {
+    // Para tipo 2, solo colisionar cuando ya va hacia abajo
+    bool canCollide = (bIt->GetType() != 2 || bIt->GetPosition().y > 0);
+    if (canCollide) {
+        for (const auto& block : blocks) {
+            if (CheckCollisionRecs(bIt->GetHitbox(), block.GetRect())) {
+				bIt->SetPosition({ bIt->GetPosition().x, block.GetRect().y - bIt->GetHeight() });
+
+                bulletJustHit = true;
+                break;
+            }
+        }
+    }
+}
+
+    // Activar explosión al primer impacto
+    if (bulletJustHit) {
+        if (bIt->GetType() == 1) {
+            bIt = bullets.erase(bIt);
+            continue;
+        }
+        else if (bIt->GetType() == 2) {
+			
+            bIt->SetExploding(true);
+            bIt->GetAnim().SetAnimation(BulletState::EXPLOSIONSOLDIER);
+
+        }
+    }
+
+    // ← FUERA del if(bulletJustHit): chequear si la explosión terminó
+    if (bIt->GetType() == 2 && bIt->IsExploding()) {
+        if (bIt->GetAnim().IsAnimationFinished()) {
+            bIt = bullets.erase(bIt);
+            continue;
+        }
+    }
+
+    ++bIt;
+}
 }
 
 std::vector<Bullet> Game::CreateBullets()
@@ -569,6 +629,7 @@ std::vector<Bullet> Game::CreateBullets()
 	for (int i = 0; i < bullets.size(); i++) {
 
 		if (bullets[i].GetX() < 0 || bullets[i].GetX() > GetScreenWidth()) {
+		
 			bullets.erase(bullets.begin() + i);
 			i--;
 		}
@@ -579,13 +640,16 @@ std::vector<Bullet> Game::CreateBullets()
 std::vector<Soldier>  Game::CreateSoldiers()
 	{
 		std::vector<Soldier> soldiers;
-		soldiers.reserve(2);
-		for (int i = 0; i < 2; ++i) {
+		soldiers.reserve(1);
+		for (int i = 0; i < 1; ++i) {
 			float xpos, ypos;
 			ypos = (10 * i + 40) + 100;
 			xpos = (100 * i + 40) + 500;
-			soldiers.emplace_back(Soldier(1, { xpos,ypos }));
+			/*soldiers.emplace_back(Soldier(1, { xpos,ypos }));*/
+			soldiers.emplace_back(Soldier(2, { xpos,ypos }));
+			
 		}
+		soldiers.emplace_back(Soldier(1, { 200, 200 }));
 
 		return soldiers;
 	}

@@ -10,6 +10,7 @@
 #include "UiManager.hpp"
 #include "SoldierAnim.hpp"
 #include "Grenade.hpp" 
+#include "BulletAnim.hpp"
 #include <vector>
 
 
@@ -21,13 +22,14 @@ class Game {
 		void Update();
 		void HandleInput();
 		void BlockCollisions();
+		void Shoot(int BulletType, Vector2 startPos, bool faceRight);
 		void Shoot();
 		void ThrowGrenade();
 		void Timers();
 		void BulletsCollision();
 		void ResolveCollisions();
 		void GrenadesCollision();
-		// En la sección public o private, al final
+		// En la secciï¿½n public o private, al final
 		void SaveBlocksToFile(const char* filename);
 		void LoadBlocksFromFile(const char* filename);
 	private:
@@ -37,6 +39,8 @@ class Game {
 		float grenadeDelay = 1.0f;
 		SoldierAnim soldierAnim;
 		CameraManager camera;
+		
+		BulletAnim bulletAnim;
 		Player player;
 		UiManager UiManager;
 		AudioManager audioManager;
