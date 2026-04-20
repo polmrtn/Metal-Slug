@@ -41,6 +41,11 @@ void BulletAnim::LoadTexture(int type) {
         spriteSheet = LoadTextureFromImage(img);
         SetTextureFilter(spriteSheet, TEXTURE_FILTER_POINT);
     }
+    else if (type == 3) {
+        Image img = LoadImage("Graphics/marcogrenade.png");
+        spriteSheet = LoadTextureFromImage(img);
+        SetTextureFilter(spriteSheet, TEXTURE_FILTER_POINT);
+    }
 }
 
 void BulletAnim::Update()

@@ -3,7 +3,9 @@
 #include "BulletAnim.hpp"
 enum class BulletState {
 	GRENADESOLDIER,
-	EXPLOSIONSOLDIER
+	EXPLOSIONSOLDIER,
+	GRENADEPLAYER,
+	EXPLOSIONPLAYER
 };
 struct AnimClipBullet {
 	float rowY;      // Y en el spritesheet
@@ -43,10 +45,12 @@ private:
 	bool animForward;
 	bool animCompleted;
 
-	AnimClipBullet CLIPS[2] = {
+	AnimClipBullet CLIPS[4] = {
 		//  rowY   cellW  cellH  frames  fps    loop  
 			{ 0,   34,    34,    5,      10,   true},  // [0] GRENADE SOLDIER
 			{ 34,   34,    34,    8,     12,   false },  // [1] EXPLOSION SOLDIER
+			{ 34,   34,    34,    27,      20,   false},  // [2] EXPLOSION MARCO
+			{ 0,   34,    34,    16,     12,   true }, // [3] GRENADE MARCO
 	};
 
 };

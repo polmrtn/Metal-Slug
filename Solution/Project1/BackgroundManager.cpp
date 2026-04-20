@@ -4,10 +4,10 @@
 BackgroundManager::BackgroundManager() {
     background = LoadTexture("Graphics/background sprites/bg4.png");
     parallax1 = LoadTexture("Graphics/background sprites/bg1 1.png");
-    parallax2 = LoadTexture("Graphics/background sprites/bg1 2.png");
+    parallax2 = LoadTexture("Graphics/background sprites/bg1 2 3.png");
 
     // Añadimos el barco con un factor de 0.1f (se mueve lento)
-    AddAnimation("Graphics/background sprites/bg3.png", { 11500, 0 }, 8, 25.0f, 4.0f, 2.0f, 0.7f);
+    AddAnimation("Graphics/background sprites/bg3.png", { 11500, 0 }, 8, 25.0f, 4.0f, 0.0f, 0.7f);
     AddAnimation("Graphics/background sprites/bg2 2.png", { 14500, -350 }, 5, 25.0f, 4.0f, 2.0f, 0.15f);
 
     scale = 4.0f;
@@ -20,7 +20,7 @@ BackgroundManager::BackgroundManager() {
 
     destination = { 0, yOffset, (float)background.width * scale, (float)background.height * scale };
     destination1 = { 0, 155, (float)parallax1.width * scale, (float)parallax1.height * scale };
-    destination2 = { 9500, -20, (float)parallax2.width * scale, 100 + (float)parallax2.height * scale };
+    destination2 = { 10300, -20, (float)parallax2.width * scale, 100 + (float)parallax2.height * scale };
 }
 
 void BackgroundManager::AddAnimation(const char* path, Vector2 pos, int frames, float fps, float scale, float spacing, float pFactor) {
