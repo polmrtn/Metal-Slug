@@ -1,5 +1,6 @@
 #pragma once
 #include <raylib.h>
+#include "BackgroundManager.hpp"
 
 class CameraManager {
 public:
@@ -13,6 +14,7 @@ public:
     Camera2D GetCamera() { return camera; }
 
 private:
+	BackgroundManager backgroundManager;
     Camera2D camera;
     bool yLocked = false;       
     float lockedYValue = 0.0f;

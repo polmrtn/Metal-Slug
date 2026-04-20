@@ -11,10 +11,11 @@ public:
     float GetHeight() { return destination.height; }
 
 private:
+	Texture2D parallax1;
     Texture2D background;
     Vector2 origin;
-    Rectangle source;
-    Rectangle destination;
+    Rectangle source , source2;
+    Rectangle destination, destination2; 
     float xposSprite;
     float yposSprite;
     float scale;

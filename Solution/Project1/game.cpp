@@ -344,6 +344,8 @@ while (bIt != bullets.end()) {
     if (canCollide) {
         for (const auto& block : blocks) {
             if (CheckCollisionRecs(bIt->GetHitbox(), block.GetRect())) {
+				bIt->SetPosition({ bIt->GetPosition().x, block.GetRect().y - bIt->GetHeight() });
+
                 bulletJustHit = true;
                 break;
             }
@@ -358,8 +360,10 @@ while (bIt != bullets.end()) {
             continue;
         }
         else if (bIt->GetType() == 2) {
+			
             bIt->SetExploding(true);
             bIt->GetAnim().SetAnimation(BulletState::EXPLOSIONSOLDIER);
+
         }
     }
 

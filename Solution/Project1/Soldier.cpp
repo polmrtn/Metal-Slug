@@ -103,6 +103,7 @@ void Soldier::SetSoliderState(SoldierState newState)
 }
 bool Soldier::IsVisionRay(Player& player)
 {
+	/*if (!player.isAlive()) return false;*/
     return CheckCollisionRecs(GetHitBox(), player.GetHitBox());
 }
 void Soldier::DrawHitBox()
@@ -166,9 +167,12 @@ void Soldier::Update()
     else if (isGrounded) {
         velocity.y = 0;
     }
-    if (soldierAnim.CheckShootTrigger()) {
-        if (this->type == 2) { // Si es el de las bombas
-            this->wantsToShoot = true; // El Game verá esto y llamará a Shoot()
+    if (type == 2 && currentState == SoldierState::ATTACKING) {
+        int peak = soldierAnim.GetCurrentClipFrames() - 1;
+        int triggerFrame = peak - 5; // 5 frames antes del peak
+        if (soldierAnim.GetFrame() >= triggerFrame && !hasShot) {
+            wantsToShoot = true;
+            hasShot = true; // ← solo una vez por animación
         }
     }
     // Aplicar Movimiento
@@ -177,7 +181,11 @@ void Soldier::Update()
     soldierAnim.Update();
 }
 void Soldier::Attack(Player& player) {
+   /* if (!player.isAlive()) return;*/
     if (IsVisionRay(player)) {
+      /*  if(!player.IsInvincible()) {
+            player.TakeDamage();
+		}*/
         TraceLog(LOG_INFO, "Soldier attacked ");
     }
     else {
@@ -223,7 +231,11 @@ void Soldier::UpdateAI(Player& player)
                 if (currentState != SoldierState::ATTACKING) {
                     SetSoliderState(SoldierState::ATTACKING);
                     soldierAnim.ForceAnimation(SoldierState::BOMB);
-                    wantsToShoot = true; // <--- Seteamos la bandera aquí
+                    if (soldierAnim.IsAnimationFinished())
+                    {
+                        hasShot = false;
+                    }
+                    // <--- Seteamos la bandera aquí
                 }
             }
         }

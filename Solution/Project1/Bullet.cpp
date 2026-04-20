@@ -32,7 +32,6 @@ Bullet::Bullet(const Bullet& other)
 	gravity = other.gravity;
 	type = other.type;
 	isExploding = other.isExploding; // ← añadir
- 
     bulletAnim = other.bulletAnim;
 
 	

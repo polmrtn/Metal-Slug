@@ -33,6 +33,8 @@ public:
 		}
 		return false;
 	}
+	int GetFrame() const { return frame; }
+	int GetCurrentClipFrames() const { return CLIPS[(int)currentAnim].frames; }
 
 
 	void SetAttackAnimFps(float Fps) {

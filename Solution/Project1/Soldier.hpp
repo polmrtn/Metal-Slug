@@ -58,6 +58,7 @@ private:
     bool isGrounded;
     bool isAlive;
     bool facingRight ;
+    bool hasShot = false;
     
     
     // Variables de IA (cada soldado tiene las suyas)
