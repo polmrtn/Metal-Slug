@@ -1,24 +1,68 @@
 #pragma once
 #include <raylib.h>
+#include "BulletAnim.hpp"
 
 class Bullet {
 public:
-	Bullet(Vector2 position, int speed, int directionX, int directionY);
+	Bullet(Vector2 position, int speed, int directionX, int directionY, int type);
+	Bullet(const Bullet& other);
 	void Update();
 	void Draw();
-	float GetWidth() { return (float)image.width * scale; }
-	float GetHeight() { return (float)image.height * scale; }
-	float GetX() const { return position.x; }  // Getter para la posición X
-	Vector2 GetPosition() const { return position; }  // Getter para toda la posición
+	float GetWidth() {
+		if (type == 2) {
+			// Si es tipo 2 (Granada) y estï¿½ en estado GRENADESOLDIER
+			if (bulletAnim.GetCurrentAnim() == BulletState::GRENADESOLDIER) {
+				return 34.0f * scale;
+			}
+			// Si es la explosiï¿½n u otro estado, puedes mantener el tamaï¿½o del clip (34)
+			return 34.0f * scale;
+		}
+
+		// Para el tipo 1 (Bala normal)
+		return (float)bulletAnim.GetBulletPlayerImg().width * scale;
+	}
+
+	float GetHeight() {
+		if (type == 2) {
+			if (bulletAnim.GetCurrentAnim() == BulletState::GRENADESOLDIER) {
+				return 34.0f * scale;
+			}
+			return 34.0f * scale;
+		}
+
+		return (float)bulletAnim.GetBulletPlayerImg().height * scale;
+	}
+	void StartExplosion() {
+		bulletAnim.SetAnimation(BulletState::EXPLOSIONSOLDIER);
+		isExploding = true;
+		this->speed = 0;      // Detenemos movimiento horizontal
+		this->directionY = 0;
+		
+		
+	}
+	void SetExploding(bool val) { isExploding = val; }
+	bool IsExploding() const { return isExploding; }
+	float GetX() const { return position.x; }  // Getter para la posiciï¿½n X
+	Vector2 GetPosition() const { return position; }
+	void SetPosition(Vector2 newPosition) {
+		position = newPosition;
+	}// Getter para toda la posiciï¿½n
 	Rectangle GetHitbox();
 	bool active = true;
 	void DrawHitBox();
+	int GetType() { return type; }
+	BulletAnim& GetAnim() { return bulletAnim; }
+
+	
 	
 private:
-	Texture2D image;
+	BulletAnim bulletAnim;
 	Vector2 position;
-	int speed;
-	int directionX;
-	int directionY;
+	float gravity = 9.8f;
+	bool isExploding = false;
+	int type;
+	float speed;        // <--- DEBE SER FLOAT
+	float directionX;   // <--- DEBE SER FLOAT
+	float directionY;
 	float scale = 3.0f;
 };

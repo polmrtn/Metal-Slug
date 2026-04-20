@@ -1,4 +1,5 @@
 #include "CameraManager.hpp"
+
 #include <raymath.h>
 
 CameraManager::CameraManager(Vector2 screenCenter) {
@@ -21,7 +22,7 @@ void CameraManager::Update(Vector2 playerPos, float bgWidth, float bgHeight, boo
     if (playerPos.x > maxScrollX) {
         maxScrollX = playerPos.x;
     }
-
+	backgroundManager.FollowPlayer({ camera.target.x, camera.target.y });
     float halfScreenWidth = camera.offset.x;
 
     camera.target.x = Lerp(camera.target.x, maxScrollX, 0.1f);

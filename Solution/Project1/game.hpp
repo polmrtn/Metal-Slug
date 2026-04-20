@@ -11,12 +11,13 @@
 #include "SoldierAnim.hpp"
 #include "Grenade.hpp" 
 #include "Item.hpp"
+#include "BulletAnim.hpp"
 #include <vector>
 
 class Game {
 public:
-    Game();
-    ~Game();
+	Game();
+	~Game();
 
     // Ciclo principal
     void Update();
@@ -55,6 +56,7 @@ private:
     AudioManager audioManager;
     SceneManager sceneManager;
     UiManager UiManager;
+    BulletAnim bulletAnim;
 
     // ========== JUGADOR ==========
     Player player;
@@ -69,7 +71,7 @@ private:
     // ========== ANIMACIONES ==========
     SoldierAnim soldierAnim;
 
-    // ========== MÉTODOS DE CREACIÓN ==========
+    // ========== Mï¿½TODOS DE CREACIï¿½N ==========
     std::vector<Bullet> CreateBullets();
     std::vector<Soldier> CreateSoldiers();
     std::vector<Block> CreateBlocks();
