@@ -10,6 +10,7 @@
 #include "UiManager.hpp"
 #include "SoldierAnim.hpp"
 #include "Grenade.hpp" 
+#include "BulletAnim.hpp"
 #include <vector>
 
 
@@ -38,6 +39,8 @@ class Game {
 		float grenadeDelay = 1.0f;
 		SoldierAnim soldierAnim;
 		CameraManager camera;
+		
+		BulletAnim bulletAnim;
 		Player player;
 		UiManager UiManager;
 		AudioManager audioManager;

@@ -171,31 +171,31 @@ void Game::Update(){
 	}
 }
 
-void Game::Shoot()
+void Game::Shoot(int BulletType, Vector2 startPos, bool faceRight)
 {
-	// Variables base para la nueva bala
 	Vector2 bulletPos = { 0, 0 };
 	float directionX = 0;
 	float directionY = 0;
 	float bulletSpeed = 1000.0f;
 	float yOffset = -20.0f;
 
-	// --- LÓGICA PARA BALA TIPO 1 (JUGADOR) ---
 	if (BulletType == 1)
 	{
 		Vector2 pPos = player.GetPosition();
 		float pW = player.GetWidth();
 		float pH = player.GetHeight();
 		PlayerDirection aimDir = player.GetAimDirection();
-		bulletSpeed = 1000.0f;
+		bool isCrouching = player.IsCrouching();
+		float normalYOffset = -50.0f;
+		float crouchYOffset = -40.0f;
 
 		switch (aimDir) {
 		case PlayerDirection::LEFT:
-			bulletPos = { pPos.x, pPos.y + pH / 2 + yOffset };
+			bulletPos = { pPos.x, pPos.y + pH / 2 + (isCrouching ? crouchYOffset : normalYOffset) };
 			directionX = -1.0f;
 			break;
 		case PlayerDirection::RIGHT:
-			bulletPos = { pPos.x + pW, pPos.y + pH / 2 + yOffset };
+			bulletPos = { pPos.x + pW, pPos.y + pH / 2 + (isCrouching ? crouchYOffset : normalYOffset) };
 			directionX = 1.0f;
 			break;
 		case PlayerDirection::UP:
@@ -207,50 +207,15 @@ void Game::Shoot()
 			directionY = 1.0f;
 			break;
 		}
-	// Detectar si está agachado y disparando
-	bool isCrouching = player.IsCrouching();
-
-	// Altura de disparo (ajusta estos valores)
-	float normalYOffset = -50.0f;   // Altura normal (desde el centro)
-	float crouchYOffset = -40.0f;   // Altura cuando está agachado
-	float upYOffset = -40.0f;      // Altura cuando dispara hacia arriba
-
-	switch (aimDir) {
-	case PlayerDirection::LEFT:
-		bulletPos = { playerPos.x, playerPos.y + playerHeight / 2 + (isCrouching ? crouchYOffset : normalYOffset) };
-		directionX = -1;
-		break;
-	case PlayerDirection::RIGHT:
-		bulletPos = { playerPos.x + playerWidth, playerPos.y + playerHeight / 2 + (isCrouching ? crouchYOffset : normalYOffset) };
-		directionX = 1;
-		break;
-	case PlayerDirection::UP:
-		bulletPos = { playerPos.x + playerWidth / 2, playerPos.y + upYOffset };
-		directionY = -1;
-		break;
-	case PlayerDirection::DOWN:
-		bulletPos = { playerPos.x + playerWidth / 2, playerPos.y + playerHeight };
-		directionY = 1;
-		break;
 	}
-	// --- LÓGICA PARA BALA TIPO 2 (SOLDADO / GRANADA) ---
 	else if (BulletType == 2)
 	{
 		bulletPos = startPos;
-		bulletSpeed = 50.0f;
-		// Velocidad horizontal (qué tan lejos llega)
 		bulletSpeed = 400.0f;
-
 		directionX = faceRight ? 1.0f : -1.0f;
-
-		// IMPULSO HACIA ARRIBA: Debe ser negativo para que "salte"
-		// Prueba con -4.0f para un arco alto o -2.0f para un arco bajo
 		directionY = -5.0f;
-
-	
 	}
 
-	// Finalmente, añadimos la bala al vector con los datos calculados
 	bullets.emplace_back(bulletPos, bulletSpeed, directionX, directionY, BulletType);
 }
 void Game::ThrowGrenade() {
