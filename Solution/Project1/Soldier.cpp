@@ -213,7 +213,6 @@ void Soldier::UpdateAI(Player& player)
             else if (GetType() == 2) {
                 SetSoliderState(SoldierState::ATTACKING);
                 soldierAnim.ForceAnimation(SoldierState::BOMB);
-                // ← NO wantsToShoot aquí, se activa en Update() en el peak
             }
         }
         attackTimer = 0.0f;
