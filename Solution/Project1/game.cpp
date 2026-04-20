@@ -241,6 +241,7 @@ void Game::Shoot(int BulletType, Vector2 startPos, bool faceRight)
 
 	bullets.emplace_back(bulletPos, bulletSpeed, directionX, directionY, BulletType);
 }
+
 void Game::ThrowGrenade() {
 	// Calcular el suelo buscando en los bloques
 	float groundY = 650.0f;  // Valor por defecto
@@ -328,7 +329,7 @@ void Game::HandleInput()
 		if (player.GetCurrentWeapon() == WeaponType::MACHINEGUN) {
 			if (player.GetAmmo() > 0) {
 				player.Shoot();
-				Shoot();
+				Shoot(1, { 0, 0 }, true);
 				player.UseAmmo();
 				shootTimer = shootDelayMachinegun;
 			}
@@ -336,7 +337,7 @@ void Game::HandleInput()
 		else {
 			// Pistola normal
 			player.Shoot();
-			Shoot();
+			Shoot(1, { 0, 0 }, true);
 			shootTimer = shootDelayPistol;
 		}
 	}
@@ -458,6 +459,18 @@ void Game::BulletsCollision() {
 			}
 			++sIt;
 		}
+		// ========== DAÑO AL JUGADOR POR BALA TIPO 2 (GRANADA) ==========
+		if (bIt->GetType() == 2 && bIt->IsExploding()) {
+			Rectangle explosionBox = bIt->GetHitbox();
+
+			if (player.IsAlive() && !player.IsInvincible()) {
+				if (CheckCollisionRecs(explosionBox, player.GetHitBox())) {
+					player.TakeDamage();
+					TraceLog(LOG_INFO, "Player killed by grenade explosion");
+				}
+			}
+		}
+
 		if (bulletHit) bIt = bullets.erase(bIt);
 		else ++bIt;
 	}

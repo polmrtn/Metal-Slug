@@ -1,7 +1,65 @@
-<<<<<<< HEAD
-﻿  Player.cpp
+﻿  AudioManager.cpp
+  AudioManager.hpp
+  BackgroundManager.cpp
+  Bullet.cpp
+C:\Users\polmd\Documents\GitHub\Metalborne2\Solution\Project1\Bullet.cpp(6,16): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\polmd\Documents\GitHub\Metalborne2\Solution\Project1\Bullet.cpp(7,21): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\polmd\Documents\GitHub\Metalborne2\Solution\Project1\Bullet.cpp(8,21): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+  BulletAnim.cpp
+  CameraManager.cpp
+  game.cpp
+C:\Users\polmd\Documents\GitHub\Metalborne2\Solution\Project1\game.cpp(59,16): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\polmd\Documents\GitHub\Metalborne2\Solution\Project1\game.cpp(62,16): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\polmd\Documents\GitHub\Metalborne2\Solution\Project1\game.cpp(668,25): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\polmd\Documents\GitHub\Metalborne2\Solution\Project1\game.cpp(669,26): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\xmemory(732,103): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+  (compiling source file 'game.cpp')
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\xmemory(732,103):
+      the template instantiation context (the oldest one first) is
+          C:\Users\polmd\Documents\GitHub\Metalborne2\Solution\Project1\game.cpp(242,10):
+          see reference to function template instantiation 'void std::vector<Bullet,std::allocator<Bullet>>::emplace_back<Vector2&,float&,float&,float&,int&>(Vector2 &,float &,float &,float &,int &)' being compiled
+              C:\Users\polmd\Documents\GitHub\Metalborne2\Solution\Project1\game.cpp(242,22):
+              see the first reference to 'std::vector<Bullet,std::allocator<Bullet>>::emplace_back' in 'Game::Shoot'
+          C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\vector(924,24):
+          see reference to function template instantiation '_Ty &std::vector<_Ty,std::allocator<_Ty>>::_Emplace_one_at_back<Vector2&,float&,float&,float&,int&>(Vector2 &,float &,float &,float &,int &)' being compiled
+          with
+          [
+              _Ty=Bullet
+          ]
+          C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\vector(845,20):
+          see reference to function template instantiation '_Ty &std::vector<_Ty,std::allocator<_Ty>>::_Emplace_back_with_unused_capacity<Vector2&,float&,float&,float&,int&>(Vector2 &,float &,float &,float &,int &)' being compiled
+          with
+          [
+              _Ty=Bullet
+          ]
+          C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\vector(863,27):
+          see reference to function template instantiation 'void std::_Default_allocator_traits<_Alloc>::construct<_Ty,Vector2&,float&,float&,float&,int&>(_Alloc &,_Objty *const ,Vector2 &,float &,float &,float &,int &)' being compiled
+          with
+          [
+              _Alloc=std::allocator<Bullet>,
+              _Ty=Bullet,
+              _Objty=Bullet
+          ]
+  
+  Grenade.cpp
+  item.cpp
+  LevelMap.cpp
+C:\Users\polmd\Documents\GitHub\Metalborne2\Solution\Project1\LevelMap.cpp(11,55): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\polmd\Documents\GitHub\Metalborne2\Solution\Project1\LevelMap.cpp(11,43): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\polmd\Documents\GitHub\Metalborne2\Solution\Project1\LevelMap.cpp(11,35): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\polmd\Documents\GitHub\Metalborne2\Solution\Project1\LevelMap.cpp(11,27): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\polmd\Documents\GitHub\Metalborne2\Solution\Project1\LevelMap.cpp(14,55): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\polmd\Documents\GitHub\Metalborne2\Solution\Project1\LevelMap.cpp(14,43): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\polmd\Documents\GitHub\Metalborne2\Solution\Project1\LevelMap.cpp(14,35): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\polmd\Documents\GitHub\Metalborne2\Solution\Project1\LevelMap.cpp(14,27): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+  main.cpp
+  Player.cpp
+  playerAnim.cpp
+  SceneManager.cpp
+  Soldier.cpp
+  SoldierAnim.cpp
+  UiManager.cpp
+  Generating Code...
+x64\Debug\AudioManager.obj : warning LNK4042: object specified more than once; extras ignored
+LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
   Project1.vcxproj -> C:\Users\polmd\Documents\GitHub\Metalborne2\Solution\x64\Debug\Project1.exe
-=======
-﻿  Soldier.cpp
-  Project1.vcxproj -> C:\Users\sergionr\Documents\GitHub\Metal-Slug\Solution\x64\Debug\Project1.exe
->>>>>>> main
