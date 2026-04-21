@@ -1,18 +1,24 @@
-﻿  AudioManager.cpp
-  AudioManager.hpp
-  BackgroundManager.cpp
-E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\BackgroundManager.cpp(128,45): warning C4244: '=': conversión de 'double' a 'float'; posible pérdida de datos
-  Bullet.cpp
-E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\Bullet.cpp(6,16): warning C4244: '=': conversión de 'int' a 'float'; posible pérdida de datos
-E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\Bullet.cpp(7,21): warning C4244: '=': conversión de 'int' a 'float'; posible pérdida de datos
-E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\Bullet.cpp(8,21): warning C4244: '=': conversión de 'int' a 'float'; posible pérdida de datos
-  BulletAnim.cpp
-  CameraManager.cpp
+﻿  CameraManager.cpp
+  Grenade.cpp
+  LevelMap.cpp
+E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\LevelMap.cpp(42,55): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
+E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\LevelMap.cpp(42,43): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
+E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\LevelMap.cpp(42,35): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
+E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\LevelMap.cpp(42,27): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
+E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\LevelMap.cpp(45,76): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
+E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\LevelMap.cpp(45,55): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
+E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\LevelMap.cpp(45,33): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
+E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\LevelMap.cpp(45,22): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
+E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\LevelMap.cpp(49,55): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
+E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\LevelMap.cpp(49,43): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
+E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\LevelMap.cpp(49,35): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
+E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\LevelMap.cpp(49,27): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
+  Soldier.cpp
   game.cpp
 E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\game.cpp(66,16): warning C4244: 'inicializando': conversión de 'double' a 'float'; posible pérdida de datos
 E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\game.cpp(69,16): warning C4244: 'inicializando': conversión de 'double' a 'float'; posible pérdida de datos
-E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\game.cpp(925,25): warning C4244: '=': conversión de 'int' a 'float'; posible pérdida de datos
-E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\game.cpp(926,26): warning C4244: '=': conversión de 'int' a 'float'; posible pérdida de datos
+E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\game.cpp(939,25): warning C4244: '=': conversión de 'int' a 'float'; posible pérdida de datos
+E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\game.cpp(940,26): warning C4244: '=': conversión de 'int' a 'float'; posible pérdida de datos
 C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\xmemory(732,103): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
   (compilando archivo de origen "game.cpp")
       C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\xmemory(732,103):
@@ -49,29 +55,8 @@ C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.3520
 C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\xmemory(732,103): warning C4244:         ]
   (compilando archivo de origen "game.cpp")
   
-  Grenade.cpp
-  item.cpp
-  LevelMap.cpp
-E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\LevelMap.cpp(42,55): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
-E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\LevelMap.cpp(42,43): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
-E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\LevelMap.cpp(42,35): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
-E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\LevelMap.cpp(42,27): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
-E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\LevelMap.cpp(45,76): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
-E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\LevelMap.cpp(45,55): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
-E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\LevelMap.cpp(45,33): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
-E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\LevelMap.cpp(45,22): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
-E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\LevelMap.cpp(49,55): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
-E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\LevelMap.cpp(49,43): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
-E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\LevelMap.cpp(49,35): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
-E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\LevelMap.cpp(49,27): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
-  main.cpp
-  Player.cpp
-  playerAnim.cpp
-  SceneManager.cpp
-  Soldier.cpp
-  SoldierAnim.cpp
-  UiManager.cpp
   Generando código...
+  LINK : no se encontró E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\x64\Debug\Project1.exe o no lo generó el último vínculo incremental; ejecutando vínculo completo
 x64\Debug\AudioManager.obj : warning LNK4042: objeto especificado más de una vez; omitidos los sobrantes
 LINK : warning LNK4098: la biblioteca predeterminada'MSVCRT' entra en conflicto con otras bibliotecas; use la biblioteca /NODEFAULTLIB:biblioteca
   Project1.vcxproj -> E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\x64\Debug\Project1.exe

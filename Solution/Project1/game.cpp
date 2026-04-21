@@ -700,6 +700,20 @@ void Game::BulletsCollision() {
             }
         }
 
+
+		// ← AQUÍ, antes del if(bulletHit), colisión con cajas
+		if (!bulletHit) {
+			for (auto& item : items) {
+				if (item.IsActive() && item.GetType() == ItemType::BOX) {
+					if (CheckCollisionRecs(bIt->GetHitbox(), item.GetHitBox())) {
+						item.Destroy();
+						bulletHit = true;
+						break;
+					}
+				}
+			}
+		}
+
         // 3. LIMPIEZA DE BALAS
         if (bulletHit) {
             bIt = bullets.erase(bIt); // Borrar bala tipo 1 o 3 tras impactar
