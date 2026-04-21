@@ -7,14 +7,26 @@ static const float TICK_INTERVAL = 1.0f;
 const float UiManager::INTRO_DURATION = 3.0f;
 const float UiManager::BLINK_INTERVAL = 0.25f;
 
+static const float FONT_SIZE_HUD = 28.0f;
+static const float FONT_SIZE_BOTTOM = 30.0f;
+static const float FONT_SPACING = 1.0f;
+
 UiManager::UiManager()
     : credits(0), score(0), level(1), timeLeft(60),
     timeAccum(0.0f), introTimer(0.0f),
-    blinkAccum(0.0f), blinkVisible(true)
+    blinkAccum(0.0f), blinkVisible(true),
+    fontLoaded(false)
 {
     texMetalNumbers = LoadTexture("Graphics/letters/metal_numbers.png");
     texTimeNumbers = LoadTexture("Graphics/letters/time_numbers.png");
     texYellowLetters = LoadTexture("Graphics/letters/yellow_numbers_and_letters.png");
+
+    slugFont = LoadFontEx("metal-slug-colour.colr.ttf", 64, nullptr, 0);
+    if (slugFont.texture.id != 0)
+    {
+        fontLoaded = true;
+        SetTextureFilter(slugFont.texture, TEXTURE_FILTER_BILINEAR);
+    }
 }
 
 UiManager::~UiManager()
@@ -22,6 +34,8 @@ UiManager::~UiManager()
     UnloadTexture(texMetalNumbers);
     UnloadTexture(texTimeNumbers);
     UnloadTexture(texYellowLetters);
+    if (fontLoaded)
+        UnloadFont(slugFont);
 }
 
 // ============================================================
@@ -55,6 +69,30 @@ void UiManager::Update()
 bool UiManager::IsMissionIntroOver() const
 {
     return introTimer >= INTRO_DURATION;
+}
+
+// ============================================================
+//  FONT TTF (COLR)
+//  Kluczowe: przekazujemy WHITE zeby nie nadpisac wbudowanych kolorow fonta.
+//  COLR font ma kolory zakodowane w samym pliku — raylib je renderuje
+//  poprawnie tylko gdy tint = WHITE (mnoznik 1.0 nie zmienia kolorow).
+//  Jakikolwiek inny kolor (np. {255,255,255,200}) zaburza rendering.
+// ============================================================
+void UiManager::DrawSlugText(const char* str, Vector2 pos, float fontSize) const
+{
+    if (fontLoaded)
+        // WHITE = nie zmieniaj kolorow wbudowanych w COLR font
+        DrawTextEx(slugFont, str, pos, fontSize, FONT_SPACING, WHITE);
+    else
+        DrawText(str, (int)pos.x, (int)pos.y, (int)fontSize, LIGHTGRAY);
+}
+
+float UiManager::MeasureSlugText(const char* str, float fontSize) const
+{
+    if (fontLoaded)
+        return MeasureTextEx(slugFont, str, fontSize, FONT_SPACING).x;
+    else
+        return (float)MeasureText(str, (int)fontSize);
 }
 
 // ============================================================
@@ -121,9 +159,9 @@ float UiManager::MeasureTimeString(const char* str, float scale) const
 }
 
 // ============================================================
-//  YELLOW TEXT  (spacing: 0.78 = lekko scisniety ale czytelny)
+//  YELLOW TEXT (sprite - dla 3UP i MISSION)
 // ============================================================
-void UiManager::DrawYellowChar(char c, Vector2 pos, float scale) const
+void UiManager::DrawYellowChar(char c, Vector2 pos, float scale, Color tint) const
 {
     int col = -1;
     if (c >= 'A' && c <= 'Z') col = c - 'A';
@@ -135,17 +173,17 @@ void UiManager::DrawYellowChar(char c, Vector2 pos, float scale) const
 
     Rectangle src = { col * YELLOW_W, 0, YELLOW_W, YELLOW_H };
     Rectangle dst = { pos.x, pos.y, YELLOW_W * scale, YELLOW_H * scale };
-    DrawTexturePro(texYellowLetters, src, dst, { 0,0 }, 0.0f, WHITE);
+    DrawTexturePro(texYellowLetters, src, dst, { 0,0 }, 0.0f, tint);
 }
 
-void UiManager::DrawYellowText(const char* str, Vector2 pos, float scale, float spacing) const
+void UiManager::DrawYellowText(const char* str, Vector2 pos, float scale, float spacing, Color tint) const
 {
     float step = YELLOW_W * scale * spacing;
     float x = pos.x;
     for (int i = 0; str[i]; ++i)
     {
         if (str[i] == ' ') { x += step * 0.6f; continue; }
-        DrawYellowChar(str[i], { x, pos.y }, scale);
+        DrawYellowChar(str[i], { x, pos.y }, scale, tint);
         x += step;
     }
 }
@@ -170,17 +208,17 @@ void UiManager::DrawCredits(Camera2D camera)
     int   screenW = GetScreenWidth();
     int   screenH = GetScreenHeight();
 
-    float labelScale = 1.1f;
     float metalScale = 0.75f;
     float timerScale = 4.5f;
-    float bottomScale = 1.1f;
-    float sp = 0.78f;  // spacing liter - lekko scisniety
+    float sp = 0.78f;
 
     float topY = 35.0f;
     float padL = 30.0f;
     float padR = 20.0f;
-    float bottomY = (float)screenH - YELLOW_H * bottomScale - 4.0f;
+    float bottomY = (float)screenH - FONT_SIZE_BOTTOM - 8.0f;
     float ly = topY;
+
+    Color colYellow = { 255, 200, 0, 255 };
 
     // ===== SCORE - wyrownany do prawej =====
     float scoreRightEdge = padL + MeasureMetalNumber(7, metalScale);
@@ -193,19 +231,19 @@ void UiManager::DrawCredits(Camera2D camera)
 
     DrawMetalNumber(score, 0, { scoreX, topY }, metalScale);
 
-    // ===== 3UP =====
-    DrawYellowText("3UP", { padL + 10.0f, ly + 30.0f }, 1.3f, sp);
+    // ===== 3UP - zolty sprite =====
+    DrawYellowText("3UP", { padL + 10.0f, ly + 30.0f }, 1.3f, sp, colYellow);
 
-    // ===== RAMKA (ARMS / BOMB) =====
-    // Padding wewnetrzny - rowny z obu stron
+    // ===== RAMKA (ARMS / BOMB) z TTF =====
     float innerPad = 10.0f;
-    float sectionGap = 10.0f;  // odstep miedzy sekcjami ARMS i BOMB
+    float sectionGap = 10.0f;
 
-    float armsW = MeasureYellowText("ARMS", labelScale, sp);
-    float bombW = MeasureYellowText("BOMB", labelScale, sp);
+    float armsW = MeasureSlugText("ARMS", FONT_SIZE_HUD);
+    float bombW = MeasureSlugText("BOMB", FONT_SIZE_HUD);
+    float infW = MeasureSlugText("INF", FONT_SIZE_HUD);
 
     float contentW = armsW + sectionGap + bombW;
-    float totalH = YELLOW_H * labelScale * 2 + 2.0f;
+    float totalH = FONT_SIZE_HUD * 2 + 6.0f;
 
     float frameX = scoreRightEdge + 4.0f;
     float frameW = innerPad + contentW + innerPad;
@@ -215,24 +253,22 @@ void UiManager::DrawCredits(Camera2D camera)
     int top = (int)(ly - 2);
     int bottom = (int)(ly + totalH + 2);
 
-    // ramka
     DrawRectangle(left, top, right - left, 3, WHITE);
     DrawRectangle(left, top, 3, bottom - top, WHITE);
     DrawRectangle(left, bottom - 3, right - left, 3, GRAY);
     DrawRectangle(right - 3, top, 3, bottom - top, GRAY);
 
-    // content od innerPad po lewej
-    float armsX = frameX + innerPad - 6.0f;
-    float ammoY = ly + YELLOW_H * labelScale + 2.0f;
+    float armsX = frameX + innerPad;
+    float ammoY = ly + FONT_SIZE_HUD + 4.0f;
 
-    DrawYellowText("ARMS", { armsX, ly }, labelScale, sp);
-
-    float infW = MeasureYellowText("INF", labelScale, sp);
-    DrawYellowText("INF", { armsX + (armsW - infW) / 2.0f, ammoY }, labelScale, sp);
+    // ARMS, INF, BOMB - TTF z wbudowanymi kolorami COLR
+    DrawSlugText("ARMS", { armsX, ly }, FONT_SIZE_HUD);
+    DrawSlugText("INF", { armsX + (armsW - infW) / 2.0f, ammoY }, FONT_SIZE_HUD);
 
     float bombX = armsX + armsW + sectionGap;
-    DrawYellowText("BOMB", { bombX, ly }, labelScale, sp);
+    DrawSlugText("BOMB", { bombX, ly }, FONT_SIZE_HUD);
 
+    // cyfry bomb - metal sprite
     float bombNumScale = metalScale * 0.65f;
     float numW = MeasureMetalNumber(2, bombNumScale);
     DrawMetalNumber(10, 2, { bombX + (bombW - numW) / 2.0f, ammoY }, bombNumScale);
@@ -253,23 +289,23 @@ void UiManager::DrawCredits(Camera2D camera)
         x += TIME_W * timerScale;
     }
 
-    // ===== LEVEL - srodek dolu =====
+    // ===== LEVEL - srodek dolu, TTF =====
     char levelText[16];
     std::snprintf(levelText, sizeof(levelText), "LEVEL-%d", level);
 
-    float levelW = MeasureYellowText(levelText, bottomScale, sp);
-    DrawYellowText(levelText, { (float)screenW / 2.0f - levelW / 2.0f, bottomY }, bottomScale, sp);
+    float levelW = MeasureSlugText(levelText, FONT_SIZE_BOTTOM);
+    DrawSlugText(levelText, { (float)screenW / 2.0f - levelW / 2.0f, bottomY }, FONT_SIZE_BOTTOM);
 
-    // ===== CREDIT - prawy dol =====
+    // ===== CREDIT - prawy dol, TTF =====
     char credStr[8];
     std::snprintf(credStr, sizeof(credStr), "%02d", credits);
 
-    float creditLabelW = MeasureYellowText("CREDIT", bottomScale, sp);
-    float creditNumW = MeasureYellowText(credStr, bottomScale, sp);
+    float creditLabelW = MeasureSlugText("CREDIT", FONT_SIZE_BOTTOM);
+    float creditNumW = MeasureSlugText(credStr, FONT_SIZE_BOTTOM);
     float cx2 = (float)screenW - creditLabelW - 8.0f - creditNumW - padR;
 
-    DrawYellowText("CREDIT", { cx2, bottomY }, bottomScale, sp);
-    DrawYellowText(credStr, { cx2 + creditLabelW + 8.0f, bottomY }, bottomScale, sp);
+    DrawSlugText("CREDIT", { cx2, bottomY }, FONT_SIZE_BOTTOM);
+    DrawSlugText(credStr, { cx2 + creditLabelW + 8.0f, bottomY }, FONT_SIZE_BOTTOM);
 
     DrawMissionIntro();
 }
@@ -310,7 +346,7 @@ void UiManager::NextLevel()
 int UiManager::GetLevel() const { return level; }
 
 // ============================================================
-//  MISSION INTRO
+//  MISSION INTRO - zolty sprite
 // ============================================================
 void UiManager::DrawMissionIntro()
 {
@@ -322,9 +358,11 @@ void UiManager::DrawMissionIntro()
     float scale = 2.0f;
     float sp = 0.78f;
 
+    Color colYellow = { 255, 200, 0, 255 };
+
     char text[32];
     std::snprintf(text, sizeof(text), "MISSION %d", level);
 
     float w = MeasureYellowText(text, scale, sp);
-    DrawYellowText(text, { screenW / 2.0f - w / 2.0f, screenH / 2.0f }, scale, sp);
+    DrawYellowText(text, { screenW / 2.0f - w / 2.0f, screenH / 2.0f }, scale, sp, colYellow);
 }
