@@ -64,4 +64,5 @@ private:
     // rysuje TTF bez zadnego tinta - zachowuje wbudowane kolory COLR fonta
     void  DrawSlugText(const char* str, Vector2 pos, float fontSize) const;
     float MeasureSlugText(const char* str, float fontSize) const;
+    void DrawSlugTextShadow(const char* str, Vector2 pos, float fontSize) const;
 };
