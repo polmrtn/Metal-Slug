@@ -1,5 +1,7 @@
 ﻿#include "Grenade.hpp"
 #include <cmath>
+#include<vector>
+#include "Soldier.hpp" 
 #include "raylib.h"
 
 // Definir las variables estáticas
@@ -49,7 +51,6 @@ void Grenade::Update() {
                 isExploding = false;
             }
         }
-
         explosionTimer += GetFrameTime();
         if (explosionTimer >= explosionDuration && explosionFrame >= explosionTotalFrames - 1) {
             isActive = false;
@@ -57,41 +58,57 @@ void Grenade::Update() {
         return;
     }
 
-    // Actualizar animación de la granada
+    // Guardar posición anterior para detección continua
+    Vector2 prevPos = position;
+
+    // Actualizar animación
     animationTimer += GetFrameTime();
     if (animationTimer >= frameDelay) {
         animationTimer = 0.0f;
-        currentFrame++;
-        if (currentFrame >= totalFrames) {
-            currentFrame = 0;
-        }
+        currentFrame = (currentFrame + 1) % totalFrames;
     }
 
+    // Físicas
     velocity.y += gravity * GetFrameTime();
     position.x += velocity.x * GetFrameTime();
     position.y += velocity.y * GetFrameTime();
 
-    // ========== REBOTE EN EL SUELO ==========
-    if (position.y >= targetPos.y && !hasBounced && !hasExploded) {
-        position.y = targetPos.y;
-        velocity.y = -velocity.y * bounceDamping;
-        // No reducir velocidad horizontal para mantener la dirección
-        hasBounced = true;
-        TraceLog(LOG_INFO, "Grenade bounced! VelY: %.2f, VelX: %.2f", velocity.y, velocity.x);
-    }
-    // Si ya rebotó y toca el suelo de nuevo, explotar
-    else if (position.y >= targetPos.y && hasBounced && !hasExploded) {
-        Explode();
-    }
+    // Detección de colisión con el suelo (continua)
+    if (!hasExploded) {
+        bool crossedGround = (prevPos.y < targetPos.y && position.y >= targetPos.y);
 
-    // ELIMINA o COMENTA el límite de distancia
+        if (crossedGround || position.y >= targetPos.y) {
+            if (!hasBounced) {
+                // PRIMER REBOTE - no explota
+                position.y = targetPos.y;
+                velocity.y = -velocity.y * bounceDamping;
+                hasBounced = true;
+            }
+            else if (hasBounced) {
+                // SEGUNDO CONTACTO - EXPLOTA
+                position.y = targetPos.y;
+                Explode();
+            }
+        }
+    }
 }
 
+void Grenade::CheckCollisionWithSoldiers(std::vector<Soldier>& soldiers) {
+    if (!isActive || hasExploded) return;
+
+    for (auto& soldier : soldiers) {
+        if (soldier.GetisAlive()) {
+            if (CheckCollisionRecs(soldier.GetHurtBox(), GetHitBox())) {
+                Explode();  // Explota inmediatamente al tocar al soldado
+                return;
+            }
+        }
+    }
+}
 void Grenade::Explode() {
     hasExploded = true;
     explosionTimer = 0.0f;
     StartExplosion();
-    TraceLog(LOG_INFO, "Grenade exploded! hasExploded=%d, isExploding=%d", hasExploded, isExploding);
 }
 
 void Grenade::StartExplosion() {

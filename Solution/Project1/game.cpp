@@ -16,7 +16,7 @@ Game::Game() : camera({ 1280.0f/2 , 896/2  })
 	else {
 		blocks = CreateBlocks();  // Solo si no hay archivo
 	}
-	//soldiers = CreateSoldiers();
+	soldiers = CreateSoldiers();
 	bullets = CreateBullets();	
 	items = CreateItems();
 }
@@ -162,6 +162,7 @@ void Game::Update(){
 		}
 		for (auto& grenade : grenades) {
 			grenade.Update();
+			grenade.CheckCollisionWithSoldiers(soldiers);
 		}
 
 		// Actualizar cooldown de granada
