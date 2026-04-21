@@ -319,6 +319,7 @@ void Game::HandleInput()
 		player.Shoot();
 		Shoot();
 		shootTimer = 0;
+		audioManager.PlaySound(audioManager.GetShootSound());
 	}
 
 	if (IsKeyPressed(KEY_S) && player.IsAlive() && grenadeCooldown <= 0.0f) {
