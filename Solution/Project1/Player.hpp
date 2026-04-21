@@ -94,7 +94,7 @@ private:
     PlayerAnim anim;
 
     // ========== POSICIÓN Y FÍSICA ==========
-    Vector2 pos = { 8000.0f, 100.0f };
+    Vector2 pos = { 0.0f, 100.0f };
     Vector2 vel = { 0.0f, 0.0f };
     float inputVelX = 0.0f;     // Velocidad deseada por input (para animación)
     float previousY = 0.0f;     // Posición Y del frame anterior
@@ -141,7 +141,7 @@ private:
     // ========== ARMAS ==========
     WeaponType currentWeapon = WeaponType::PISTOL;
     int machinegunAmmo = 0;
-    static constexpr int MACHINEGUN_MAX_AMMO = 20;
+    static constexpr int MACHINEGUN_MAX_AMMO = 200;
 
     // ========== MÉTODOS DE DIBUJO PRIVADOS ==========
     void DrawSeparated();

@@ -102,12 +102,15 @@ void Player::Update(float CameraLeftLimit) {
 // ========== MOVIMIENTO ==========
 void Player::MoveLeft() {
     if (mode != Mode::FULL_BODY && !crouching) {
+        if (currentWeapon == WeaponType::MACHINEGUN && anim.IsMachinegunCrouchShooting()) return;
         inputVelX = -MOVE_SPEED;
         if (!leftCollision) vel.x = -MOVE_SPEED;
         else vel.x = 0;
         dir = PlayerDirection::LEFT;
     }
     else if (crouching && !anim.IsCrouchShooting()) {
+        if (currentWeapon == WeaponType::MACHINEGUN &&
+            (anim.IsMachinegunCrouchShooting() || anim.IsMachinegunCrouchThrowing())) return;
         inputVelX = -CROUCH_SPEED;
         if (!leftCollision) vel.x = -CROUCH_SPEED;
         else vel.x = 0;
@@ -117,12 +120,15 @@ void Player::MoveLeft() {
 
 void Player::MoveRight() {
     if (mode != Mode::FULL_BODY && !crouching) {
+        if (currentWeapon == WeaponType::MACHINEGUN && anim.IsMachinegunCrouchShooting()) return;
         inputVelX = MOVE_SPEED;
         if (!rightCollision) vel.x = MOVE_SPEED;
         else vel.x = 0;
         dir = PlayerDirection::RIGHT;
     }
     else if (crouching && !anim.IsCrouchShooting()) {
+        if (currentWeapon == WeaponType::MACHINEGUN &&
+            (anim.IsMachinegunCrouchShooting() || anim.IsMachinegunCrouchThrowing())) return;
         inputVelX = CROUCH_SPEED;
         if (!rightCollision) vel.x = CROUCH_SPEED;
         else vel.x = 0;
@@ -165,7 +171,12 @@ void Player::StartCrouching() {
         crouching = true;
         aimingUp = false;
         SetCrouchHitbox();
-        anim.ForceCrouch();
+        if (currentWeapon == WeaponType::MACHINEGUN) {
+            anim.StartMachinegunCrouch();
+        }
+        else {
+            anim.ForceCrouch();
+        }
         pos.y = feetY - GetHeight();
     }
 }
@@ -176,6 +187,9 @@ void Player::StopCrouching() {
         crouching = false;
         SetNormalHitbox();
         pos.y = currentY - 60.0f;
+        if (currentWeapon == WeaponType::MACHINEGUN) {
+            anim.StopMachinegunCrouch();
+        }
     }
 }
 
@@ -183,7 +197,12 @@ void Player::Shoot() {
     if (mode != Mode::FULL_BODY) {
         if (crouching) {
             vel.x = 0;
-            anim.StartCrouchShoot();
+            if (currentWeapon == WeaponType::MACHINEGUN) {
+                anim.StartMachinegunCrouchShoot();
+            }
+            else {
+                anim.StartCrouchShoot();
+            }
         }
         else if (aimingUp) {
             if (currentWeapon == WeaponType::MACHINEGUN) {
@@ -213,7 +232,17 @@ PlayerDirection Player::GetAimDirection() const {
 
 // ========== GRANADA ==========
 GrenadeThrowData Player::ThrowGrenade() {
-    if (currentWeapon == WeaponType::MACHINEGUN) {
+    if (crouching) {
+        vel.x = 0;
+        inputVelX = 0;
+        if (currentWeapon == WeaponType::MACHINEGUN) {
+            anim.StartMachinegunCrouchThrow();
+        }
+        else {
+            anim.StartCrouchThrow();
+        }
+    }
+    else if (currentWeapon == WeaponType::MACHINEGUN) {
         anim.StartMachinegunThrow();
     }
     else {
@@ -407,6 +436,98 @@ void Player::DrawCrouch() {
     float yOffset;
     float drawX = pos.x;
 
+    if (anim.IsMachinegunCrouching()) {
+
+        // Prioridad 1: Disparo agachado machinegun
+        if (anim.IsMachinegunCrouchShooting()) {
+            rowY = anim.GetRowMachinegunCrouchShoot();
+            currentHeight = 34.0f;
+            yOffset = -35.0f;  // ajustar a ojo
+            sourceRect = { anim.GetMachinegunCrouchShootFrame() * 68.0f, rowY, 68.0f, currentHeight };
+            if (dir == PlayerDirection::LEFT) {
+                sourceRect.width = -68.0f;
+                drawX = pos.x - (68.0f - 34.0f) * SCALE;
+            }
+            Rectangle destRect = { drawX, pos.y + yOffset, 68.0f * SCALE, currentHeight * SCALE };
+            DrawTexturePro(anim.GetSheet(), sourceRect, destRect, { 0,0 }, 0, WHITE);
+            return;
+        }
+
+        // Prioridad 2: Granada agachado machinegun
+        if (anim.IsMachinegunCrouchThrowing()) {
+            rowY = anim.GetRowMachinegunCrouchThrow();
+            currentHeight = anim.GetMachinegunCrouchThrowH();
+            yOffset = -165.0f;  // ajustar a ojo
+            sourceRect = { anim.GetMachinegunCrouchThrowFrame() * 68.0f, rowY, 68.0f, currentHeight };
+            if (dir == PlayerDirection::LEFT) {
+                sourceRect.width = -68.0f;
+                drawX = pos.x - (68.0f - 34.0f) * SCALE;
+            }
+            Rectangle destRect = { drawX, pos.y + yOffset, 68.0f * SCALE, currentHeight * SCALE };
+            DrawTexturePro(anim.GetSheet(), sourceRect, destRect, { 0,0 }, 0, WHITE);
+            return;
+        }
+
+        // Prioridad 3: Caminar agachado machinegun
+        if (anim.IsMachinegunCrouchWalking()) {
+            rowY = anim.GetRowMachinegunCrouchWalk();
+            currentHeight = 34.0f;
+            yOffset = -35.0f;  // ajustar a ojo
+            sourceRect = { anim.GetMachinegunCrouchWalkFrame() * 68.0f, rowY, 68.0f, currentHeight };
+            if (dir == PlayerDirection::LEFT) {
+                sourceRect.width = -68.0f;
+                drawX = pos.x - (68.0f - 34.0f) * SCALE;
+            }
+            Rectangle destRect = { drawX, pos.y + yOffset, 68.0f * SCALE, currentHeight * SCALE };
+            DrawTexturePro(anim.GetSheet(), sourceRect, destRect, { 0,0 }, 0, WHITE);
+            return;
+        }
+
+        // Prioridad 4: Transición e idle
+        if (anim.IsMachinegunCrouchTransition()) {
+            rowY = anim.GetRowMachinegunCrouchTransition();
+            currentHeight = anim.GetMachinegunCrouchTransitionH();
+            yOffset = -165.0f;
+            sourceRect = { anim.GetMachinegunCrouchFrame() * 68.0f, rowY, 68.0f, currentHeight };
+            if(dir != PlayerDirection::LEFT) drawX = pos.x + 10.0f;
+        }
+        else {
+            rowY = anim.GetRowMachinegunCrouchIdle();
+            currentHeight = anim.GetMachinegunCrouchIdleH();
+            yOffset = -35.0f;
+            sourceRect = { anim.GetMachinegunCrouchFrame() * 68.0f, rowY, 68.0f, currentHeight };
+        }
+
+        if (dir == PlayerDirection::LEFT) {
+            sourceRect.width = -68.0f;
+            drawX = pos.x - (68.0f - 34.0f) * SCALE;
+        }
+        Rectangle destRect = { drawX, pos.y + yOffset, 68.0f * SCALE, currentHeight * SCALE };
+        DrawTexturePro(anim.GetSheet(), sourceRect, destRect, { 0,0 }, 0, WHITE);
+        return;
+    }
+
+    // ========== PISTOLA CROUCH ==========
+
+    if (anim.IsCrouchThrowing()) {
+        rowY = anim.GetCrouchThrowRowY();
+        currentHeight = 34.0f;
+        yOffset = -25.0f;  // ajustar a ojo
+        sourceRect = {
+            (float)(anim.GetCrouchThrowFrame() * 68.0f),
+            rowY,
+            anim.GetCrouchThrowW(),
+            currentHeight
+        };
+        if (dir == PlayerDirection::LEFT) {
+            sourceRect.width = -anim.GetCrouchThrowW();
+            drawX = pos.x - (anim.GetCrouchThrowW() - 34.0f) * SCALE;
+        }
+        Rectangle destRect = { drawX, pos.y + yOffset, anim.GetCrouchThrowW() * SCALE, currentHeight * SCALE };
+        DrawTexturePro(anim.GetSheet(), sourceRect, destRect, { 0,0 }, 0, WHITE);
+        return;
+    }
+
     if (anim.IsCrouchShooting()) {
         rowY = anim.GetCrouchShootRowY();
         currentHeight = 34.0f;
@@ -495,8 +616,15 @@ void Player::DrawSeparated() {
         legSrc = { 4 * w, anim.GetRowIdle(), w, h };
     }
     if (dir == PlayerDirection::LEFT) legSrc.width = -w;
+
+    float legsDrawX = pos.x + legsOffsetX * SCALE;
+    if (anim.GetLegsAnim() == LegsAnim::JUMPING &&
+        (anim.IsMachinegunIdle() || anim.IsMachinegunShooting() || anim.IsMachinegunAiming())) {
+        legsDrawX += (dir == PlayerDirection::RIGHT ? -30.0f : 30.0f);
+    }
+
     DrawTexturePro(anim.GetSheet(), legSrc,
-        { pos.x + legsOffsetX * SCALE, baseY + off.legsY * SCALE, w * SCALE, h * SCALE },
+        { legsDrawX, baseY + off.legsY * SCALE, w * SCALE, h * SCALE },
         { 0,0 }, 0, WHITE);
 
     // Torso
@@ -561,10 +689,13 @@ void Player::DrawSeparated() {
     if (anim.IsMachinegunAiming() && anim.IsMachinegunShootingUp()) {
         torsoSrc = { (float)(anim.GetMachinegunShootUpFrame() * 34.0f), anim.GetMachinegunShootUpRowY(), 34.0f, anim.GetMachinegunShootUpH() };
         float shootUpBaseY = torsoDrawY - (68.0f * SCALE) - 20.0f;
-        float shootUpBaseX = torsoDrawX - 60.0f;
-        if (dir == PlayerDirection::LEFT) torsoSrc.width = -34.0f;
+        float shootUpBaseX = torsoDrawX - 20.0f;
+        if (dir == PlayerDirection::LEFT) {
+            torsoSrc.width = -34.0f;
+            shootUpBaseX = torsoDrawX + 20.0f;  // ajusta este valor hasta que cuadre
+        }
         DrawTexturePro(anim.GetSheet(), torsoSrc,
-            { torsoDrawX, shootUpBaseY, 34.0f * SCALE, anim.GetMachinegunShootUpH() * SCALE },
+            { shootUpBaseX, shootUpBaseY, 34.0f * SCALE, anim.GetMachinegunShootUpH() * SCALE },
             { 0,0 }, 0, tint);
         return;
     }
