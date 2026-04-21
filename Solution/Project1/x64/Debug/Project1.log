@@ -1,3 +1,8 @@
+<<<<<<< HEAD
+﻿  BackgroundManager.cpp
+C:\Users\sergionr\Documents\GitHub\Metal-Slug\Solution\Project1\BackgroundManager.cpp(90,67): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+  Project1.vcxproj -> C:\Users\sergionr\Documents\GitHub\Metal-Slug\Solution\x64\Debug\Project1.exe
+=======
 ﻿  game.cpp
 E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\game.cpp(63,16): warning C4244: 'inicializando': conversión de 'double' a 'float'; posible pérdida de datos
 E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\game.cpp(66,16): warning C4244: 'inicializando': conversión de 'double' a 'float'; posible pérdida de datos
@@ -40,3 +45,4 @@ C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.3520
   (compilando archivo de origen "game.cpp")
   
   Project1.vcxproj -> E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\x64\Debug\Project1.exe
+>>>>>>> main

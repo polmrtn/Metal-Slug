@@ -27,7 +27,7 @@ private:
     float explosionDuration = 0.3f;
     float explosionRadius = 50.0f;
     bool hasBounced = false;  // ← Si ya ha rebotado
-    float bounceDamping = 0.6f;  // ← Pérdida de velocidad al rebotar (0.6 = 60% de velocidad)
+    float bounceDamping = 0.8f;  // ← Pérdida de velocidad al rebotar (0.6 = 60% de velocidad)
 
     // Animación de la granada
     static Texture2D texture;  
