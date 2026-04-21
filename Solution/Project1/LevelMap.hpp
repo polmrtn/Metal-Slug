@@ -7,7 +7,8 @@
 enum class BlockType {
     NORMAL,     // Bloque normal
     RAMP_UP,    // Rampa que sube hacia la derecha
-    RAMP_DOWN   // Rampa que baja hacia la derecha
+    RAMP_DOWN,   // Rampa que baja hacia la derecha
+    CEILING     // NUEVO: Techo (bloquea desde arriba)
 };
 
 class Block {

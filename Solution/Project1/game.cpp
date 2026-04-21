@@ -505,6 +505,11 @@ void Game::HandleInput()
 		float blockX = gridOffset.x + tileX * gridSize;
 		float blockY = gridOffset.y + tileY * gridSize;
 
+		// Tecla Y: techo (ceiling)
+		if (IsKeyPressed(KEY_Y)) {
+			blocks.emplace_back(blockX, blockY, gridSize, gridSize, BlockType::CEILING);
+			TraceLog(LOG_INFO, "Techo creado en (%.0f, %.0f)", blockX, blockY);
+		}
 		// Click izquierdo: suelo normal
 		if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
 			blocks.emplace_back(blockX, blockY, gridSize, gridSize, true);
@@ -719,6 +724,23 @@ void Game::BlockCollisions() {
 		Rectangle playerRect = player.GetHitBox();
 		Rectangle blockRect = block.GetRect();
 
+		// ========== COLISIÓN CON TECHO (CEILING) ==========
+		if (block.GetType() == BlockType::CEILING) {
+			// Verificar colisión real entre el jugador y el bloque
+			if (CheckCollisionRecs(playerRect, blockRect)) {
+				// Si la cabeza del jugador está dentro del techo Y está subiendo
+				if (playerRect.y < blockRect.y + blockRect.height &&
+					player.GetVelocityY() < 0) {
+
+					// Recolocar arriba del techo
+					player.SetY(blockRect.y + blockRect.height);
+					player.SetVelocityY(0);
+					TraceLog(LOG_INFO, "Ceiling collision at Y: %.2f", blockRect.y + blockRect.height);
+				}
+			}
+			continue;
+		}
+
 		// ========== COLISIÓN CON RAMPAS ==========
 		if (block.IsRamp()) {
 			// Centro X del jugador
@@ -852,6 +874,7 @@ void Game::SaveBlocksToFile(const char* filename) {
 		int typeValue = 0;
 		if (block.GetType() == BlockType::RAMP_UP) typeValue = 2;
 		else if (block.GetType() == BlockType::RAMP_DOWN) typeValue = 3;
+		else if (block.GetType() == BlockType::CEILING) typeValue = 4;
 		else typeValue = block.IsGround() ? 1 : 0;
 
 		fprintf(file, "%.0f,%.0f,%.0f,%.0f,%d\n",
@@ -877,6 +900,9 @@ void Game::LoadBlocksFromFile(const char* filename) {
 		}
 		else if (typeValue == 3) {
 			blocks.emplace_back(x, y, w, h, BlockType::RAMP_DOWN);
+		}
+		else if (typeValue == 4) { 
+			blocks.emplace_back(x, y, w, h, BlockType::CEILING);
 		}
 		else {
 			blocks.emplace_back(x, y, w, h, typeValue == 1);
