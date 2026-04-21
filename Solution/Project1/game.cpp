@@ -705,7 +705,7 @@ void Game::BulletsCollision() {
 		if (!bulletHit) {
 			for (auto& item : items) {
 				if (item.IsActive() && item.GetType() == ItemType::BOX) {
-					if (CheckCollisionRecs(bIt->GetHitbox(), item.GetHitBox())) {
+					if (CheckCollisionRecs(bIt->GetHitbox(), item.GetHitBox()) && bIt->GetType() == 1 || bIt->GetType() == 3) {
 						item.Destroy();
 						bulletHit = true;
 						break;
