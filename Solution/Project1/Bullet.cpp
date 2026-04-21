@@ -19,7 +19,12 @@ Bullet::Bullet(Vector2 position, int speed, int directionX, int directionY, int 
 		bulletAnim.LoadTexture(2);
 		
 		break;
+
+	case 3:
+		bulletAnim.LoadTexture(3);
+		break;
 	}
+
 	
 }
 Bullet::Bullet(const Bullet& other) 
@@ -39,6 +44,8 @@ Bullet::Bullet(const Bullet& other)
 }
 
 void Bullet::Update() {
+
+
 	bulletAnim.Update();
 	float dt = GetFrameTime();
 
@@ -53,6 +60,10 @@ void Bullet::Update() {
 		directionY += 15.0f * dt;
 		position.x += (directionX * speed) * dt;
 		position.y += (directionY * 200.0f) * dt;
+	}
+	else if (type == 3) {
+		position.x += (directionX * speed) * dt;
+		position.y += (directionY * speed) * dt;
 	}
 }
 
@@ -87,21 +98,30 @@ void Bullet::Draw() {
 		textureToDraw = bulletAnim.GetBulletPlayerImg();
 		sourceRect = { 0, 0, (float)textureToDraw.width, (float)textureToDraw.height };
 	}
+	else if (type == 3) {
+		textureToDraw = bulletAnim.GetBulletRifleImg();
+		sourceRect = { 0, 0, 34.0f, 34.0f };
+	}
 	else {
 		textureToDraw = bulletAnim.GetSheet();
 		sourceRect = bulletAnim.GetSourceRect();
 	}
 
+	float rotation = 0.0f;
+	Vector2 origin = { 0, 0 };
+
+	if (type == 3 && directionY < 0) {
+		rotation = -90.0f;
+		origin = { GetWidth() / 2.0f, GetHeight() / 2.0f };
+	}
+
 	Rectangle destRect = {
-		position.x,
-		position.y,
-		GetWidth(),  // Ahora din�mico
-		GetHeight()  // Ahora din�mico
+		position.x + (rotation != 0.0f ? GetWidth() / 2.0f : 0.0f),
+		position.y + (rotation != 0.0f ? GetHeight() / 2.0f : 0.0f),
+		GetWidth(),
+		GetHeight()
 	};
 
-	Vector2 origin = { 0, 0 };
-	DrawTexturePro(textureToDraw, sourceRect, destRect, origin, 0.0f, WHITE);
-
-	// Esto ahora dibujar� el recuadro exactamente sobre la textura escalada
+	DrawTexturePro(textureToDraw, sourceRect, destRect, origin, rotation, WHITE);
 	DrawHitBox();
 }

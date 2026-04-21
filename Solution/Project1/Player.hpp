@@ -141,7 +141,7 @@ private:
     // ========== ARMAS ==========
     WeaponType currentWeapon = WeaponType::PISTOL;
     int machinegunAmmo = 0;
-    static constexpr int MACHINEGUN_MAX_AMMO = 20;
+    static constexpr int MACHINEGUN_MAX_AMMO = 200;
 
     // ========== MÉTODOS DE DIBUJO PRIVADOS ==========
     void DrawSeparated();

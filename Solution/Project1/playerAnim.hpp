@@ -124,6 +124,41 @@ public:
     float GetMachinegunShootUpH() const { return 102.0f; }
     void StartMachinegunShootUp();
 
+    bool IsMachinegunCrouching() const { return machinegunCrouching; }
+    bool IsMachinegunCrouchTransition() const { return machinegunCrouchTransition; }
+    int GetMachinegunCrouchFrame() const { return machinegunCrouchFrame; }
+    float GetRowMachinegunCrouchTransition() const { return 49 * 34.0f; }
+    float GetRowMachinegunCrouchIdle() const { return 51 * 34.0f; }
+    float GetMachinegunCrouchTransitionH() const { return 68.0f; }
+    float GetMachinegunCrouchIdleH() const { return 34.0f; }
+    void StartMachinegunCrouch();
+    void StopMachinegunCrouch();
+
+    // Crouch Walk
+    bool IsMachinegunCrouchWalking() const { return machinegunCrouchWalking; }
+    int GetMachinegunCrouchWalkFrame() const { return machinegunCrouchWalkFrame; }
+    float GetRowMachinegunCrouchWalk() const { return 52 * 34.0f; }
+
+    // Crouch Throw
+    bool IsMachinegunCrouchThrowing() const { return machinegunCrouchThrowing; }
+    int GetMachinegunCrouchThrowFrame() const { return machinegunCrouchThrowFrame; }
+    float GetRowMachinegunCrouchThrow() const { return 53 * 34.0f; }
+    float GetMachinegunCrouchThrowH() const { return 68.0f; }
+    void StartMachinegunCrouchThrow();
+
+    // Crouch Shoot
+    bool IsMachinegunCrouchShooting() const { return machinegunCrouchShooting; }
+    int GetMachinegunCrouchShootFrame() const { return machinegunCrouchShootFrame; }
+    float GetRowMachinegunCrouchShoot() const { return 55 * 34.0f; }
+    void StartMachinegunCrouchShoot();
+
+    bool IsCrouchThrowing() const { return crouchThrowing; }
+    int GetCrouchThrowFrame() const { return crouchThrowFrame; }
+    float GetCrouchThrowRowY() const { return 24 * 34.0f; }
+    float GetCrouchThrowW() const { return 68.0f; }
+    void StartCrouchThrow();
+
+
 private:
     Texture2D spriteSheet;
 
@@ -170,6 +205,14 @@ private:
     float crouchShootDelay = 0.05f;
     int crouchShootFrameCount = 10;
     bool crouchShooting = false;
+
+    // Pistol Crouch Throw
+    int crouchThrowFrame = 0;
+    float crouchThrowTimer = 0.0f;
+    float crouchThrowDelay = 0.05f;
+    float crouchThrowEndDelay = 0.15f;  // delay más largo para los últimos 2 frames
+    int crouchThrowFrameCount = 6;
+    bool crouchThrowing = false;
 
     // Aiming up
     int aimingFrame = 0;
@@ -228,6 +271,40 @@ private:
     float machinegunShootUpDelay = 0.05f;
     int machinegunShootUpFrameCount = 4;
     bool machinegunShootingUp = false;
+
+    // Machinegun Crouch
+    bool machinegunCrouching = false;
+    bool machinegunCrouchTransition = false;
+    int machinegunCrouchFrame = 0;
+    float machinegunCrouchTimer = 0.0f;
+    float machinegunCrouchTransitionDelay = 0.05f;
+    float machinegunCrouchIdleDelay = 0.15f;
+    int machinegunCrouchTransitionFrameCount = 3;
+    int machinegunCrouchIdleFrameCount = 4;
+
+    // Machinegun Crouch Walk
+    int machinegunCrouchWalkFrame = 0;
+    float machinegunCrouchWalkTimer = 0.0f;
+    float machinegunCrouchWalkDelay = 0.08f;
+    int machinegunCrouchWalkFrameCount = 7;
+    bool machinegunCrouchWalking = false;
+
+    // Machinegun Crouch Throw
+    int machinegunCrouchThrowFrame = 0;
+    float machinegunCrouchThrowTimer = 0.0f;
+    float machinegunCrouchThrowDelay = 0.05f;
+    int machinegunCrouchThrowFrameCount = 6;
+    bool machinegunCrouchThrowing = false;
+    float machinegunCrouchThrowCooldown = 0.0f;
+    float machinegunCrouchThrowCooldownMax = 0.25f;
+    float machinegunCrouchThrowEndDelay = 0.15f;
+
+    // Machinegun Crouch Shoot
+    int machinegunCrouchShootFrame = 0;
+    float machinegunCrouchShootTimer = 0.0f;
+    float machinegunCrouchShootDelay = 0.05f;
+    int machinegunCrouchShootFrameCount = 4;
+    bool machinegunCrouchShooting = false;
 
     // Offsets
     VisualOffsets idleOffset = { 1.0f, 9.0f, 3.0f, 0.0f };

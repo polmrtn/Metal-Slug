@@ -41,6 +41,8 @@ public:
     void SaveBlocksToFile(const char* filename);
     void LoadBlocksFromFile(const char* filename);
 
+    void ShootMachinegun(float yOffset);
+
 private:
     // ========== TEMPORIZADORES ==========
     float shootTimer = 0.0f;
@@ -82,4 +84,12 @@ private:
     bool editorMode = false;
     float gridSize = 50.0f;
     Vector2 gridOffset = { 0.0f, 0.0f };
+
+    bool machinegunBurst = false;
+    int machinegunBurstCount = 0;
+    float machinegunBurstTimer = 0.0f;
+    float machinegunBurstDelay = 0.05f;  // delay entre cada bala de la ráfaga
+    static constexpr int MACHINEGUN_BURST_SIZE = 6;
+    // Offsets Y para el patrón arriba-medio-abajo (en píxeles)
+    const float burstOffsets[6] = { -10.0f, 0.0f, 10.0f, -10.0f, 0.0f, 10.0f };
 };

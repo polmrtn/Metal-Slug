@@ -178,6 +178,25 @@ void Game::Update(){
 		grenades.erase(std::remove_if(grenades.begin(), grenades.end(),
 			[](const Grenade& g) { return !g.IsActive(); }), grenades.end());
 
+		// ========== RÁFAGA MACHINEGUN ==========
+		if (machinegunBurst) {
+			machinegunBurstTimer += GetFrameTime();
+			if (machinegunBurstTimer >= machinegunBurstDelay) {
+				machinegunBurstTimer = 0.0f;
+
+				if (player.GetAmmo() > 0) {
+					ShootMachinegun(burstOffsets[machinegunBurstCount]);
+					player.UseAmmo();
+				}
+
+				machinegunBurstCount++;
+				if (machinegunBurstCount >= MACHINEGUN_BURST_SIZE || player.GetAmmo() <= 0) {
+					machinegunBurst = false;
+					machinegunBurstCount = 0;
+				}
+			}
+		}
+
 		// ========== 7. DIBUJAR ==========
 		BeginDrawing();
 		ClearBackground(BGCOLOR);
@@ -330,8 +349,9 @@ void Game::HandleInput()
 		if (player.GetCurrentWeapon() == WeaponType::MACHINEGUN) {
 			if (player.GetAmmo() > 0) {
 				player.Shoot();
-				Shoot(1, { 0, 0 }, true);
-				player.UseAmmo();
+				machinegunBurst = true;
+				machinegunBurstCount = 0;
+				machinegunBurstTimer = 0.0f;
 				shootTimer = shootDelayMachinegun;
 			}
 		}
@@ -704,4 +724,36 @@ std::vector<Item> Game::CreateItems() {
 	// X=800, Y=600 (asumiendo que el suelo está en Y=600-650)
 	items.emplace_back(Vector2{ 800.0f, 600.0f }, ItemType::SHOTGUN);
 	return items;
+}
+
+void Game::ShootMachinegun(float yOffset) {
+	Vector2 pPos = player.GetPosition();
+	float pW = player.GetWidth();
+	float pH = player.GetHeight();
+	PlayerDirection aimDir = player.GetAimDirection();
+	float baseY = pPos.y + pH / 2 - 50.0f + yOffset;
+
+	Vector2 bulletPos;
+	float dirX = 0, dirY = 0;
+
+	switch (aimDir) {
+	case PlayerDirection::LEFT:
+		bulletPos = { pPos.x - 50.0f, baseY };  // ajusta el valor
+		dirX = -1.0f;
+		break;
+	case PlayerDirection::RIGHT:
+		bulletPos = { pPos.x + pW + 50.0f, baseY };  // ajusta el valor
+		dirX = 1.0f;
+		break;
+	case PlayerDirection::UP:
+		bulletPos = { pPos.x + pW / 2 + yOffset - 30.0f, pPos.y - 20.0f - 30.0f };  // ajusta los dos valores
+		dirY = -1.0f;
+		break;
+	default:
+		bulletPos = { pPos.x + pW, baseY };
+		dirX = 1.0f;
+		break;
+	}
+
+	bullets.emplace_back(bulletPos, 1000.0f, dirX, dirY, 3);
 }
