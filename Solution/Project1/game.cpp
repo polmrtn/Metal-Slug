@@ -131,12 +131,23 @@ void Game::Update(){
 		ResolveCollisions();
 
 		for (auto& item : items) {
+			item.Update();  // ← añadir
+
 			if (item.IsActive() && CheckCollisionRecs(item.GetHitBox(), player.GetHitBox())) {
 				if (item.GetType() == ItemType::SHOTGUN) {
-					player.EquipMachinegun();  
-					TraceLog(LOG_INFO, "Machinegun collected! Ammo: 20");
+					player.EquipMachinegun();
+					item.Collect();
 				}
-				item.Collect();
+				// La caja no se recoge caminando encima, se destruye con bala
+			}
+
+			// Spawn machinegun al destruirse la caja
+			if (item.ShouldSpawnMachinegun()) {
+				item.ConsumeSpawn();
+				Vector2 spawnPos = { item.GetHitBox().x + 60.0f, item.GetHitBox().y - 20.0f };
+				Item newItem(spawnPos, ItemType::SHOTGUN);
+				newItem.SetGravity(true);
+				items.push_back(newItem);
 			}
 		}
 
@@ -682,42 +693,55 @@ void Game::BulletsCollision() {
 	
 	while (bIt != bullets.end()) {
 		bool bulletHit = false;
-		
-		auto sIt = soldiers.begin();
-		while (sIt != soldiers.end()) {
-			if (sIt->GetisAlive() && CheckCollisionRecs(sIt->GetHurtBox(), bIt->GetHitbox())) {
-				sIt->TriggerDeath();       // ← activa animación de muerte
-				UiManager.AddScore(100);
-				bulletHit = true;
-				break;
-			}
-			++sIt;
-		}
-		// ========== DAÑO AL JUGADOR POR BALA TIPO 2 (GRANADA) ==========
-		if (bIt->GetType() == 2 && bIt->IsExploding()) {
-			Rectangle explosionBox = bIt->GetHitbox();
 
-			if (player.IsAlive() && !player.IsInvincible()) {
-				if (CheckCollisionRecs(explosionBox, player.GetHitBox())) {
-					player.TakeDamage();
-					TraceLog(LOG_INFO, "Player killed by grenade explosion");
+		while (bIt != bullets.end()) {
+			bool bulletHit = false;
+
+			// colisión con soldados...
+			auto sIt = soldiers.begin();
+			while (sIt != soldiers.end()) {
+				if (sIt->GetisAlive() && CheckCollisionRecs(sIt->GetHurtBox(), bIt->GetHitbox())) {
+					sIt->TriggerDeath();
+					UiManager.AddScore(100);
+					bulletHit = true;
+					break;
+				}
+				++sIt;
+			}
+
+			// ← AQUÍ, antes del if(bulletHit), colisión con cajas
+			if (!bulletHit) {
+				for (auto& item : items) {
+					if (item.IsActive() && item.GetType() == ItemType::BOX) {
+						if (CheckCollisionRecs(bIt->GetHitbox(), item.GetHitBox())) {
+							item.Destroy();
+							bulletHit = true;
+							break;
+						}
+					}
 				}
 			}
+
+			// daño al jugador por granada...
+			if (bIt->GetType() == 2 && bIt->IsExploding()) {
+				// ...código existente...
+			}
+
+			if (bulletHit) bIt = bullets.erase(bIt);
+			else ++bIt;
 		}
 
-		if (bulletHit) bIt = bullets.erase(bIt);
-		else ++bIt;
-	}
+		// ── Borrar soldados muertos DESPUÉS del loop de balas ────────────────────
+		auto sIt = soldiers.begin();
+		while (sIt != soldiers.end()) {
+			if (!sIt->GetisAlive() && sIt->IsDeadAnimFinished()) {
+				sIt = soldiers.erase(sIt);
+			}
+			else {
+				++sIt;
+			}
+		}
 
-	// ── Borrar soldados muertos DESPUÉS del loop de balas ────────────────────
-	auto sIt = soldiers.begin();
-	while (sIt != soldiers.end()) {
-		if (!sIt->GetisAlive() && sIt->IsDeadAnimFinished()) {
-			sIt = soldiers.erase(sIt);
-		}
-		else {
-			++sIt;
-		}
 	}
 }
 
@@ -840,6 +864,23 @@ void Game::BlockCollisions() {
 		}
 	}
 
+	for (auto& item : items) {
+		if (!item.IsGrounded() && item.GetType() == ItemType::SHOTGUN) {
+			Rectangle itemRect = item.GetHitBox();
+			for (const auto& block : blocks) {
+				Rectangle blockRect = block.GetRect();
+				float feetY = itemRect.y + itemRect.height;
+				float blockTopY = blockRect.y;
+				bool isOver = (itemRect.x + itemRect.width > blockRect.x &&
+					itemRect.x < blockRect.x + blockRect.width);
+				if (isOver && feetY >= blockTopY && feetY <= blockTopY + 20.0f) {
+					item.SetGrounded(true);
+					item.SetGravity(false);
+				}
+			}
+		}
+	}
+
 	player.SetGrounded(onGround);
 	if (onGround) {
 		player.SetVelocityY(0);
@@ -934,8 +975,7 @@ void Game::LoadBlocksFromFile(const char* filename) {
 
 std::vector<Item> Game::CreateItems() {
 	std::vector<Item> items;
-	// X=800, Y=600 (asumiendo que el suelo está en Y=600-650)
-	items.emplace_back(Vector2{ 800.0f, 600.0f }, ItemType::SHOTGUN);
+	items.emplace_back(Vector2{ 300.0f, 560.0f }, ItemType::BOX); 
 	return items;
 }
 
