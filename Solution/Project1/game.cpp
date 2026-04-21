@@ -29,9 +29,12 @@ Game::~Game()
 void Game::Draw()
 {
 	camera.Begin();
-
+	
 	backgroundManager.Draw();
+	
+	
 	player.Draw();
+	backgroundManager.Drawfrontground();
 
 	for (auto& Soldier : soldiers) {
 		Soldier.Draw();
@@ -53,7 +56,7 @@ void Game::Draw()
 	for (auto& item : items) {
 		item.Draw();
 	}
-	backgroundManager.Drawfrontground();
+	
 	camera.End();
 
 	UiManager.DrawCredits(camera.GetCamera());
@@ -203,6 +206,7 @@ void Game::Update(){
 		Draw();
 		backgroundManager.FollowPlayer(camera.GetCamera().target);
 		backgroundManager.Update(GetFrameTime());
+		
 
 		// ========== 8. AUDIO ==========
 		if (!musicStarted)
