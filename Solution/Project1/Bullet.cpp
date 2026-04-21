@@ -27,6 +27,7 @@ Bullet::Bullet(Vector2 position, int speed, int directionX, int directionY, int 
 
 	
 }
+
 Bullet::Bullet(const Bullet& other) 
 {
 	
@@ -67,7 +68,6 @@ void Bullet::Update() {
 	}
 }
 
-
 Rectangle Bullet::GetHitbox()
 {
 	// Si es tipo 2, forzamos el tama�o a 20x20 (multiplicado por la escala)
@@ -86,10 +86,12 @@ Rectangle Bullet::GetHitbox()
 	// Si es tipo 1 (o cualquier otro), usa el tama�o normal de la imagen
 	return Rectangle{ position.x, position.y, GetWidth(), GetHeight() };
 }
+
 void Bullet::DrawHitBox()
 {
 	DrawRectangleLinesEx(GetHitbox(), 2, WHITE);
 }
+
 void Bullet::Draw() {
 	Rectangle sourceRect = { 0,0,0,0 };
 	Texture2D textureToDraw;
@@ -112,6 +114,11 @@ void Bullet::Draw() {
 
 	if (type == 3 && directionY < 0) {
 		rotation = -90.0f;
+		origin = { GetWidth() / 2.0f, GetHeight() / 2.0f };
+	}
+
+	else if (type == 3 && directionX < 0) {   
+		rotation = 180.0f;
 		origin = { GetWidth() / 2.0f, GetHeight() / 2.0f };
 	}
 

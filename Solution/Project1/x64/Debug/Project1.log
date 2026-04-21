@@ -1,8 +1,8 @@
 ﻿  game.cpp
 E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\game.cpp(66,16): warning C4244: 'inicializando': conversión de 'double' a 'float'; posible pérdida de datos
 E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\game.cpp(69,16): warning C4244: 'inicializando': conversión de 'double' a 'float'; posible pérdida de datos
-E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\game.cpp(850,25): warning C4244: '=': conversión de 'int' a 'float'; posible pérdida de datos
-E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\game.cpp(851,26): warning C4244: '=': conversión de 'int' a 'float'; posible pérdida de datos
+E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\game.cpp(869,25): warning C4244: '=': conversión de 'int' a 'float'; posible pérdida de datos
+E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\game.cpp(870,26): warning C4244: '=': conversión de 'int' a 'float'; posible pérdida de datos
 C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\xmemory(732,103): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
   (compilando archivo de origen "game.cpp")
       C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\xmemory(732,103):
@@ -39,4 +39,6 @@ C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.3520
 C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\xmemory(732,103): warning C4244:         ]
   (compilando archivo de origen "game.cpp")
   
+  main.cpp
+  Generando código...
   Project1.vcxproj -> E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\x64\Debug\Project1.exe

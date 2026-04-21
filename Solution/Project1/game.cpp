@@ -561,6 +561,26 @@ void Game::HandleInput()
 	}
 
 	// ========== MOVIMIENTO ==========
+	if (machinegunBurst) {
+		// Durante la ráfaga horizontal: solo permitir moverse en el MISMO sentido
+		if (machinegunBurstDir == PlayerDirection::LEFT) {
+			if (IsKeyDown(KEY_LEFT)) player.MoveLeft();
+			else player.StopMovingHorizontal();
+		}
+		else if (machinegunBurstDir == PlayerDirection::RIGHT) {
+			if (IsKeyDown(KEY_RIGHT)) player.MoveRight();
+			else player.StopMovingHorizontal();
+		}
+		// Salto permitido siempre
+		if (IsKeyPressed(KEY_SPACE)) player.Jump();
+		// Agacharse permitido siempre
+		if (IsKeyDown(KEY_DOWN)) player.StartCrouching();
+		else player.StopCrouching();
+		// KEY_UP, dirección contraria y disparo bloqueados → no hacer nada más
+		return;
+	}
+
+	// ========== MOVIMIENTO NORMAL (sin ráfaga) ==========
 	if (IsKeyDown(KEY_LEFT)) {
 		player.MoveLeft();
 	}
@@ -572,10 +592,10 @@ void Game::HandleInput()
 	}
 
 	// ========== AIMING UP ==========
-	if (IsKeyPressed(KEY_UP) && !machinegunBurst) {
+	if (IsKeyPressed(KEY_UP)) {
 		player.StartAimingUp();
 	}
-	if (IsKeyReleased(KEY_UP) && !machinegunBurst) {
+	if (IsKeyReleased(KEY_UP)) {
 		player.StopAimingUp();
 	}
 
@@ -601,6 +621,10 @@ void Game::HandleInput()
 				machinegunBurstCount = 0;
 				machinegunBurstTimer = 0.0f;
 				shootTimer = shootDelayMachinegun;
+				// Guardar dirección al inicio de la ráfaga
+				machinegunBurstDir = (player.GetAimDirection() == PlayerDirection::UP)
+					? PlayerDirection::UP
+					: (IsKeyDown(KEY_LEFT) ? PlayerDirection::LEFT : PlayerDirection::RIGHT);
 			}
 		}
 		else {
@@ -797,14 +821,9 @@ void Game::BlockCollisions() {
 		if (block.IsGround()) {
 			Rectangle leftHitBox = player.GetLeftHitBox();
 			if (CheckCollisionRecs(leftHitBox, blockRect)) {
-				float newX = blockRect.x + blockRect.width;
-				if (player.GetX() < newX) {
-					player.SetX(newX);
-					player.SetLeftCollision(true);
-				}
-				else {
-					player.SetLeftCollision(true);
-				}
+				float overlap = (blockRect.x + blockRect.width) - leftHitBox.x;
+				player.SetX(player.GetX() + overlap);
+				player.SetLeftCollision(true);
 			}
 
 			Rectangle rightHitBox = player.GetRightHitBox();

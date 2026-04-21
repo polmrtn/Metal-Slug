@@ -88,8 +88,9 @@ private:
     bool machinegunBurst = false;
     int machinegunBurstCount = 0;
     float machinegunBurstTimer = 0.0f;
-    float machinegunBurstDelay = 0.05f;  // delay entre cada bala de la ráfaga
+    float machinegunBurstDelay = 0.04f;  // delay entre cada bala de la ráfaga
     static constexpr int MACHINEGUN_BURST_SIZE = 6;
     // Offsets Y para el patrón arriba-medio-abajo (en píxeles)
     const float burstOffsets[6] = { -10.0f, 0.0f, 10.0f, -10.0f, 0.0f, 10.0f };
+    PlayerDirection machinegunBurstDir = PlayerDirection::RIGHT;
 };
