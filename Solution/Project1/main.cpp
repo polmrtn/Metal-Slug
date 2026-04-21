@@ -6,7 +6,7 @@
 
 int main() 
 {
-    InitWindow(1280, 896, "Metal Slug");
+    InitWindow(1200, 896, "Metal Slug");
     InitAudioDevice();
     SetTargetFPS(30);
     

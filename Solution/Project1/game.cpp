@@ -6,7 +6,7 @@
 
 bool musicStarted = false;
 Color BGCOLOR = { 195, 195, 170 };
-Game::Game() : camera({ 1280.0f/2 , 896/2  })
+Game::Game() : camera({ 1200.0f/2 , 896/2  })
 {
 	FILE* file = fopen("level_blocks.txt", "r");
 	if (file) {
@@ -678,47 +678,55 @@ void Game::ResolveCollisions(){
 }
 
 void Game::BulletsCollision() {
-	auto bIt = bullets.begin();
-	
-	while (bIt != bullets.end()) {
-		bool bulletHit = false;
-		
-		auto sIt = soldiers.begin();
-		while (sIt != soldiers.end()) {
-			if (sIt->GetisAlive() && CheckCollisionRecs(sIt->GetHurtBox(), bIt->GetHitbox())) {
-				sIt->TriggerDeath();       // ← activa animación de muerte
-				UiManager.AddScore(100);
-				bulletHit = true;
-				break;
-			}
-			++sIt;
-		}
-		// ========== DAÑO AL JUGADOR POR BALA TIPO 2 (GRANADA) ==========
-		if (bIt->GetType() == 2 && bIt->IsExploding()) {
-			Rectangle explosionBox = bIt->GetHitbox();
+    auto bIt = bullets.begin();
+    
+    while (bIt != bullets.end()) {
+        bool bulletHit = false;
+        
+        // 1. DAÑO A SOLDADOS (Solo balas tipo 1 y 3)
+        if (bIt->GetType() == 1 || bIt->GetType() == 3) {
+            auto sIt = soldiers.begin();
+            while (sIt != soldiers.end()) {
+                // Agrupamos con paréntesis (Tipo 1 O Tipo 3)
+                if (sIt->GetisAlive() && CheckCollisionRecs(sIt->GetHurtBox(), bIt->GetHitbox())) {
+                    sIt->TriggerDeath();
+                    UiManager.AddScore(100);
+                    bulletHit = true;
+                    break; // La bala impactó, salimos del loop de soldados
+                }
+                ++sIt;
+            }
+        }
 
-			if (player.IsAlive() && !player.IsInvincible()) {
-				if (CheckCollisionRecs(explosionBox, player.GetHitBox())) {
-					player.TakeDamage();
-					TraceLog(LOG_INFO, "Player killed by grenade explosion");
-				}
-			}
-		}
+        // 2. DAÑO AL JUGADOR (Solo bala tipo 2 - Granada/Explosión)
+        if (bIt->GetType() == 2 && bIt->IsExploding()) {
+            if (player.IsAlive() && !player.IsInvincible()) {
+                if (CheckCollisionRecs(bIt->GetHitbox(), player.GetHitBox())) {
+                    player.TakeDamage();
+                    TraceLog(LOG_INFO, "Player hit by explosion");
+                    // Nota: No ponemos bulletHit = true aquí porque la explosión 
+                    // suele ser un área persistente que se borra por animación, no por impacto.
+                }
+            }
+        }
 
-		if (bulletHit) bIt = bullets.erase(bIt);
-		else ++bIt;
-	}
+        // 3. LIMPIEZA DE BALAS
+        if (bulletHit) {
+            bIt = bullets.erase(bIt); // Borrar bala tipo 1 o 3 tras impactar
+        } else {
+            ++bIt;
+        }
+    }
 
-	// ── Borrar soldados muertos DESPUÉS del loop de balas ────────────────────
-	auto sIt = soldiers.begin();
-	while (sIt != soldiers.end()) {
-		if (!sIt->GetisAlive() && sIt->IsDeadAnimFinished()) {
-			sIt = soldiers.erase(sIt);
-		}
-		else {
-			++sIt;
-		}
-	}
+    // 4. LIMPIEZA DE SOLDADOS MUERTOS
+    auto sIt = soldiers.begin();
+    while (sIt != soldiers.end()) {
+        if (!sIt->GetisAlive() && sIt->IsDeadAnimFinished()) {
+            sIt = soldiers.erase(sIt);
+        } else {
+            ++sIt;
+        }
+    }
 }
 
 void Game::GrenadesCollision() {
@@ -843,6 +851,47 @@ void Game::BlockCollisions() {
 	player.SetGrounded(onGround);
 	if (onGround) {
 		player.SetVelocityY(0);
+	}
+	//balas con piso
+	auto bIt = bullets.begin();
+	while (bIt != bullets.end()) {
+		bool bulletJustHit = false;
+
+		// Solo chequear colisión si NO está explotando Y ya va hacia abajo
+		if (!bIt->IsExploding()) {
+			bool canCollide = (bIt->GetType() != 2 || bIt->GetDirectionY() > 0);
+			if (canCollide) {
+				for (const auto& block : blocks) {
+					if (CheckCollisionRecs(bIt->GetHitbox(), block.GetRect())) {
+						bIt->SetPosition({ bIt->GetPosition().x, block.GetRect().y - bIt->GetHeight() });
+						bulletJustHit = true;
+						break;
+					}
+				}
+			}
+		}
+
+		// Activar explosión al primer impacto
+		if (bulletJustHit) {
+			if (bIt->GetType() == 1) {
+				bIt = bullets.erase(bIt);
+				continue;
+			}
+			else if (bIt->GetType() == 2) {
+				bIt->SetExploding(true);
+				bIt->GetAnim().SetAnimation(BulletState::EXPLOSIONSOLDIER);
+			}
+		}
+
+		// Borrar granada cuando termina la animación de explosión
+		if (bIt->GetType() == 2 && bIt->IsExploding()) {
+			if (bIt->GetAnim().IsAnimationFinished()) {
+				bIt = bullets.erase(bIt);
+				continue;
+			}
+		}
+
+		++bIt;
 	}
 }
 
