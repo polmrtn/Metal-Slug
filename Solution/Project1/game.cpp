@@ -427,7 +427,7 @@ void Game::BulletsCollision() {
 		auto sIt = soldiers.begin();
 		while (sIt != soldiers.end()) {
 			if (sIt->GetisAlive() && CheckCollisionRecs(sIt->GetHurtBox(), bIt->GetHitbox())) {
-				sIt->TriggerDeath();       // ← activa animación de muerte
+				sIt->TriggerDeath(audioManager);       // ← activa animación de muerte
 				UiManager.AddScore(100);
 				bulletHit = true;
 				break;
@@ -457,7 +457,7 @@ void Game::GrenadesCollision() {
 
 			for (auto& soldier : soldiers) {
 				if (soldier.GetisAlive() && CheckCollisionRecs(soldier.GetHurtBox(), explosionBox)) {
-					soldier.TriggerDeath();
+					soldier.TriggerDeath(audioManager);
 					UiManager.AddScore(100);
 					TraceLog(LOG_INFO, "Soldier killed by grenade explosion");
 				}

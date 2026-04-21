@@ -1,6 +1,8 @@
 ﻿#include "Soldier.hpp"
 #include "Player.hpp"
+#include "AudioManager.hpp"
 #include <raylib.h>
+
 int direction = 1;
 Soldier::Soldier(int type, Vector2 position)
 {
@@ -251,10 +253,11 @@ void Soldier::UpdateAI(Player& player)
         }
     }
 }
-void Soldier::TriggerDeath() {
-    if (!isAlive) return;  // ya está muerto, no hacer nada
+void Soldier::TriggerDeath(AudioManager& audio) {
+    if (!isAlive) return;
     isAlive = false;
     currentState = SoldierState::DEAD;
     soldierAnim.ForceAnimation(SoldierState::DEAD);
     velocity.x = 0;
+    audio.PlaySound(audio.GetDeathSound());
 }
