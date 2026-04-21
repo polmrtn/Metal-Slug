@@ -738,15 +738,15 @@ void Game::ShootMachinegun(float yOffset) {
 
 	switch (aimDir) {
 	case PlayerDirection::LEFT:
-		bulletPos = { pPos.x - 50.0f, baseY };  // ajusta el valor
+		bulletPos = { pPos.x - 120.0f, baseY };  // ajusta el valor
 		dirX = -1.0f;
 		break;
 	case PlayerDirection::RIGHT:
-		bulletPos = { pPos.x + pW + 50.0f, baseY };  // ajusta el valor
+		bulletPos = { pPos.x + pW + 70.0f, baseY };  // ajusta el valor
 		dirX = 1.0f;
 		break;
 	case PlayerDirection::UP:
-		bulletPos = { pPos.x + pW / 2 + yOffset - 30.0f, pPos.y - 20.0f - 30.0f };  // ajusta los dos valores
+		bulletPos = { pPos.x + pW / 2 + yOffset - 30.0f, pPos.y - 150.0f - 30.0f };  // ajusta los dos valores
 		dirY = -1.0f;
 		break;
 	default:
