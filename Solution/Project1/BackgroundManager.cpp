@@ -9,7 +9,7 @@ BackgroundManager::BackgroundManager() {
     // Añadimos el barco con un factor de 0.1f (se mueve lento)
     AddAnimation("Graphics/background sprites/bg3.png", { 11500, 0 }, 8, 25.0f, 4.0f, 0.0f, 0.7f);
     AddAnimation("Graphics/background sprites/bg2 2.png", { 14500, -350 }, 5, 25.0f, 4.0f, 2.0f, 0.15f);
-   /* AddAnimation("Graphics/background sprites/bg floor water.png", { 8000, 800 }, 5, 15.0f, 4.0f, 2.0f, 0.0f);*/
+    AddAnimation("Graphics/background sprites/bg floor water.png", { 7440, 860 }, 8, 15.0f, 4.0f, 2.0f, 0.0f);
 
     scale = 4.0f;
     float yOffset = -165.0f;
@@ -42,7 +42,7 @@ void BackgroundManager::AddAnimation(const char* path, Vector2 pos, int frames, 
     newAnim.source = { 0, 0, fWidth, (float)tex.height };
 
     // ESCALA ASIMÉTRICA: Aquí aplicamos el ancho extra y usamos pos.y
-    float anchoExtra = 1.5f;
+    float anchoExtra = 1.0f;
     newAnim.dest = {
         pos.x,
         pos.y, // <--- AQUÍ se usa el -300 que le pases
