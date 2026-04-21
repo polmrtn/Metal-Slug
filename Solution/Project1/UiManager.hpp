@@ -29,6 +29,7 @@ private:
     int   score;
     int   level;
     int   timeLeft;
+    int bombs;
     float timeAccum;
     float introTimer;
     float blinkAccum;
