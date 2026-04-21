@@ -21,7 +21,7 @@ UiManager::UiManager()
     texTimeNumbers = LoadTexture("Graphics/letters/time_numbers.png");
     texYellowLetters = LoadTexture("Graphics/letters/yellow_numbers_and_letters.png");
 
-    slugFont = LoadFontEx("metal-slug-colour.colr.ttf", 64, nullptr, 0);
+    slugFont = LoadFontEx("metal-slug-colour.ttf", 64, nullptr, 0);
     if (slugFont.texture.id != 0)
     {
         fontLoaded = true;
