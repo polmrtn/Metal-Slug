@@ -13,10 +13,9 @@ enum class WeaponType { PISTOL, MACHINEGUN };
 
 // Datos para lanzar una granada
 struct GrenadeThrowData {
-    Vector2 startPos;   // Posición inicial
-    Vector2 targetPos;  // Posición objetivo (suelo)
-    float power;        // Potencia del lanzamiento
-    bool valid;         // Si es válido
+    Vector2 startPos;
+    Vector2 initialVelocity;  // velocidad inicial directa, sin target hardcodeado
+    bool valid;
 };
 
 class Player {
