@@ -13,8 +13,12 @@ public:
     Music& GetTitleMusic();
     Music& GetGameMusic();
     Sound& GetGameSound();
+    Sound& GetDeathSound();
+    Sound& GetShootSound();
 private:
     Music titleMusic;
     Music gameMusic;
     Sound gameSound;
+    Sound deathSound;
+    Sound shootSound;
 };
