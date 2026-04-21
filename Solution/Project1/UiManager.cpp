@@ -12,7 +12,7 @@ static const float FONT_SIZE_BOTTOM = 30.0f;
 static const float FONT_SPACING = 1.0f;
 
 UiManager::UiManager()
-    : credits(0), score(0), level(1), timeLeft(60),
+    : credits(0), score(0), level(1), timeLeft(60), bombs(10),
     timeAccum(0.0f), introTimer(0.0f),
     blinkAccum(0.0f), blinkVisible(true),
     fontLoaded(false)
@@ -89,7 +89,7 @@ void UiManager::DrawSlugText(const char* str, Vector2 pos, float fontSize) const
 
 void UiManager::DrawSlugTextShadow(const char* str, Vector2 pos, float fontSize) const
 {
-    float offset = 4.0f;
+    float offset = 5.0f;
 
     // shadow
     DrawTextEx(slugFont, str,
@@ -288,9 +288,22 @@ void UiManager::DrawCredits(Camera2D camera)
     DrawSlugTextShadow("BOMB", { bombX, ly }, FONT_SIZE_HUD);
 
     // cyfry bomb - metal sprite
-    float bombNumScale = metalScale * 0.65f;
-    float numW = MeasureMetalNumber(2, bombNumScale);
-    DrawMetalNumber(10, 2, { bombX + (bombW - numW) / 2.0f, ammoY }, bombNumScale);
+    float yellowScale = 1.0f;
+
+    // zamien int na string
+    char bombStr[8];
+    std::snprintf(bombStr, sizeof(bombStr), "%02d", bombs);
+
+
+    // poprawne mierzenie
+    float numW = MeasureYellowText(bombStr, yellowScale, 0.78f);
+
+    // rysowanie WYŒRODKOWANE
+    DrawYellowText(bombStr,
+        { bombX + (bombW - numW) / 2.0f, ammoY },
+        yellowScale,
+        0.78f,
+        { 255, 200, 0, 255 });
 
     // ===== TIMER =====
     char timerStr[8];
