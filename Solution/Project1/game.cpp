@@ -131,12 +131,23 @@ void Game::Update(){
 		ResolveCollisions();
 
 		for (auto& item : items) {
+			item.Update();  // ← añadir
+
 			if (item.IsActive() && CheckCollisionRecs(item.GetHitBox(), player.GetHitBox())) {
 				if (item.GetType() == ItemType::SHOTGUN) {
-					player.EquipMachinegun();  
-					TraceLog(LOG_INFO, "Machinegun collected! Ammo: 20");
+					player.EquipMachinegun();
+					item.Collect();
 				}
-				item.Collect();
+				// La caja no se recoge caminando encima, se destruye con bala
+			}
+
+			// Spawn machinegun al destruirse la caja
+			if (item.ShouldSpawnMachinegun()) {
+				item.ConsumeSpawn();
+				Vector2 spawnPos = { item.GetHitBox().x + 60.0f, item.GetHitBox().y - 20.0f };
+				Item newItem(spawnPos, ItemType::SHOTGUN);
+				newItem.SetGravity(true);
+				items.push_back(newItem);
 			}
 		}
 
@@ -848,6 +859,23 @@ void Game::BlockCollisions() {
 		}
 	}
 
+	for (auto& item : items) {
+		if (!item.IsGrounded() && item.GetType() == ItemType::SHOTGUN) {
+			Rectangle itemRect = item.GetHitBox();
+			for (const auto& block : blocks) {
+				Rectangle blockRect = block.GetRect();
+				float feetY = itemRect.y + itemRect.height;
+				float blockTopY = blockRect.y;
+				bool isOver = (itemRect.x + itemRect.width > blockRect.x &&
+					itemRect.x < blockRect.x + blockRect.width);
+				if (isOver && feetY >= blockTopY && feetY <= blockTopY + 20.0f) {
+					item.SetGrounded(true);
+					item.SetGravity(false);
+				}
+			}
+		}
+	}
+
 	player.SetGrounded(onGround);
 	if (onGround) {
 		player.SetVelocityY(0);
@@ -983,8 +1011,7 @@ void Game::LoadBlocksFromFile(const char* filename) {
 
 std::vector<Item> Game::CreateItems() {
 	std::vector<Item> items;
-	// X=800, Y=600 (asumiendo que el suelo está en Y=600-650)
-	items.emplace_back(Vector2{ 800.0f, 600.0f }, ItemType::SHOTGUN);
+	items.emplace_back(Vector2{ 300.0f, 560.0f }, ItemType::BOX); 
 	return items;
 }
 
