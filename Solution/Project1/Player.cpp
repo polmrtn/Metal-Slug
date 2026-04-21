@@ -292,22 +292,25 @@ GrenadeThrowData Player::ThrowGrenade() {
     }
 
     GrenadeThrowData data;
-    data.startPos = pos;
-    data.power = 1500.0f;
+    data.startPos = { pos.x + hitboxWidth / 2.0f, pos.y + hitboxHeight * 0.3f };
     data.valid = true;
 
     switch (dir) {
     case PlayerDirection::LEFT:
-        data.targetPos = { pos.x - 300, 0 };
+        data.startPos = { pos.x - 20.0f, pos.y + hitboxHeight * 0.3f };  // sale por la izquierda
+        data.initialVelocity = { -400.0f, -350.0f };
         break;
     case PlayerDirection::RIGHT:
-        data.targetPos = { pos.x + 300, 0 };
+        data.startPos = { pos.x + hitboxWidth + 20.0f, pos.y + hitboxHeight * 0.3f };  // sale por la derecha
+        data.initialVelocity = { 400.0f, -350.0f };
         break;
     case PlayerDirection::UP:
-        data.targetPos = { pos.x, pos.y - 150 };
+        data.startPos = { pos.x + hitboxWidth / 2.0f, pos.y - 20.0f };
+        data.initialVelocity = { 0.0f, -600.0f };
         break;
     default:
-        data.targetPos = { pos.x + 250, 0 };
+        data.startPos = { pos.x + hitboxWidth + 20.0f, pos.y + hitboxHeight * 0.3f };
+        data.initialVelocity = { 400.0f, -350.0f };
         break;
     }
     return data;
