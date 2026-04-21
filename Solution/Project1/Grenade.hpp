@@ -1,5 +1,7 @@
 ﻿#pragma once
+#include<vector>
 #include <raylib.h>
+#include "Soldier.hpp" 
 
 class Grenade {
 public:
@@ -13,6 +15,7 @@ public:
     Rectangle GetHitBox() const;
     Rectangle GetExplosionHitBox() const;
     bool HasExploded() const { return hasExploded; }
+    void CheckCollisionWithSoldiers(std::vector<Soldier>& soldiers);
 
 private:
     Vector2 position;
@@ -27,7 +30,7 @@ private:
     float explosionDuration = 0.3f;
     float explosionRadius = 50.0f;
     bool hasBounced = false;  // ← Si ya ha rebotado
-    float bounceDamping = 0.8f;  // ← Pérdida de velocidad al rebotar (0.6 = 60% de velocidad)
+    float bounceDamping = 0.5f;  // ← Pérdida de velocidad al rebotar (0.6 = 60% de velocidad)
 
     // Animación de la granada
     static Texture2D texture;  

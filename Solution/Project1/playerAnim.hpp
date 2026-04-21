@@ -170,8 +170,8 @@ public:
     void UnloadParachute2();
     void UpdateParachuteLanding(float dt);
     void DrawParachuteLanding(Vector2 playerPos, float scale, bool facingLeft);
-    void StartParachuteLanding() { parachuteLanding = true; parachuteLandingFrame = 0; parachuteLandingTimer = 0.0f; }
-    void StopParachuteLanding() { parachuteLanding = false; parachuteLandingFrame = 0; }
+    void StartParachuteLanding();
+    void StopParachuteLanding();
     bool IsParachuteLanding() const { return parachuteLanding; }
     bool IsParachuteLandingFinished() const { return parachuteLandingFrame >= parachuteLandingFrameCount - 1; }
 
@@ -346,6 +346,8 @@ private:
     const int   parachuteLandingFrameCount = 17;
     const float PARACHUTE2_W = 62.0f;
     const float PARACHUTE2_H = 59.0f;
+    Vector2 landingPosition;  // Posición fija donde aterrizó
+    bool hasLandingPosition = false;  // Si ya se guardó la posición
 
     // Offsets
     VisualOffsets idleOffset = { 1.0f, 9.0f, 3.0f, 0.0f };

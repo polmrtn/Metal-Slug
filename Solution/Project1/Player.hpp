@@ -91,13 +91,14 @@ public:
 
     bool IsFalling() const { return isFalling; }
     PlayerAnim& GetAnim() { return anim; }
+    bool isLanding = false;
 
 private:
     // ========== ANIMACIÓN ==========
     PlayerAnim anim;
 
     // ========== POSICIÓN Y FÍSICA ==========
-    Vector2 pos = { 20.0f, 100.0f };
+    Vector2 pos = { 50.0f, 200.0f };
     Vector2 vel = { 0.0f, 0.0f };
     float inputVelX = 0.0f;     // Velocidad deseada por input (para animación)
     float previousY = 0.0f;     // Posición Y del frame anterior
@@ -157,7 +158,7 @@ private:
 
     // ========== CAÍDA INICIAL ==========
     bool isFalling = true;
-    float fallSpeed = 2.0f;  // más lento que la gravedad normal
+    float fallSpeed = 3.0f;  // más lento que la gravedad normal
     float blinkTimer = 0.0f;
     float blinkDelay = 0.1f;
     bool blinkVisible = true;
