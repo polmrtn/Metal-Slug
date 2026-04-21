@@ -878,13 +878,14 @@ void Game::BlockCollisions() {
 	while (bIt != bullets.end()) {
 		bool bulletJustHit = false;
 
-		// Solo chequear colisión si NO está explotando Y ya va hacia abajo
+// Solo chequear colisión si NO está explotando Y ya va hacia abajo
 		if (!bIt->IsExploding()) {
-			bool canCollide = (bIt->GetType() != 2 || bIt->GetDirectionY() > 0);
-			if (canCollide) {
+			// Solo granadas (tipo 2) colisionan con bloques, tipo 1 y 3 atraviesan todo
+			if (bIt->GetType() == 1 || bIt->GetType() == 3 && !bIt->IsExploding()) {
 				for (const auto& block : blocks) {
-					if (CheckCollisionRecs(bIt->GetHitbox(), block.GetRect()) && block.GetType() == BlockType::NORMAL) {
-						bIt->SetPosition({ bIt->GetPosition().x, block.GetRect().y - bIt->GetHeight() });
+					if (CheckCollisionRecs(bIt->GetHitbox(), block.GetRect())
+						&& block.GetType() == BlockType::NORMAL
+						&& block.IsGround()) {  // solo bloques verdes (plataformas)
 						bulletJustHit = true;
 						break;
 					}
@@ -894,7 +895,7 @@ void Game::BlockCollisions() {
 
 		// Activar explosión al primer impacto
 		if (bulletJustHit) {
-			if (bIt->GetType() == 1) {
+			if (bIt->GetType() == 1 || bIt->GetType() == 3) {
 				bIt = bullets.erase(bIt);
 				continue;
 			}
@@ -905,7 +906,7 @@ void Game::BlockCollisions() {
 		}
 
 		// Borrar granada cuando termina la animación de explosión
-		if (bIt->GetType() == 2 && bIt->IsExploding()) {
+		if (bIt->GetType() == 2 && !bIt->IsExploding() && bIt->GetDirectionY() > 0) {
 			if (bIt->GetAnim().IsAnimationFinished()) {
 				bIt = bullets.erase(bIt);
 				continue;
