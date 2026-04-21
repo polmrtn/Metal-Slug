@@ -87,6 +87,25 @@ void UiManager::DrawSlugText(const char* str, Vector2 pos, float fontSize) const
         DrawText(str, (int)pos.x, (int)pos.y, (int)fontSize, LIGHTGRAY);
 }
 
+void UiManager::DrawSlugTextShadow(const char* str, Vector2 pos, float fontSize) const
+{
+    float offset = 4.0f;
+
+    // shadow
+    DrawTextEx(slugFont, str,
+        { pos.x + offset, pos.y + offset },
+        fontSize,
+        FONT_SPACING,
+        { 30,30,30,255 });
+
+    // main
+    DrawTextEx(slugFont, str,
+        pos,
+        fontSize,
+        FONT_SPACING,
+        WHITE);
+}
+
 float UiManager::MeasureSlugText(const char* str, float fontSize) const
 {
     if (fontLoaded)
@@ -262,11 +281,11 @@ void UiManager::DrawCredits(Camera2D camera)
     float ammoY = ly + FONT_SIZE_HUD + 4.0f;
 
     // ARMS, INF, BOMB - TTF z wbudowanymi kolorami COLR
-    DrawSlugText("ARMS", { armsX, ly }, FONT_SIZE_HUD);
-    DrawSlugText("INF", { armsX + (armsW - infW) / 2.0f, ammoY }, FONT_SIZE_HUD);
+    DrawSlugTextShadow("ARMS", { armsX, ly }, FONT_SIZE_HUD);
+    DrawSlugTextShadow("INF", { armsX + (armsW - infW) / 2.0f, ammoY }, FONT_SIZE_HUD);
 
     float bombX = armsX + armsW + sectionGap;
-    DrawSlugText("BOMB", { bombX, ly }, FONT_SIZE_HUD);
+    DrawSlugTextShadow("BOMB", { bombX, ly }, FONT_SIZE_HUD);
 
     // cyfry bomb - metal sprite
     float bombNumScale = metalScale * 0.65f;
@@ -294,7 +313,7 @@ void UiManager::DrawCredits(Camera2D camera)
     std::snprintf(levelText, sizeof(levelText), "LEVEL-%d", level);
 
     float levelW = MeasureSlugText(levelText, FONT_SIZE_BOTTOM);
-    DrawSlugText(levelText, { (float)screenW / 2.0f - levelW / 2.0f, bottomY }, FONT_SIZE_BOTTOM);
+    DrawSlugTextShadow(levelText, { (float)screenW / 2.0f - levelW / 2.0f, bottomY }, FONT_SIZE_BOTTOM);
 
     // ===== CREDIT - prawy dol, TTF =====
     char credStr[8];
@@ -304,8 +323,8 @@ void UiManager::DrawCredits(Camera2D camera)
     float creditNumW = MeasureSlugText(credStr, FONT_SIZE_BOTTOM);
     float cx2 = (float)screenW - creditLabelW - 8.0f - creditNumW - padR;
 
-    DrawSlugText("CREDIT", { cx2, bottomY }, FONT_SIZE_BOTTOM);
-    DrawSlugText(credStr, { cx2 + creditLabelW + 8.0f, bottomY }, FONT_SIZE_BOTTOM);
+    DrawSlugTextShadow("CREDIT", { cx2, bottomY }, FONT_SIZE_BOTTOM);
+    DrawSlugTextShadow(credStr, { cx2 + creditLabelW + 8.0f, bottomY }, FONT_SIZE_BOTTOM);
 
     DrawMissionIntro();
 }
