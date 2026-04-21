@@ -3,7 +3,8 @@
 #include "BulletAnim.hpp"
 enum class BulletState {
 	GRENADESOLDIER,
-	EXPLOSIONSOLDIER
+	EXPLOSIONSOLDIER,
+	BULLETRIFLE
 };
 struct AnimClipBullet {
 	float rowY;      // Y en el spritesheet
@@ -27,7 +28,8 @@ public:
 	void SetAnimation(BulletState animation);
 	BulletState GetCurrentAnim() const { return currentAnim; }
 	Texture2D GetBulletPlayerImg() const { return bulletPlayerImg; }
-	
+	Texture2D GetBulletRifleImg() const { return bulletRifleImg; }
+
 
 	// Devuelve true cuando la animación actual alcanzó su "fin" significativo.
 	// Para ATTACKING significa: forward → peak → back → vuelta a 0.
@@ -42,11 +44,13 @@ private:
 	float timer;
 	bool animForward;
 	bool animCompleted;
+	Texture2D bulletRifleImg;
 
-	AnimClipBullet CLIPS[2] = {
+	AnimClipBullet CLIPS[3] = {
 		//  rowY   cellW  cellH  frames  fps    loop  
 			{ 0,   34,    34,    5,      10,   true},  // [0] GRENADE SOLDIER
 			{ 34,   34,    34,    8,     12,   false },  // [1] EXPLOSION SOLDIER
+			{ 0,   34,  34,  1,  10,  true  },  // [2] BULLET RIFLE
 	};
 
 };

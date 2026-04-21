@@ -12,7 +12,7 @@ BulletAnim::BulletAnim() {
 BulletAnim::~BulletAnim()
 {
 
-}// En BulletAnim.cpp
+}
 bool BulletAnim::IsAnimationFinished() {
     // Si la animaci�n actual es la explosi�n
     int index = (int)currentAnim;
@@ -30,6 +30,7 @@ bool BulletAnim::IsAnimationFinished() {
     return false;
 
 }
+
 void BulletAnim::LoadTexture(int type) {
     if (type == 1 )//Marco type grenade
     {
@@ -41,10 +42,19 @@ void BulletAnim::LoadTexture(int type) {
         spriteSheet = LoadTextureFromImage(img);
         SetTextureFilter(spriteSheet, TEXTURE_FILTER_POINT);
     }
+    else if (type == 3) {
+        Image img = LoadImage("Graphics/bulletrifle.png");
+        TraceLog(LOG_INFO, "bulletrifle loaded: %d x %d", img.width, img.height);
+        bulletRifleImg = LoadTextureFromImage(img);
+        SetTextureFilter(bulletRifleImg, TEXTURE_FILTER_POINT);
+    }
 }
 
 void BulletAnim::Update()
 {
+    int index = (int)currentAnim;
+    if (index < 0 || index >= (int)(sizeof(CLIPS) / sizeof(CLIPS[0]))) return;
+
     float dt = GetFrameTime();
     const AnimClipBullet& clip = CLIPS[(int)currentAnim];
     timer += dt;

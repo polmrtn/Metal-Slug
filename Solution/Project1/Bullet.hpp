@@ -17,7 +17,7 @@ public:
 			// Si es la explosi�n u otro estado, puedes mantener el tama�o del clip (34)
 			return 34.0f * scale;
 		}
-
+		if (type == 3) return 34.0f * scale;
 		// Para el tipo 1 (Bala normal)
 		return (float)bulletAnim.GetBulletPlayerImg().width * scale;
 	}
@@ -29,6 +29,7 @@ public:
 			}
 			return 34.0f * scale;
 		}
+		if (type == 3) return 34.0f * scale;
 
 		return (float)bulletAnim.GetBulletPlayerImg().height * scale;
 	}
@@ -52,7 +53,8 @@ public:
 	void DrawHitBox();
 	int GetType() { return type; }
 	BulletAnim& GetAnim() { return bulletAnim; }
-
+	bool IsMachinegunBullet() const { return type == 3; }
+	float GetDirectionY() const { return directionY; }
 	
 	
 private:
