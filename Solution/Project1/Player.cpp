@@ -431,7 +431,36 @@ Rectangle Player::GetFullBodyRect() {
 
 // ========== DIBUJO PRINCIPAL ==========
 void Player::Draw() {
-    if (isFalling && !blinkVisible) return;
+    // ========== NUEVO: Animación de caída inicial (fila 30) ==========
+    if (isFalling) {
+        if (!blinkVisible) return;
+
+        // Dibujar paracaídas
+        anim.DrawParachute(pos, SCALE, dir == PlayerDirection::LEFT);
+
+        // Sprite de la fila 30 (30 * 34 = 1020), ancho 34, alto 68
+        Rectangle sourceRect = { 0, 29 * 34.0f, 34.0f, 68.0f };
+
+        if (dir == PlayerDirection::LEFT) {
+            sourceRect.width = -34.0f;
+        }
+
+        // Ajuste vertical para que los pies toquen el hitbox
+        float offsetY = -68.0f * SCALE + GetHeight();
+
+        Rectangle destRect = {
+            pos.x,
+            pos.y + offsetY,
+            34.0f * SCALE,
+            68.0f * SCALE
+        };
+
+        DrawTexturePro(anim.GetSheet(), sourceRect, destRect, { 0, 0 }, 0, WHITE);
+        DrawHitBox();
+        return;
+    }
+
+    // Resto del código original de Draw()...
     if (!isAlive && isDisappeared) return;
 
     bool shouldDraw = true;

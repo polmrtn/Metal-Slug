@@ -609,8 +609,8 @@ void PlayerAnim::DrawParachute(Vector2 playerPos, float scale, bool facingLeft) 
     };
 
     // Centrar el paracaídas horizontalmente sobre el player y ponerlo encima
-    float destX = playerPos.x + (/* mitad hitbox */ 10.0f * scale) - (PARACHUTE_W * scale / 2.0f);
-    float destY = playerPos.y - PARACHUTE_H * scale;
+    float destX = playerPos.x + ( 15.0f * scale) - (PARACHUTE_W * scale / 2.0f);
+    float destY = playerPos.y - PARACHUTE_H * scale + 30.0f;
 
     DrawTexturePro(parachuteSheet, src,
         { destX, destY, PARACHUTE_W * scale, PARACHUTE_H * scale },
@@ -651,7 +651,7 @@ void PlayerAnim::DrawParachuteLanding(Vector2 playerPos, float scale, bool facin
     };
 
     float destX = playerPos.x + (10.0f * scale) - (PARACHUTE2_W * scale / 2.0f);
-    float destY = playerPos.y - PARACHUTE2_H * scale;
+    float destY = playerPos.y - PARACHUTE2_H * scale + 200.0f;
 
     DrawTexturePro(parachuteSheet2, src,
         { destX, destY, PARACHUTE2_W * scale, PARACHUTE2_H * scale },
