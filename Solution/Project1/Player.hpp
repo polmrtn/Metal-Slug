@@ -98,7 +98,7 @@ private:
     PlayerAnim anim;
 
     // ========== POSICIÓN Y FÍSICA ==========
-    Vector2 pos = { 8000.0f, -50.0f };
+    Vector2 pos = { 250.0f, -50.0f };
     Vector2 vel = { 0.0f, 0.0f };
     float inputVelX = 0.0f;     // Velocidad deseada por input (para animación)
     float previousY = 0.0f;     // Posición Y del frame anterior
@@ -158,7 +158,7 @@ private:
 
     // ========== CAÍDA INICIAL ==========
     bool isFalling = true;
-    float fallSpeed = 5.5f;  // más lento que la gravedad normal
+    float fallSpeed = 6.5f;  // más lento que la gravedad normal
     float blinkTimer = 0.0f;
     float blinkDelay = 0.1f;
     bool blinkVisible = true;
