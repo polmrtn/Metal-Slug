@@ -158,6 +158,25 @@ public:
     float GetCrouchThrowW() const { return 68.0f; }
     void StartCrouchThrow();
 
+    void LoadParachute();
+    void UnloadParachute();
+    void UpdateParachute(float dt);
+    void DrawParachute(Vector2 playerPos, float scale, bool facingLeft);
+    bool IsParachuteActive() const { return parachuteActive; }
+    void StartParachute() { parachuteActive = true; parachuteFrame = 0; parachuteTimer = 0.0f; }
+    void StopParachute() { parachuteActive = false; parachuteFrame = 0; }
+
+    void LoadParachute2();
+    void UnloadParachute2();
+    void UpdateParachuteLanding(float dt);
+    void DrawParachuteLanding(Vector2 playerPos, float scale, bool facingLeft);
+    void StartParachuteLanding() { parachuteLanding = true; parachuteLandingFrame = 0; parachuteLandingTimer = 0.0f; }
+    void StopParachuteLanding() { parachuteLanding = false; parachuteLandingFrame = 0; }
+    bool IsParachuteLanding() const { return parachuteLanding; }
+    bool IsParachuteLandingFinished() const { return parachuteLandingFrame >= parachuteLandingFrameCount - 1; }
+
+
+
 
 private:
     Texture2D spriteSheet;
@@ -305,6 +324,28 @@ private:
     float machinegunCrouchShootDelay = 0.05f;
     int machinegunCrouchShootFrameCount = 4;
     bool machinegunCrouchShooting = false;
+
+    Texture2D parachuteSheet{ 0 };
+
+    // Parachute
+    bool parachuteActive = false;
+    int  parachuteFrame = 0;
+    float parachuteTimer = 0.0f;
+    const float parachuteDelay = 0.12f;   // velocidad animación, ajusta a gusto
+    const int   parachuteFrameCount = 5;
+    const float PARACHUTE_W = 52.0f;
+    const float PARACHUTE_H = 43.0f;
+
+    Texture2D parachuteSheet2{ 0 };
+
+    // Parachute landing
+    bool parachuteLanding = false;
+    int  parachuteLandingFrame = 0;
+    float parachuteLandingTimer = 0.0f;
+    const float parachuteLandingDelay = 0.08f;
+    const int   parachuteLandingFrameCount = 17;
+    const float PARACHUTE2_W = 62.0f;
+    const float PARACHUTE2_H = 59.0f;
 
     // Offsets
     VisualOffsets idleOffset = { 1.0f, 9.0f, 3.0f, 0.0f };

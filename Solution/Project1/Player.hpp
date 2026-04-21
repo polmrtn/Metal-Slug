@@ -89,12 +89,15 @@ public:
     int GetAmmo() const { return machinegunAmmo; }
     WeaponType GetCurrentWeapon() const { return currentWeapon; }
 
+    bool IsFalling() const { return isFalling; }
+    PlayerAnim& GetAnim() { return anim; }
+
 private:
     // ========== ANIMACIÓN ==========
     PlayerAnim anim;
 
     // ========== POSICIÓN Y FÍSICA ==========
-    Vector2 pos = { 9000.0f, 100.0f };
+    Vector2 pos = { 20.0f, 100.0f };
     Vector2 vel = { 0.0f, 0.0f };
     float inputVelX = 0.0f;     // Velocidad deseada por input (para animación)
     float previousY = 0.0f;     // Posición Y del frame anterior
@@ -113,7 +116,7 @@ private:
     static constexpr float SCALE = 4.0f;
     static constexpr float GRAVITY = 2.5f;
     static constexpr float JUMP_FORCE = -42.0f;
-    static constexpr float MOVE_SPEED = 80.0f;
+    static constexpr float MOVE_SPEED = 10.0f;
     static constexpr float CROUCH_SPEED = 4.0f;
 
     // ========== HITBOX ==========
@@ -142,6 +145,8 @@ private:
     WeaponType currentWeapon = WeaponType::PISTOL;
     int machinegunAmmo = 0;
     static constexpr int MACHINEGUN_MAX_AMMO = 200;
+    bool pendingStopAimingUp = false;
+    bool isShootingUpBlocked = false;
 
     // ========== MÉTODOS DE DIBUJO PRIVADOS ==========
     void DrawSeparated();
@@ -149,4 +154,11 @@ private:
     void DrawCrouch();
     Rectangle GetFullBodyRect();
     float GetFullBodyH() const;
+
+    // ========== CAÍDA INICIAL ==========
+    bool isFalling = true;
+    float fallSpeed = 2.0f;  // más lento que la gravedad normal
+    float blinkTimer = 0.0f;
+    float blinkDelay = 0.1f;
+    bool blinkVisible = true;
 };

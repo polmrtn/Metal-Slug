@@ -16,7 +16,7 @@ Game::Game() : camera({ 1280.0f/2 , 896/2  })
 	else {
 		blocks = CreateBlocks();  // Solo si no hay archivo
 	}
-	soldiers = CreateSoldiers();
+	//soldiers = CreateSoldiers();
 	bullets = CreateBullets();	
 	items = CreateItems();
 }
@@ -328,10 +328,10 @@ void Game::HandleInput()
 	}
 
 	// ========== AIMING UP ==========
-	if (IsKeyPressed(KEY_UP)) {
+	if (IsKeyPressed(KEY_UP) && !player.GetAnim().IsMachinegunShootingUp()) {
 		player.StartAimingUp();
 	}
-	if (IsKeyReleased(KEY_UP)) {
+	if (IsKeyReleased(KEY_UP) && !player.GetAnim().IsMachinegunShootingUp()) {
 		player.StopAimingUp();
 	}
 
