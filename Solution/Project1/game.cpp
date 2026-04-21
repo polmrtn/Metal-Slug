@@ -53,7 +53,7 @@ void Game::Draw()
 	for (auto& item : items) {
 		item.Draw();
 	}
-
+	backgroundManager.Drawfrontground();
 	camera.End();
 
 	UiManager.DrawCredits(camera.GetCamera());

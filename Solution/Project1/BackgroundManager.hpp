@@ -28,13 +28,14 @@ struct BackgroundAnim {
 
 class BackgroundManager {
 public:
+
     BackgroundManager();
     ~BackgroundManager();
     void FollowPlayer(Vector2 cameraPos);
     void AddAnimation(const char* path, Vector2 pos, int frames, float fps, float scale, float spacing, float pFactor);
     void Update(float dt);
     void Draw();
-
+    void Drawfrontground();
     float GetWidth() { return destination.width; }
     float GetHeight() { return destination.height; }
 
