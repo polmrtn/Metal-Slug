@@ -890,7 +890,7 @@ void Game::BlockCollisions() {
 			bool canCollide = (bIt->GetType() != 2 || bIt->GetDirectionY() > 0);
 			if (canCollide) {
 				for (const auto& block : blocks) {
-					if (CheckCollisionRecs(bIt->GetHitbox(), block.GetRect())) {
+					if (CheckCollisionRecs(bIt->GetHitbox(), block.GetRect()) && block.GetType() == BlockType::NORMAL) {
 						bIt->SetPosition({ bIt->GetPosition().x, block.GetRect().y - bIt->GetHeight() });
 						bulletJustHit = true;
 						break;

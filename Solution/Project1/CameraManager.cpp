@@ -19,11 +19,28 @@ float CameraManager::GetLeftLimit() {
 }
 
 void CameraManager::Update(Vector2 playerPos, float bgWidth, float bgHeight, bool isGrounded) {
-    // 1. Seguimiento horizontal clásico
-    if (playerPos.x > maxScrollX) maxScrollX = playerPos.x;
-
     float halfScreenWidth = camera.offset.x;
     float halfScreenHeight = camera.offset.y;
+
+    // --- INICIALIZACIÓN INSTANTÁNEA (Evita el Lerp al empezar) ---
+    static bool isFirstFrame = true;
+    if (isFirstFrame) {
+        maxScrollX = playerPos.x;
+        camera.target.x = Clamp(maxScrollX, halfScreenWidth, bgWidth - halfScreenWidth);
+
+        // Calculamos un minY/maxY inicial para el primer frame
+        float startMinY = halfScreenHeight + 100.0f;
+        float startMaxY = bgHeight - halfScreenHeight - 165.0f;
+        lockedYValue = Clamp(playerPos.y, startMinY, startMaxY);
+
+        camera.target.y = lockedYValue; // Asignación directa, sin Lerp
+        isFirstFrame = false;
+        return;
+    }
+    // -------------------------------------------------------------
+
+    // 1. Seguimiento horizontal clásico
+    if (playerPos.x > maxScrollX) maxScrollX = playerPos.x;
 
     camera.target.x = Lerp(camera.target.x, maxScrollX, 0.1f);
     camera.target.x = Clamp(camera.target.x, halfScreenWidth, bgWidth - halfScreenWidth);
@@ -32,17 +49,16 @@ void CameraManager::Update(Vector2 playerPos, float bgWidth, float bgHeight, boo
     float minY = halfScreenHeight + 100.0f;
     float maxY = bgHeight - halfScreenHeight - 165.0f;
 
-    // Ajuste zona Boss (Esto ya lo tenías, lo mantenemos como base)
     if (playerPos.x > 14000.0f) {
         minY -= 400.0f;
         maxY -= 400.0f;
     }
     if (minY > maxY) maxY = minY;
 
-    // 3. LÓGICA DE ZONAS (Bloqueo -> Libertad -> Re-bloqueo)
-
-    // ZONA A: Antes de 13,000 (Comportamiento normal de suelo)
+    // 3. LÓGICA DE ZONAS (Tu código corregido)
     if (playerPos.x < 12000.0f) {
+        // ... (Tu lógica de < 300 y > 600 se mantiene igual)
+      
         if (playerPos.y > 600) {
             float targetY = Clamp(playerPos.y, minY, maxY);
             if (abs(targetY - lockedYValue) > 50.0f) {
@@ -50,24 +66,22 @@ void CameraManager::Update(Vector2 playerPos, float bgWidth, float bgHeight, boo
             }
         }
     }
-    // ZONA B: Entre 13,000 y 14,000 (Cámara libre en Y para seguir el salto/subida)
     else if (playerPos.x >= 12000.0f && playerPos.x < 14000.0f) {
-        // Actualizamos lockedYValue constantemente para seguir al jugador suavemente
+        // LIBERTAD: Aquí el clamp sigue al jugador sin umbral de 50px
         lockedYValue = Clamp(playerPos.y, minY, maxY);
     }
-    // ZONA C: A partir de 14,000 (Se vuelve a clavar en la altura actual)
     else if (playerPos.x >= 15000.0f) {
         static bool bossZoneLocked = false;
         if (!bossZoneLocked) {
-            // En el momento que cruza los 14k, capturamos la posición actual como el nuevo bloqueo
             lockedYValue = Clamp(playerPos.y, minY, maxY);
             bossZoneLocked = true;
         }
-        // Aquí lockedYValue ya no cambia, la cámara se queda fija en esta altura para el Boss
     }
 
-    // 4. Aplicación suave
-    camera.target.y = Lerp(camera.target.y, lockedYValue, 0.1f);
+    // 4. Aplicación suave (Solo si no es el primer frame)
+    if (playerPos.y > 100) {
+        camera.target.y = Lerp(camera.target.y, lockedYValue, 0.06f);
+    }
 }
 
 void CameraManager::Begin() {
