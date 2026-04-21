@@ -9,10 +9,14 @@ void PlayerAnim::LoadTextures() {
     spriteSheet = LoadTextureFromImage(img);
     UnloadImage(img);
     SetTextureFilter(spriteSheet, TEXTURE_FILTER_POINT);
+    LoadParachute();
+    LoadParachute2();
 }
 
 void PlayerAnim::UnloadTextures() {
     UnloadTexture(spriteSheet);
+    UnloadParachute();
+    UnloadParachute2();
 }
 
 void PlayerAnim::Update(bool grounded, float velX, bool crouchingInput, bool aimingUpInput, bool hasMachinegun, float dt) {
@@ -528,6 +532,7 @@ void PlayerAnim::StartMachinegunShootUp() {
     machinegunShootingUp = true;
     machinegunShootUpFrame = 0;
     machinegunShootUpTimer = 0.0f;
+    machinegunAimingUp = true;
 }
 
 void PlayerAnim::StartMachinegunCrouch() {
@@ -569,4 +574,86 @@ void PlayerAnim::StartCrouchThrow() {
     crouchThrowing = true;
     crouchThrowFrame = 0;
     crouchThrowTimer = 0.0f;
+}
+
+void PlayerAnim::LoadParachute() {
+    Image img = LoadImage("Graphics/parachute1FORPOL.png");
+    parachuteSheet = LoadTextureFromImage(img);
+    UnloadImage(img);
+    SetTextureFilter(parachuteSheet, TEXTURE_FILTER_POINT);
+}
+
+void PlayerAnim::UnloadParachute() {
+    UnloadTexture(parachuteSheet);
+}
+
+void PlayerAnim::UpdateParachute(float dt) {
+    if (!parachuteActive) return;
+    parachuteTimer += dt;
+    if (parachuteTimer >= parachuteDelay) {
+        parachuteTimer = 0.0f;
+        // cicla entre 0 y 4, el último frame se queda fijo (abierto)
+        if (parachuteFrame < parachuteFrameCount - 1)
+            parachuteFrame++;
+    }
+}
+
+void PlayerAnim::DrawParachute(Vector2 playerPos, float scale, bool facingLeft) {
+    if (!parachuteActive) return;
+
+    Rectangle src = {
+        parachuteFrame * PARACHUTE_W,
+        0.0f,
+        facingLeft ? -PARACHUTE_W : PARACHUTE_W,
+        PARACHUTE_H
+    };
+
+    // Centrar el paracaídas horizontalmente sobre el player y ponerlo encima
+    float destX = playerPos.x + (/* mitad hitbox */ 10.0f * scale) - (PARACHUTE_W * scale / 2.0f);
+    float destY = playerPos.y - PARACHUTE_H * scale;
+
+    DrawTexturePro(parachuteSheet, src,
+        { destX, destY, PARACHUTE_W * scale, PARACHUTE_H * scale },
+        { 0, 0 }, 0, WHITE);
+}
+
+void PlayerAnim::LoadParachute2() {
+    Image img = LoadImage("Graphics/pARACHUTE2POOOOOOOL.png");
+    parachuteSheet2 = LoadTextureFromImage(img);
+    UnloadImage(img);
+    SetTextureFilter(parachuteSheet2, TEXTURE_FILTER_POINT);
+}
+
+void PlayerAnim::UnloadParachute2() {
+    UnloadTexture(parachuteSheet2);
+}
+
+void PlayerAnim::UpdateParachuteLanding(float dt) {
+    if (!parachuteLanding) return;
+    parachuteLandingTimer += dt;
+    if (parachuteLandingTimer >= parachuteLandingDelay) {
+        parachuteLandingTimer = 0.0f;
+        if (parachuteLandingFrame < parachuteLandingFrameCount - 1)
+            parachuteLandingFrame++;
+        else
+            parachuteLanding = false;  // termina sola al llegar al último frame
+    }
+}
+
+void PlayerAnim::DrawParachuteLanding(Vector2 playerPos, float scale, bool facingLeft) {
+    if (!parachuteLanding) return;
+
+    Rectangle src = {
+        parachuteLandingFrame * PARACHUTE2_W,
+        0.0f,
+        facingLeft ? -PARACHUTE2_W : PARACHUTE2_W,
+        PARACHUTE2_H
+    };
+
+    float destX = playerPos.x + (10.0f * scale) - (PARACHUTE2_W * scale / 2.0f);
+    float destY = playerPos.y - PARACHUTE2_H * scale;
+
+    DrawTexturePro(parachuteSheet2, src,
+        { destX, destY, PARACHUTE2_W * scale, PARACHUTE2_H * scale },
+        { 0, 0 }, 0, WHITE);
 }

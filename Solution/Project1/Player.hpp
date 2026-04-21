@@ -89,6 +89,9 @@ public:
     int GetAmmo() const { return machinegunAmmo; }
     WeaponType GetCurrentWeapon() const { return currentWeapon; }
 
+    bool IsFalling() const { return isFalling; }
+    PlayerAnim& GetAnim() { return anim; }
+
 private:
     // ========== ANIMACIÓN ==========
     PlayerAnim anim;
@@ -142,6 +145,8 @@ private:
     WeaponType currentWeapon = WeaponType::PISTOL;
     int machinegunAmmo = 0;
     static constexpr int MACHINEGUN_MAX_AMMO = 200;
+    bool pendingStopAimingUp = false;
+    bool isShootingUpBlocked = false;
 
     // ========== MÉTODOS DE DIBUJO PRIVADOS ==========
     void DrawSeparated();
@@ -149,4 +154,11 @@ private:
     void DrawCrouch();
     Rectangle GetFullBodyRect();
     float GetFullBodyH() const;
+
+    // ========== CAÍDA INICIAL ==========
+    bool isFalling = true;
+    float fallSpeed = 2.0f;  // más lento que la gravedad normal
+    float blinkTimer = 0.0f;
+    float blinkDelay = 0.1f;
+    bool blinkVisible = true;
 };

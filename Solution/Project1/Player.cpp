@@ -4,6 +4,7 @@
 Player::Player() {
     anim.LoadTextures();
     SetNormalHitbox();
+    anim.StartParachute();
 }
 
 Player::~Player() {
@@ -27,6 +28,23 @@ void Player::SetCrouchHitbox() {
 
 // ========== ACTUALIZACIÓN PRINCIPAL ==========
 void Player::Update(float CameraLeftLimit) {
+    if (isFalling) {
+        blinkTimer += GetFrameTime();
+        if (blinkTimer >= blinkDelay) {
+            blinkTimer = 0.0f;
+            blinkVisible = !blinkVisible;
+        }
+        pos.y += fallSpeed;
+        anim.UpdateParachute(GetFrameTime());
+        if (grounded) {
+            isFalling = false;
+            blinkVisible = true;
+            anim.StopParachute();
+            anim.StartParachuteLanding();
+        }
+        return;
+    }
+    anim.UpdateParachuteLanding(GetFrameTime());
     if (invincibilityTimer > 0.0f) {
         invincibilityTimer -= GetFrameTime();
     }
@@ -54,8 +72,20 @@ void Player::Update(float CameraLeftLimit) {
     else {
         SetNormalHitbox();
     }
+    if (pendingStopAimingUp && !anim.IsMachinegunShootingUp()) {
+        pendingStopAimingUp = false;
+        aimingUp = false;
+        anim.StopMachinegunAiming();
+    }
 
     anim.Update(grounded, inputVelX, crouching, aimingUp, currentWeapon == WeaponType::MACHINEGUN, GetFrameTime());
+
+    // Limpiar el pendingStopAimingUp cuando la animación de disparo hacia arriba termina
+    if (pendingStopAimingUp && !anim.IsMachinegunShootingUp()) {
+        pendingStopAimingUp = false;
+        aimingUp = false;
+        anim.StopMachinegunAiming();
+    }
 
     // Manejar animaciones FULL_BODY
     if (mode == Mode::FULL_BODY && !crouching) {
@@ -101,6 +131,7 @@ void Player::Update(float CameraLeftLimit) {
 
 // ========== MOVIMIENTO ==========
 void Player::MoveLeft() {
+    if (isFalling) return;
     if (mode != Mode::FULL_BODY && !crouching) {
         if (currentWeapon == WeaponType::MACHINEGUN && anim.IsMachinegunCrouchShooting()) return;
         inputVelX = -MOVE_SPEED;
@@ -119,6 +150,7 @@ void Player::MoveLeft() {
 }
 
 void Player::MoveRight() {
+    if (isFalling) return;
     if (mode != Mode::FULL_BODY && !crouching) {
         if (currentWeapon == WeaponType::MACHINEGUN && anim.IsMachinegunCrouchShooting()) return;
         inputVelX = MOVE_SPEED;
@@ -159,10 +191,18 @@ void Player::StartAimingUp() {
 }
 
 void Player::StopAimingUp() {
-    aimingUp = false;
-    if (currentWeapon == WeaponType::MACHINEGUN) {
-        anim.StopMachinegunAiming();
+    // Si estamos disparando hacia arriba, no detener la orientación hasta que termine
+    if (currentWeapon == WeaponType::MACHINEGUN && anim.IsMachinegunShootingUp()) {
+        pendingStopAimingUp = true;
+        return;
     }
+    // Si estamos en la animación de disparo hacia arriba pero ya terminó
+    if (currentWeapon == WeaponType::MACHINEGUN && !anim.IsMachinegunShootingUp() && pendingStopAimingUp) {
+        pendingStopAimingUp = false;
+    }
+    pendingStopAimingUp = false;
+    aimingUp = false;
+    anim.StopMachinegunAiming();
 }
 
 void Player::StartCrouching() {
@@ -226,7 +266,9 @@ void Player::Shoot() {
 
 // ========== GETTERS ==========
 PlayerDirection Player::GetAimDirection() const {
-    if (aimingUp) return PlayerDirection::UP;
+    if (aimingUp || (currentWeapon == WeaponType::MACHINEGUN && anim.IsMachinegunShootingUp())) {
+        return PlayerDirection::UP;
+    }
     return dir;
 }
 
@@ -389,6 +431,7 @@ Rectangle Player::GetFullBodyRect() {
 
 // ========== DIBUJO PRINCIPAL ==========
 void Player::Draw() {
+    if (isFalling && !blinkVisible) return;
     if (!isAlive && isDisappeared) return;
 
     bool shouldDraw = true;
@@ -418,6 +461,8 @@ void Player::Draw() {
         DrawHitBox();
         return;
     }
+    anim.DrawParachute(pos, SCALE, dir == PlayerDirection::LEFT);
+    anim.DrawParachuteLanding(pos, SCALE, dir == PlayerDirection::LEFT);
     DrawSeparated();
     DrawHitBox();
 }
