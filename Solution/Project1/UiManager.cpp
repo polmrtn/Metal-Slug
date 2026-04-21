@@ -2,17 +2,11 @@
 #include <cstdio>
 #include <cstring>
 
-// ============================================================
-//  Constants
-// ============================================================
 static const float TICK_INTERVAL = 1.0f;
 
 const float UiManager::INTRO_DURATION = 3.0f;
 const float UiManager::BLINK_INTERVAL = 0.25f;
 
-// ============================================================
-//  Constructor / Destructor
-// ============================================================
 UiManager::UiManager()
     : credits(0), score(0), level(1), timeLeft(60),
     timeAccum(0.0f), introTimer(0.0f),
@@ -38,7 +32,6 @@ void UiManager::Update()
     if (introTimer < INTRO_DURATION)
     {
         introTimer += GetFrameTime();
-
         blinkAccum += GetFrameTime();
         if (blinkAccum >= BLINK_INTERVAL)
         {
@@ -70,21 +63,8 @@ bool UiManager::IsMissionIntroOver() const
 void UiManager::DrawMetalDigit(int digit, Vector2 pos, float scale) const
 {
     int col = (digit == 0) ? 9 : digit - 1;
-
-    Rectangle src = {
-        (float)(col * METAL_W),
-        0.0f,
-        (float)METAL_W,
-        (float)METAL_H
-    };
-
-    Rectangle dst = {
-        pos.x,
-        pos.y,
-        METAL_W * scale,
-        METAL_H * scale
-    };
-
+    Rectangle src = { (float)(col * METAL_W), 0.0f, (float)METAL_W, (float)METAL_H };
+    Rectangle dst = { pos.x, pos.y, METAL_W * scale, METAL_H * scale };
     DrawTexturePro(texMetalNumbers, src, dst, { 0,0 }, 0.0f, WHITE);
 }
 
@@ -116,14 +96,12 @@ void UiManager::DrawTimeDigit(char c, Vector2 pos, float scale) const
 {
     int col = -1;
     if (c >= '0' && c <= '9') col = c - '0';
-    else if (c == ':') col = 10;
-    else if (c == '.') col = 11;
-
+    else if (c == ':')             col = 10;
+    else if (c == '.')             col = 11;
     if (col < 0) return;
 
     Rectangle src = { col * TIME_W, 0, TIME_W, TIME_H };
     Rectangle dst = { pos.x, pos.y, TIME_W * scale, TIME_H * scale };
-
     DrawTexturePro(texTimeNumbers, src, dst, { 0,0 }, 0.0f, WHITE);
 }
 
@@ -139,60 +117,48 @@ void UiManager::DrawTimeString(const char* str, Vector2 pos, float scale) const
 
 float UiManager::MeasureTimeString(const char* str, float scale) const
 {
-    int len = (int)strlen(str);
-    return len * TIME_W * scale;
+    return (int)strlen(str) * TIME_W * scale;
 }
 
 // ============================================================
-//  YELLOW TEXT
+//  YELLOW TEXT  (spacing: 0.78 = lekko scisniety ale czytelny)
 // ============================================================
 void UiManager::DrawYellowChar(char c, Vector2 pos, float scale) const
 {
     int col = -1;
-
     if (c >= 'A' && c <= 'Z') col = c - 'A';
     else if (c >= 'a' && c <= 'z') col = c - 'a';
     else if (c >= '0' && c <= '9') col = 26 + (c - '0');
-    else if (c == '!') col = 36;
-    else if (c == '?') col = 37;
-
+    else if (c == '!')              col = 36;
+    else if (c == '?')              col = 37;
     if (col < 0) return;
 
     Rectangle src = { col * YELLOW_W, 0, YELLOW_W, YELLOW_H };
     Rectangle dst = { pos.x, pos.y, YELLOW_W * scale, YELLOW_H * scale };
-
     DrawTexturePro(texYellowLetters, src, dst, { 0,0 }, 0.0f, WHITE);
 }
 
-void UiManager::DrawYellowText(const char* str, Vector2 pos, float scale) const
+void UiManager::DrawYellowText(const char* str, Vector2 pos, float scale, float spacing) const
 {
+    float step = YELLOW_W * scale * spacing;
     float x = pos.x;
-
     for (int i = 0; str[i]; ++i)
     {
-        if (str[i] == ' ')
-        {
-            x += YELLOW_W * scale * 0.6f;
-            continue;
-        }
-
+        if (str[i] == ' ') { x += step * 0.6f; continue; }
         DrawYellowChar(str[i], { x, pos.y }, scale);
-        x += YELLOW_W * scale;
+        x += step;
     }
 }
 
-float UiManager::MeasureYellowText(const char* str, float scale) const
+float UiManager::MeasureYellowText(const char* str, float scale, float spacing) const
 {
+    float step = YELLOW_W * scale * spacing;
     float w = 0.0f;
-
     for (int i = 0; str[i]; ++i)
     {
-        if (str[i] == ' ')
-            w += YELLOW_W * scale * 0.6f;
-        else
-            w += YELLOW_W * scale;
+        if (str[i] == ' ') w += step * 0.6f;
+        else                w += step;
     }
-
     return w;
 }
 
@@ -201,111 +167,109 @@ float UiManager::MeasureYellowText(const char* str, float scale) const
 // ============================================================
 void UiManager::DrawCredits(Camera2D camera)
 {
-    int screenW = GetScreenWidth();
-    int screenH = GetScreenHeight();
-
-    Color silver = { 192,192,192,255 };
+    int   screenW = GetScreenWidth();
+    int   screenH = GetScreenHeight();
 
     float labelScale = 1.1f;
     float metalScale = 0.75f;
     float timerScale = 4.5f;
     float bottomScale = 1.1f;
+    float sp = 0.78f;  // spacing liter - lekko scisniety
 
     float topY = 35.0f;
     float padL = 30.0f;
     float padR = 20.0f;
-    float bottomY = screenH - YELLOW_H * bottomScale;
-
-    float lx = padL;
+    float bottomY = (float)screenH - YELLOW_H * bottomScale - 4.0f;
     float ly = topY;
 
-    // ===== SCORE =====
-    float scoreY = ly;
-    DrawMetalNumber(score, 7, { lx, scoreY }, metalScale);
+    // ===== SCORE - wyrownany do prawej =====
+    float scoreRightEdge = padL + MeasureMetalNumber(7, metalScale);
+
+    char scoreBuf[16];
+    std::snprintf(scoreBuf, sizeof(scoreBuf), "%d", score);
+    int   scoreDigits = (int)strlen(scoreBuf);
+    float scoreW = MeasureMetalNumber(scoreDigits, metalScale);
+    float scoreX = scoreRightEdge - scoreW;
+
+    DrawMetalNumber(score, 0, { scoreX, topY }, metalScale);
 
     // ===== 3UP =====
-    float upScale = 1.3f;
-    DrawYellowText("3UP", { lx + 10.0f, ly + 30.0f }, upScale);
+    DrawYellowText("3UP", { padL + 10.0f, ly + 30.0f }, 1.3f, sp);
 
-    // ===== FRAME =====
-    float cx = padL + MeasureMetalNumber(7, metalScale) + 4.0f;
-    float ammoY = ly + YELLOW_H * labelScale + 2.0f;
+    // ===== RAMKA (ARMS / BOMB) =====
+    // Padding wewnetrzny - rowny z obu stron
+    float innerPad = 10.0f;
+    float sectionGap = 10.0f;  // odstep miedzy sekcjami ARMS i BOMB
 
-    float armsW = MeasureYellowText("ARMS", labelScale);
-    float bombW = MeasureYellowText("BOMB", labelScale);
+    float armsW = MeasureYellowText("ARMS", labelScale, sp);
+    float bombW = MeasureYellowText("BOMB", labelScale, sp);
 
-    float totalW = armsW + 18.0f + bombW;
+    float contentW = armsW + sectionGap + bombW;
     float totalH = YELLOW_H * labelScale * 2 + 2.0f;
 
-    int left = (int)(cx - 2);
-    int right = (int)(cx + totalW + 2);
+    float frameX = scoreRightEdge + 4.0f;
+    float frameW = innerPad + contentW + innerPad;
+
+    int left = (int)(frameX);
+    int right = (int)(frameX + frameW);
     int top = (int)(ly - 2);
     int bottom = (int)(ly + totalH + 2);
 
+    // ramka
     DrawRectangle(left, top, right - left, 3, WHITE);
     DrawRectangle(left, top, 3, bottom - top, WHITE);
     DrawRectangle(left, bottom - 3, right - left, 3, GRAY);
     DrawRectangle(right - 3, top, 3, bottom - top, GRAY);
 
-    // ===== CENTER CONTENT =====
-    float contentW = armsW + 4.0f + bombW;
-    float frameCenter = (left + right) * 0.5f;
-    float armsX = frameCenter - contentW * 0.5f;
+    // content od innerPad po lewej
+    float armsX = frameX + innerPad - 6.0f;
+    float ammoY = ly + YELLOW_H * labelScale + 2.0f;
 
-    DrawYellowText("ARMS", { armsX, ly }, labelScale);
+    DrawYellowText("ARMS", { armsX, ly }, labelScale, sp);
 
-    float infW = MeasureYellowText("INF", labelScale);
-    DrawYellowText("INF", { armsX + (armsW - infW) / 2, ammoY }, labelScale);
+    float infW = MeasureYellowText("INF", labelScale, sp);
+    DrawYellowText("INF", { armsX + (armsW - infW) / 2.0f, ammoY }, labelScale, sp);
 
-    float bombX = armsX + armsW;
-    DrawYellowText("BOMB", { bombX, ly }, labelScale);
+    float bombX = armsX + armsW + sectionGap;
+    DrawYellowText("BOMB", { bombX, ly }, labelScale, sp);
 
-    float numW = MeasureMetalNumber(2, metalScale * 0.75f);
-    float bombCenter = bombX + bombW / 2.0f;
-    float numX = bombCenter - numW / 2.0f - 6.0f;
-
-    DrawMetalNumber(10, 2, { numX, ammoY }, metalScale * 0.75f);
+    float bombNumScale = metalScale * 0.65f;
+    float numW = MeasureMetalNumber(2, bombNumScale);
+    DrawMetalNumber(10, 2, { bombX + (bombW - numW) / 2.0f, ammoY }, bombNumScale);
 
     // ===== TIMER =====
     char timerStr[8];
     std::snprintf(timerStr, sizeof(timerStr), "%d", timeLeft);
 
     float timerW = MeasureTimeString(timerStr, timerScale);
-    float tx = screenW / 2 - timerW / 2;
+    float x = screenW / 2.0f - timerW / 2.0f;
 
-    float x = tx;
     for (int i = 0; timerStr[i]; ++i)
     {
-        int col = timerStr[i] - '0';
+        int       col = timerStr[i] - '0';
         Rectangle src = { col * TIME_W, 0, TIME_W, TIME_H };
         Rectangle dst = { x, topY, TIME_W * timerScale, TIME_H * timerScale };
         DrawTexturePro(texTimeNumbers, src, dst, { 0,0 }, 0, WHITE);
         x += TIME_W * timerScale;
     }
 
-    // ===== LEVEL CENTER =====
+    // ===== LEVEL - srodek dolu =====
     char levelText[16];
     std::snprintf(levelText, sizeof(levelText), "LEVEL-%d", level);
 
-    float levelW = MeasureYellowText(levelText, bottomScale);
-    float centerX = screenW / 2.0f - levelW / 2.0f;
+    float levelW = MeasureYellowText(levelText, bottomScale, sp);
+    DrawYellowText(levelText, { (float)screenW / 2.0f - levelW / 2.0f, bottomY }, bottomScale, sp);
 
-    DrawYellowText(levelText, { centerX, bottomY }, bottomScale);
-
-    // ===== CREDIT =====
+    // ===== CREDIT - prawy dol =====
     char credStr[8];
     std::snprintf(credStr, sizeof(credStr), "%02d", credits);
 
-    float totalCW = MeasureYellowText("CREDIT", bottomScale)
-        + 8.0f
-        + MeasureYellowText(credStr, bottomScale);
+    float creditLabelW = MeasureYellowText("CREDIT", bottomScale, sp);
+    float creditNumW = MeasureYellowText(credStr, bottomScale, sp);
+    float cx2 = (float)screenW - creditLabelW - 8.0f - creditNumW - padR;
 
-    float cx2 = screenW - totalCW - padR;
-
-    DrawYellowText("CREDIT", { cx2, bottomY }, bottomScale);
-    DrawYellowText(credStr,
-        { cx2 + MeasureYellowText("CREDIT", bottomScale) + 8.0f, bottomY },
-        bottomScale);
+    DrawYellowText("CREDIT", { cx2, bottomY }, bottomScale, sp);
+    DrawYellowText(credStr, { cx2 + creditLabelW + 8.0f, bottomY }, bottomScale, sp);
 
     DrawMissionIntro();
 }
@@ -313,7 +277,6 @@ void UiManager::DrawCredits(Camera2D camera)
 // ============================================================
 //  SETTERS / GETTERS
 // ============================================================
-
 void UiManager::SetCredits(int amount)
 {
     credits += amount;
@@ -321,32 +284,18 @@ void UiManager::SetCredits(int amount)
     if (credits < 0) credits = 0;
 }
 
-int UiManager::GetCredits() const
-{
-    return credits;
-}
+int  UiManager::GetCredits()  const { return credits; }
 
 void UiManager::AddScore(int amount)
 {
     score += amount;
     if (score > 9999999) score = 9999999;
-    if (score < 0) score = 0;
+    if (score < 0)       score = 0;
 }
 
-int UiManager::GetScore() const
-{
-    return score;
-}
-
-int UiManager::GetTimeLeft() const
-{
-    return timeLeft;
-}
-
-bool UiManager::IsTimeUp() const
-{
-    return timeLeft <= 0;
-}
+int  UiManager::GetScore()    const { return score; }
+int  UiManager::GetTimeLeft() const { return timeLeft; }
+bool UiManager::IsTimeUp()    const { return timeLeft <= 0; }
 
 void UiManager::NextLevel()
 {
@@ -358,31 +307,24 @@ void UiManager::NextLevel()
     timeAccum = 0.0f;
 }
 
-int UiManager::GetLevel() const
-{
-    return level;
-}
+int UiManager::GetLevel() const { return level; }
 
 // ============================================================
 //  MISSION INTRO
 // ============================================================
-
 void UiManager::DrawMissionIntro()
 {
     if (IsMissionIntroOver()) return;
-    if (!blinkVisible) return;
+    if (!blinkVisible)        return;
 
-    int screenW = GetScreenWidth();
-    int screenH = GetScreenHeight();
-
+    int   screenW = GetScreenWidth();
+    int   screenH = GetScreenHeight();
     float scale = 2.0f;
+    float sp = 0.78f;
 
     char text[32];
     std::snprintf(text, sizeof(text), "MISSION %d", level);
 
-    float w = MeasureYellowText(text, scale);
-    float x = screenW / 2.0f - w / 2.0f;
-    float y = screenH / 2.0f;
-
-    DrawYellowText(text, { x, y }, scale);
+    float w = MeasureYellowText(text, scale, sp);
+    DrawYellowText(text, { screenW / 2.0f - w / 2.0f, screenH / 2.0f }, scale, sp);
 }
