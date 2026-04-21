@@ -1,7 +1,7 @@
 ﻿  AudioManager.cpp
   AudioManager.hpp
   BackgroundManager.cpp
-E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\BackgroundManager.cpp(90,67): warning C4244: '=': conversión de 'double' a 'float'; posible pérdida de datos
+E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\BackgroundManager.cpp(128,45): warning C4244: '=': conversión de 'double' a 'float'; posible pérdida de datos
   Bullet.cpp
 E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\Bullet.cpp(6,16): warning C4244: '=': conversión de 'int' a 'float'; posible pérdida de datos
 E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\Bullet.cpp(7,21): warning C4244: '=': conversión de 'int' a 'float'; posible pérdida de datos
@@ -9,17 +9,17 @@ E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Pr
   BulletAnim.cpp
   CameraManager.cpp
   game.cpp
-E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\game.cpp(63,16): warning C4244: 'inicializando': conversión de 'double' a 'float'; posible pérdida de datos
 E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\game.cpp(66,16): warning C4244: 'inicializando': conversión de 'double' a 'float'; posible pérdida de datos
-E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\game.cpp(824,25): warning C4244: '=': conversión de 'int' a 'float'; posible pérdida de datos
-E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\game.cpp(825,26): warning C4244: '=': conversión de 'int' a 'float'; posible pérdida de datos
+E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\game.cpp(69,16): warning C4244: 'inicializando': conversión de 'double' a 'float'; posible pérdida de datos
+E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\game.cpp(828,25): warning C4244: '=': conversión de 'int' a 'float'; posible pérdida de datos
+E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\game.cpp(829,26): warning C4244: '=': conversión de 'int' a 'float'; posible pérdida de datos
 C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\xmemory(732,103): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
   (compilando archivo de origen "game.cpp")
       C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\xmemory(732,103):
       el contexto de creación de instancias de la plantilla (el más antiguo primero) es
-          E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\game.cpp(267,10):
+          E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\game.cpp(271,10):
           Vea la referencia a la creación de una instancia de la función plantilla "void std::vector<Bullet,std::allocator<Bullet>>::emplace_back<Vector2&,float&,float&,float&,int&>(Vector2 &,float &,float &,float &,int &)" que se está compilando
-              E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\game.cpp(267,22):
+              E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\game.cpp(271,22):
               vea la primera referencia a “std::vector<Bullet,std::allocator<Bullet>>::emplace_back” en “Game::Shoot”
           C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\vector(924,24):
           Vea la referencia a la creación de una instancia de la función plantilla "_Ty &std::vector<_Ty,std::allocator<_Ty>>::_Emplace_one_at_back<Vector2&,float&,float&,float&,int&>(Vector2 &,float &,float &,float &,int &)" que se está compilando
