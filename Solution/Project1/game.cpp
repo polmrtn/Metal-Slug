@@ -193,6 +193,10 @@ void Game::Update(){
 				if (machinegunBurstCount >= MACHINEGUN_BURST_SIZE || player.GetAmmo() <= 0) {
 					machinegunBurst = false;
 					machinegunBurstCount = 0;
+					// Si ya no está pulsado UP, bajar el arma ahora
+					if (!IsKeyDown(KEY_UP)) {
+						player.StopAimingUp();
+					}
 				}
 			}
 		}
@@ -291,6 +295,161 @@ void Game::ThrowGrenade() {
 	}
 }
 
+//handleinput antiguo
+//void Game::HandleInput()
+//{
+//	if (!player.IsAlive()) {
+//		if (IsKeyPressed(KEY_R)) {
+//			player.Respawn();
+//		}
+//		return;
+//	}
+//
+//	if (IsKeyPressed(KEY_L)) {
+//		UiManager.NextLevel();
+//	}
+//	if (IsKeyPressed(KEY_J)) {
+//		UiManager.AddScore(100);
+//	}
+//	if (IsKeyPressed(KEY_C)) {
+//		if (UiManager.GetCredits() < 99) {
+//			UiManager.SetCredits(1);
+//		}
+//	}
+//
+//	// ========== MOVIMIENTO ==========
+//	if (IsKeyDown(KEY_LEFT)) {
+//		player.MoveLeft();
+//	}
+//	else if (IsKeyDown(KEY_RIGHT)) {
+//		player.MoveRight();
+//	}
+//	else {
+//		player.StopMovingHorizontal();
+//	}
+//
+//	// ========== AIMING UP ==========
+//	if (IsKeyPressed(KEY_UP) && !machinegunBurst) {
+//		player.StartAimingUp();
+//	}
+//	if (IsKeyReleased(KEY_UP) && !machinegunBurst) {
+//		player.StopAimingUp();
+//	}
+//
+//	// ========== CROUCHING ==========
+//	if (IsKeyDown(KEY_DOWN)) {
+//		player.StartCrouching();
+//	}
+//	else {
+//		player.StopCrouching();
+//	}
+//
+//	// ========== JUMP ==========
+//	if (IsKeyPressed(KEY_SPACE)) {
+//		player.Jump();
+//	}
+//
+//	// ========== DISPARO ==========
+//	if (IsKeyPressed(KEY_D) && shootTimer <= 0.0f) {
+//		if (player.GetCurrentWeapon() == WeaponType::MACHINEGUN) {
+//			if (player.GetAmmo() > 0) {
+//				player.Shoot();
+//				machinegunBurst = true;
+//				machinegunBurstCount = 0;
+//				machinegunBurstTimer = 0.0f;
+//				shootTimer = shootDelayMachinegun;
+//			}
+//		}
+//		else {
+//			player.Shoot();
+//			Shoot(1, { 0, 0 }, true);
+//			shootTimer = shootDelayPistol;
+//		}
+//	}
+//
+//	// ========== GRANADA ==========
+//	if (IsKeyPressed(KEY_S) && player.IsAlive() && grenadeCooldown <= 0.0f) {
+//		ThrowGrenade();
+//		grenadeCooldown = grenadeDelay;
+//	}
+//
+//	// ========== CHANGE SCENE ==========
+//	if (IsKeyPressed(KEY_ENTER)) {
+//		if (sceneManager.currentState == SceneManager::TITLE) {
+//			audioManager.StopMusic(audioManager.GetTitleMusic());
+//			audioManager.PlaySound(audioManager.GetGameSound());
+//			sceneManager.SetGameState(SceneManager::GAME);
+//			musicStarted = false;
+//		}
+//		else if (sceneManager.currentState == SceneManager::INTRO) {
+//			sceneManager.SetGameState(SceneManager::TITLE);
+//			musicStarted = false;
+//		}
+//	}
+//
+//	// ========== MODO EDITOR ==========
+//	static float f1Cooldown = 0.0f;
+//	if (IsKeyPressed(KEY_F1) && f1Cooldown <= 0.0f) {
+//		editorMode = !editorMode;
+//		f1Cooldown = 0.2f;
+//		TraceLog(LOG_INFO, "Editor mode: %s", editorMode ? "ON" : "OFF");
+//	}
+//	if (f1Cooldown > 0.0f) {
+//		f1Cooldown -= GetFrameTime();
+//	}
+//
+//	if (editorMode) {
+//		// Mover grid con WASD
+//		if (IsKeyDown(KEY_W)) gridOffset.y -= 5;
+//		if (IsKeyDown(KEY_S)) gridOffset.y += 5;
+//		if (IsKeyDown(KEY_A)) gridOffset.x -= 5;
+//		if (IsKeyDown(KEY_D)) gridOffset.x += 5;
+//
+//		Vector2 mousePos = GetMousePosition();
+//		Vector2 worldPos = camera.GetScreenToWorld(mousePos);
+//
+//		int tileX = (int)floor((worldPos.x - gridOffset.x) / gridSize);
+//		int tileY = (int)floor((worldPos.y - gridOffset.y) / gridSize);
+//
+//		float blockX = gridOffset.x + tileX * gridSize;
+//		float blockY = gridOffset.y + tileY * gridSize;
+//
+//		// Click izquierdo: suelo normal
+//		if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+//			blocks.emplace_back(blockX, blockY, gridSize, gridSize, true);
+//		}
+//		// Click derecho: plataforma
+//		if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) {
+//			blocks.emplace_back(blockX, blockY, gridSize, gridSize, false);
+//		}
+//		// Tecla R: rampa que sube
+//		if (IsKeyPressed(KEY_R)) {
+//			blocks.emplace_back(blockX, blockY, gridSize, gridSize, BlockType::RAMP_UP);
+//			TraceLog(LOG_INFO, "Rampa UP creada en (%.0f, %.0f)", blockX, blockY);
+//		}
+//		// Tecla T: rampa que baja
+//		if (IsKeyPressed(KEY_T)) {
+//			blocks.emplace_back(blockX, blockY, gridSize, gridSize, BlockType::RAMP_DOWN);
+//			TraceLog(LOG_INFO, "Rampa DOWN creada en (%.0f, %.0f)", blockX, blockY);
+//		}
+//		// Click medio: borrar bloque
+//		if (IsMouseButtonPressed(MOUSE_BUTTON_MIDDLE)) {
+//			auto it = std::remove_if(blocks.begin(), blocks.end(),
+//				[blockX, blockY](const Block& b) {
+//					return b.GetRect().x == blockX && b.GetRect().y == blockY;
+//				});
+//			blocks.erase(it, blocks.end());
+//			TraceLog(LOG_INFO, "Bloque borrado en (%.0f, %.0f)", blockX, blockY);
+//		}
+//
+//		// Guardar nivel
+//		if (IsKeyPressed(KEY_F5)) {
+//			SaveBlocksToFile("level_blocks.txt");
+//		}
+//	}
+//
+//}
+
 void Game::HandleInput()
 {
 	if (!player.IsAlive()) {
@@ -300,75 +459,7 @@ void Game::HandleInput()
 		return;
 	}
 
-	if (IsKeyPressed(KEY_L)) {
-		UiManager.NextLevel();
-	}
-	if (IsKeyPressed(KEY_J)) {
-		UiManager.AddScore(100);
-	}
-	if (IsKeyPressed(KEY_C)) {
-		if (UiManager.GetCredits() < 99) {
-			UiManager.SetCredits(1);
-		}
-	}
-
-	// ========== MOVIMIENTO ==========
-	if (IsKeyDown(KEY_LEFT)) {
-		player.MoveLeft();
-	}
-	else if (IsKeyDown(KEY_RIGHT)) {
-		player.MoveRight();
-	}
-	else {
-		player.StopMovingHorizontal();
-	}
-
-	// ========== AIMING UP ==========
-	if (IsKeyPressed(KEY_UP) && !player.GetAnim().IsMachinegunShootingUp()) {
-		player.StartAimingUp();
-	}
-	if (IsKeyReleased(KEY_UP) && !player.GetAnim().IsMachinegunShootingUp()) {
-		player.StopAimingUp();
-	}
-
-	// ========== CROUCHING ==========
-	if (IsKeyDown(KEY_DOWN)) {
-		player.StartCrouching();
-	}
-	else {
-		player.StopCrouching();
-	}
-
-	// ========== JUMP ==========
-	if (IsKeyPressed(KEY_SPACE)) {
-		player.Jump();
-	}
-
-	// ========== DISPARO ==========
-	if (IsKeyPressed(KEY_D) && shootTimer <= 0.0f) {
-		if (player.GetCurrentWeapon() == WeaponType::MACHINEGUN) {
-			if (player.GetAmmo() > 0) {
-				player.Shoot();
-				machinegunBurst = true;
-				machinegunBurstCount = 0;
-				machinegunBurstTimer = 0.0f;
-				shootTimer = shootDelayMachinegun;
-			}
-		}
-		else {
-			player.Shoot();
-			Shoot(1, { 0, 0 }, true);
-			shootTimer = shootDelayPistol;
-		}
-	}
-
-	// ========== GRANADA ==========
-	if (IsKeyPressed(KEY_S) && player.IsAlive() && grenadeCooldown <= 0.0f) {
-		ThrowGrenade();
-		grenadeCooldown = grenadeDelay;
-	}
-
-	// ========== CHANGE SCENE ==========
+	// ========== CAMBIO DE ESCENA (SIEMPRE DISPONIBLE) ==========
 	if (IsKeyPressed(KEY_ENTER)) {
 		if (sceneManager.currentState == SceneManager::TITLE) {
 			audioManager.StopMusic(audioManager.GetTitleMusic());
@@ -382,7 +473,7 @@ void Game::HandleInput()
 		}
 	}
 
-	// ========== MODO EDITOR ==========
+	// ========== MODO EDITOR (SIEMPRE DISPONIBLE) ==========
 	static float f1Cooldown = 0.0f;
 	if (IsKeyPressed(KEY_F1) && f1Cooldown <= 0.0f) {
 		editorMode = !editorMode;
@@ -441,6 +532,78 @@ void Game::HandleInput()
 		if (IsKeyPressed(KEY_F5)) {
 			SaveBlocksToFile("level_blocks.txt");
 		}
+	}
+
+	// ========== SI ESTÁ CAYENDO, NO PROCESAR INPUT DEL JUGADOR ==========
+	if (player.IsFalling()) return;
+
+	// ========== DEBUG (solo si NO está cayendo) ==========
+	if (IsKeyPressed(KEY_L)) {
+		UiManager.NextLevel();
+	}
+	if (IsKeyPressed(KEY_J)) {
+		UiManager.AddScore(100);
+	}
+	if (IsKeyPressed(KEY_C)) {
+		if (UiManager.GetCredits() < 99) {
+			UiManager.SetCredits(1);
+		}
+	}
+
+	// ========== MOVIMIENTO ==========
+	if (IsKeyDown(KEY_LEFT)) {
+		player.MoveLeft();
+	}
+	else if (IsKeyDown(KEY_RIGHT)) {
+		player.MoveRight();
+	}
+	else {
+		player.StopMovingHorizontal();
+	}
+
+	// ========== AIMING UP ==========
+	if (IsKeyPressed(KEY_UP) && !machinegunBurst) {
+		player.StartAimingUp();
+	}
+	if (IsKeyReleased(KEY_UP) && !machinegunBurst) {
+		player.StopAimingUp();
+	}
+
+	// ========== CROUCHING ==========
+	if (IsKeyDown(KEY_DOWN)) {
+		player.StartCrouching();
+	}
+	else {
+		player.StopCrouching();
+	}
+
+	// ========== JUMP ==========
+	if (IsKeyPressed(KEY_SPACE)) {
+		player.Jump();
+	}
+
+	// ========== DISPARO ==========
+	if (IsKeyPressed(KEY_D) && shootTimer <= 0.0f) {
+		if (player.GetCurrentWeapon() == WeaponType::MACHINEGUN) {
+			if (player.GetAmmo() > 0) {
+				player.Shoot();
+				machinegunBurst = true;
+				machinegunBurstCount = 0;
+				machinegunBurstTimer = 0.0f;
+				shootTimer = shootDelayMachinegun;
+			}
+		}
+		else {
+			player.Shoot();
+			Shoot(1, { 0, 0 }, true);
+			shootTimer = shootDelayPistol;
+		}
+	}
+
+	// ========== GRANADA ==========
+	if (IsKeyPressed(KEY_S) && player.IsAlive() && grenadeCooldown <= 0.0f) {
+		ThrowGrenade();
+		grenadeCooldown = grenadeDelay;
 	}
 }
 

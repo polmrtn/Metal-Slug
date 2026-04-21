@@ -1,6 +1,6 @@
 #include "playerAnim.hpp"
 
-PlayerAnim::PlayerAnim() : spriteSheet{ 0 } {}
+PlayerAnim::PlayerAnim() : spriteSheet{ 0 }, hasLandingPosition(false) {}
 
 PlayerAnim::~PlayerAnim() {}
 
@@ -643,6 +643,12 @@ void PlayerAnim::UpdateParachuteLanding(float dt) {
 void PlayerAnim::DrawParachuteLanding(Vector2 playerPos, float scale, bool facingLeft) {
     if (!parachuteLanding) return;
 
+    // Guardar la posición LA PRIMERA VEZ que se dibuja (justo al aterrizar)
+    if (!hasLandingPosition) {
+        landingPosition = playerPos;
+        hasLandingPosition = true;
+    }
+
     Rectangle src = {
         parachuteLandingFrame * PARACHUTE2_W,
         0.0f,
@@ -650,10 +656,22 @@ void PlayerAnim::DrawParachuteLanding(Vector2 playerPos, float scale, bool facin
         PARACHUTE2_H
     };
 
-    float destX = playerPos.x + (10.0f * scale) - (PARACHUTE2_W * scale / 2.0f);
-    float destY = playerPos.y - PARACHUTE2_H * scale + 200.0f;
+    float destX = landingPosition.x + (10.0f * scale) - (PARACHUTE2_W * scale / 2.0f);
+    float destY = landingPosition.y - PARACHUTE2_H * scale + 200.0f;
 
     DrawTexturePro(parachuteSheet2, src,
         { destX, destY, PARACHUTE2_W * scale, PARACHUTE2_H * scale },
         { 0, 0 }, 0, WHITE);
+}
+
+void PlayerAnim::StartParachuteLanding() {
+    parachuteLanding = true;
+    parachuteLandingFrame = 0;
+    parachuteLandingTimer = 0.0f;
+    hasLandingPosition = false;  // ← Resetear al empezar
+}
+void PlayerAnim::StopParachuteLanding() {
+    parachuteLanding = false;
+    parachuteLandingFrame = 0;
+    hasLandingPosition = false;  // ← Resetear
 }
