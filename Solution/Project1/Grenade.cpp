@@ -8,35 +8,18 @@
 Texture2D Grenade::texture = { 0 };
 bool Grenade::textureLoaded = false;
 
-Grenade::Grenade(Vector2 startPos, Vector2 targetPos, float power) {
-    this->startPos = startPos;
-    this->targetPos = targetPos;
+Grenade::Grenade(Vector2 startPos, Vector2 initialVelocity) {
     this->position = startPos;
+    this->velocity = initialVelocity;
 
-    // Cargar textura solo una vez
     if (!textureLoaded) {
         texture = LoadTexture("Graphics/marcogrenade.png");
         SetTextureFilter(texture, TEXTURE_FILTER_POINT);
         textureLoaded = true;
-        TraceLog(LOG_INFO, "Grenade texture loaded (ID: %d)", texture.id);
     }
-
-    CalculateTrajectory(power);
 }
 
 Grenade::~Grenade() {}
-
-void Grenade::CalculateTrajectory(float power) {
-    float dx = targetPos.x - startPos.x;
-    float dy = targetPos.y - startPos.y;
-
-    // Aumentar el tiempo de vuelo (más tiempo = más lejos)
-    float time = power / 1500.0f;
-    if (time < 0.08f) time = 0.08f;
-
-    velocity.x = dx / time;
-    velocity.y = (dy - 0.5f * gravity * time * time) / time;
-}
 
 void Grenade::Update() {
     if (!isActive) return;
@@ -73,24 +56,6 @@ void Grenade::Update() {
     position.x += velocity.x * GetFrameTime();
     position.y += velocity.y * GetFrameTime();
 
-    // Detección de colisión con el suelo (continua)
-    if (!hasExploded) {
-        bool crossedGround = (prevPos.y < targetPos.y && position.y >= targetPos.y);
-
-        if (crossedGround || position.y >= targetPos.y) {
-            if (!hasBounced) {
-                // PRIMER REBOTE - no explota
-                position.y = targetPos.y;
-                velocity.y = -velocity.y * bounceDamping;
-                hasBounced = true;
-            }
-            else if (hasBounced) {
-                // SEGUNDO CONTACTO - EXPLOTA
-                position.y = targetPos.y;
-                Explode();
-            }
-        }
-    }
 }
 
 void Grenade::CheckCollisionWithSoldiers(std::vector<Soldier>& soldiers) {
@@ -105,7 +70,10 @@ void Grenade::CheckCollisionWithSoldiers(std::vector<Soldier>& soldiers) {
         }
     }
 }
+
 void Grenade::Explode() {
+    explosionPosition = position;
+    TraceLog(LOG_INFO, "Explode at position: %.2f, %.2f", position.x, position.y);
     hasExploded = true;
     explosionTimer = 0.0f;
     StartExplosion();
@@ -126,16 +94,15 @@ Rectangle Grenade::GetHitBox() const {
 }
 
 Rectangle Grenade::GetExplosionHitBox() const {
-    // Tamaño del sprite de explosión: 52x112
     float width = 52.0f;
     float height = 112.0f;
-    float scale = 2.0f;  // Misma escala que usas en Draw()
-    float offsetX = -40.0f;  // Mismo offset que usas en Draw()
-    float offsetY = -height * scale;  // Base en el suelo
+    float scale = 2.0f;
+    float offsetX = -40.0f;
+    float offsetY = -height * scale + 10.0f;  // sube desde donde está la granada
 
     return Rectangle{
-        position.x + offsetX,
-        targetPos.y + offsetY,
+        explosionPosition.x + offsetX,
+        explosionPosition.y + offsetY,
         width * scale,
         height * scale
     };
@@ -160,16 +127,16 @@ void Grenade::Draw() {
             explosionFrame * frameWidth,
             startRowY,
             frameWidth,
-            frameHeight  // ← Alto completo, sin recortar
+            frameHeight  
         };
 
         float scale = 2.0f;
         float offsetX = -40.0f;
-        float offsetY = -frameHeight * scale;
+        float offsetY = -frameHeight * scale + 20.0f;
 
         Rectangle destRect = {
-            position.x + offsetX,
-            position.y + offsetY,
+            explosionPosition.x + offsetX,
+            explosionPosition.y + offsetY,
             frameWidth * scale,
             frameHeight * scale
         };
@@ -201,4 +168,41 @@ void Grenade::Draw() {
     };
 
     DrawTexturePro(texture, sourceRect, destRect, { 0, 0 }, 0, WHITE);
+}
+
+void Grenade::CheckCollisionWithBlocks(const std::vector<Block>& blocks) {
+    if (!isActive || hasExploded) return;
+
+    Rectangle grenadeBox = GetHitBox();
+
+    for (const auto& block : blocks) {
+        // Ignorar techos: la granada no rebota en ellos
+        if (block.GetType() == BlockType::CEILING) continue;
+
+        Rectangle blockRect = block.GetRect();
+        if (!CheckCollisionRecs(grenadeBox, blockRect)) continue;
+
+        // Viene de arriba (cayendo) → rebote o explosión
+        if (velocity.y > 0 &&
+            position.y - velocity.y * GetFrameTime() < blockRect.y) {
+
+            position.y = blockRect.y - 11.0f; // radio del hitbox de granada
+
+            if (!hasBounced) {
+                velocity.y = -velocity.y * bounceDamping;
+                velocity.x *= 0.7f;   // pierde algo de impulso horizontal
+                hasBounced = true;
+            }
+            else {
+                position.y = blockRect.y - 11.0f;  // ← añade esto, que no lo tenías
+                TraceLog(LOG_INFO, "Block top: %.2f, grenade y after adjust: %.2f", blockRect.y, position.y);
+                Explode();
+            }
+            return;
+        }
+
+        // Choca de lado → explota directamente
+        Explode();
+        return;
+    }
 }

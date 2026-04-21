@@ -176,6 +176,7 @@ void Game::Update(){
 		}
 		for (auto& grenade : grenades) {
 			grenade.Update();
+			grenade.CheckCollisionWithBlocks(blocks);
 			grenade.CheckCollisionWithSoldiers(soldiers);
 		}
 
@@ -283,31 +284,9 @@ void Game::Shoot(int BulletType, Vector2 startPos, bool faceRight)
 }
 
 void Game::ThrowGrenade() {
-	// Calcular el suelo buscando en los bloques
-	float groundY = 650.0f;  // Valor por defecto
-	Rectangle playerRect = player.GetHitBox();
-
-	for (const auto& block : blocks) {
-		Rectangle blockRect = block.GetRect();
-		// Buscar bloques que estén debajo del jugador
-		if (blockRect.x < playerRect.x + playerRect.width &&
-			blockRect.x + blockRect.width > playerRect.x &&
-			blockRect.y > playerRect.y) {
-			// Encontrar el bloque más cercano por debajo
-			if (groundY == 650.0f || blockRect.y < groundY) {
-				groundY = blockRect.y;
-			}
-		}
-	}
-	TraceLog(LOG_INFO, "Grenade groundY: %.2f", groundY);  // ← Debug
-
-	// Obtener datos del lanzamiento
 	GrenadeThrowData data = player.ThrowGrenade();
-	data.targetPos.y = groundY;  // ← Actualizar con el suelo real
-
 	if (data.valid) {
-		grenades.emplace_back(data.startPos, data.targetPos, data.power);
-		TraceLog(LOG_INFO, "Grenade thrown! GroundY: %.2f", groundY);
+		grenades.emplace_back(data.startPos, data.initialVelocity);
 	}
 }
 
