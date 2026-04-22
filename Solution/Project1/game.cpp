@@ -748,7 +748,78 @@ void Game::GrenadesCollision() {
 		}
 	}
 }
+void Game::SoldierBlockCollision()
+{
+	for (auto& soldier : soldiers) {
+		soldier.SetLeftCollision(false);  // ← resetear laterales aquí
+		soldier.SetRightCollision(false);
 
+		float distToPlayer = abs(player.GetPosition().x - soldier.GetPosition().x);
+		bool playerNearby = distToPlayer < 800.0f; // ← distancia absoluta
+
+		if (!playerNearby) {
+			// Soldado lejano: solo aplicar gravedad, no mover ni colisionar lateralmente
+			soldier.SetGrounded(false);
+			// Chequear solo suelo para que no caiga al vacío
+			for (const auto& block : blocks) {
+				if (!block.IsGround()) continue;
+				Rectangle blockRect = block.GetRect();
+				Rectangle hurtBox = soldier.GetHurtBox();
+				float feetY = hurtBox.y + hurtBox.height;
+				float blockTopY = blockRect.y;
+				float verticalDist = feetY - blockTopY;
+				bool isOverBlock = (hurtBox.x + hurtBox.width > blockRect.x &&
+					hurtBox.x < blockRect.x + blockRect.width);
+				if (isOverBlock && verticalDist >= 0 && verticalDist <= 20.0f && soldier.GetVelocityY() >= 0) {
+					soldier.SetY(blockTopY - soldier.GetHeight());
+					soldier.SetVelocityY(0);
+					soldier.SetGrounded(true);
+				}
+			}
+			continue; // ← saltar colisiones laterales si está lejos
+		}
+
+		// ========== SOLDADO CERCANO ==========
+		soldier.SetGrounded(false);
+
+		for (const auto& block : blocks) {
+			if (!block.IsGround()) continue;
+			Rectangle blockRect = block.GetRect();
+
+			if (blockRect.x > soldier.GetPosition().x + 300.0f ||
+				blockRect.x + blockRect.width < soldier.GetPosition().x - 300.0f) continue;
+
+			Rectangle hurtBox = soldier.GetHurtBox();
+
+			// SUELO
+			float feetY = hurtBox.y + hurtBox.height;
+			float blockTopY = blockRect.y;
+			float verticalDist = feetY - blockTopY;
+			bool isOverBlock = (hurtBox.x + hurtBox.width > blockRect.x &&
+				hurtBox.x < blockRect.x + blockRect.width);
+
+			if (isOverBlock && verticalDist >= 0 && verticalDist <= 20.0f && soldier.GetVelocityY() >= 0) {
+				soldier.SetY(blockTopY - soldier.GetHeight());
+				soldier.SetVelocityY(0);
+				soldier.SetGrounded(true);
+			}
+
+			// LATERALES
+			bool verticalOverlap = (hurtBox.y + hurtBox.height > blockRect.y + 5.0f &&
+				hurtBox.y < blockRect.y + blockRect.height - 5.0f);
+			if (verticalOverlap) {
+				if (CheckCollisionRecs(soldier.GetLeftHitBox(), blockRect)) {
+					soldier.SetLeftCollision(true);
+				}
+				if (CheckCollisionRecs(soldier.GetRightHitBox(), blockRect)) {
+					soldier.SetRightCollision(true);
+				}
+			}
+		}
+	}
+}
+
+		
 void Game::BlockCollisions() {
 	bool onGround = false;
 	const float GROUND_TOLERANCE = 5.0f;
@@ -756,22 +827,20 @@ void Game::BlockCollisions() {
 	player.SetLeftCollision(false);
 	player.SetRightCollision(false);
 
+	Rectangle playerRect = player.GetHitBox(); // ← calcular UNA vez fuera del loop
+
 	for (const auto& block : blocks) {
-		Rectangle playerRect = player.GetHitBox();
 		Rectangle blockRect = block.GetRect();
 
-		// ========== COLISIÓN CON TECHO (CEILING) ==========
-		if (block.GetType() == BlockType::CEILING) {
-			// Verificar colisión real entre el jugador y el bloque
-			if (CheckCollisionRecs(playerRect, blockRect)) {
-				// Si la cabeza del jugador está dentro del techo Y está subiendo
-				if (playerRect.y < blockRect.y + blockRect.height &&
-					player.GetVelocityY() < 0) {
+		// ========== SKIP BLOQUES LEJANOS ==========
+		if (blockRect.x > playerRect.x + 400.0f || blockRect.x + blockRect.width < playerRect.x - 400.0f) continue;
 
-					// Recolocar arriba del techo
+		// ========== COLISIÓN CON TECHO ==========
+		if (block.GetType() == BlockType::CEILING) {
+			if (CheckCollisionRecs(playerRect, blockRect)) {
+				if (playerRect.y < blockRect.y + blockRect.height && player.GetVelocityY() < 0) {
 					player.SetY(blockRect.y + blockRect.height);
 					player.SetVelocityY(0);
-					TraceLog(LOG_INFO, "Ceiling collision at Y: %.2f", blockRect.y + blockRect.height);
 				}
 			}
 			continue;
@@ -779,18 +848,12 @@ void Game::BlockCollisions() {
 
 		// ========== COLISIÓN CON RAMPAS ==========
 		if (block.IsRamp()) {
-			// Centro X del jugador
 			float playerCenterX = playerRect.x + playerRect.width / 2;
-
-			// Solo aplicar rampa si el jugador está dentro del rango X de la rampa
 			if (playerCenterX >= blockRect.x && playerCenterX <= blockRect.x + blockRect.width) {
 				float rampHeight = block.GetHeightAtX(playerCenterX);
 				float playerFeetY = playerRect.y + playerRect.height;
-
-				// Si los pies están en o cerca de la rampa
 				if (playerFeetY >= rampHeight && playerFeetY <= rampHeight + 20.0f) {
-					float newY = rampHeight - playerRect.height;
-					player.SetY(newY);
+					player.SetY(rampHeight - playerRect.height);
 					player.SetVelocityY(0);
 					onGround = true;
 				}
@@ -798,33 +861,21 @@ void Game::BlockCollisions() {
 			continue;
 		}
 
-		// ========== COLISIÓN SOLDADOS CON BLOQUES ==========
-		auto It = soldiers.begin();
-		while (It != soldiers.end()) {
-			if (CheckCollisionRecs(It->GetHurtBox(), blockRect)) {
-				if (It->GetVelocityY() >= 0) {
-					It->SetY(blockRect.y - It->GetHeight());
-					It->SetVelocityY(0);
-					It->SetGrounded(true);
-					break;
-				}
-			}
-			++It;
-		}
+		// ========== COLISIÓN SOLDADOS ==========
+		SoldierBlockCollision();
 
-		// ========== COLISIÓN JUGADOR CON SUELO NORMAL ==========
+		// ========== COLISIÓN JUGADOR SUELO ==========
 		float feetY = playerRect.y + playerRect.height;
 		float blockTopY = blockRect.y;
 		float previousFeetY = player.GetPreviousY() + player.GetHeight();
 		bool wasBelow = (player.GetVelocityY() < 0 && previousFeetY <= blockTopY);
 		float verticalDistance = feetY - blockTopY;
-		bool isVerticalNear = (verticalDistance >= 0 && verticalDistance <= 50.0f);
 		bool isOverBlock = (playerRect.x + playerRect.width > blockRect.x + GROUND_TOLERANCE &&
 			playerRect.x < blockRect.x + blockRect.width - GROUND_TOLERANCE);
 
-		if (isOverBlock && isVerticalNear && player.GetVelocityY() >= 0 && !wasBelow && verticalDistance <= 20.0f) {
-			float newY = blockTopY - playerRect.height;
-			player.SetY(newY);
+		if (isOverBlock && verticalDistance >= 0 && verticalDistance <= 20.0f &&
+			player.GetVelocityY() >= 0 && !wasBelow) {
+			player.SetY(blockTopY - playerRect.height);
 			player.SetVelocityY(0);
 			onGround = true;
 		}
@@ -837,7 +888,6 @@ void Game::BlockCollisions() {
 				player.SetX(player.GetX() + overlap);
 				player.SetLeftCollision(true);
 			}
-
 			Rectangle rightHitBox = player.GetRightHitBox();
 			if (CheckCollisionRecs(rightHitBox, blockRect)) {
 				float newX = blockRect.x - player.GetWidth();
@@ -852,6 +902,7 @@ void Game::BlockCollisions() {
 		}
 	}
 
+	// ========== ITEMS CON SUELO ==========
 	for (auto& item : items) {
 		if (!item.IsGrounded() && item.GetType() == ItemType::SHOTGUN) {
 			Rectangle itemRect = item.GetHitBox();
@@ -870,22 +921,29 @@ void Game::BlockCollisions() {
 	}
 
 	player.SetGrounded(onGround);
-	if (onGround) {
-		player.SetVelocityY(0);
-	}
-	//balas con piso
+	if (onGround) player.SetVelocityY(0);
+
+	// ========== BALAS CON BLOQUES (UNA SOLA VEZ, FUERA DEL LOOP) ==========
 	auto bIt = bullets.begin();
 	while (bIt != bullets.end()) {
 		bool bulletJustHit = false;
 
-// Solo chequear colisión si NO está explotando Y ya va hacia abajo
 		if (!bIt->IsExploding()) {
-			// Solo granadas (tipo 2) colisionan con bloques, tipo 1 y 3 atraviesan todo
-			if (bIt->GetType() == 1 || bIt->GetType() == 3 && !bIt->IsExploding()) {
+			// Tipo 2 (granada): solo colisionar cuando va hacia abajo
+			if (bIt->GetType() == 2 && bIt->GetDirectionY() > 0) {
 				for (const auto& block : blocks) {
-					if (CheckCollisionRecs(bIt->GetHitbox(), block.GetRect())
-						&& block.GetType() == BlockType::NORMAL
-						&& block.IsGround()) {  // solo bloques verdes (plataformas)
+					if (CheckCollisionRecs(bIt->GetHitbox(), block.GetRect())) {
+						bIt->SetPosition({ bIt->GetPosition().x, block.GetRect().y - bIt->GetHeight() });
+						bulletJustHit = true;
+						break;
+					}
+				}
+			}
+			// Tipo 1 y 3: solo con bloques sólidos normales
+			else if (bIt->GetType() == 1 || bIt->GetType() == 3) {
+				for (const auto& block : blocks) {
+					if (block.GetType() == BlockType::NORMAL && block.IsGround() &&
+						CheckCollisionRecs(bIt->GetHitbox(), block.GetRect())) {
 						bulletJustHit = true;
 						break;
 					}
@@ -893,7 +951,6 @@ void Game::BlockCollisions() {
 			}
 		}
 
-		// Activar explosión al primer impacto
 		if (bulletJustHit) {
 			if (bIt->GetType() == 1 || bIt->GetType() == 3) {
 				bIt = bullets.erase(bIt);
@@ -905,8 +962,7 @@ void Game::BlockCollisions() {
 			}
 		}
 
-		// Borrar granada cuando termina la animación de explosión
-		if (bIt->GetType() == 2 && !bIt->IsExploding() && bIt->GetDirectionY() > 0) {
+		if (bIt->GetType() == 2 && bIt->IsExploding()) {
 			if (bIt->GetAnim().IsAnimationFinished()) {
 				bIt = bullets.erase(bIt);
 				continue;
@@ -933,17 +989,15 @@ std::vector<Bullet> Game::CreateBullets()
 
 std::vector<Soldier>  Game::CreateSoldiers()
 	{
+	
 		std::vector<Soldier> soldiers;
-		soldiers.reserve(1);
-		for (int i = 0; i < 1; ++i) {
-			float xpos, ypos;
-			ypos = (10 * i + 40) + 100;
-			xpos = (100 * i + 40) + 500;
-			/*soldiers.emplace_back(Soldier(1, { xpos,ypos }));*/
-			soldiers.emplace_back(Soldier(2, { xpos,ypos }));
-			
-		}
-		soldiers.emplace_back(Soldier(1, { 200, 200 }));
+		soldiers.reserve(20);
+		soldiers.emplace_back(Soldier(2, { 1000, 200 }));
+		soldiers.emplace_back(Soldier(1, { 1000, 200 }));
+		soldiers.emplace_back(Soldier(1, { 2000, 200 }));
+		soldiers.emplace_back(Soldier(1, { 3000, 200 }));
+		soldiers.emplace_back(Soldier(1, { 4000, 200 }));
+		soldiers.emplace_back(Soldier(1, { 5000, 200 }));
 
 		return soldiers;
 	}

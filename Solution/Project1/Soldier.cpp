@@ -1,6 +1,7 @@
 ﻿#include "Soldier.hpp"
 #include "Player.hpp"
 #include <raylib.h>
+#include <math.h>
 int direction = 1;
 
 Soldier::Soldier(int type, Vector2 position)
@@ -141,6 +142,8 @@ int Soldier::GetType() {
 
 void Soldier::Update()
 {
+
+    
     if (!isGrounded) {
         velocity.y += gravity;
     }
@@ -157,9 +160,9 @@ void Soldier::Update()
             hasShot = true;
         }
     }
-
+    if (velocity.x < 0 && !leftCollision) position.x += velocity.x;
+    else if (velocity.x > 0 && !rightCollision) position.x += velocity.x;
     position.y += velocity.y;
-    position.x += velocity.x;
     soldierAnim.Update();
 }
 
@@ -179,8 +182,12 @@ void Soldier::Attack(Player& player) {
 void Soldier::UpdateAI(Player& player)
 {
     stateTimer += GetFrameTime();
-
-    if ((stateTimer >= 3.0f && !IsVisionRay(player) && isAlive) ||
+    float distToPlayer = fabsf(player.GetPosition().x - position.x);
+    if (distToPlayer >= 500.0f) {
+        velocity.x = 0;
+        return;
+    }
+    else if ((stateTimer >= 3.0f && !IsVisionRay(player) && isAlive) ||
         (soldierAnim.IsAnimationFinished() && currentState != SoldierState::DEAD)) {
         stateTimer = 0.0f;
         hasShot = false;
@@ -282,4 +289,19 @@ void Soldier::TriggerDeath() {
     currentState = SoldierState::DEAD;
     soldierAnim.ForceAnimation(SoldierState::DEAD);
     velocity.x = 0;
+}
+Rectangle Soldier::GetLeftHitBox() {
+    Rectangle hurtBox = GetHurtBox();
+    float w = hurtBox.width * 0.4f;
+    float h = hurtBox.height * 0.6f;
+    float offsetY = (hurtBox.height - h) / 2.0f;
+    return Rectangle{ hurtBox.x - w, hurtBox.y + offsetY, w, h };
+}
+
+Rectangle Soldier::GetRightHitBox() {
+    Rectangle hurtBox = GetHurtBox();
+    float w = hurtBox.width * 0.4f;
+    float h = hurtBox.height * 0.6f;
+    float offsetY = (hurtBox.height - h) / 2.0f;
+    return Rectangle{ hurtBox.x + hurtBox.width, hurtBox.y + offsetY, w, h };
 }

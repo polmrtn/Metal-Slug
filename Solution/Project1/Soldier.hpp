@@ -43,7 +43,12 @@ public:
     bool WantsToShoot() const { return wantsToShoot; }
     void ResetShootWants() { wantsToShoot = false; }
     bool IsFacingRight() const { return facingRight; }
-
+    Rectangle GetLeftHitBox();
+    Rectangle GetRightHitBox();
+    void SetLeftCollision(bool val) { leftCollision = val; }
+    void SetRightCollision(bool val) { rightCollision = val; }
+    bool GetLeftCollision() const { return leftCollision; }
+    bool GetRightCollision() const { return rightCollision; }
 private:
     //reference soldier animation
     SoldierAnim soldierAnim;
@@ -54,7 +59,8 @@ private:
     bool wantsToShoot = false;
     float scale;
     float gravity;
-    
+    bool leftCollision = false;
+    bool rightCollision = false;
     bool isGrounded;
     bool isAlive;
     bool facingRight ;
