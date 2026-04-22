@@ -15,6 +15,7 @@ struct BackgroundAnim {
     float parallaxFactor = 0.1f;
     bool isFrontground = false;
     int layer = 0;
+    int repeatCount = 1;
 
     void Update(float dt) {
         if (!active) return;
@@ -61,7 +62,7 @@ public:
     BackgroundManager();
     ~BackgroundManager();
     void FollowPlayer(Vector2 cameraPos);
-    void AddAnimation(const char* path, Vector2 pos, int frames, float fps, float scale, float spacing, float pFactor, float anchoExtra = 1.0f, bool isFrontground = false, int layer = 0);
+    void AddAnimation(const char* path, Vector2 pos, int frames, float fps, float scale, float spacing, float pFactor, float anchoExtra = 1.0f, bool isFrontground = false, int layer = 0, int repeatcount = 1);
     void AddSprite(const char* path, Vector2 pos, float scale, float parallaxFactor = 0.0f, float anchoExtra = 1.0f, bool isFrontground = false, int layer = 0);
     void AddEventSprite(const char* path, Vector2 pos, int frames, float scale, float spacing, float parallaxFactor = 0.0f, bool isFrontground = false, int layer = 0);
     void SetEventSpriteFrame(int index, int frame);
