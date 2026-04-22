@@ -13,7 +13,38 @@
 [Rr]elease/
 x64/
 x86/
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.sdf
+*.opensdf
+*.VC.db
+*.VC.opendb
 
+# Build outputs
+Debug/
+Release/
+x64/
+x86/
+*.obj
+*.pdb
+*.ilk
+*.exp
+*.lib
+*.dll
+*.exe
+
+# Mac compilado
+main
+*.dSYM/
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
 # Archivos temporales específicos
 *.obj
 *.pdb
