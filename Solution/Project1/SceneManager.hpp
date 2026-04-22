@@ -22,6 +22,7 @@ public:
     Gamestates currentState;
 
 private:
+    // --- Textury ---
     Texture2D texRedBg;
     Texture2D texBlueBg;
     Texture2D texCannon;
@@ -40,21 +41,25 @@ private:
     Texture2D texLogoTop;
     Texture2D texBrrrt;
 
+    // --- Stan animacji ---
     float introTimer = 0.0f;
     int   introPhase = 0;
-    float cannonX = -300.0f;
-    float bulletX = 1400.0f;
-    float logoY = 950.0f;
-    float metalX = -600.0f;
-    float slugX = 1400.0f;
+    float cannonX = -900.0f;
+    float bulletX = -999.0f;
+    float logoY = 0.0f;
+    float metalX = -900.0f;
+    float slugX = 9999.0f;
     float boomAlpha = 0.0f;
-    float boomScale = 0.1f;
+    float boomScale = 1.0f;
     float bgAlpha = 0.0f;
     float shakeTime = 0.0f;
     float shakeStrength = 0.0f;
     float flashAlpha = 0.0f;
     float bulletT = 0.0f;
+    bool  bulletVisible = false;
+    float trackAnim = 0.0f;   // timer animacji gasienica czolgu
 
+    // --- Lusksi (lecace po strzale) ---
     struct Bullet2D {
         float x, y, vx, vy, alpha;
         float rot;
@@ -62,4 +67,16 @@ private:
     };
     std::vector<Bullet2D> flyingBullets;
     bool bulletsSpawned = false;
+
+    // --- Exploding pixels (iskry) ---
+    struct ExPixel {
+        float x, y, vx, vy, life;
+        Color col;
+    };
+    std::vector<ExPixel> explodingPixels;
+    bool pixelsSpawned = false;
+
+    // --- Metody pomocnicze ---
+    void ResetIntro();
+    void DrawIntro();
 };
