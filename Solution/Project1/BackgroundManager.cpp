@@ -13,6 +13,7 @@ BackgroundManager::BackgroundManager() {
     AddAnimation("Graphics/background sprites/bg floor water.png", { 7440, 860 }, 8, 15.0f, 4.0f, 2.0f, 0.0f, 1.0f, false, 1);
     AddAnimation("Graphics/background sprites/bgwaterfallTOFI.png", { 13350, -165 }, 8, 15.0f, 4.0f, 2.0f, 0.0f, 1.0f, false, 2);
     AddAnimation("Graphics/background sprites/bfwaterfall2.png", { 13340, -165 }, 8, 15.0f, 4.0f, 2.0f, 0.0f,1.0f, true, 2);
+    AddAnimation("Graphics/background sprites/water.png", { 7440, 860 }, 8, 15.0f, 4.0f, 2.0f, 0.0f, 1.0f, true, 2);
 
     AddEventSprite("Graphics/background sprites/more shit and huts/huts2.png", { 11050, 250 }, 6, 4.0f, 0.0f, 0.0f, false, 1);
     AddEventSprite("Graphics/background sprites/more shit and huts/hutss3big.png", { 11800, 150 }, 3, 4.0f, 0.0f, 0.0f, false, 1);
