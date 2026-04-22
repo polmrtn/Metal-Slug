@@ -6,10 +6,10 @@
   game.cpp
 C:\Users\fpaty\Desktop\GITHUB DESKTOP\Metal-Slug\Solution\Project1\game.cpp(54,16): warning C4244: "inicjowanie": konwersja z "double" do "float", możliwa utrata danych
 C:\Users\fpaty\Desktop\GITHUB DESKTOP\Metal-Slug\Solution\Project1\game.cpp(57,16): warning C4244: "inicjowanie": konwersja z "double" do "float", możliwa utrata danych
-C:\Users\fpaty\Desktop\GITHUB DESKTOP\Metal-Slug\Solution\Project1\game.cpp(361,23): warning C4566: znak przedstawiony przez nazwę zawierającą znaki uniwersalne "\u00F1" nie może być przedstawiony w bieżącej stronie kodowej (1250)
-C:\Users\fpaty\Desktop\GITHUB DESKTOP\Metal-Slug\Solution\Project1\game.cpp(367,23): warning C4566: znak przedstawiony przez nazwę zawierającą znaki uniwersalne "\u00F1" nie może być przedstawiony w bieżącej stronie kodowej (1250)
-C:\Users\fpaty\Desktop\GITHUB DESKTOP\Metal-Slug\Solution\Project1\game.cpp(591,25): warning C4244: "=": konwersja z "int" do "float", możliwa utrata danych
-C:\Users\fpaty\Desktop\GITHUB DESKTOP\Metal-Slug\Solution\Project1\game.cpp(592,26): warning C4244: "=": konwersja z "int" do "float", możliwa utrata danych
+C:\Users\fpaty\Desktop\GITHUB DESKTOP\Metal-Slug\Solution\Project1\game.cpp(363,23): warning C4566: znak przedstawiony przez nazwę zawierającą znaki uniwersalne "\u00F1" nie może być przedstawiony w bieżącej stronie kodowej (1250)
+C:\Users\fpaty\Desktop\GITHUB DESKTOP\Metal-Slug\Solution\Project1\game.cpp(369,23): warning C4566: znak przedstawiony przez nazwę zawierającą znaki uniwersalne "\u00F1" nie może być przedstawiony w bieżącej stronie kodowej (1250)
+C:\Users\fpaty\Desktop\GITHUB DESKTOP\Metal-Slug\Solution\Project1\game.cpp(593,25): warning C4244: "=": konwersja z "int" do "float", możliwa utrata danych
+C:\Users\fpaty\Desktop\GITHUB DESKTOP\Metal-Slug\Solution\Project1\game.cpp(594,26): warning C4244: "=": konwersja z "int" do "float", możliwa utrata danych
   Grenade.cpp
   LevelMap.cpp
 C:\Users\fpaty\Desktop\GITHUB DESKTOP\Metal-Slug\Solution\Project1\LevelMap.cpp(11,55): warning C4244: "argument": konwersja z "float" do "int", możliwa utrata danych

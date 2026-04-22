@@ -251,7 +251,7 @@ void UiManager::DrawCredits(Camera2D camera)
     DrawMetalNumber(score, 0, { scoreX, topY }, metalScale);
 
     // ===== 3UP - zolty sprite =====
-    DrawYellowText("3UP", { padL + 10.0f, ly + 30.0f }, 1.3f, sp, colYellow);
+    DrawYellowText("0UP=1", { padL + 10.0f, ly + 30.0f }, 1.3f, sp, colYellow);
 
     // ===== RAMKA (ARMS / BOMB) z TTF =====
     float innerPad = 10.0f;
