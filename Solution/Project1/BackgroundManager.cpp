@@ -12,10 +12,10 @@ BackgroundManager::BackgroundManager() {
     AddSprite("Graphics/background sprites/spw.png", { 14070, -450 }, 4.0f, 0.0f, 1.0f, true, 2);
 
     AddAnimation("Graphics/background sprites/bg3.png", { 12000, 0 }, 8, 25.0f, 4.0f, 0.0f, 0.7f, 1.2f, false, 0, 1);
-    AddAnimation("Graphics/background sprites/bg2 2.png", { 14500, -350 }, 5, 25.0f, 4.0f, 2.0f, 0.15f, 1.0f, false, 1, 1);
+    AddAnimation("Graphics/background sprites/bg2 2.png", { 14500, -350 }, 5, 25.0f, 4.0f, 2.0f, 0.17f, 1.0f, false, 1, 1);
     AddAnimation("Graphics/background sprites/bg floor water.png", { 7440, 860 }, 8, 15.0f, 4.0f, 2.0f, 0.0f, 1.0f, false, 1, 1);
     AddAnimation("Graphics/background sprites/bgwaterfallTOFI.png", { 13350, -165 }, 8, 15.0f, 4.0f, 2.0f, 0.0f, 1.0f, false, 2, 1);
-    AddAnimation("Graphics/background sprites/bfwaterfall2.png", { 13340, -165 }, 8, 15.0f, 4.0f, 2.0f, 0.0f, 1.0f, true, 2, 1);
+    AddAnimation("Graphics/background sprites/bfwaterfall2.png", { 13340, -165 }, 8, 15.0f, 4.0f, 2.0f, 0.0f, 1.0f, false, 2, 2);
     AddAnimation("Graphics/background sprites/water.png", { 7540, 930 }, 8, 15.0f, 4.0f, 2.0f, 0.0f, 1.0f, true, 2, 6);
     AddAnimation("Graphics/background sprites/wab1.png", { 15000, 600 }, 8, 15.0f, 4.0f, 2.0f, 0.0f, 1.0f, true, 2);
 
@@ -23,8 +23,8 @@ BackgroundManager::BackgroundManager() {
     AddEventSprite("Graphics/background sprites/more shit and huts/hutss3big.png", { 11800, 150 }, 3, 4.0f, 0.0f, 0.0f, false, 1);
     AddEventSprite("Graphics/background sprites/more shit and huts/hutss3big.png", { 11800, 150 }, 3, 4.0f, 0.0f, 0.0f, false, 1);
     AddEventSprite("Graphics/background sprites/more shit and huts/woodboss1.png", { 8080, 800 }, 1, 4.0f, 0.0f, 0.0f, false, 1);
-   /* AddEventSprite("Graphics/background sprites/more shit and huts/somehutsandwood.png", { 10200, 150 }, 1, 4.0f, 0.0f, 0.0f, false, 2);*/
-
+ /* AddEventSprite("Graphics/background sprites/more shit and huts/somehutsandwood.png", { 10200, 150 }, 1, 4.0f, 0.0f, 0.0f, false, 2);*/
+    AddEventSprite("Graphics/boss1.png", { 15100, -400 }, 5, 4.0f, 0.0f, 0.0f, false, 2);
     scale = 4.0f;
     origin = { 0, 0 };
 }
