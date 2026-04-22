@@ -119,6 +119,8 @@ void Game::Update() {
 				if (item.GetType() == ItemType::SHOTGUN) {
 					player.EquipMachinegun();
 					item.Collect();
+					// ===== DZWIEK EQUIP MACHINEGUN =====
+					audioManager.PlaySound(audioManager.GetMachinegunEquipSound());
 				}
 			}
 
@@ -171,6 +173,8 @@ void Game::Update() {
 				if (player.GetAmmo() > 0) {
 					ShootMachinegun(burstOffsets[machinegunBurstCount]);
 					player.UseAmmo();
+					// ===== DZWIEK STRZALU MACHINEGUN =====
+					audioManager.PlaySound(audioManager.GetMachinegunShootSound());
 				}
 				machinegunBurstCount++;
 				if (machinegunBurstCount >= MACHINEGUN_BURST_SIZE || player.GetAmmo() <= 0) {
@@ -183,7 +187,7 @@ void Game::Update() {
 			}
 		}
 
-		
+
 		BeginDrawing();
 		ClearBackground(BGCOLOR);
 		Draw();
@@ -894,33 +898,26 @@ void Game::ShootMachinegun(float yOffset) {
 }
 
 void Game::CheckBulletsOutOfCamera() {
-	// Obtener los límites de la cámara en el mundo
 	Camera2D cam = camera.GetCamera();
 	float screenWidth = (float)GetScreenWidth();
 	float screenHeight = (float)GetScreenHeight();
 
-	// Calcular los bordes de la cámara en coordenadas del mundo
 	float leftBound = cam.target.x - screenWidth / 2.0f;
 	float rightBound = cam.target.x + screenWidth / 2.0f;
 	float topBound = cam.target.y - screenHeight / 2.0f;
 	float bottomBound = cam.target.y + screenHeight / 2.0f;
 
-	// Añadir un margen (por ejemplo 100 píxeles) para que no se borren justo en el borde
 	float margin = 200.0f;
 	leftBound -= margin;
 	rightBound += margin;
 	topBound -= margin;
 	bottomBound += margin;
 
-	// Recorrer las balas y eliminar las que estén fuera
 	auto bIt = bullets.begin();
 	while (bIt != bullets.end()) {
 		Vector2 bulletPos = bIt->GetPosition();
-
-		// Verificar si la bala está fuera de los límites de la cámara
 		if (bulletPos.x < leftBound || bulletPos.x > rightBound ||
 			bulletPos.y < topBound || bulletPos.y > bottomBound) {
-
 			TraceLog(LOG_INFO, "Bullet removed (out of camera bounds)");
 			bIt = bullets.erase(bIt);
 		}
