@@ -47,9 +47,15 @@ private:
     float boomAlpha = 0.0f;
     float boomScale = 0.1f;
     float bgAlpha = 0.0f;
+    float shakeTime = 0.0f;
+    float shakeStrength = 0.0f;
+    float flashAlpha = 0.0f;
+    float bulletT = 0.0f;
 
     struct Bullet2D {
         float x, y, vx, vy, alpha;
+        float rot;
+        float rotSpeed;
     };
     std::vector<Bullet2D> flyingBullets;
     bool bulletsSpawned = false;

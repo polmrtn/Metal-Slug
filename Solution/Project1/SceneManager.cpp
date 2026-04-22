@@ -90,7 +90,7 @@ void SceneManager::UpdateIntro()
 
     if (introTimer < 0.6f)  introPhase = 0;
     else if (introTimer < 1.4f)  introPhase = 1;
-    else if (introTimer < 2.0f)  introPhase = 2;
+    else if (introTimer < 1.6f)  introPhase = 2;
     else if (introTimer < 2.8f)  introPhase = 3;
     else if (introTimer < 3.8f)  introPhase = 4;
     else if (introTimer < 5.0f)  introPhase = 5;
@@ -115,13 +115,30 @@ void SceneManager::UpdateIntro()
     // Capsule flies right from cannon tip
     if (introPhase >= 2)
     {
-        float t = Clamp((introTimer - 1.4f) / 0.35f, 0.0f, 1.0f);
-        bulletX = SW * 0.28f + t * SW * 1.2f;
+        shakeTime = 0.2f;
+        shakeStrength = 8.0f;
+        flashAlpha = 1.0f;
 
-        float boomIn = Clamp((introTimer - 1.45f) / 0.12f, 0.0f, 1.0f);
-        float boomOut = Clamp((introTimer - 1.75f) / 0.3f, 0.0f, 1.0f);
-        boomAlpha = boomIn * (1.0f - boomOut);
-        boomScale = 0.3f + boomIn * 0.5f;
+        bulletT = Clamp((introTimer - 1.4f) / 0.08f, 0.0f, 1.0f);
+        float t = bulletT;
+
+        float cannonScale = 1.4f;
+        int halfW = texCannon.width / 2;
+
+        float startX = cannonX + (float)halfW * cannonScale * 0.95f;
+
+        float ease = t;
+        bulletX = startX + ease * (SW * 0.8f);
+
+        if (introTimer > 1.45f && introTimer < 1.55f)
+        {
+            boomAlpha = 1.0f;
+            boomScale = 0.9f;
+        }
+        else
+        {
+            boomAlpha = 0.0f;
+        }
     }
 
     // Spawn bullet casings
@@ -164,6 +181,15 @@ void SceneManager::UpdateIntro()
         float targetSlugX = SW * 0.5f - slugW * 0.5f + SW * 0.1f;
         slugX = SW + ease * (targetSlugX - SW);
     }
+
+    // ===== SHAKE UPDATE =====
+    if (shakeTime > 0.0f)
+    {
+        shakeTime -= dt;
+    }
+
+    // ===== FLASH UPDATE =====
+    flashAlpha = Clamp(flashAlpha - dt * 3.0f, 0.0f, 1.0f);
 }
 
 void SceneManager::DrawTexts()
@@ -171,11 +197,85 @@ void SceneManager::DrawTexts()
     int SW = GetScreenWidth();
     int SH = GetScreenHeight();
 
+    int border = 60;
+    float sceneX = border;
+    float sceneY = border;
+    float sceneW = SW - border * 2;
+    float sceneH = SH - border * 2;
+
     if (currentState == TITLE)
     {
         ClearBackground(BLACK);
-        DrawText("METAL SLUG", 450, 300, 50, WHITE);
-        DrawText("Press ENTER to start", 420, 400, 20, GRAY);
+
+        int SW = GetScreenWidth();
+        int SH = GetScreenHeight();
+
+        // ===== BACKGROUND =====
+        float scaleW = (float)SW / texRedBg.width;
+        float scaleH = (float)SH / texRedBg.height;
+        float scale = (scaleW > scaleH) ? scaleW : scaleH;
+
+        DrawTextureEx(texRedBg, { 0, 0 }, 0.0f, scale, WHITE);
+
+        // ===== FLASH / IMPACT ZA LOGIEM =====
+        float impactScale = 3.0f;
+        float ix = SW * 0.5f - texExplo2sprites.width * impactScale * 0.5f;
+        float iy = SH * 0.42f - texExplo2sprites.height * impactScale * 0.5f;
+
+        DrawTextureEx(texExplo2sprites, { ix, iy }, 0.0f, impactScale,
+            { 255, 255, 255, 200 });
+
+        // ===== LOGO METAL SLUG =====
+        float scaleM = 2.5f;
+        float scaleS = 2.5f;
+
+        float totalH = texMetalBig.height * scaleM + texSlugTM.height * scaleS + 8.0f;
+        float startY = SH * 0.45f - totalH * 0.5f;
+
+        float metalX = SW * 0.5f - texMetalBig.width * scaleM * 0.5f;
+        float slugX = SW * 0.5f - texSlugTM.width * scaleS * 0.5f;
+
+        // METAL
+        DrawTextureEx(texMetalBig, { metalX, startY }, 0.0f, scaleM, WHITE);
+
+        // SLUG
+        DrawTextureEx(texSlugTM,
+            { slugX, startY + texMetalBig.height * scaleM + 8.0f },
+            0.0f, scaleS, WHITE);
+
+        
+        const char* txt = "PUSH ENTER TO START!";
+
+        if ((int)(GetTime() * 2.5f) % 2 == 0)
+        {
+            int fontSize = 28;
+
+            int tw = MeasureText(txt, fontSize);
+            int tx = SW / 2 - tw / 2;
+            int ty = SH * 0.82f;
+
+            
+            DrawText(txt, tx + 2, ty + 2, fontSize, BLACK);
+
+            
+            DrawText(txt, tx, ty, fontSize, YELLOW);
+        }
+
+        // ===== STOPKA =====
+        const char* footer = "2005 KURVVA PRODUCTIONS";
+
+        int fSize = 20;
+        int fw = MeasureText(footer, fSize);
+
+        int fx = SW / 2 - fw / 2;
+        int fy = SH * 0.92f;
+
+        // shadow
+        DrawText(footer, fx + 2, fy + 2, fSize, BLACK);
+
+        // main text
+        DrawText(footer, fx, fy, fSize, WHITE);
+
         return;
     }
     if (currentState == GAME)
@@ -192,20 +292,24 @@ void SceneManager::DrawTexts()
         float scaleW = (float)SW / (float)texRedBg.width;
         float scaleH = (float)SH / (float)texRedBg.height;
         float s = (scaleW > scaleH) ? scaleW : scaleH;
-        DrawTextureEx(texRedBg, { 0.0f, 0.0f }, 0.0f, s,
+        DrawTextureEx(texRedBg, { sceneX, sceneY }, 0.0f, s,
             { 255, 255, 255, (unsigned char)(bgAlpha * 255.0f) });
     }
     else
     {
         float t = Clamp((introTimer - 2.8f) / 1.0f, 0.0f, 1.0f);
+
         float scaleRW = (float)SW / (float)texRedBg.width;
         float scaleRH = (float)SH / (float)texRedBg.height;
         float sR = (scaleRW > scaleRH) ? scaleRW : scaleRH;
+
         float scaleBW = (float)SW / (float)texBlueBg.width;
         float scaleBH = (float)SH / (float)texBlueBg.height;
         float sB = (scaleBW > scaleBH) ? scaleBW : scaleBH;
-        DrawTextureEx(texRedBg, { 0.0f, 0.0f }, 0.0f, sR, WHITE);
-        DrawTextureEx(texBlueBg, { 0.0f, 0.0f }, 0.0f, sB,
+
+        DrawTextureEx(texRedBg, { sceneX, sceneY }, 0.0f, sR, WHITE);
+
+        DrawTextureEx(texBlueBg, { sceneX, sceneY }, 0.0f, sB,
             { 255, 255, 255, (unsigned char)(t * 255.0f) });
     }
 
@@ -213,8 +317,20 @@ void SceneManager::DrawTexts()
     if (introPhase >= 1)
     {
         float scaleW = (float)SW / (float)texTrees.width;
-        float y = (float)SH - (float)texTrees.height * scaleW;
-        DrawTextureEx(texTrees, { 0.0f, y }, 0.0f, scaleW, WHITE);
+        float y = sceneY + sceneH - texTrees.height * scaleW;
+
+        DrawTextureEx(texTrees, { sceneX, y }, 0.0f, scaleW, WHITE);
+    }
+
+    // ===== TANK =====
+    if (introPhase >= 1)
+    {
+        float scale = 2.0f;
+
+        float x = sceneX + sceneW * 0.05f;
+        float y = sceneY + sceneH * 0.70f;
+
+        DrawTextureEx(texTankShit, { x, y }, 0.0f, scale, WHITE);
     }
 
     // Cannon — left half of spritesheet, scale 1.4, at ~55% height
@@ -222,25 +338,30 @@ void SceneManager::DrawTexts()
     {
         float cannonScale = 1.4f;
         int   halfW = texCannon.width / 2;
-        float y = (float)SH * 0.55f - (float)texCannon.height * cannonScale * 0.5f;
+        float y = sceneY + sceneH * 0.65f - (float)texCannon.height * cannonScale * 0.5f;
         Rectangle src = { 0.0f, 0.0f, (float)halfW, (float)texCannon.height };
-        Rectangle dst = { cannonX, y,
+        Rectangle dst = { sceneX + cannonX, y,
                                (float)halfW * cannonScale,
                                (float)texCannon.height * cannonScale };
         DrawTexturePro(texCannon, src, dst, { 0.0f, 0.0f }, 0.0f, WHITE);
     }
 
     // Capsule flies from cannon tip (use texCapsuleCannon, left half only)
-    if (introPhase == 2)
+    if (introPhase >= 2)
     {
         float scale = 1.5f;
         int   halfW = texCapsuleCannon.width / 2;
-        float y = (float)SH * 0.55f - (float)texCapsuleCannon.height * scale * 0.5f;
+
+        float arc = 0.0f;
+
+        float y = sceneY + sceneH * 0.65f - arc - (float)texCapsuleCannon.height * scale * 0.5f;
+
         Rectangle src = { 0.0f, 0.0f, (float)halfW, (float)texCapsuleCannon.height };
-        Rectangle dst = { bulletX, y,
+        Rectangle dst = { sceneX + bulletX, y,
                           (float)halfW * scale,
                           (float)texCapsuleCannon.height * scale };
-        DrawTexturePro(texCapsuleCannon, src, dst, { 0.0f, 0.0f }, 0.0f, WHITE);
+
+        DrawTexturePro(texCapsuleCannon, src, dst, { sceneX, sceneY }, 0.0f, WHITE);
     }
 
     // Boom flash at cannon tip
@@ -248,8 +369,8 @@ void SceneManager::DrawTexts()
     {
         float cannonScale = 1.4f;
         int   halfW = texCannon.width / 2;
-        float tipX = cannonX + (float)halfW * cannonScale * 0.95f;
-        float tipY = (float)SH * 0.55f - (float)texBoom.height * boomScale * 0.5f;
+        float tipX = sceneX + cannonX + (float)halfW * cannonScale * 0.95f;
+        float tipY = sceneY + sceneH * 0.65f - (float)texBoom.height * boomScale * 0.5f;
         DrawTextureEx(texBoom, { tipX, tipY }, 0.0f, boomScale,
             { 255, 255, 255, (unsigned char)(boomAlpha * 200.0f) });
     }
@@ -262,7 +383,7 @@ void SceneManager::DrawTexts()
         float scale = 0.8f;
         float tipX = cannonX + (float)halfW * cannonScale * 0.9f
             - (float)texCannonExplosion.width * scale * 0.5f;
-        float tipY = (float)SH * 0.55f
+        float tipY = sceneY + sceneH * 0.65f
             - (float)texCannonExplosion.height * scale * 0.5f;
         DrawTextureEx(texCannonExplosion, { tipX, tipY }, 0.0f, scale,
             { 255, 255, 255, (unsigned char)(boomAlpha * 230.0f) });
@@ -271,23 +392,23 @@ void SceneManager::DrawTexts()
     // Exploding pixel debris
     if (introPhase >= 3)
     {
-        float t = Clamp((introTimer - 2.0f) / 0.5f, 0.0f, 1.0f);
-        float scale = 1.0f + t * 0.5f;
-        unsigned char a = (unsigned char)((1.0f - t) * 180.0f);
-        float x = (float)SW * 0.28f - (float)texExplodingPixels.width * scale * 0.5f;
-        float y = (float)SH * 0.55f - (float)texExplodingPixels.height * scale * 0.5f;
-        DrawTextureEx(texExplodingPixels, { x, y }, 0.0f, scale, { 255, 255, 255, a });
+        //float t = Clamp((introTimer - 2.0f) / 0.5f, 0.0f, 1.0f);
+        //float scale = 1.0f + t * 0.5f;
+        //unsigned char a = (unsigned char)((1.0f - t) * 180.0f);
+        //float x = (float)SW * 0.28f - (float)texExplodingPixels.width * scale * 0.5f;
+        //float y = (float)SH * 0.55f - (float)texExplodingPixels.height * scale * 0.5f;
+        //DrawTextureEx(texExplodingPixels, { x, y }, 0.0f, scale, { 255, 255, 255, a });
     }
 
     // Flying bullet casings
     for (const auto& b : flyingBullets)
     {
-        int sprW = texBullets.width / 4;
-        int sprH = texBullets.height / 2;
-        Rectangle src = { 0.0f, 0.0f, (float)sprW, (float)sprH };
-        Rectangle dst = { b.x, b.y, (float)sprW * 1.2f, (float)sprH * 1.2f };
-        DrawTexturePro(texBullets, src, dst, { 0.0f, 0.0f }, 0.0f,
-            { 255, 255, 255, (unsigned char)(b.alpha * 255.0f) });
+        //int sprW = texBullets.width / 4;
+        //int sprH = texBullets.height / 2;
+        //Rectangle src = { 0.0f, 0.0f, (float)sprW, (float)sprH };
+        //Rectangle dst = { b.x, b.y, (float)sprW * 1.2f, (float)sprH * 1.2f };
+        //DrawTexturePro(texBullets, src, dst, { 0.0f, 0.0f }, 0.0f,
+        //    { 255, 255, 255, (unsigned char)(b.alpha * 255.0f) });
     }
 
     // METAL SLUG logo
@@ -316,6 +437,18 @@ void SceneManager::DrawTexts()
         float hy = startY - (float)texLogoTop.height * logoHeaderScale - 8.0f;
         DrawTextureEx(texLogoTop, { hx, hy }, 0.0f, logoHeaderScale, WHITE);
     }
+
+    // TOP
+    DrawRectangle(0, 0, SW, border, BLACK);
+
+    // BOTTOM
+    DrawRectangle(0, SH - border, SW, border, BLACK);
+
+    // LEFT
+    DrawRectangle(0, 0, border, SH, BLACK);
+
+    // RIGHT
+    DrawRectangle(SW - border, 0, border, SH, BLACK);
 
     // Press ENTER blinking
     if (introPhase >= 6)
