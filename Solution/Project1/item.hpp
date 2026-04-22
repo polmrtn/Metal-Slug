@@ -26,6 +26,7 @@ public:
     void SetGravity(bool val) { hasGravity = val; }
     void SetGrounded(bool val) { grounded = val; }
     bool IsGrounded() const { return grounded; }
+    Vector2 GetPosition() const { return position; }
 
 private:
     Vector2 position;

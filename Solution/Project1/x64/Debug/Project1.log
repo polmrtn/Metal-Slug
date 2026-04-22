@@ -1,4 +1,6 @@
 ﻿  game.cpp
-C:\Users\polmd\Documents\GitHub\Metal-Slug\Solution\Project1\game.cpp(61,16): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\polmd\Documents\GitHub\Metal-Slug\Solution\Project1\game.cpp(64,16): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\polmd\Documents\GitHub\Metal-Slug\Solution\Project1\game.cpp(62,16): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\polmd\Documents\GitHub\Metal-Slug\Solution\Project1\game.cpp(65,16): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+  main.cpp
+  Generating Code...
   Project1.vcxproj -> C:\Users\polmd\Documents\GitHub\Metal-Slug\Solution\x64\Debug\Project1.exe
