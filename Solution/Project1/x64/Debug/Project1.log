@@ -1,27 +1,4 @@
-<<<<<<< HEAD
-﻿  LINK : C:\Users\sergionr\Documents\GitHub\Metal-Slug\Solution\x64\Debug\Project1.exe not found or not built by the last incremental link; performing full link
-x64\Debug\AudioManager.obj : warning LNK4042: object specified more than once; extras ignored
-AudioManager.obj : warning LNK4099: PDB 'vc143.pdb' was not found with 'AudioManager.obj' or at 'C:\Users\sergionr\Documents\GitHub\Metal-Slug\Solution\x64\Debug\vc143.pdb'; linking object as if no debug info
-BackgroundManager.obj : warning LNK4099: PDB 'vc143.pdb' was not found with 'BackgroundManager.obj' or at 'C:\Users\sergionr\Documents\GitHub\Metal-Slug\Solution\x64\Debug\vc143.pdb'; linking object as if no debug info
-Bullet.obj : warning LNK4099: PDB 'vc143.pdb' was not found with 'Bullet.obj' or at 'C:\Users\sergionr\Documents\GitHub\Metal-Slug\Solution\x64\Debug\vc143.pdb'; linking object as if no debug info
-BulletAnim.obj : warning LNK4099: PDB 'vc143.pdb' was not found with 'BulletAnim.obj' or at 'C:\Users\sergionr\Documents\GitHub\Metal-Slug\Solution\x64\Debug\vc143.pdb'; linking object as if no debug info
-CameraManager.obj : warning LNK4099: PDB 'vc143.pdb' was not found with 'CameraManager.obj' or at 'C:\Users\sergionr\Documents\GitHub\Metal-Slug\Solution\x64\Debug\vc143.pdb'; linking object as if no debug info
-game.obj : warning LNK4099: PDB 'vc143.pdb' was not found with 'game.obj' or at 'C:\Users\sergionr\Documents\GitHub\Metal-Slug\Solution\x64\Debug\vc143.pdb'; linking object as if no debug info
-Grenade.obj : warning LNK4099: PDB 'vc143.pdb' was not found with 'Grenade.obj' or at 'C:\Users\sergionr\Documents\GitHub\Metal-Slug\Solution\x64\Debug\vc143.pdb'; linking object as if no debug info
-item.obj : warning LNK4099: PDB 'vc143.pdb' was not found with 'item.obj' or at 'C:\Users\sergionr\Documents\GitHub\Metal-Slug\Solution\x64\Debug\vc143.pdb'; linking object as if no debug info
-LevelMap.obj : warning LNK4099: PDB 'vc143.pdb' was not found with 'LevelMap.obj' or at 'C:\Users\sergionr\Documents\GitHub\Metal-Slug\Solution\x64\Debug\vc143.pdb'; linking object as if no debug info
-playerAnim.obj : warning LNK4099: PDB 'vc143.pdb' was not found with 'playerAnim.obj' or at 'C:\Users\sergionr\Documents\GitHub\Metal-Slug\Solution\x64\Debug\vc143.pdb'; linking object as if no debug info
-SceneManager.obj : warning LNK4099: PDB 'vc143.pdb' was not found with 'SceneManager.obj' or at 'C:\Users\sergionr\Documents\GitHub\Metal-Slug\Solution\x64\Debug\vc143.pdb'; linking object as if no debug info
-Soldier.obj : warning LNK4099: PDB 'vc143.pdb' was not found with 'Soldier.obj' or at 'C:\Users\sergionr\Documents\GitHub\Metal-Slug\Solution\x64\Debug\vc143.pdb'; linking object as if no debug info
-SoldierAnim.obj : warning LNK4099: PDB 'vc143.pdb' was not found with 'SoldierAnim.obj' or at 'C:\Users\sergionr\Documents\GitHub\Metal-Slug\Solution\x64\Debug\vc143.pdb'; linking object as if no debug info
-UiManager.obj : warning LNK4099: PDB 'vc143.pdb' was not found with 'UiManager.obj' or at 'C:\Users\sergionr\Documents\GitHub\Metal-Slug\Solution\x64\Debug\vc143.pdb'; linking object as if no debug info
-LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
-  Project1.vcxproj -> C:\Users\sergionr\Documents\GitHub\Metal-Slug\Solution\x64\Debug\Project1.exe
-=======
 ﻿  game.cpp
-C:\Users\polmd\Documents\GitHub\Metal-Slug\Solution\Project1\game.cpp(62,16): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\polmd\Documents\GitHub\Metal-Slug\Solution\Project1\game.cpp(65,16): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-  main.cpp
-  Generating Code...
-  Project1.vcxproj -> C:\Users\polmd\Documents\GitHub\Metal-Slug\Solution\x64\Debug\Project1.exe
->>>>>>> pol
+E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\game.cpp(63,16): warning C4244: 'inicializando': conversión de 'double' a 'float'; posible pérdida de datos
+E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\game.cpp(66,16): warning C4244: 'inicializando': conversión de 'double' a 'float'; posible pérdida de datos
+  Project1.vcxproj -> E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\x64\Debug\Project1.exe

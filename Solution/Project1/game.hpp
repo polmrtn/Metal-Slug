@@ -45,6 +45,7 @@ public:
 
     void ShootMachinegun(float yOffset);
     void CheckBulletsOutOfCamera();
+    void MergeBlocks();
 
 private:
     // ========== TEMPORIZADORES ==========
