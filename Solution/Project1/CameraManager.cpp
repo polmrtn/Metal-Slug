@@ -56,7 +56,7 @@ void CameraManager::Update(Vector2 playerPos, float bgWidth, float bgHeight, boo
     if (minY > maxY) maxY = minY;
 
     // 3. LÓGICA DE ZONAS (Tu código corregido)
-    if (playerPos.x < 12000.0f) {
+    if (playerPos.x < 14000.0f) {
         // ... (Tu lógica de < 300 y > 600 se mantiene igual)
       
         if (playerPos.y > 600) {
@@ -70,7 +70,7 @@ void CameraManager::Update(Vector2 playerPos, float bgWidth, float bgHeight, boo
         // LIBERTAD: Aquí el clamp sigue al jugador sin umbral de 50px
         lockedYValue = Clamp(playerPos.y, minY, maxY);
     }
-    else if (playerPos.x >= 15000.0f) {
+    else if (playerPos.x >= 14000.0f) {
         static bool bossZoneLocked = false;
         if (!bossZoneLocked) {
             lockedYValue = Clamp(playerPos.y, minY, maxY);
