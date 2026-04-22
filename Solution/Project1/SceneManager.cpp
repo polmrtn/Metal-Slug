@@ -23,6 +23,7 @@ SceneManager::SceneManager()
     texSlugTM = LoadTexture("Graphics/intro/NEWINTROmetalslugTM.png");
     texMetalSmall = LoadTexture("Graphics/intro/newintrometalslugggtiny.png");
     texLogoTop = LoadTexture("Graphics/intro/newintroagainmetalslug.png");
+    texBrrrt = LoadTexture("Graphics/intro/brrrt.png");
 
     introTimer = 0.0f;
     introPhase = 0;
@@ -55,6 +56,7 @@ SceneManager::~SceneManager()
     UnloadTexture(texSlugTM);
     UnloadTexture(texMetalSmall);
     UnloadTexture(texLogoTop);
+    UnloadTexture(texBrrrt);
 }
 
 SceneManager::Gamestates SceneManager::GetGamestate()
@@ -123,7 +125,7 @@ void SceneManager::UpdateIntro()
         float t = bulletT;
 
         float cannonScale = 1.4f;
-        int halfW = texCannon.width / 2;
+        int   halfW = texCannon.width / 2;
 
         float startX = cannonX + (float)halfW * cannonScale * 0.95f;
 
@@ -171,11 +173,9 @@ void SceneManager::UpdateIntro()
         float t = Clamp((introTimer - 3.8f) / 0.6f, 0.0f, 1.0f);
         float ease = 1.0f - (1.0f - t) * (1.0f - t) * (1.0f - t);
 
-        // METAL target: left edge with small margin
         float targetMetalX = SW * 0.02f;
         metalX = -800.0f + ease * (targetMetalX + 800.0f);
 
-        // SLUG target: center-right
         float scaleS = 2.5f;
         float slugW = (float)texSlugTM.width * scaleS;
         float targetSlugX = SW * 0.5f - slugW * 0.5f + SW * 0.1f;
@@ -197,32 +197,40 @@ void SceneManager::DrawTexts()
     int SW = GetScreenWidth();
     int SH = GetScreenHeight();
 
-    int border = 60;
+    int   border = 60;
     float sceneX = border;
     float sceneY = border;
     float sceneW = SW - border * 2;
     float sceneH = SH - border * 2;
 
+    // =========================================================
+    //  TITLE
+    // =========================================================
     if (currentState == TITLE)
     {
         ClearBackground(BLACK);
 
-        int SW = GetScreenWidth();
-        int SH = GetScreenHeight();
-
-        // ===== BACKGROUND =====
-        float scaleW = (float)SW / texRedBg.width;
-        float scaleH = (float)SH / texRedBg.height;
+        // ===== BACKGROUND - brrrt.png =====
+        float scaleW = (float)SW / texBrrrt.width;
+        float scaleH = (float)SH / texBrrrt.height;
         float scale = (scaleW > scaleH) ? scaleW : scaleH;
+        DrawTextureEx(texBrrrt, { 0, 0 }, 0.0f, scale, WHITE);
 
-        DrawTextureEx(texRedBg, { 0, 0 }, 0.0f, scale, WHITE);
-
-        // ===== FLASH / IMPACT ZA LOGIEM =====
+        // ===== FLASH / IMPACT - tylko drugie "hole" (prawa polowa sprite'a) =====
         float impactScale = 3.0f;
-        float ix = SW * 0.5f - texExplo2sprites.width * impactScale * 0.5f;
-        float iy = SH * 0.42f - texExplo2sprites.height * impactScale * 0.5f;
+        int   halfW = texExplo2sprites.width / 2;
 
-        DrawTextureEx(texExplo2sprites, { ix, iy }, 0.0f, impactScale,
+        Rectangle src = {
+            (float)halfW, 0.0f,
+            (float)halfW, (float)texExplo2sprites.height
+        };
+        Rectangle dst = {
+            SW * 0.5f - halfW * impactScale * 0.5f,
+            SH * 0.42f - texExplo2sprites.height * impactScale * 0.5f,
+            (float)halfW * impactScale,
+            (float)texExplo2sprites.height * impactScale
+        };
+        DrawTexturePro(texExplo2sprites, src, dst, { 0.0f, 0.0f }, 0.0f,
             { 255, 255, 255, 200 });
 
         // ===== LOGO METAL SLUG =====
@@ -232,58 +240,50 @@ void SceneManager::DrawTexts()
         float totalH = texMetalBig.height * scaleM + texSlugTM.height * scaleS + 8.0f;
         float startY = SH * 0.45f - totalH * 0.5f;
 
-        float metalX = SW * 0.5f - texMetalBig.width * scaleM * 0.5f;
-        float slugX = SW * 0.5f - texSlugTM.width * scaleS * 0.5f;
+        float mX = SW * 0.5f - texMetalBig.width * scaleM * 0.5f;
+        float sX = SW * 0.5f - texSlugTM.width * scaleS * 0.5f;
 
-        // METAL
-        DrawTextureEx(texMetalBig, { metalX, startY }, 0.0f, scaleM, WHITE);
-
-        // SLUG
+        DrawTextureEx(texMetalBig, { mX, startY }, 0.0f, scaleM, WHITE);
         DrawTextureEx(texSlugTM,
-            { slugX, startY + texMetalBig.height * scaleM + 8.0f },
+            { sX, startY + texMetalBig.height * scaleM + 8.0f },
             0.0f, scaleS, WHITE);
 
-        
+        // ===== PUSH ENTER - blinking =====
         const char* txt = "PUSH ENTER TO START!";
-
         if ((int)(GetTime() * 2.5f) % 2 == 0)
         {
             int fontSize = 28;
-
             int tw = MeasureText(txt, fontSize);
             int tx = SW / 2 - tw / 2;
-            int ty = SH * 0.82f;
-
-            
+            int ty = (int)(SH * 0.82f);
             DrawText(txt, tx + 2, ty + 2, fontSize, BLACK);
-
-            
             DrawText(txt, tx, ty, fontSize, YELLOW);
         }
 
         // ===== STOPKA =====
         const char* footer = "2026 KURVVA PRODUCTIONS";
-
         int fSize = 20;
         int fw = MeasureText(footer, fSize);
-
         int fx = SW / 2 - fw / 2;
-        int fy = SH * 0.92f;
-
-        // shadow
+        int fy = (int)(SH * 0.92f);
         DrawText(footer, fx + 2, fy + 2, fSize, BLACK);
-
-        // main text
         DrawText(footer, fx, fy, fSize, WHITE);
 
         return;
     }
+
+    // =========================================================
+    //  GAME
+    // =========================================================
     if (currentState == GAME)
     {
         ClearBackground(BLACK);
         return;
     }
 
+    // =========================================================
+    //  INTRO
+    // =========================================================
     UpdateIntro();
 
     // Background
@@ -308,7 +308,6 @@ void SceneManager::DrawTexts()
         float sB = (scaleBW > scaleBH) ? scaleBW : scaleBH;
 
         DrawTextureEx(texRedBg, { sceneX, sceneY }, 0.0f, sR, WHITE);
-
         DrawTextureEx(texBlueBg, { sceneX, sceneY }, 0.0f, sB,
             { 255, 255, 255, (unsigned char)(t * 255.0f) });
     }
@@ -318,22 +317,19 @@ void SceneManager::DrawTexts()
     {
         float scaleW = (float)SW / (float)texTrees.width;
         float y = sceneY + sceneH - texTrees.height * scaleW;
-
         DrawTextureEx(texTrees, { sceneX, y }, 0.0f, scaleW, WHITE);
     }
 
-    // ===== TANK =====
+    // Tank
     if (introPhase >= 1)
     {
         float scale = 2.0f;
-
         float x = sceneX + sceneW * 0.05f;
         float y = sceneY + sceneH * 0.70f;
-
         DrawTextureEx(texTankShit, { x, y }, 0.0f, scale, WHITE);
     }
 
-    // Cannon — left half of spritesheet, scale 1.4, at ~55% height
+    // Cannon
     if (introPhase >= 1)
     {
         float cannonScale = 1.4f;
@@ -341,26 +337,22 @@ void SceneManager::DrawTexts()
         float y = sceneY + sceneH * 0.65f - (float)texCannon.height * cannonScale * 0.5f;
         Rectangle src = { 0.0f, 0.0f, (float)halfW, (float)texCannon.height };
         Rectangle dst = { sceneX + cannonX, y,
-                               (float)halfW * cannonScale,
-                               (float)texCannon.height * cannonScale };
+                          (float)halfW * cannonScale,
+                          (float)texCannon.height * cannonScale };
         DrawTexturePro(texCannon, src, dst, { 0.0f, 0.0f }, 0.0f, WHITE);
     }
 
-    // Capsule flies from cannon tip (use texCapsuleCannon, left half only)
+    // Capsule
     if (introPhase >= 2)
     {
         float scale = 1.5f;
         int   halfW = texCapsuleCannon.width / 2;
-
         float arc = 0.0f;
-
         float y = sceneY + sceneH * 0.65f - arc - (float)texCapsuleCannon.height * scale * 0.5f;
-
         Rectangle src = { 0.0f, 0.0f, (float)halfW, (float)texCapsuleCannon.height };
         Rectangle dst = { sceneX + bulletX, y,
                           (float)halfW * scale,
                           (float)texCapsuleCannon.height * scale };
-
         DrawTexturePro(texCapsuleCannon, src, dst, { sceneX, sceneY }, 0.0f, WHITE);
     }
 
@@ -389,26 +381,16 @@ void SceneManager::DrawTexts()
             { 255, 255, 255, (unsigned char)(boomAlpha * 230.0f) });
     }
 
-    // Exploding pixel debris
+    // Exploding pixel debris (disabled)
     if (introPhase >= 3)
     {
-        //float t = Clamp((introTimer - 2.0f) / 0.5f, 0.0f, 1.0f);
-        //float scale = 1.0f + t * 0.5f;
-        //unsigned char a = (unsigned char)((1.0f - t) * 180.0f);
-        //float x = (float)SW * 0.28f - (float)texExplodingPixels.width * scale * 0.5f;
-        //float y = (float)SH * 0.55f - (float)texExplodingPixels.height * scale * 0.5f;
-        //DrawTextureEx(texExplodingPixels, { x, y }, 0.0f, scale, { 255, 255, 255, a });
+        // currently unused
     }
 
-    // Flying bullet casings
+    // Flying bullet casings (disabled)
     for (const auto& b : flyingBullets)
     {
-        //int sprW = texBullets.width / 4;
-        //int sprH = texBullets.height / 2;
-        //Rectangle src = { 0.0f, 0.0f, (float)sprW, (float)sprH };
-        //Rectangle dst = { b.x, b.y, (float)sprW * 1.2f, (float)sprH * 1.2f };
-        //DrawTexturePro(texBullets, src, dst, { 0.0f, 0.0f }, 0.0f,
-        //    { 255, 255, 255, (unsigned char)(b.alpha * 255.0f) });
+        // currently unused
     }
 
     // METAL SLUG logo
@@ -417,20 +399,16 @@ void SceneManager::DrawTexts()
         float scaleM = 2.5f;
         float scaleS = 2.5f;
 
-        // Logo block vertically centered
         float totalH = (float)texMetalBig.height * scaleM
             + (float)texSlugTM.height * scaleS + 8.0f;
         float startY = (float)SH * 0.48f - totalH * 0.5f;
 
-        // METAL row
         float my = startY;
         DrawTextureEx(texMetalBig, { metalX, my }, 0.0f, scaleM, WHITE);
 
-        // SLUG row directly below METAL
         float sy = my + (float)texMetalBig.height * scaleM + 8.0f;
         DrawTextureEx(texSlugTM, { slugX, sy }, 0.0f, scaleS, WHITE);
 
-        // Small header logo centered at top of logo block
         float logoHeaderScale = 1.2f;
         float hx = (float)SW * 0.5f
             - (float)texLogoTop.width * logoHeaderScale * 0.5f;
@@ -438,16 +416,10 @@ void SceneManager::DrawTexts()
         DrawTextureEx(texLogoTop, { hx, hy }, 0.0f, logoHeaderScale, WHITE);
     }
 
-    // TOP
+    // Borders
     DrawRectangle(0, 0, SW, border, BLACK);
-
-    // BOTTOM
     DrawRectangle(0, SH - border, SW, border, BLACK);
-
-    // LEFT
     DrawRectangle(0, 0, border, SH, BLACK);
-
-    // RIGHT
     DrawRectangle(SW - border, 0, border, SH, BLACK);
 
     // Press ENTER blinking

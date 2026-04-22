@@ -10,12 +10,15 @@ public:
         TITLE,
         GAME
     };
+
     SceneManager();
     ~SceneManager();
+
     void DrawTexts();
     void UpdateIntro();
     Gamestates GetGamestate();
     void SetGameState(Gamestates gamestate);
+
     Gamestates currentState;
 
 private:
@@ -35,10 +38,10 @@ private:
     Texture2D texSlugTM;
     Texture2D texMetalSmall;
     Texture2D texLogoTop;
+    Texture2D texBrrrt;
 
     float introTimer = 0.0f;
     int   introPhase = 0;
-
     float cannonX = -300.0f;
     float bulletX = 1400.0f;
     float logoY = 950.0f;
