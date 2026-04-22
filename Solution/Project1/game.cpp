@@ -2,6 +2,7 @@
 #include "game.hpp"
 #include "LevelMap.hpp" 
 #include <raymath.h>
+#include <algorithm>
 
 
 bool musicStarted = false;
@@ -630,10 +631,12 @@ void Game::BlockCollisions() {
 		if (block.IsRamp()) {
 			float playerCenterX = playerRect.x + playerRect.width / 2.0f;
 			if (playerCenterX >= blockRect.x && playerCenterX <= blockRect.x + blockRect.width) {
-				float rampHeight = block.GetHeightAtX(playerCenterX);
+				float rampSurfaceY = block.GetHeightAtX(playerCenterX);
 				float playerFeetY = playerRect.y + playerRect.height;
-				if (playerFeetY >= rampHeight && playerFeetY <= rampHeight + 20.0f) {
-					player.SetY(rampHeight - playerRect.height);
+
+				// Si los pies están por encima de la superficie o bajando hacia ella
+				if (player.GetVelocityY() >= 0 && playerFeetY >= rampSurfaceY) {
+					player.SetY(rampSurfaceY - playerRect.height);
 					player.SetVelocityY(0);
 					onGround = true;
 				}
@@ -852,6 +855,7 @@ void Game::LoadBlocksFromFile(const char* filename) {
 	}
 
 	fclose(file);
+	MergeBlocks();
 	TraceLog(LOG_INFO, "Nivel cargado: %d bloques, %d soldados, %d items",
 		(int)blocks.size(), (int)soldiers.size(), (int)items.size());
 }
@@ -928,4 +932,49 @@ void Game::CheckBulletsOutOfCamera() {
 			++bIt;
 		}
 	}
+}
+
+void Game::MergeBlocks() {
+	if (blocks.empty()) return;
+
+	std::vector<Block> merged;
+	const float EPS = 0.5f;  // tolerancia para comparar floats
+
+	std::sort(blocks.begin(), blocks.end(), [](const Block& a, const Block& b) {
+		if (fabsf(a.GetRect().y - b.GetRect().y) > 0.5f) return a.GetRect().y < b.GetRect().y;
+		return a.GetRect().x < b.GetRect().x;
+		});
+
+	size_t i = 0;
+	while (i < blocks.size()) {
+		Rectangle r = blocks[i].GetRect();
+		BlockType t = blocks[i].GetType();
+		bool g = blocks[i].IsGround();
+
+		if (t != BlockType::NORMAL) {
+			merged.push_back(blocks[i]);
+			i++;
+			continue;
+		}
+
+		size_t j = i + 1;
+		while (j < blocks.size()) {
+			Rectangle rj = blocks[j].GetRect();
+			bool sameRow = fabsf(rj.y - r.y) < EPS && fabsf(rj.height - r.height) < EPS;
+			bool adjacent = fabsf(rj.x - (r.x + r.width)) < EPS;
+			bool sameType = blocks[j].GetType() == t && blocks[j].IsGround() == g;
+			if (sameRow && adjacent && sameType) {
+				r.width += rj.width;
+				j++;
+			}
+			else break;
+		}
+
+		if (g) merged.emplace_back(r.x, r.y, r.width, r.height, true);
+		else   merged.emplace_back(r.x, r.y, r.width, r.height, false);
+		i = j;
+	}
+
+	blocks = merged;
+	TraceLog(LOG_INFO, "MergeBlocks: %d bloques tras fusionar", (int)blocks.size());
 }
