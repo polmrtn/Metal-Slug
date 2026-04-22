@@ -24,6 +24,12 @@ C:\Users\fpaty\Desktop\GITHUB DESKTOP\Metal-Slug\Solution\Project1\LevelMap.cpp(
   Player.cpp
   playerAnim.cpp
   SceneManager.cpp
+C:\Users\fpaty\Desktop\GITHUB DESKTOP\Metal-Slug\Solution\Project1\SceneManager.cpp(201,18): warning C4244: "inicjowanie": konwersja z "int" do "float", możliwa utrata danych
+C:\Users\fpaty\Desktop\GITHUB DESKTOP\Metal-Slug\Solution\Project1\SceneManager.cpp(202,18): warning C4244: "inicjowanie": konwersja z "int" do "float", możliwa utrata danych
+C:\Users\fpaty\Desktop\GITHUB DESKTOP\Metal-Slug\Solution\Project1\SceneManager.cpp(203,18): warning C4244: "inicjowanie": konwersja z "int" do "float", możliwa utrata danych
+C:\Users\fpaty\Desktop\GITHUB DESKTOP\Metal-Slug\Solution\Project1\SceneManager.cpp(204,18): warning C4244: "inicjowanie": konwersja z "int" do "float", możliwa utrata danych
+C:\Users\fpaty\Desktop\GITHUB DESKTOP\Metal-Slug\Solution\Project1\SceneManager.cpp(255,20): warning C4244: "inicjowanie": konwersja z "float" do "int", możliwa utrata danych
+C:\Users\fpaty\Desktop\GITHUB DESKTOP\Metal-Slug\Solution\Project1\SceneManager.cpp(271,16): warning C4244: "inicjowanie": konwersja z "float" do "int", możliwa utrata danych
   Soldier.cpp
   SoldierAnim.cpp
   UiManager.cpp
