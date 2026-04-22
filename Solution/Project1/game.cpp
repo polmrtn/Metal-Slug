@@ -165,7 +165,7 @@ void Game::Update() {
 		grenades.erase(std::remove_if(grenades.begin(), grenades.end(),
 			[](const Grenade& g) { return !g.IsActive(); }), grenades.end());
 
-		// ========== RÁFAGA MACHINEGUN ==========
+		// ========== RÁFAGA MACHINEGUN (strzaly) ==========
 		if (machinegunBurst) {
 			machinegunBurstTimer += GetFrameTime();
 			if (machinegunBurstTimer >= machinegunBurstDelay) {
@@ -173,8 +173,6 @@ void Game::Update() {
 				if (player.GetAmmo() > 0) {
 					ShootMachinegun(burstOffsets[machinegunBurstCount]);
 					player.UseAmmo();
-					// ===== DZWIEK STRZALU MACHINEGUN =====
-					audioManager.PlaySound(audioManager.GetMachinegunShootSound());
 				}
 				machinegunBurstCount++;
 				if (machinegunBurstCount >= MACHINEGUN_BURST_SIZE || player.GetAmmo() <= 0) {
@@ -187,6 +185,19 @@ void Game::Update() {
 			}
 		}
 
+		// ========== DZWIEKI MACHINEGUN (4 dzwieki co 0.25s, osobny timer) ==========
+		if (machinegunSoundActive) {
+			machinegunSoundTimer += GetFrameTime();
+			if (machinegunSoundTimer >= MACHINEGUN_SOUND_DELAY) {
+				machinegunSoundTimer = 0.0f;
+				audioManager.PlaySound(audioManager.GetMachinegunShootSound());
+				machinegunSoundCount++;
+				if (machinegunSoundCount >= MACHINEGUN_SOUND_SHOTS) {
+					machinegunSoundActive = false;
+					machinegunSoundCount = 0;
+				}
+			}
+		}
 
 		BeginDrawing();
 		ClearBackground(BGCOLOR);
@@ -350,7 +361,6 @@ void Game::HandleInput()
 			TraceLog(LOG_INFO, "Machinegun item en (%.0f, %.0f)", worldPos.x, worldPos.y);
 		}
 		if (IsMouseButtonPressed(MOUSE_BUTTON_MIDDLE)) {
-			// Borrar bloque
 			float bX = blockX;
 			float bY = blockY;
 			auto it = std::remove_if(blocks.begin(), blocks.end(),
@@ -359,7 +369,6 @@ void Game::HandleInput()
 				});
 			blocks.erase(it, blocks.end());
 
-			// Borrar item
 			auto iIt = std::remove_if(items.begin(), items.end(),
 				[&worldPos](const Item& i) {
 					return CheckCollisionPointRec(worldPos, i.GetHitBox());
@@ -420,6 +429,14 @@ void Game::HandleInput()
 				machinegunBurstDir = (player.GetAimDirection() == PlayerDirection::UP)
 					? PlayerDirection::UP
 					: (IsKeyDown(KEY_LEFT) ? PlayerDirection::LEFT : PlayerDirection::RIGHT);
+
+				// ===== START DZWIEKOW MACHINEGUN (4 x 0.25s) =====
+				machinegunSoundActive = true;
+				machinegunSoundCount = 0;
+				machinegunSoundTimer = 0.0f;
+				// Pierwszy dzwiek od razu
+				audioManager.PlaySound(audioManager.GetMachinegunShootSound());
+				machinegunSoundCount = 1;
 			}
 		}
 		else {
@@ -713,7 +730,6 @@ void Game::BlockCollisions() {
 		bool bulletJustHit = false;
 
 		if (!bIt->IsExploding()) {
-			// Tipo 2 (granada): colisiona con bloques sólidos cuando va hacia abajo
 			if (bIt->GetType() == 2 && bIt->GetDirectionY() > 0) {
 				for (const auto& block : blocks) {
 					if (block.GetType() == BlockType::NORMAL && block.IsGround() &&
@@ -723,7 +739,6 @@ void Game::BlockCollisions() {
 					}
 				}
 			}
-			// Tipo 1 y 3: solo con bloques sólidos azules
 			else if (bIt->GetType() == 1 || bIt->GetType() == 3) {
 				for (const auto& block : blocks) {
 					if (block.GetType() == BlockType::NORMAL && block.IsGround() &&
@@ -774,7 +789,6 @@ void Game::SaveBlocksToFile(const char* filename) {
 	fopen_s(&file, filename, "w");
 	if (!file) return;
 
-	// Bloques con prefijo B
 	for (const auto& block : blocks) {
 		Rectangle rect = block.GetRect();
 		int typeValue = 0;
@@ -786,13 +800,11 @@ void Game::SaveBlocksToFile(const char* filename) {
 			rect.x, rect.y, rect.width, rect.height, typeValue);
 	}
 
-	// Soldados con prefijo S
 	for (const auto& soldier : soldiers) {
 		fprintf(file, "S %.0f,%.0f,%d\n",
 			soldier.GetX(), soldier.GetY(), const_cast<Soldier&>(soldier).GetType());
 	}
 
-	// Items con prefijo I
 	for (const auto& item : items) {
 		int itemType = (item.GetType() == ItemType::BOX) ? 1 : 0;
 		fprintf(file, "I %.0f,%.0f,%d\n",
@@ -816,7 +828,6 @@ void Game::LoadBlocksFromFile(const char* filename) {
 
 	char line[256];
 	while (fgets(line, sizeof(line), file)) {
-		// Formato nuevo con prefijo
 		if (line[0] == 'B') {
 			float x, y, w, h;
 			int typeValue;
@@ -843,7 +854,6 @@ void Game::LoadBlocksFromFile(const char* filename) {
 			}
 		}
 		else {
-			// Formato antiguo sin prefijo
 			float x, y, w, h;
 			int typeValue;
 			if (sscanf_s(line, "%f,%f,%f,%f,%d", &x, &y, &w, &h, &typeValue) == 5) {
