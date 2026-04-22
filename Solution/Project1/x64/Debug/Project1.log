@@ -1,27 +1,51 @@
-<<<<<<< HEAD
-﻿  LINK : C:\Users\sergionr\Documents\GitHub\Metal-Slug\Solution\x64\Debug\Project1.exe not found or not built by the last incremental link; performing full link
-x64\Debug\AudioManager.obj : warning LNK4042: object specified more than once; extras ignored
-AudioManager.obj : warning LNK4099: PDB 'vc143.pdb' was not found with 'AudioManager.obj' or at 'C:\Users\sergionr\Documents\GitHub\Metal-Slug\Solution\x64\Debug\vc143.pdb'; linking object as if no debug info
-BackgroundManager.obj : warning LNK4099: PDB 'vc143.pdb' was not found with 'BackgroundManager.obj' or at 'C:\Users\sergionr\Documents\GitHub\Metal-Slug\Solution\x64\Debug\vc143.pdb'; linking object as if no debug info
-Bullet.obj : warning LNK4099: PDB 'vc143.pdb' was not found with 'Bullet.obj' or at 'C:\Users\sergionr\Documents\GitHub\Metal-Slug\Solution\x64\Debug\vc143.pdb'; linking object as if no debug info
-BulletAnim.obj : warning LNK4099: PDB 'vc143.pdb' was not found with 'BulletAnim.obj' or at 'C:\Users\sergionr\Documents\GitHub\Metal-Slug\Solution\x64\Debug\vc143.pdb'; linking object as if no debug info
-CameraManager.obj : warning LNK4099: PDB 'vc143.pdb' was not found with 'CameraManager.obj' or at 'C:\Users\sergionr\Documents\GitHub\Metal-Slug\Solution\x64\Debug\vc143.pdb'; linking object as if no debug info
-game.obj : warning LNK4099: PDB 'vc143.pdb' was not found with 'game.obj' or at 'C:\Users\sergionr\Documents\GitHub\Metal-Slug\Solution\x64\Debug\vc143.pdb'; linking object as if no debug info
-Grenade.obj : warning LNK4099: PDB 'vc143.pdb' was not found with 'Grenade.obj' or at 'C:\Users\sergionr\Documents\GitHub\Metal-Slug\Solution\x64\Debug\vc143.pdb'; linking object as if no debug info
-item.obj : warning LNK4099: PDB 'vc143.pdb' was not found with 'item.obj' or at 'C:\Users\sergionr\Documents\GitHub\Metal-Slug\Solution\x64\Debug\vc143.pdb'; linking object as if no debug info
-LevelMap.obj : warning LNK4099: PDB 'vc143.pdb' was not found with 'LevelMap.obj' or at 'C:\Users\sergionr\Documents\GitHub\Metal-Slug\Solution\x64\Debug\vc143.pdb'; linking object as if no debug info
-playerAnim.obj : warning LNK4099: PDB 'vc143.pdb' was not found with 'playerAnim.obj' or at 'C:\Users\sergionr\Documents\GitHub\Metal-Slug\Solution\x64\Debug\vc143.pdb'; linking object as if no debug info
-SceneManager.obj : warning LNK4099: PDB 'vc143.pdb' was not found with 'SceneManager.obj' or at 'C:\Users\sergionr\Documents\GitHub\Metal-Slug\Solution\x64\Debug\vc143.pdb'; linking object as if no debug info
-Soldier.obj : warning LNK4099: PDB 'vc143.pdb' was not found with 'Soldier.obj' or at 'C:\Users\sergionr\Documents\GitHub\Metal-Slug\Solution\x64\Debug\vc143.pdb'; linking object as if no debug info
-SoldierAnim.obj : warning LNK4099: PDB 'vc143.pdb' was not found with 'SoldierAnim.obj' or at 'C:\Users\sergionr\Documents\GitHub\Metal-Slug\Solution\x64\Debug\vc143.pdb'; linking object as if no debug info
-UiManager.obj : warning LNK4099: PDB 'vc143.pdb' was not found with 'UiManager.obj' or at 'C:\Users\sergionr\Documents\GitHub\Metal-Slug\Solution\x64\Debug\vc143.pdb'; linking object as if no debug info
-LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
-  Project1.vcxproj -> C:\Users\sergionr\Documents\GitHub\Metal-Slug\Solution\x64\Debug\Project1.exe
-=======
-﻿  game.cpp
-C:\Users\polmd\Documents\GitHub\Metal-Slug\Solution\Project1\game.cpp(62,16): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\polmd\Documents\GitHub\Metal-Slug\Solution\Project1\game.cpp(65,16): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+﻿  AudioManager.cpp
+  AudioManager.hpp
+  BackgroundManager.cpp
+E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\BackgroundManager.cpp(135,45): warning C4244: '=': conversión de 'double' a 'float'; posible pérdida de datos
+  Bullet.cpp
+E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\Bullet.cpp(6,16): warning C4244: '=': conversión de 'int' a 'float'; posible pérdida de datos
+E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\Bullet.cpp(7,21): warning C4244: '=': conversión de 'int' a 'float'; posible pérdida de datos
+E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\Bullet.cpp(8,21): warning C4244: '=': conversión de 'int' a 'float'; posible pérdida de datos
+  BulletAnim.cpp
+  CameraManager.cpp
+  game.cpp
+E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\game.cpp(62,16): warning C4244: 'inicializando': conversión de 'double' a 'float'; posible pérdida de datos
+E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\game.cpp(65,16): warning C4244: 'inicializando': conversión de 'double' a 'float'; posible pérdida de datos
+  Grenade.cpp
+  item.cpp
+  LevelMap.cpp
+E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\LevelMap.cpp(42,55): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
+E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\LevelMap.cpp(42,43): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
+E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\LevelMap.cpp(42,35): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
+E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\LevelMap.cpp(42,27): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
+E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\LevelMap.cpp(45,76): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
+E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\LevelMap.cpp(45,55): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
+E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\LevelMap.cpp(45,33): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
+E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\LevelMap.cpp(45,22): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
+E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\LevelMap.cpp(49,55): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
+E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\LevelMap.cpp(49,43): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
+E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\LevelMap.cpp(49,35): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
+E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\LevelMap.cpp(49,27): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
   main.cpp
-  Generating Code...
-  Project1.vcxproj -> C:\Users\polmd\Documents\GitHub\Metal-Slug\Solution\x64\Debug\Project1.exe
->>>>>>> pol
+  Player.cpp
+  playerAnim.cpp
+  SceneManager.cpp
+E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\SceneManager.cpp(201,18): warning C4244: 'inicializando': conversión de 'int' a 'float'; posible pérdida de datos
+E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\SceneManager.cpp(202,18): warning C4244: 'inicializando': conversión de 'int' a 'float'; posible pérdida de datos
+E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\SceneManager.cpp(203,18): warning C4244: 'inicializando': conversión de 'int' a 'float'; posible pérdida de datos
+E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\SceneManager.cpp(204,18): warning C4244: 'inicializando': conversión de 'int' a 'float'; posible pérdida de datos
+E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\SceneManager.cpp(255,20): warning C4244: 'inicializando': conversión de 'float' a 'int'; posible pérdida de datos
+E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\SceneManager.cpp(271,16): warning C4244: 'inicializando': conversión de 'float' a 'int'; posible pérdida de datos
+  Soldier.cpp
+E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\Soldier.cpp(195,9): error C2065: 'direction': identificador no declarado
+E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\Soldier.cpp(239,13): error C2065: 'direction': identificador no declarado
+E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\Soldier.cpp(276,13): error C2065: 'direction': identificador no declarado
+  SoldierAnim.cpp
+  UiManager.cpp
+E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\UiManager.cpp(160,27): warning C4838: la conversión de 'int' en 'float' requiere una conversión de restricción
+E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\UiManager.cpp(160,27): warning C4244: 'inicializando': conversión de 'int' a 'float'; posible pérdida de datos
+E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\UiManager.cpp(193,27): warning C4838: la conversión de 'int' en 'float' requiere una conversión de restricción
+E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\UiManager.cpp(193,27): warning C4244: 'inicializando': conversión de 'int' a 'float'; posible pérdida de datos
+E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\UiManager.cpp(318,31): warning C4838: la conversión de 'int' en 'float' requiere una conversión de restricción
+E:\_Universidad\1.2_Segundo_Semestre\Project 1\Metal-Slug\Metal-Slug\Solution\Project1\UiManager.cpp(318,31): warning C4244: 'inicializando': conversión de 'int' a 'float'; posible pérdida de datos
+  Generando código...

@@ -183,9 +183,11 @@ void Game::Update() {
 			}
 		}
 
+		
 		BeginDrawing();
 		ClearBackground(BGCOLOR);
 		Draw();
+		//Timers();
 		backgroundManager.FollowPlayer(camera.GetCamera().target);
 		backgroundManager.Update(GetFrameTime());
 
@@ -420,6 +422,7 @@ void Game::HandleInput()
 			player.Shoot();
 			Shoot(1, { 0.0f, 0.0f }, true);
 			shootTimer = shootDelayPistol;
+			audioManager.PlaySound(audioManager.GetShootSound());
 		}
 	}
 
@@ -461,7 +464,7 @@ void Game::BulletsCollision() {
 			auto sIt = soldiers.begin();
 			while (sIt != soldiers.end()) {
 				if (sIt->GetisAlive() && CheckCollisionRecs(sIt->GetHurtBox(), bIt->GetHitbox())) {
-					sIt->TriggerDeath();
+					sIt->TriggerDeath(audioManager);
 					UiManager.AddScore(100);
 					bulletHit = true;
 					break;
@@ -517,12 +520,15 @@ void Game::BulletsCollision() {
 void Game::GrenadesCollision() {
 	for (auto& grenade : grenades) {
 		if (grenade.HasExploded()) {
+			if (!grenade.HasPlayedSound()) {
+				audioManager.PlaySound(audioManager.GetGrenadeSound());
+				grenade.SetSoundPlayed(true);
+			}
 			Rectangle explosionBox = grenade.GetExplosionHitBox();
 			for (auto& soldier : soldiers) {
 				if (soldier.GetisAlive() && CheckCollisionRecs(soldier.GetHurtBox(), explosionBox)) {
-					soldier.TriggerDeath();
+					soldier.TriggerDeath(audioManager);
 					UiManager.AddScore(100);
-					TraceLog(LOG_INFO, "Soldier killed by grenade explosion");
 				}
 			}
 		}

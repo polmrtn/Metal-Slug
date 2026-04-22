@@ -20,6 +20,8 @@ public:
     void Explode();
     void StartExplosion();
     void CheckCollisionWithBlocks(const std::vector<Block>& blocks);
+    bool HasPlayedSound() const { return soundPlayed; }
+    void SetSoundPlayed(bool val) { soundPlayed = val; }
 
 private:
     Vector2 position;
@@ -42,7 +44,7 @@ private:
     int currentFrame = 0;
     int totalFrames = 16;
     float frameDelay = 0.05f;  // Velocidad de animación
-
+    bool soundPlayed = false;
 
     // Animación de explosión
     float explosionAnimTimer = 0.0f;
