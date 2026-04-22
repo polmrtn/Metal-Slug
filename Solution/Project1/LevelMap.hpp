@@ -11,6 +11,16 @@ enum class BlockType {
     CEILING     // NUEVO: Techo (bloquea desde arriba)
 };
 
+struct SoldierData {
+    float x, y;
+    int type;
+};
+
+struct ItemData {
+    float x, y;
+    int type;  // 0 = SHOTGUN, 1 = BOX
+};
+
 class Block {
 public:
     Block(float x, float y, float width, float height, bool ground = true);

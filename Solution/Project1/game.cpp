@@ -6,7 +6,7 @@
 
 bool musicStarted = false;
 Color BGCOLOR = { 195, 195, 170 };
-Game::Game() : camera({ 1200.0f/2 , 896/2  })
+Game::Game() : camera({ 1200.0f / 2 , 896 / 2 })
 {
 	FILE* file = fopen("level_blocks.txt", "r");
 	if (file) {
@@ -14,25 +14,22 @@ Game::Game() : camera({ 1200.0f/2 , 896/2  })
 		LoadBlocksFromFile("level_blocks.txt");
 	}
 	else {
-		blocks = CreateBlocks();  // Solo si no hay archivo
+		blocks = CreateBlocks();
 	}
-	soldiers = CreateSoldiers();
-	bullets = CreateBullets();	
+	bullets = CreateBullets();
 	items = CreateItems();
 }
 
 Game::~Game()
 {
-
 }
 
 void Game::Draw()
 {
 	camera.Begin();
-	
+
 	backgroundManager.Draw();
-	
-	
+
 	player.Draw();
 	backgroundManager.Drawfrontground();
 
@@ -40,7 +37,6 @@ void Game::Draw()
 		Soldier.Draw();
 	}
 
-	// Dibujar bloques
 	for (auto& block : blocks) {
 		block.Draw();
 	}
@@ -56,33 +52,29 @@ void Game::Draw()
 	for (auto& item : items) {
 		item.Draw();
 	}
-	
+
 	camera.End();
 
 	UiManager.DrawCredits(camera.GetCamera());
 
 	if (editorMode) {
-		// Dibujar grid
-		for (float x = fmod(gridOffset.x, gridSize); x < GetScreenWidth(); x += gridSize) {
+		for (float x = fmod(gridOffset.x, gridSize); x < (float)GetScreenWidth(); x += gridSize) {
 			DrawLineV({ x, 0 }, { x, (float)GetScreenHeight() }, GRAY);
 		}
-		for (float y = fmod(gridOffset.y, gridSize); y < GetScreenHeight(); y += gridSize) {
+		for (float y = fmod(gridOffset.y, gridSize); y < (float)GetScreenHeight(); y += gridSize) {
 			DrawLineV({ 0, y }, { (float)GetScreenWidth(), y }, GRAY);
 		}
 
-		// Texto de ayuda
-		DrawText("EDITOR MODE - F1: Salir | Click: Suelo | Right: Plataforma | Middle: Borrar | F5: Guardar",
-			10, 10, 15, RED);
+		DrawText("EDITOR MODE - F1:Salir | Click:Suelo | Right:Plataforma | Mid:Borrar | R:RampaUP | T:RampaDOWN | Y:Techo | 1:Soldado1 | 2:Soldado2 | B:Caja | G:MachinegunItem | F5:Guardar",
+			10, 10, 12, RED);
 
-		// Posición del ratón en el mundo
 		Vector2 mousePos = GetMousePosition();
 		Vector2 worldPos = camera.GetScreenToWorld(mousePos);
-		DrawText(TextFormat("World: (%.0f, %.0f)", worldPos.x, worldPos.y), 10, 35, 15, YELLOW);
+		DrawText(TextFormat("World: (%.0f, %.0f)", worldPos.x, worldPos.y), 10, 30, 15, YELLOW);
 	}
-	
 }
 
-void Game::Update(){
+void Game::Update() {
 
 	if (sceneManager.GetGamestate() == SceneManager::INTRO) {
 		BeginDrawing();
@@ -93,8 +85,7 @@ void Game::Update(){
 		BeginDrawing();
 		ClearBackground(BLACK);
 		sceneManager.DrawTexts();
-		if (!musicStarted)
-		{
+		if (!musicStarted) {
 			audioManager.PlayMusic(audioManager.GetTitleMusic());
 			musicStarted = true;
 		}
@@ -105,43 +96,31 @@ void Game::Update(){
 
 		if (!player.IsAlive()) {
 			BeginDrawing();
-
-			// Mostrar mensaje con la posición de muerte
 			Vector2 deathPos = player.GetDeathPosition();
 			DrawText(TextFormat("YOU DIED at (%.0f, %.0f)", deathPos.x, deathPos.y),
 				GetScreenWidth() / 2 - 200, GetScreenHeight() / 2 - 50, 20, RED);
 			DrawText("Press R to respawn at death position",
 				GetScreenWidth() / 2 - 200, GetScreenHeight() / 2, 20, WHITE);
-
 			if (IsKeyPressed(KEY_R)) {
 				player.Respawn();
 			}
 		}
 
-		// ========== 1. GUARDAR POSICIÓN ANTERIOR ==========
 		player.SavePreviousPosition();
-
-		// ========== 2. INPUT ==========
 		HandleInput();
-
-		// ========== 3. ACTUALIZAR JUGADOR (FÍSICA Y MOVIMIENTO) ==========
 		player.Update(camera.GetLeftLimit());
-
-		// ========== 4. COLISIONES ==========
 		ResolveCollisions();
 
 		for (auto& item : items) {
-			item.Update();  // ← añadir
+			item.Update();
 
 			if (item.IsActive() && CheckCollisionRecs(item.GetHitBox(), player.GetHitBox())) {
 				if (item.GetType() == ItemType::SHOTGUN) {
 					player.EquipMachinegun();
 					item.Collect();
 				}
-				// La caja no se recoge caminando encima, se destruye con bala
 			}
 
-			// Spawn machinegun al destruirse la caja
 			if (item.ShouldSpawnMachinegun()) {
 				item.ConsumeSpawn();
 				Vector2 spawnPos = { item.GetHitBox().x + 60.0f, item.GetHitBox().y - 20.0f };
@@ -151,46 +130,33 @@ void Game::Update(){
 			}
 		}
 
-		// Limpiar items inactivos
 		items.erase(std::remove_if(items.begin(), items.end(),
 			[](const Item& i) { return !i.IsActive(); }), items.end());
 
-		// ========== 5. ACTUALIZAR CÁMARA ==========
 		camera.Update(player.GetPosition(), backgroundManager.GetWidth(), backgroundManager.GetHeight(), player.GetIsGrounded());
 
-		// ========== 6. ACTUALIZAR SOLDADOS Y BALAS ==========
 		for (auto& soldier : soldiers) {
 			soldier.UpdateAI(player);
 			soldier.Update();
 			if (soldier.WantsToShoot()) {
-				// Llamamos a la función Shoot que arreglamos antes
 				Shoot(2, soldier.GetPosition(), soldier.IsFacingRight());
-
-				// IMPORTANTE: Resetear la bandera para que no dispare 60 balas por segundo
 				soldier.ResetShootWants();
 			}
-	
 		}
+
 		for (auto& bullet : bullets) {
 			bullet.Update();
 		}
+
 		for (auto& grenade : grenades) {
 			grenade.Update();
 			grenade.CheckCollisionWithBlocks(blocks);
 			grenade.CheckCollisionWithSoldiers(soldiers);
 		}
 
-		// Actualizar cooldown de granada
-		if (grenadeCooldown > 0.0f) {
-			grenadeCooldown -= GetFrameTime();
-		}
+		if (grenadeCooldown > 0.0f) grenadeCooldown -= GetFrameTime();
+		if (shootTimer > 0.0f) shootTimer -= GetFrameTime();
 
-		// Actualizar cooldown de disparo
-		if (shootTimer > 0.0f) {
-			shootTimer -= GetFrameTime();
-		}
-
-		// Limpiar granadas inactivas
 		grenades.erase(std::remove_if(grenades.begin(), grenades.end(),
 			[](const Grenade& g) { return !g.IsActive(); }), grenades.end());
 
@@ -199,17 +165,14 @@ void Game::Update(){
 			machinegunBurstTimer += GetFrameTime();
 			if (machinegunBurstTimer >= machinegunBurstDelay) {
 				machinegunBurstTimer = 0.0f;
-
 				if (player.GetAmmo() > 0) {
 					ShootMachinegun(burstOffsets[machinegunBurstCount]);
 					player.UseAmmo();
 				}
-
 				machinegunBurstCount++;
 				if (machinegunBurstCount >= MACHINEGUN_BURST_SIZE || player.GetAmmo() <= 0) {
 					machinegunBurst = false;
 					machinegunBurstCount = 0;
-					// Si ya no está pulsado UP, bajar el arma ahora
 					if (!IsKeyDown(KEY_UP)) {
 						player.StopAimingUp();
 					}
@@ -217,17 +180,13 @@ void Game::Update(){
 			}
 		}
 
-		// ========== 7. DIBUJAR ==========
 		BeginDrawing();
 		ClearBackground(BGCOLOR);
 		Draw();
 		backgroundManager.FollowPlayer(camera.GetCamera().target);
 		backgroundManager.Update(GetFrameTime());
-		
 
-		// ========== 8. AUDIO ==========
-		if (!musicStarted)
-		{
+		if (!musicStarted) {
 			audioManager.PlayMusic(audioManager.GetGameMusic());
 			musicStarted = true;
 		}
@@ -237,9 +196,9 @@ void Game::Update(){
 
 void Game::Shoot(int BulletType, Vector2 startPos, bool faceRight)
 {
-	Vector2 bulletPos = { 0, 0 };
-	float directionX = 0;
-	float directionY = 0;
+	Vector2 bulletPos = { 0.0f, 0.0f };
+	float directionX = 0.0f;
+	float directionY = 0.0f;
 	float bulletSpeed = 1000.0f;
 	float yOffset = -20.0f;
 
@@ -255,19 +214,19 @@ void Game::Shoot(int BulletType, Vector2 startPos, bool faceRight)
 
 		switch (aimDir) {
 		case PlayerDirection::LEFT:
-			bulletPos = { pPos.x, pPos.y + pH / 2 + (isCrouching ? crouchYOffset : normalYOffset) };
+			bulletPos = { pPos.x, pPos.y + pH / 2.0f + (isCrouching ? crouchYOffset : normalYOffset) };
 			directionX = -1.0f;
 			break;
 		case PlayerDirection::RIGHT:
-			bulletPos = { pPos.x + pW, pPos.y + pH / 2 + (isCrouching ? crouchYOffset : normalYOffset) };
+			bulletPos = { pPos.x + pW, pPos.y + pH / 2.0f + (isCrouching ? crouchYOffset : normalYOffset) };
 			directionX = 1.0f;
 			break;
 		case PlayerDirection::UP:
-			bulletPos = { pPos.x + pW / 2, pPos.y + yOffset };
+			bulletPos = { pPos.x + pW / 2.0f, pPos.y + yOffset };
 			directionY = -1.0f;
 			break;
 		case PlayerDirection::DOWN:
-			bulletPos = { pPos.x + pW / 2, pPos.y + pH };
+			bulletPos = { pPos.x + pW / 2.0f, pPos.y + pH };
 			directionY = 1.0f;
 			break;
 		}
@@ -280,7 +239,7 @@ void Game::Shoot(int BulletType, Vector2 startPos, bool faceRight)
 		directionY = -5.0f;
 	}
 
-	bullets.emplace_back(bulletPos, bulletSpeed, directionX, directionY, BulletType);
+	bullets.emplace_back(bulletPos, (int)bulletSpeed, (int)directionX, (int)directionY, BulletType);
 }
 
 void Game::ThrowGrenade() {
@@ -289,161 +248,6 @@ void Game::ThrowGrenade() {
 		grenades.emplace_back(data.startPos, data.initialVelocity);
 	}
 }
-
-//handleinput antiguo
-//void Game::HandleInput()
-//{
-//	if (!player.IsAlive()) {
-//		if (IsKeyPressed(KEY_R)) {
-//			player.Respawn();
-//		}
-//		return;
-//	}
-//
-//	if (IsKeyPressed(KEY_L)) {
-//		UiManager.NextLevel();
-//	}
-//	if (IsKeyPressed(KEY_J)) {
-//		UiManager.AddScore(100);
-//	}
-//	if (IsKeyPressed(KEY_C)) {
-//		if (UiManager.GetCredits() < 99) {
-//			UiManager.SetCredits(1);
-//		}
-//	}
-//
-//	// ========== MOVIMIENTO ==========
-//	if (IsKeyDown(KEY_LEFT)) {
-//		player.MoveLeft();
-//	}
-//	else if (IsKeyDown(KEY_RIGHT)) {
-//		player.MoveRight();
-//	}
-//	else {
-//		player.StopMovingHorizontal();
-//	}
-//
-//	// ========== AIMING UP ==========
-//	if (IsKeyPressed(KEY_UP) && !machinegunBurst) {
-//		player.StartAimingUp();
-//	}
-//	if (IsKeyReleased(KEY_UP) && !machinegunBurst) {
-//		player.StopAimingUp();
-//	}
-//
-//	// ========== CROUCHING ==========
-//	if (IsKeyDown(KEY_DOWN)) {
-//		player.StartCrouching();
-//	}
-//	else {
-//		player.StopCrouching();
-//	}
-//
-//	// ========== JUMP ==========
-//	if (IsKeyPressed(KEY_SPACE)) {
-//		player.Jump();
-//	}
-//
-//	// ========== DISPARO ==========
-//	if (IsKeyPressed(KEY_D) && shootTimer <= 0.0f) {
-//		if (player.GetCurrentWeapon() == WeaponType::MACHINEGUN) {
-//			if (player.GetAmmo() > 0) {
-//				player.Shoot();
-//				machinegunBurst = true;
-//				machinegunBurstCount = 0;
-//				machinegunBurstTimer = 0.0f;
-//				shootTimer = shootDelayMachinegun;
-//			}
-//		}
-//		else {
-//			player.Shoot();
-//			Shoot(1, { 0, 0 }, true);
-//			shootTimer = shootDelayPistol;
-//		}
-//	}
-//
-//	// ========== GRANADA ==========
-//	if (IsKeyPressed(KEY_S) && player.IsAlive() && grenadeCooldown <= 0.0f) {
-//		ThrowGrenade();
-//		grenadeCooldown = grenadeDelay;
-//	}
-//
-//	// ========== CHANGE SCENE ==========
-//	if (IsKeyPressed(KEY_ENTER)) {
-//		if (sceneManager.currentState == SceneManager::TITLE) {
-//			audioManager.StopMusic(audioManager.GetTitleMusic());
-//			audioManager.PlaySound(audioManager.GetGameSound());
-//			sceneManager.SetGameState(SceneManager::GAME);
-//			musicStarted = false;
-//		}
-//		else if (sceneManager.currentState == SceneManager::INTRO) {
-//			sceneManager.SetGameState(SceneManager::TITLE);
-//			musicStarted = false;
-//		}
-//	}
-//
-//	// ========== MODO EDITOR ==========
-//	static float f1Cooldown = 0.0f;
-//	if (IsKeyPressed(KEY_F1) && f1Cooldown <= 0.0f) {
-//		editorMode = !editorMode;
-//		f1Cooldown = 0.2f;
-//		TraceLog(LOG_INFO, "Editor mode: %s", editorMode ? "ON" : "OFF");
-//	}
-//	if (f1Cooldown > 0.0f) {
-//		f1Cooldown -= GetFrameTime();
-//	}
-//
-//	if (editorMode) {
-//		// Mover grid con WASD
-//		if (IsKeyDown(KEY_W)) gridOffset.y -= 5;
-//		if (IsKeyDown(KEY_S)) gridOffset.y += 5;
-//		if (IsKeyDown(KEY_A)) gridOffset.x -= 5;
-//		if (IsKeyDown(KEY_D)) gridOffset.x += 5;
-//
-//		Vector2 mousePos = GetMousePosition();
-//		Vector2 worldPos = camera.GetScreenToWorld(mousePos);
-//
-//		int tileX = (int)floor((worldPos.x - gridOffset.x) / gridSize);
-//		int tileY = (int)floor((worldPos.y - gridOffset.y) / gridSize);
-//
-//		float blockX = gridOffset.x + tileX * gridSize;
-//		float blockY = gridOffset.y + tileY * gridSize;
-//
-//		// Click izquierdo: suelo normal
-//		if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-//			blocks.emplace_back(blockX, blockY, gridSize, gridSize, true);
-//		}
-//		// Click derecho: plataforma
-//		if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) {
-//			blocks.emplace_back(blockX, blockY, gridSize, gridSize, false);
-//		}
-//		// Tecla R: rampa que sube
-//		if (IsKeyPressed(KEY_R)) {
-//			blocks.emplace_back(blockX, blockY, gridSize, gridSize, BlockType::RAMP_UP);
-//			TraceLog(LOG_INFO, "Rampa UP creada en (%.0f, %.0f)", blockX, blockY);
-//		}
-//		// Tecla T: rampa que baja
-//		if (IsKeyPressed(KEY_T)) {
-//			blocks.emplace_back(blockX, blockY, gridSize, gridSize, BlockType::RAMP_DOWN);
-//			TraceLog(LOG_INFO, "Rampa DOWN creada en (%.0f, %.0f)", blockX, blockY);
-//		}
-//		// Click medio: borrar bloque
-//		if (IsMouseButtonPressed(MOUSE_BUTTON_MIDDLE)) {
-//			auto it = std::remove_if(blocks.begin(), blocks.end(),
-//				[blockX, blockY](const Block& b) {
-//					return b.GetRect().x == blockX && b.GetRect().y == blockY;
-//				});
-//			blocks.erase(it, blocks.end());
-//			TraceLog(LOG_INFO, "Bloque borrado en (%.0f, %.0f)", blockX, blockY);
-//		}
-//
-//		// Guardar nivel
-//		if (IsKeyPressed(KEY_F5)) {
-//			SaveBlocksToFile("level_blocks.txt");
-//		}
-//	}
-//
-//}
 
 void Game::HandleInput()
 {
@@ -454,7 +258,7 @@ void Game::HandleInput()
 		return;
 	}
 
-	// ========== CAMBIO DE ESCENA (SIEMPRE DISPONIBLE) ==========
+	// ========== CAMBIO DE ESCENA ==========
 	if (IsKeyPressed(KEY_ENTER)) {
 		if (sceneManager.currentState == SceneManager::TITLE) {
 			audioManager.StopMusic(audioManager.GetTitleMusic());
@@ -468,23 +272,20 @@ void Game::HandleInput()
 		}
 	}
 
-	// ========== MODO EDITOR (SIEMPRE DISPONIBLE) ==========
+	// ========== MODO EDITOR ==========
 	static float f1Cooldown = 0.0f;
 	if (IsKeyPressed(KEY_F1) && f1Cooldown <= 0.0f) {
 		editorMode = !editorMode;
 		f1Cooldown = 0.2f;
 		TraceLog(LOG_INFO, "Editor mode: %s", editorMode ? "ON" : "OFF");
 	}
-	if (f1Cooldown > 0.0f) {
-		f1Cooldown -= GetFrameTime();
-	}
+	if (f1Cooldown > 0.0f) f1Cooldown -= GetFrameTime();
 
 	if (editorMode) {
-		// Mover grid con WASD
-		if (IsKeyDown(KEY_W)) gridOffset.y -= 5;
-		if (IsKeyDown(KEY_S)) gridOffset.y += 5;
-		if (IsKeyDown(KEY_A)) gridOffset.x -= 5;
-		if (IsKeyDown(KEY_D)) gridOffset.x += 5;
+		if (IsKeyDown(KEY_W)) gridOffset.y -= 5.0f;
+		if (IsKeyDown(KEY_S)) gridOffset.y += 5.0f;
+		if (IsKeyDown(KEY_A)) gridOffset.x -= 5.0f;
+		if (IsKeyDown(KEY_D)) gridOffset.x += 5.0f;
 
 		Vector2 mousePos = GetMousePosition();
 		Vector2 worldPos = camera.GetScreenToWorld(mousePos);
@@ -495,40 +296,62 @@ void Game::HandleInput()
 		float blockX = gridOffset.x + tileX * gridSize;
 		float blockY = gridOffset.y + tileY * gridSize;
 
-		// Tecla Y: techo (ceiling)
 		if (IsKeyPressed(KEY_Y)) {
 			blocks.emplace_back(blockX, blockY, gridSize, gridSize, BlockType::CEILING);
 			TraceLog(LOG_INFO, "Techo creado en (%.0f, %.0f)", blockX, blockY);
 		}
-		// Click izquierdo: suelo normal
 		if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
 			blocks.emplace_back(blockX, blockY, gridSize, gridSize, true);
 		}
-		// Click derecho: plataforma
 		if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) {
 			blocks.emplace_back(blockX, blockY, gridSize, gridSize, false);
 		}
-		// Tecla R: rampa que sube
 		if (IsKeyPressed(KEY_R)) {
 			blocks.emplace_back(blockX, blockY, gridSize, gridSize, BlockType::RAMP_UP);
 			TraceLog(LOG_INFO, "Rampa UP creada en (%.0f, %.0f)", blockX, blockY);
 		}
-		// Tecla T: rampa que baja
 		if (IsKeyPressed(KEY_T)) {
 			blocks.emplace_back(blockX, blockY, gridSize, gridSize, BlockType::RAMP_DOWN);
 			TraceLog(LOG_INFO, "Rampa DOWN creada en (%.0f, %.0f)", blockX, blockY);
 		}
-		// Click medio: borrar bloque
+		static float soldierSpawnCooldown = 0.0f;
+		if (soldierSpawnCooldown > 0.0f) soldierSpawnCooldown -= GetFrameTime();
+
+		if (IsKeyPressed(KEY_ONE) && soldierSpawnCooldown <= 0.0f) {
+			soldiers.emplace_back(1, worldPos);
+			soldierSpawnCooldown = 0.3f;
+			TraceLog(LOG_INFO, "Soldado tipo 1 en (%.0f, %.0f)", worldPos.x, worldPos.y);
+		}
+		else if (IsKeyPressed(KEY_TWO) && soldierSpawnCooldown <= 0.0f) {
+			soldiers.emplace_back(2, worldPos);
+			soldierSpawnCooldown = 0.3f;
+			TraceLog(LOG_INFO, "Soldado tipo 2 en (%.0f, %.0f)", worldPos.x, worldPos.y);
+		}
+		if (IsKeyPressed(KEY_B)) {
+			items.emplace_back(worldPos, ItemType::BOX);
+			TraceLog(LOG_INFO, "Caja en (%.0f, %.0f)", worldPos.x, worldPos.y);
+		}
+		if (IsKeyPressed(KEY_G)) {
+			items.emplace_back(worldPos, ItemType::SHOTGUN);
+			TraceLog(LOG_INFO, "Machinegun item en (%.0f, %.0f)", worldPos.x, worldPos.y);
+		}
 		if (IsMouseButtonPressed(MOUSE_BUTTON_MIDDLE)) {
+			// Borrar bloque
+			float bX = blockX;
+			float bY = blockY;
 			auto it = std::remove_if(blocks.begin(), blocks.end(),
-				[blockX, blockY](const Block& b) {
-					return b.GetRect().x == blockX && b.GetRect().y == blockY;
+				[bX, bY](const Block& b) {
+					return b.GetRect().x == bX && b.GetRect().y == bY;
 				});
 			blocks.erase(it, blocks.end());
-			TraceLog(LOG_INFO, "Bloque borrado en (%.0f, %.0f)", blockX, blockY);
-		}
 
-		// Guardar nivel
+			// Borrar item
+			auto iIt = std::remove_if(items.begin(), items.end(),
+				[&worldPos](const Item& i) {
+					return CheckCollisionPointRec(worldPos, i.GetHitBox());
+				});
+			items.erase(iIt, items.end());
+		}
 		if (IsKeyPressed(KEY_F5)) {
 			SaveBlocksToFile("level_blocks.txt");
 		}
@@ -537,22 +360,15 @@ void Game::HandleInput()
 	// ========== SI ESTÁ CAYENDO, NO PROCESAR INPUT DEL JUGADOR ==========
 	if (player.IsFalling()) return;
 
-	// ========== DEBUG (solo si NO está cayendo) ==========
-	if (IsKeyPressed(KEY_L)) {
-		UiManager.NextLevel();
-	}
-	if (IsKeyPressed(KEY_J)) {
-		UiManager.AddScore(100);
-	}
+	// ========== DEBUG ==========
+	if (IsKeyPressed(KEY_L)) UiManager.NextLevel();
+	if (IsKeyPressed(KEY_J)) UiManager.AddScore(100);
 	if (IsKeyPressed(KEY_C)) {
-		if (UiManager.GetCredits() < 99) {
-			UiManager.SetCredits(1);
-		}
+		if (UiManager.GetCredits() < 99) UiManager.SetCredits(1);
 	}
 
 	// ========== MOVIMIENTO ==========
 	if (machinegunBurst) {
-		// Durante la ráfaga horizontal: solo permitir moverse en el MISMO sentido
 		if (machinegunBurstDir == PlayerDirection::LEFT) {
 			if (IsKeyDown(KEY_LEFT)) player.MoveLeft();
 			else player.StopMovingHorizontal();
@@ -561,48 +377,24 @@ void Game::HandleInput()
 			if (IsKeyDown(KEY_RIGHT)) player.MoveRight();
 			else player.StopMovingHorizontal();
 		}
-		// Salto permitido siempre
 		if (IsKeyPressed(KEY_SPACE)) player.Jump();
-		// Agacharse permitido siempre
 		if (IsKeyDown(KEY_DOWN)) player.StartCrouching();
 		else player.StopCrouching();
-		// KEY_UP, dirección contraria y disparo bloqueados → no hacer nada más
 		return;
 	}
 
-	// ========== MOVIMIENTO NORMAL (sin ráfaga) ==========
-	if (IsKeyDown(KEY_LEFT)) {
-		player.MoveLeft();
-	}
-	else if (IsKeyDown(KEY_RIGHT)) {
-		player.MoveRight();
-	}
-	else {
-		player.StopMovingHorizontal();
-	}
+	if (IsKeyDown(KEY_LEFT)) player.MoveLeft();
+	else if (IsKeyDown(KEY_RIGHT)) player.MoveRight();
+	else player.StopMovingHorizontal();
 
-	// ========== AIMING UP ==========
-	if (IsKeyPressed(KEY_UP)) {
-		player.StartAimingUp();
-	}
-	if (IsKeyReleased(KEY_UP)) {
-		player.StopAimingUp();
-	}
+	if (IsKeyPressed(KEY_UP)) player.StartAimingUp();
+	if (IsKeyReleased(KEY_UP)) player.StopAimingUp();
 
-	// ========== CROUCHING ==========
-	if (IsKeyDown(KEY_DOWN)) {
-		player.StartCrouching();
-	}
-	else {
-		player.StopCrouching();
-	}
+	if (IsKeyDown(KEY_DOWN)) player.StartCrouching();
+	else player.StopCrouching();
 
-	// ========== JUMP ==========
-	if (IsKeyPressed(KEY_SPACE)) {
-		player.Jump();
-	}
+	if (IsKeyPressed(KEY_SPACE)) player.Jump();
 
-	// ========== DISPARO ==========
 	if (IsKeyPressed(KEY_D) && shootTimer <= 0.0f) {
 		if (player.GetCurrentWeapon() == WeaponType::MACHINEGUN) {
 			if (player.GetAmmo() > 0) {
@@ -611,7 +403,6 @@ void Game::HandleInput()
 				machinegunBurstCount = 0;
 				machinegunBurstTimer = 0.0f;
 				shootTimer = shootDelayMachinegun;
-				// Guardar dirección al inicio de la ráfaga
 				machinegunBurstDir = (player.GetAimDirection() == PlayerDirection::UP)
 					? PlayerDirection::UP
 					: (IsKeyDown(KEY_LEFT) ? PlayerDirection::LEFT : PlayerDirection::RIGHT);
@@ -619,45 +410,29 @@ void Game::HandleInput()
 		}
 		else {
 			player.Shoot();
-			Shoot(1, { 0, 0 }, true);
+			Shoot(1, { 0.0f, 0.0f }, true);
 			shootTimer = shootDelayPistol;
 		}
 	}
 
-	// ========== GRANADA ==========
 	if (IsKeyPressed(KEY_S) && player.IsAlive() && grenadeCooldown <= 0.0f) {
 		ThrowGrenade();
 		grenadeCooldown = grenadeDelay;
 	}
 }
 
-void Game::ResolveCollisions(){
+void Game::ResolveCollisions() {
 	Rectangle playerHB = player.GetHitBox();
 	bool onGround = false;
 
 	for (const auto& block : blocks) {
 		Rectangle blockRect = block.GetRect();
-
-		// 1. Verificamos si hay colisión general (AABB)
 		if (CheckCollisionRecs(playerHB, blockRect)) {
-
-			// 2. Lógica para SUELO (Solo si el jugador cae)
-			// Chequeamos si la velocidad Y es positiva (cayendo) 
-			// y si la base del jugador estaba por encima del bloque antes del frame actual
 			if (player.GetVelocityY() >= 0 &&
 				(player.GetY() + player.GetHeight() - player.GetVelocityY() <= blockRect.y + 5.0f)) {
-
 				player.SetY(blockRect.y - player.GetHeight());
 				player.SetVelocityY(0);
 				onGround = true;
-			}
-
-			// 3. Lógica lateral (Paredes)
-			// Solo si el bloque es realmente una pared (puedes añadir un bool al Block)
-			// O si la diferencia de altura es suficiente para chocar lateralmente
-			else {
-				// Aquí iría tu lógica de SetRightCollision que ya tenías
-				// Pero asegurándote de que no se ejecute si ya detectamos que es suelo
 			}
 		}
 	}
@@ -668,44 +443,41 @@ void Game::ResolveCollisions(){
 }
 
 void Game::BulletsCollision() {
-    auto bIt = bullets.begin();
-    
-    while (bIt != bullets.end()) {
-        bool bulletHit = false;
-        
-        // 1. DAÑO A SOLDADOS (Solo balas tipo 1 y 3)
-        if (bIt->GetType() == 1 || bIt->GetType() == 3) {
-            auto sIt = soldiers.begin();
-            while (sIt != soldiers.end()) {
-                // Agrupamos con paréntesis (Tipo 1 O Tipo 3)
-                if (sIt->GetisAlive() && CheckCollisionRecs(sIt->GetHurtBox(), bIt->GetHitbox())) {
-                    sIt->TriggerDeath();
-                    UiManager.AddScore(100);
-                    bulletHit = true;
-                    break; // La bala impactó, salimos del loop de soldados
-                }
-                ++sIt;
-            }
-        }
+	auto bIt = bullets.begin();
 
-        // 2. DAÑO AL JUGADOR (Solo bala tipo 2 - Granada/Explosión)
-        if (bIt->GetType() == 2 && bIt->IsExploding()) {
-            if (player.IsAlive() && !player.IsInvincible()) {
-                if (CheckCollisionRecs(bIt->GetHitbox(), player.GetHitBox())) {
-                    player.TakeDamage();
-                    TraceLog(LOG_INFO, "Player hit by explosion");
-                    // Nota: No ponemos bulletHit = true aquí porque la explosión 
-                    // suele ser un área persistente que se borra por animación, no por impacto.
-                }
-            }
-        }
+	while (bIt != bullets.end()) {
+		bool bulletHit = false;
 
+		// 1. DAÑO A SOLDADOS (tipo 1 y 3)
+		if (bIt->GetType() == 1 || bIt->GetType() == 3) {
+			auto sIt = soldiers.begin();
+			while (sIt != soldiers.end()) {
+				if (sIt->GetisAlive() && CheckCollisionRecs(sIt->GetHurtBox(), bIt->GetHitbox())) {
+					sIt->TriggerDeath();
+					UiManager.AddScore(100);
+					bulletHit = true;
+					break;
+				}
+				++sIt;
+			}
+		}
 
-		// ← AQUÍ, antes del if(bulletHit), colisión con cajas
+		// 2. DAÑO AL JUGADOR (tipo 2 - explosión)
+		if (bIt->GetType() == 2 && bIt->IsExploding()) {
+			if (player.IsAlive() && !player.IsInvincible()) {
+				if (CheckCollisionRecs(bIt->GetHitbox(), player.GetHitBox())) {
+					player.TakeDamage();
+					TraceLog(LOG_INFO, "Player hit by explosion");
+				}
+			}
+		}
+
+		// 3. COLISIÓN CON CAJAS
 		if (!bulletHit) {
 			for (auto& item : items) {
 				if (item.IsActive() && item.GetType() == ItemType::BOX) {
-					if (CheckCollisionRecs(bIt->GetHitbox(), item.GetHitBox()) && bIt->GetType() == 1 || bIt->GetType() == 3) {
+					if (CheckCollisionRecs(bIt->GetHitbox(), item.GetHitBox()) &&
+						(bIt->GetType() == 1 || bIt->GetType() == 3)) {
 						item.Destroy();
 						bulletHit = true;
 						break;
@@ -714,30 +486,30 @@ void Game::BulletsCollision() {
 			}
 		}
 
-        // 3. LIMPIEZA DE BALAS
-        if (bulletHit) {
-            bIt = bullets.erase(bIt); // Borrar bala tipo 1 o 3 tras impactar
-        } else {
-            ++bIt;
-        }
-    }
+		if (bulletHit) {
+			bIt = bullets.erase(bIt);
+		}
+		else {
+			++bIt;
+		}
+	}
 
-    // 4. LIMPIEZA DE SOLDADOS MUERTOS
-    auto sIt = soldiers.begin();
-    while (sIt != soldiers.end()) {
-        if (!sIt->GetisAlive() && sIt->IsDeadAnimFinished()) {
-            sIt = soldiers.erase(sIt);
-        } else {
-            ++sIt;
-        }
-    }
+	// 4. LIMPIEZA DE SOLDADOS MUERTOS
+	auto sIt = soldiers.begin();
+	while (sIt != soldiers.end()) {
+		if (!sIt->GetisAlive() && sIt->IsDeadAnimFinished()) {
+			sIt = soldiers.erase(sIt);
+		}
+		else {
+			++sIt;
+		}
+	}
 }
 
 void Game::GrenadesCollision() {
 	for (auto& grenade : grenades) {
 		if (grenade.HasExploded()) {
 			Rectangle explosionBox = grenade.GetExplosionHitBox();
-
 			for (auto& soldier : soldiers) {
 				if (soldier.GetisAlive() && CheckCollisionRecs(soldier.GetHurtBox(), explosionBox)) {
 					soldier.TriggerDeath();
@@ -748,21 +520,20 @@ void Game::GrenadesCollision() {
 		}
 	}
 }
+
 void Game::SoldierBlockCollision()
 {
 	for (auto& soldier : soldiers) {
-		soldier.SetLeftCollision(false);  // ← resetear laterales aquí
+		soldier.SetLeftCollision(false);
 		soldier.SetRightCollision(false);
 
-		float distToPlayer = abs(player.GetPosition().x - soldier.GetPosition().x);
-		bool playerNearby = distToPlayer < 800.0f; // ← distancia absoluta
+		float distToPlayer = fabsf(player.GetPosition().x - soldier.GetPosition().x);
+		bool playerNearby = distToPlayer < 800.0f;
 
 		if (!playerNearby) {
-			// Soldado lejano: solo aplicar gravedad, no mover ni colisionar lateralmente
 			soldier.SetGrounded(false);
-			// Chequear solo suelo para que no caiga al vacío
 			for (const auto& block : blocks) {
-				if (!block.IsGround()) continue;
+				if (block.IsRamp() || block.GetType() == BlockType::CEILING) continue;
 				Rectangle blockRect = block.GetRect();
 				Rectangle hurtBox = soldier.GetHurtBox();
 				float feetY = hurtBox.y + hurtBox.height;
@@ -776,14 +547,13 @@ void Game::SoldierBlockCollision()
 					soldier.SetGrounded(true);
 				}
 			}
-			continue; // ← saltar colisiones laterales si está lejos
+			continue;
 		}
 
-		// ========== SOLDADO CERCANO ==========
 		soldier.SetGrounded(false);
 
 		for (const auto& block : blocks) {
-			if (!block.IsGround()) continue;
+			if (block.IsRamp() || block.GetType() == BlockType::CEILING) continue;
 			Rectangle blockRect = block.GetRect();
 
 			if (blockRect.x > soldier.GetPosition().x + 300.0f ||
@@ -791,7 +561,6 @@ void Game::SoldierBlockCollision()
 
 			Rectangle hurtBox = soldier.GetHurtBox();
 
-			// SUELO
 			float feetY = hurtBox.y + hurtBox.height;
 			float blockTopY = blockRect.y;
 			float verticalDist = feetY - blockTopY;
@@ -804,7 +573,6 @@ void Game::SoldierBlockCollision()
 				soldier.SetGrounded(true);
 			}
 
-			// LATERALES
 			bool verticalOverlap = (hurtBox.y + hurtBox.height > blockRect.y + 5.0f &&
 				hurtBox.y < blockRect.y + blockRect.height - 5.0f);
 			if (verticalOverlap) {
@@ -819,7 +587,6 @@ void Game::SoldierBlockCollision()
 	}
 }
 
-		
 void Game::BlockCollisions() {
 	bool onGround = false;
 	const float GROUND_TOLERANCE = 5.0f;
@@ -827,15 +594,14 @@ void Game::BlockCollisions() {
 	player.SetLeftCollision(false);
 	player.SetRightCollision(false);
 
-	Rectangle playerRect = player.GetHitBox(); // ← calcular UNA vez fuera del loop
+	Rectangle playerRect = player.GetHitBox();
 
 	for (const auto& block : blocks) {
 		Rectangle blockRect = block.GetRect();
 
-		// ========== SKIP BLOQUES LEJANOS ==========
 		if (blockRect.x > playerRect.x + 400.0f || blockRect.x + blockRect.width < playerRect.x - 400.0f) continue;
 
-		// ========== COLISIÓN CON TECHO ==========
+		// ========== TECHO ==========
 		if (block.GetType() == BlockType::CEILING) {
 			if (CheckCollisionRecs(playerRect, blockRect)) {
 				if (playerRect.y < blockRect.y + blockRect.height && player.GetVelocityY() < 0) {
@@ -846,9 +612,9 @@ void Game::BlockCollisions() {
 			continue;
 		}
 
-		// ========== COLISIÓN CON RAMPAS ==========
+		// ========== RAMPAS ==========
 		if (block.IsRamp()) {
-			float playerCenterX = playerRect.x + playerRect.width / 2;
+			float playerCenterX = playerRect.x + playerRect.width / 2.0f;
 			if (playerCenterX >= blockRect.x && playerCenterX <= blockRect.x + blockRect.width) {
 				float rampHeight = block.GetHeightAtX(playerCenterX);
 				float playerFeetY = playerRect.y + playerRect.height;
@@ -861,10 +627,10 @@ void Game::BlockCollisions() {
 			continue;
 		}
 
-		// ========== COLISIÓN SOLDADOS ==========
+		// ========== SOLDADOS ==========
 		SoldierBlockCollision();
 
-		// ========== COLISIÓN JUGADOR SUELO ==========
+		// ========== JUGADOR SUELO ==========
 		float feetY = playerRect.y + playerRect.height;
 		float blockTopY = blockRect.y;
 		float previousFeetY = player.GetPreviousY() + player.GetHeight();
@@ -880,7 +646,7 @@ void Game::BlockCollisions() {
 			onGround = true;
 		}
 
-		// ========== COLISIONES LATERALES ==========
+		// ========== LATERALES ==========
 		if (block.IsGround()) {
 			Rectangle leftHitBox = player.GetLeftHitBox();
 			if (CheckCollisionRecs(leftHitBox, blockRect)) {
@@ -923,23 +689,23 @@ void Game::BlockCollisions() {
 	player.SetGrounded(onGround);
 	if (onGround) player.SetVelocityY(0);
 
-	// ========== BALAS CON BLOQUES (UNA SOLA VEZ, FUERA DEL LOOP) ==========
+	// ========== BALAS CON BLOQUES ==========
 	auto bIt = bullets.begin();
 	while (bIt != bullets.end()) {
 		bool bulletJustHit = false;
 
 		if (!bIt->IsExploding()) {
-			// Tipo 2 (granada): solo colisionar cuando va hacia abajo
+			// Tipo 2 (granada): colisiona con bloques sólidos cuando va hacia abajo
 			if (bIt->GetType() == 2 && bIt->GetDirectionY() > 0) {
 				for (const auto& block : blocks) {
-					if (CheckCollisionRecs(bIt->GetHitbox(), block.GetRect())) {
-						bIt->SetPosition({ bIt->GetPosition().x, block.GetRect().y - bIt->GetHeight() });
+					if (block.GetType() == BlockType::NORMAL && block.IsGround() &&
+						CheckCollisionRecs(bIt->GetHitbox(), block.GetRect())) {
 						bulletJustHit = true;
 						break;
 					}
 				}
 			}
-			// Tipo 1 y 3: solo con bloques sólidos normales
+			// Tipo 1 y 3: solo con bloques sólidos azules
 			else if (bIt->GetType() == 1 || bIt->GetType() == 3) {
 				for (const auto& block : blocks) {
 					if (block.GetType() == BlockType::NORMAL && block.IsGround() &&
@@ -976,31 +742,8 @@ void Game::BlockCollisions() {
 std::vector<Bullet> Game::CreateBullets()
 {
 	std::vector<Bullet> bullets;
-	for (int i = 0; i < bullets.size(); i++) {
-
-		if (bullets[i].GetX() < 0 || bullets[i].GetX() > GetScreenWidth()) {
-		
-			bullets.erase(bullets.begin() + i);
-			i--;
-		}
-	}
 	return bullets;
 }
-
-std::vector<Soldier>  Game::CreateSoldiers()
-	{
-	
-		std::vector<Soldier> soldiers;
-		soldiers.reserve(20);
-		soldiers.emplace_back(Soldier(2, { 1000, 200 }));
-		soldiers.emplace_back(Soldier(1, { 1000, 200 }));
-		soldiers.emplace_back(Soldier(1, { 2000, 200 }));
-		soldiers.emplace_back(Soldier(1, { 3000, 200 }));
-		soldiers.emplace_back(Soldier(1, { 4000, 200 }));
-		soldiers.emplace_back(Soldier(1, { 5000, 200 }));
-
-		return soldiers;
-	}
 
 std::vector<Block> Game::CreateBlocks()
 {
@@ -1013,6 +756,7 @@ void Game::SaveBlocksToFile(const char* filename) {
 	fopen_s(&file, filename, "w");
 	if (!file) return;
 
+	// Bloques con prefijo B
 	for (const auto& block : blocks) {
 		Rectangle rect = block.GetRect();
 		int typeValue = 0;
@@ -1020,15 +764,31 @@ void Game::SaveBlocksToFile(const char* filename) {
 		else if (block.GetType() == BlockType::RAMP_DOWN) typeValue = 3;
 		else if (block.GetType() == BlockType::CEILING) typeValue = 4;
 		else typeValue = block.IsGround() ? 1 : 0;
-
-		fprintf(file, "%.0f,%.0f,%.0f,%.0f,%d\n",
+		fprintf(file, "B %.0f,%.0f,%.0f,%.0f,%d\n",
 			rect.x, rect.y, rect.width, rect.height, typeValue);
 	}
+
+	// Soldados con prefijo S
+	for (const auto& soldier : soldiers) {
+		fprintf(file, "S %.0f,%.0f,%d\n",
+			soldier.GetX(), soldier.GetY(), const_cast<Soldier&>(soldier).GetType());
+	}
+
+	// Items con prefijo I
+	for (const auto& item : items) {
+		int itemType = (item.GetType() == ItemType::BOX) ? 1 : 0;
+		fprintf(file, "I %.0f,%.0f,%d\n",
+			item.GetHitBox().x, item.GetHitBox().y, itemType);
+	}
+
 	fclose(file);
 }
 
 void Game::LoadBlocksFromFile(const char* filename) {
 	blocks.clear();
+	soldiers.clear();
+	items.clear();
+
 	FILE* file;
 	fopen_s(&file, filename, "r");
 	if (!file) {
@@ -1036,30 +796,54 @@ void Game::LoadBlocksFromFile(const char* filename) {
 		return;
 	}
 
-	float x, y, w, h;
-	int typeValue;
-	while (fscanf_s(file, "%f,%f,%f,%f,%d\n", &x, &y, &w, &h, &typeValue) == 5) {
-		if (typeValue == 2) {
-			blocks.emplace_back(x, y, w, h, BlockType::RAMP_UP);
+	char line[256];
+	while (fgets(line, sizeof(line), file)) {
+		// Formato nuevo con prefijo
+		if (line[0] == 'B') {
+			float x, y, w, h;
+			int typeValue;
+			if (sscanf_s(line + 2, "%f,%f,%f,%f,%d", &x, &y, &w, &h, &typeValue) == 5) {
+				if (typeValue == 2) blocks.emplace_back(x, y, w, h, BlockType::RAMP_UP);
+				else if (typeValue == 3) blocks.emplace_back(x, y, w, h, BlockType::RAMP_DOWN);
+				else if (typeValue == 4) blocks.emplace_back(x, y, w, h, BlockType::CEILING);
+				else blocks.emplace_back(x, y, w, h, typeValue == 1);
+			}
 		}
-		else if (typeValue == 3) {
-			blocks.emplace_back(x, y, w, h, BlockType::RAMP_DOWN);
+		else if (line[0] == 'S') {
+			float x, y;
+			int type;
+			if (sscanf_s(line + 2, "%f,%f,%d", &x, &y, &type) == 3) {
+				soldiers.emplace_back(type, Vector2{ x, y });
+			}
 		}
-		else if (typeValue == 4) { 
-			blocks.emplace_back(x, y, w, h, BlockType::CEILING);
+		else if (line[0] == 'I') {
+			float x, y;
+			int type;
+			if (sscanf_s(line + 2, "%f,%f,%d", &x, &y, &type) == 3) {
+				items.emplace_back(Vector2{ x, y },
+					type == 1 ? ItemType::BOX : ItemType::SHOTGUN);
+			}
 		}
 		else {
-			blocks.emplace_back(x, y, w, h, typeValue == 1);
+			// Formato antiguo sin prefijo
+			float x, y, w, h;
+			int typeValue;
+			if (sscanf_s(line, "%f,%f,%f,%f,%d", &x, &y, &w, &h, &typeValue) == 5) {
+				if (typeValue == 2) blocks.emplace_back(x, y, w, h, BlockType::RAMP_UP);
+				else if (typeValue == 3) blocks.emplace_back(x, y, w, h, BlockType::RAMP_DOWN);
+				else if (typeValue == 4) blocks.emplace_back(x, y, w, h, BlockType::CEILING);
+				else blocks.emplace_back(x, y, w, h, typeValue == 1);
+			}
 		}
 	}
 
 	fclose(file);
-	TraceLog(LOG_INFO, "Bloques cargados desde %s (%d bloques)", filename, (int)blocks.size());
+	TraceLog(LOG_INFO, "Nivel cargado: %d bloques, %d soldados, %d items",
+		(int)blocks.size(), (int)soldiers.size(), (int)items.size());
 }
 
 std::vector<Item> Game::CreateItems() {
 	std::vector<Item> items;
-	items.emplace_back(Vector2{ 300.0f, 560.0f }, ItemType::BOX); 
 	return items;
 }
 
@@ -1068,22 +852,22 @@ void Game::ShootMachinegun(float yOffset) {
 	float pW = player.GetWidth();
 	float pH = player.GetHeight();
 	PlayerDirection aimDir = player.GetAimDirection();
-	float baseY = pPos.y + pH / 2 - 50.0f + yOffset;
+	float baseY = pPos.y + pH / 2.0f - 50.0f + yOffset;
 
 	Vector2 bulletPos;
-	float dirX = 0, dirY = 0;
+	float dirX = 0.0f, dirY = 0.0f;
 
 	switch (aimDir) {
 	case PlayerDirection::LEFT:
-		bulletPos = { pPos.x - 120.0f, baseY };  // ajusta el valor
+		bulletPos = { pPos.x - 120.0f, baseY };
 		dirX = -1.0f;
 		break;
 	case PlayerDirection::RIGHT:
-		bulletPos = { pPos.x + pW + 70.0f, baseY };  // ajusta el valor
+		bulletPos = { pPos.x + pW + 70.0f, baseY };
 		dirX = 1.0f;
 		break;
 	case PlayerDirection::UP:
-		bulletPos = { pPos.x + pW / 2 + yOffset - 30.0f, pPos.y - 150.0f - 30.0f };  // ajusta los dos valores
+		bulletPos = { pPos.x + pW / 2.0f + yOffset - 30.0f, pPos.y - 150.0f - 30.0f };
 		dirY = -1.0f;
 		break;
 	default:
@@ -1092,5 +876,5 @@ void Game::ShootMachinegun(float yOffset) {
 		break;
 	}
 
-	bullets.emplace_back(bulletPos, 1000.0f, dirX, dirY, 3);
+	bullets.emplace_back(bulletPos, 1000, (int)dirX, (int)dirY, 3);
 }
