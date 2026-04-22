@@ -36,6 +36,7 @@ public:
     void BlockCollisions();
     void BulletsCollision();
     void GrenadesCollision();
+    void SoldierBlockCollision();
 
     // Guardar/Cargar nivel
     void SaveBlocksToFile(const char* filename);
