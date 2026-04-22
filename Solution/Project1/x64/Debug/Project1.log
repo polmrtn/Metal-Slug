@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 ﻿  LINK : C:\Users\sergionr\Documents\GitHub\Metal-Slug\Solution\x64\Debug\Project1.exe not found or not built by the last incremental link; performing full link
 x64\Debug\AudioManager.obj : warning LNK4042: object specified more than once; extras ignored
 AudioManager.obj : warning LNK4099: PDB 'vc143.pdb' was not found with 'AudioManager.obj' or at 'C:\Users\sergionr\Documents\GitHub\Metal-Slug\Solution\x64\Debug\vc143.pdb'; linking object as if no debug info
@@ -25,3 +26,13 @@ C:\Users\polmd\Documents\GitHub\Metal-Slug\Solution\Project1\game.cpp(65,16): wa
   Generating Code...
   Project1.vcxproj -> C:\Users\polmd\Documents\GitHub\Metal-Slug\Solution\x64\Debug\Project1.exe
 >>>>>>> pol
+=======
+﻿  SceneManager.cpp
+C:\Users\fpaty\Desktop\GITHUB DESKTOP\Metal-Slug\Solution\Project1\SceneManager.cpp(201,18): warning C4244: "inicjowanie": konwersja z "int" do "float", możliwa utrata danych
+C:\Users\fpaty\Desktop\GITHUB DESKTOP\Metal-Slug\Solution\Project1\SceneManager.cpp(202,18): warning C4244: "inicjowanie": konwersja z "int" do "float", możliwa utrata danych
+C:\Users\fpaty\Desktop\GITHUB DESKTOP\Metal-Slug\Solution\Project1\SceneManager.cpp(203,18): warning C4244: "inicjowanie": konwersja z "int" do "float", możliwa utrata danych
+C:\Users\fpaty\Desktop\GITHUB DESKTOP\Metal-Slug\Solution\Project1\SceneManager.cpp(204,18): warning C4244: "inicjowanie": konwersja z "int" do "float", możliwa utrata danych
+C:\Users\fpaty\Desktop\GITHUB DESKTOP\Metal-Slug\Solution\Project1\SceneManager.cpp(255,20): warning C4244: "inicjowanie": konwersja z "float" do "int", możliwa utrata danych
+C:\Users\fpaty\Desktop\GITHUB DESKTOP\Metal-Slug\Solution\Project1\SceneManager.cpp(271,16): warning C4244: "inicjowanie": konwersja z "float" do "int", możliwa utrata danych
+  Project1.vcxproj -> C:\Users\fpaty\Desktop\GITHUB DESKTOP\Metal-Slug\Solution\x64\Debug\Project1.exe
+>>>>>>> FilipNew

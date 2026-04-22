@@ -5,7 +5,13 @@ AudioManager::AudioManager()
     titleMusic = LoadMusicStream("OST/04. Steel Beast 5Beats (Boss Stage).ogg");
     gameMusic = LoadMusicStream("OST/03. Main Theme from Metal Slug (Stage 1).ogg");
     gameSound = LoadSound("OST/FX AUDIO/file002 mission 1 start.ogg");
+    deathSound = LoadSound("OST/Non_music/npc_death.wav");
+    shootSound = LoadSound("OST/Non_music/pistol_shot.wav");
+    grenadeSound = LoadSound("OST/Non_music/grenade.wav");
 }
+Sound& AudioManager::GetDeathSound() { return deathSound; }
+Sound& AudioManager::GetShootSound() { return shootSound; }
+Sound& AudioManager::GetGrenadeSound() { return grenadeSound; }
 Music& AudioManager::GetTitleMusic() {
     return titleMusic;
 }
@@ -41,4 +47,7 @@ AudioManager::~AudioManager()
     UnloadSound(gameSound);
     UnloadMusicStream(titleMusic);
     UnloadMusicStream(gameMusic);
+    UnloadSound(deathSound);
+    UnloadSound(shootSound);
+    UnloadSound(grenadeSound);
 }

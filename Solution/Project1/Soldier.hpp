@@ -3,6 +3,7 @@
 #include "SoldierAnim.hpp" 
 #include <raylib.h>
 
+class AudioManager;
 
 class Soldier {
 public:
@@ -32,7 +33,7 @@ public:
     float GetX() const { return position.x; }
     Vector2 GetPosition() const { return position; }
     bool GetisAlive() { return isAlive; }
-    void TriggerDeath();
+    void TriggerDeath(AudioManager& audio);
    
     void SetY(float newY) { position.y = newY; }
     void SetVelocityY(float newVelY) { velocity.y = newVelY; }
