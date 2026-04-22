@@ -77,7 +77,6 @@ private:
 
     // ========== M�TODOS DE CREACI�N ==========
     std::vector<Bullet> CreateBullets();
-    std::vector<Soldier> CreateSoldiers();
     std::vector<Block> CreateBlocks();
     std::vector<Item> CreateItems();
 
