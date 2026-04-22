@@ -324,12 +324,12 @@ void SceneManager::DrawIntro()
 {
     int   SW = GetScreenWidth();
     int   SH = GetScreenHeight();
-    int   border = 56;
+    int   border = 110;
 
     // Obszar "ekranu gry" wewnatrz czarnej ramki
-    float sX = (float)border;
+    float sX = 0.0f;                        // brak bocznych ramek
     float sY = (float)border;
-    float sW = (float)(SW - border * 2);
+    float sW = (float)SW;
     float sH = (float)(SH - border * 2);
 
     // --- shake offset ---
@@ -422,17 +422,21 @@ void SceneManager::DrawIntro()
     float trackW = tf.w * tankScale;
     float trackH = tf.h * tankScale;
 
-    // Gasienice sa pod body - wyrownaj ich dol do groundY
+    // Gasienice: ich dol = linia ziemi
     float trackDrawY = groundY - trackH;
-    // Body siedzi nad gasienicami (z lekkim nakladem)
-    float bodyDrawY = trackDrawY - bodyH * 0.75f;
+    // Body: naklada sie NA gasienice - dol body ~40% w dol gasienica
+    // (z podgladu: body_y = trackY - 80px przy skali 1.0, tu skalujemy)
+    // offset = trackH * 0.72 (body zachodzi 28% gasienica od gory)
+    float bodyDrawY = trackDrawY - bodyH + trackH * 0.45f;
 
-    // X pozycja: czolg przy lewej krawedzi sceny
+    // X: gasienice
     float tankBaseX = sX + sW * 0.01f + ox;
+    // Body lekko przesuniete w prawo wzgledem gasienica (karoseria szersza)
+    float bodyDrawX = tankBaseX - bodyW * 0.06f;
 
     if (introPhase >= 1)
     {
-        // --- Gasienice (animowane) ---
+        // --- Gasienice (animowane) - rysowane PIERWSZE (pod body) ---
         Rectangle trackSrc = {
             (float)tf.x, (float)tf.y,
             (float)tf.w, (float)tf.h
@@ -445,13 +449,11 @@ void SceneManager::DrawIntro()
         };
         DrawTexturePro(texTankShit, trackSrc, trackDst, { 0, 0 }, 0.0f, WHITE);
 
-        // --- Body czolgu ---
+        // --- Body czolgu - rysowane NA gasienicach ---
         Rectangle bodySrc = {
             (float)BODY_X, (float)BODY_Y,
             (float)BODY_W, (float)BODY_H
         };
-        // Body wycentrowane nad gasienicami
-        float bodyDrawX = tankBaseX + trackW * 0.5f - bodyW * 0.5f;
         Rectangle bodyDst = {
             bodyDrawX,
             bodyDrawY + oy,
@@ -469,9 +471,8 @@ void SceneManager::DrawIntro()
     float cannonHalfW = (float)(texCannon.width / 2);
     float cannonH = (float)texCannon.height;
 
-    // Armata siedzi na szczycie body czolgu, wystorc lufy w prawo
-    // Pivot armaty (jej dol) = szczyt body
-    float cannonY = bodyDrawY - cannonH * cannonScale * 0.5f + bodyH * 0.15f;
+    // Armata: srodek pionowy armaty = szczyt body czolgu (z lekkim zejsciem)
+    float cannonY = bodyDrawY + bodyH * 0.10f - cannonH * cannonScale * 0.5f;
 
     if (introPhase >= 1)
     {
@@ -602,18 +603,7 @@ void SceneManager::DrawIntro()
             { slugX + ox, logoStartY + metalH + 6.0f + oy },
             0.0f, scaleS, WHITE);
 
-        // Naglowek "SUPER VEHICLE-001" (texLogoTop) - pojawia sie w phase 6
-        if (introPhase >= 6)
-        {
-            float headerAlpha = Clamp((introTimer - T_P6) / 0.4f, 0.0f, 1.0f);
-            float hScale = 1.3f;
-            float hW = (float)texLogoTop.width * hScale;
-            float hH = (float)texLogoTop.height * hScale;
-            float hX = (float)SW * 0.5f - hW * 0.5f + ox;
-            float hY = logoStartY - hH - 10.0f + oy;
-            DrawTextureEx(texLogoTop, { hX, hY }, 0.0f, hScale,
-                { 255, 255, 255, (unsigned char)(headerAlpha * 255.0f) });
-        }
+        // Naglowek "SUPER VEHICLE-001" (texLogoTop) - USUNIETO (maly napis)
     }
 
     // ===========================
@@ -626,12 +616,10 @@ void SceneManager::DrawIntro()
     }
 
     // ===========================
-    //  CZARNA RAMKA (jak w oryginalnej grze - letterbox)
+    //  CZARNA RAMKA - tylko gora i dol (letterbox)
     // ===========================
     DrawRectangle(0, 0, SW, border, BLACK);
     DrawRectangle(0, SH - border, SW, border, BLACK);
-    DrawRectangle(0, 0, border, SH, BLACK);
-    DrawRectangle(SW - border, 0, border, SH, BLACK);
 
     // ===========================
     //  PRESS ENTER (phase 7)
