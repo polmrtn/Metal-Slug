@@ -81,6 +81,8 @@ void Game::Update() {
 		BeginDrawing();
 		ClearBackground(BLACK);
 		sceneManager.DrawTexts();
+		EndDrawing();
+		return;
 	}
 	else if (sceneManager.GetGamestate() == SceneManager::TITLE) {
 		BeginDrawing();
