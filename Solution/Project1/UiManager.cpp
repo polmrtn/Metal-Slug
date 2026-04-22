@@ -393,7 +393,7 @@ void UiManager::DrawMissionIntro()
     Color colYellow = { 255, 200, 0, 255 };
 
     char text[32];
-    std::snprintf(text, sizeof(text), "MISSION %d", level);
+    std::snprintf(text, sizeof(text), "MISSION 09");
 
     float w = MeasureYellowText(text, scale, sp);
     DrawYellowText(text, { screenW / 2.0f - w / 2.0f, screenH / 2.0f }, scale, sp, colYellow);
