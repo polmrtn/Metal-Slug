@@ -176,6 +176,7 @@ void Game::Update(){
 		}
 		for (auto& grenade : grenades) {
 			grenade.Update();
+			grenade.CheckCollisionWithBlocks(blocks);
 			grenade.CheckCollisionWithSoldiers(soldiers);
 		}
 
@@ -283,31 +284,9 @@ void Game::Shoot(int BulletType, Vector2 startPos, bool faceRight)
 }
 
 void Game::ThrowGrenade() {
-	// Calcular el suelo buscando en los bloques
-	float groundY = 650.0f;  // Valor por defecto
-	Rectangle playerRect = player.GetHitBox();
-
-	for (const auto& block : blocks) {
-		Rectangle blockRect = block.GetRect();
-		// Buscar bloques que estén debajo del jugador
-		if (blockRect.x < playerRect.x + playerRect.width &&
-			blockRect.x + blockRect.width > playerRect.x &&
-			blockRect.y > playerRect.y) {
-			// Encontrar el bloque más cercano por debajo
-			if (groundY == 650.0f || blockRect.y < groundY) {
-				groundY = blockRect.y;
-			}
-		}
-	}
-	TraceLog(LOG_INFO, "Grenade groundY: %.2f", groundY);  // ← Debug
-
-	// Obtener datos del lanzamiento
 	GrenadeThrowData data = player.ThrowGrenade();
-	data.targetPos.y = groundY;  // ← Actualizar con el suelo real
-
 	if (data.valid) {
-		grenades.emplace_back(data.startPos, data.targetPos, data.power);
-		TraceLog(LOG_INFO, "Grenade thrown! GroundY: %.2f", groundY);
+		grenades.emplace_back(data.startPos, data.initialVelocity);
 	}
 }
 
@@ -721,6 +700,20 @@ void Game::BulletsCollision() {
             }
         }
 
+
+		// ← AQUÍ, antes del if(bulletHit), colisión con cajas
+		if (!bulletHit) {
+			for (auto& item : items) {
+				if (item.IsActive() && item.GetType() == ItemType::BOX) {
+					if (CheckCollisionRecs(bIt->GetHitbox(), item.GetHitBox()) && bIt->GetType() == 1 || bIt->GetType() == 3) {
+						item.Destroy();
+						bulletHit = true;
+						break;
+					}
+				}
+			}
+		}
+
         // 3. LIMPIEZA DE BALAS
         if (bulletHit) {
             bIt = bullets.erase(bIt); // Borrar bala tipo 1 o 3 tras impactar
@@ -885,13 +878,14 @@ void Game::BlockCollisions() {
 	while (bIt != bullets.end()) {
 		bool bulletJustHit = false;
 
-		// Solo chequear colisión si NO está explotando Y ya va hacia abajo
+// Solo chequear colisión si NO está explotando Y ya va hacia abajo
 		if (!bIt->IsExploding()) {
-			bool canCollide = (bIt->GetType() != 2 || bIt->GetDirectionY() > 0);
-			if (canCollide) {
+			// Solo granadas (tipo 2) colisionan con bloques, tipo 1 y 3 atraviesan todo
+			if (bIt->GetType() == 1 || bIt->GetType() == 3 && !bIt->IsExploding()) {
 				for (const auto& block : blocks) {
-					if (CheckCollisionRecs(bIt->GetHitbox(), block.GetRect()) && block.GetType() == BlockType::NORMAL) {
-						bIt->SetPosition({ bIt->GetPosition().x, block.GetRect().y - bIt->GetHeight() });
+					if (CheckCollisionRecs(bIt->GetHitbox(), block.GetRect())
+						&& block.GetType() == BlockType::NORMAL
+						&& block.IsGround()) {  // solo bloques verdes (plataformas)
 						bulletJustHit = true;
 						break;
 					}
@@ -901,7 +895,7 @@ void Game::BlockCollisions() {
 
 		// Activar explosión al primer impacto
 		if (bulletJustHit) {
-			if (bIt->GetType() == 1) {
+			if (bIt->GetType() == 1 || bIt->GetType() == 3) {
 				bIt = bullets.erase(bIt);
 				continue;
 			}
@@ -912,7 +906,7 @@ void Game::BlockCollisions() {
 		}
 
 		// Borrar granada cuando termina la animación de explosión
-		if (bIt->GetType() == 2 && bIt->IsExploding()) {
+		if (bIt->GetType() == 2 && !bIt->IsExploding() && bIt->GetDirectionY() > 0) {
 			if (bIt->GetAnim().IsAnimationFinished()) {
 				bIt = bullets.erase(bIt);
 				continue;
