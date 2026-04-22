@@ -3,7 +3,8 @@
 #include "AudioManager.hpp"
 #include <raylib.h>
 #include <math.h>
-//int direction = 1;
+
+int direction = 1;
 
 Soldier::Soldier(int type, Vector2 position)
 {
