@@ -454,13 +454,17 @@ void Game::BulletsCollision() {
 void Game::GrenadesCollision() {
 	for (auto& grenade : grenades) {
 		if (grenade.HasExploded()) {
-			Rectangle explosionBox = grenade.GetExplosionHitBox();
 
+			if (!grenade.HasPlayedSound()) {
+				audioManager.PlaySound(audioManager.GetGrenadeSound());
+				grenade.SetSoundPlayed(true);
+			}
+
+			Rectangle explosionBox = grenade.GetExplosionHitBox();
 			for (auto& soldier : soldiers) {
 				if (soldier.GetisAlive() && CheckCollisionRecs(soldier.GetHurtBox(), explosionBox)) {
 					soldier.TriggerDeath(audioManager);
 					UiManager.AddScore(100);
-					TraceLog(LOG_INFO, "Soldier killed by grenade explosion");
 				}
 			}
 		}

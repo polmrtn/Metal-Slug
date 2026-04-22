@@ -13,6 +13,8 @@ public:
     Rectangle GetHitBox() const;
     Rectangle GetExplosionHitBox() const;
     bool HasExploded() const { return hasExploded; }
+    bool HasPlayedSound() const { return soundPlayed; }
+    void SetSoundPlayed(bool val) { soundPlayed = val; }
 
 private:
     Vector2 position;
@@ -39,6 +41,7 @@ private:
 
     void CalculateTrajectory(float power);
     void Explode();
+    bool soundPlayed = false;
 
     // Animación de explosión
     float explosionAnimTimer = 0.0f;

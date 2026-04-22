@@ -7,9 +7,11 @@ AudioManager::AudioManager()
     gameSound = LoadSound("OST/FX AUDIO/file002 mission 1 start.ogg");
     deathSound = LoadSound("OST/Non_music/npc_death.wav");
     shootSound = LoadSound("OST/Non_music/pistol_shot.wav");
+    grenadeSound = LoadSound("OST/Non_music/grenade.wav");
 }
 Sound& AudioManager::GetDeathSound() { return deathSound; }
 Sound& AudioManager::GetShootSound() { return shootSound; }
+Sound& AudioManager::GetGrenadeSound() { return grenadeSound; }
 Music& AudioManager::GetTitleMusic() {
     return titleMusic;
 }
@@ -47,4 +49,5 @@ AudioManager::~AudioManager()
     UnloadMusicStream(titleMusic);
     UnloadSound(deathSound);
     UnloadSound(shootSound);
+    UnloadSound(grenadeSound);
 }

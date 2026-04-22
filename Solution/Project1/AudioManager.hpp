@@ -15,10 +15,12 @@ public:
     Sound& GetGameSound();
     Sound& GetDeathSound();
     Sound& GetShootSound();
+    Sound& GetGrenadeSound();
 private:
     Music titleMusic;
     Music gameMusic;
     Sound gameSound;
     Sound deathSound;
     Sound shootSound;
+    Sound grenadeSound;
 };
