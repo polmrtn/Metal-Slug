@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ﻿  LINK : C:\Users\sergionr\Documents\GitHub\Metal-Slug\Solution\x64\Debug\Project1.exe not found or not built by the last incremental link; performing full link
 x64\Debug\AudioManager.obj : warning LNK4042: object specified more than once; extras ignored
 AudioManager.obj : warning LNK4099: PDB 'vc143.pdb' was not found with 'AudioManager.obj' or at 'C:\Users\sergionr\Documents\GitHub\Metal-Slug\Solution\x64\Debug\vc143.pdb'; linking object as if no debug info
@@ -16,3 +17,11 @@ SoldierAnim.obj : warning LNK4099: PDB 'vc143.pdb' was not found with 'SoldierAn
 UiManager.obj : warning LNK4099: PDB 'vc143.pdb' was not found with 'UiManager.obj' or at 'C:\Users\sergionr\Documents\GitHub\Metal-Slug\Solution\x64\Debug\vc143.pdb'; linking object as if no debug info
 LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
   Project1.vcxproj -> C:\Users\sergionr\Documents\GitHub\Metal-Slug\Solution\x64\Debug\Project1.exe
+=======
+﻿  game.cpp
+C:\Users\polmd\Documents\GitHub\Metal-Slug\Solution\Project1\game.cpp(62,16): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\polmd\Documents\GitHub\Metal-Slug\Solution\Project1\game.cpp(65,16): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+  main.cpp
+  Generating Code...
+  Project1.vcxproj -> C:\Users\polmd\Documents\GitHub\Metal-Slug\Solution\x64\Debug\Project1.exe
+>>>>>>> pol

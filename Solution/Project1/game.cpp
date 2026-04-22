@@ -15,9 +15,10 @@ Game::Game() : camera({ 1200.0f / 2 , 896 / 2 })
 	}
 	else {
 		blocks = CreateBlocks();
+		items = CreateItems();
 	}
 	bullets = CreateBullets();
-	items = CreateItems();
+
 }
 
 Game::~Game()
@@ -147,6 +148,8 @@ void Game::Update() {
 		for (auto& bullet : bullets) {
 			bullet.Update();
 		}
+		CheckBulletsOutOfCamera();
+
 
 		for (auto& grenade : grenades) {
 			grenade.Update();
@@ -327,12 +330,17 @@ void Game::HandleInput()
 			soldierSpawnCooldown = 0.3f;
 			TraceLog(LOG_INFO, "Soldado tipo 2 en (%.0f, %.0f)", worldPos.x, worldPos.y);
 		}
-		if (IsKeyPressed(KEY_B)) {
+		static float itemSpawnCooldown = 0.0f;
+		if (itemSpawnCooldown > 0.0f) itemSpawnCooldown -= GetFrameTime();
+
+		if (IsKeyPressed(KEY_B) && itemSpawnCooldown <= 0.0f) {
 			items.emplace_back(worldPos, ItemType::BOX);
+			itemSpawnCooldown = 0.3f;
 			TraceLog(LOG_INFO, "Caja en (%.0f, %.0f)", worldPos.x, worldPos.y);
 		}
-		if (IsKeyPressed(KEY_G)) {
+		if (IsKeyPressed(KEY_G) && itemSpawnCooldown <= 0.0f) {
 			items.emplace_back(worldPos, ItemType::SHOTGUN);
+			itemSpawnCooldown = 0.3f;
 			TraceLog(LOG_INFO, "Machinegun item en (%.0f, %.0f)", worldPos.x, worldPos.y);
 		}
 		if (IsMouseButtonPressed(MOUSE_BUTTON_MIDDLE)) {
@@ -778,7 +786,7 @@ void Game::SaveBlocksToFile(const char* filename) {
 	for (const auto& item : items) {
 		int itemType = (item.GetType() == ItemType::BOX) ? 1 : 0;
 		fprintf(file, "I %.0f,%.0f,%d\n",
-			item.GetHitBox().x, item.GetHitBox().y, itemType);
+			item.GetPosition().x, item.GetPosition().y, itemType);
 	}
 
 	fclose(file);
@@ -877,4 +885,41 @@ void Game::ShootMachinegun(float yOffset) {
 	}
 
 	bullets.emplace_back(bulletPos, 1000, (int)dirX, (int)dirY, 3);
+}
+
+void Game::CheckBulletsOutOfCamera() {
+	// Obtener los límites de la cámara en el mundo
+	Camera2D cam = camera.GetCamera();
+	float screenWidth = (float)GetScreenWidth();
+	float screenHeight = (float)GetScreenHeight();
+
+	// Calcular los bordes de la cámara en coordenadas del mundo
+	float leftBound = cam.target.x - screenWidth / 2.0f;
+	float rightBound = cam.target.x + screenWidth / 2.0f;
+	float topBound = cam.target.y - screenHeight / 2.0f;
+	float bottomBound = cam.target.y + screenHeight / 2.0f;
+
+	// Añadir un margen (por ejemplo 100 píxeles) para que no se borren justo en el borde
+	float margin = 200.0f;
+	leftBound -= margin;
+	rightBound += margin;
+	topBound -= margin;
+	bottomBound += margin;
+
+	// Recorrer las balas y eliminar las que estén fuera
+	auto bIt = bullets.begin();
+	while (bIt != bullets.end()) {
+		Vector2 bulletPos = bIt->GetPosition();
+
+		// Verificar si la bala está fuera de los límites de la cámara
+		if (bulletPos.x < leftBound || bulletPos.x > rightBound ||
+			bulletPos.y < topBound || bulletPos.y > bottomBound) {
+
+			TraceLog(LOG_INFO, "Bullet removed (out of camera bounds)");
+			bIt = bullets.erase(bIt);
+		}
+		else {
+			++bIt;
+		}
+	}
 }

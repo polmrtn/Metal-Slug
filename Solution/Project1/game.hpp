@@ -14,6 +14,7 @@
 #include "BulletAnim.hpp"
 #include <vector>
 
+
 class Game {
 public:
 	Game();
@@ -43,6 +44,7 @@ public:
     void LoadBlocksFromFile(const char* filename);
 
     void ShootMachinegun(float yOffset);
+    void CheckBulletsOutOfCamera();
 
 private:
     // ========== TEMPORIZADORES ==========
