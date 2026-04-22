@@ -262,7 +262,7 @@ void SceneManager::DrawTexts()
         }
 
         // ===== STOPKA =====
-        const char* footer = "2005 KURVVA PRODUCTIONS";
+        const char* footer = "2026 KURVVA PRODUCTIONS";
 
         int fSize = 20;
         int fw = MeasureText(footer, fSize);
