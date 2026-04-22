@@ -176,32 +176,39 @@ void Grenade::CheckCollisionWithBlocks(const std::vector<Block>& blocks) {
     Rectangle grenadeBox = GetHitBox();
 
     for (const auto& block : blocks) {
-        // Ignorar techos: la granada no rebota en ellos
-        if (block.GetType() == BlockType::CEILING) continue;
+        // Ignorar rampas
+        if (block.IsRamp()) continue;
 
         Rectangle blockRect = block.GetRect();
         if (!CheckCollisionRecs(grenadeBox, blockRect)) continue;
 
-        // Viene de arriba (cayendo) → rebote o explosión
+        // ===== TECHO: solo bloquea si la granada va hacia ARRIBA =====
+        if (block.GetType() == BlockType::CEILING) {
+            if (velocity.y < 0) {
+                position.y = blockRect.y + blockRect.height + 11.0f;
+                velocity.y = -velocity.y * bounceDamping;
+            }
+            return;
+        }
+
+        // ===== SUELO NORMAL: viene de arriba (cayendo) =====
         if (velocity.y > 0 &&
             position.y - velocity.y * GetFrameTime() < blockRect.y) {
 
-            position.y = blockRect.y - 11.0f; // radio del hitbox de granada
+            position.y = blockRect.y - 11.0f;
 
             if (!hasBounced) {
                 velocity.y = -velocity.y * bounceDamping;
-                velocity.x *= 0.7f;   // pierde algo de impulso horizontal
+                velocity.x *= 0.7f;
                 hasBounced = true;
             }
             else {
-                position.y = blockRect.y - 11.0f;  // ← añade esto, que no lo tenías
-                TraceLog(LOG_INFO, "Block top: %.2f, grenade y after adjust: %.2f", blockRect.y, position.y);
                 Explode();
             }
             return;
         }
 
-        // Choca de lado → explota directamente
+        // ===== LATERAL: explota =====
         Explode();
         return;
     }

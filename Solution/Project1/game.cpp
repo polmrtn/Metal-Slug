@@ -455,8 +455,16 @@ void Game::ResolveCollisions() {
 }
 
 void Game::BulletsCollision() {
-	auto bIt = bullets.begin();
+	// Calcular límites de cámara para filtrar soldados fuera de pantalla
+	Camera2D cam = camera.GetCamera();
+	float halfW = GetScreenWidth() / 2.0f;
+	float halfH = GetScreenHeight() / 2.0f;
+	float camLeft = cam.target.x - halfW - 100.0f;
+	float camRight = cam.target.x + halfW + 100.0f;
+	float camTop = cam.target.y - halfH - 100.0f;
+	float camBottom = cam.target.y + halfH + 100.0f;
 
+	auto bIt = bullets.begin();
 	while (bIt != bullets.end()) {
 		bool bulletHit = false;
 
@@ -464,6 +472,13 @@ void Game::BulletsCollision() {
 		if (bIt->GetType() == 1 || bIt->GetType() == 3) {
 			auto sIt = soldiers.begin();
 			while (sIt != soldiers.end()) {
+				// Ignorar soldados fuera de cámara — su hitbox no es fiable
+				Vector2 sPos = sIt->GetPosition();
+				if (sPos.x < camLeft || sPos.x > camRight ||
+					sPos.y < camTop || sPos.y > camBottom) {
+					++sIt; continue;
+				}
+
 				if (sIt->GetisAlive() && CheckCollisionRecs(sIt->GetHurtBox(), bIt->GetHitbox())) {
 					sIt->TriggerDeath(audioManager);
 					UiManager.AddScore(100);
@@ -498,23 +513,16 @@ void Game::BulletsCollision() {
 			}
 		}
 
-		if (bulletHit) {
-			bIt = bullets.erase(bIt);
-		}
-		else {
-			++bIt;
-		}
+		if (bulletHit) bIt = bullets.erase(bIt);
+		else ++bIt;
 	}
 
 	// 4. LIMPIEZA DE SOLDADOS MUERTOS
 	auto sIt = soldiers.begin();
 	while (sIt != soldiers.end()) {
-		if (!sIt->GetisAlive() && sIt->IsDeadAnimFinished()) {
+		if (!sIt->GetisAlive() && sIt->IsDeadAnimFinished())
 			sIt = soldiers.erase(sIt);
-		}
-		else {
-			++sIt;
-		}
+		else ++sIt;
 	}
 }
 
@@ -548,9 +556,26 @@ void Game::SoldierBlockCollision()
 		if (!playerNearby) {
 			soldier.SetGrounded(false);
 			for (const auto& block : blocks) {
-				if (block.IsRamp() || block.GetType() == BlockType::CEILING) continue;
+				if (block.GetType() == BlockType::CEILING) continue;
+
 				Rectangle blockRect = block.GetRect();
 				Rectangle hurtBox = soldier.GetHurtBox();
+
+				// ===== RAMPAS =====
+				if (block.IsRamp()) {
+					float soldierCenterX = hurtBox.x + hurtBox.width / 2.0f;
+					if (soldierCenterX >= blockRect.x && soldierCenterX <= blockRect.x + blockRect.width) {
+						float rampSurfaceY = block.GetHeightAtX(soldierCenterX);
+						float feetY = hurtBox.y + hurtBox.height;
+						if (soldier.GetVelocityY() >= 0 && feetY >= rampSurfaceY) {
+							soldier.SetY(rampSurfaceY - soldier.GetHeight());
+							soldier.SetVelocityY(0);
+							soldier.SetGrounded(true);
+						}
+					}
+					continue;
+				}
+
 				float feetY = hurtBox.y + hurtBox.height;
 				float blockTopY = blockRect.y;
 				float verticalDist = feetY - blockTopY;
@@ -568,13 +593,29 @@ void Game::SoldierBlockCollision()
 		soldier.SetGrounded(false);
 
 		for (const auto& block : blocks) {
-			if (block.IsRamp() || block.GetType() == BlockType::CEILING) continue;
+			if (block.GetType() == BlockType::CEILING) continue;
+
 			Rectangle blockRect = block.GetRect();
 
 			if (blockRect.x > soldier.GetPosition().x + 300.0f ||
 				blockRect.x + blockRect.width < soldier.GetPosition().x - 300.0f) continue;
 
 			Rectangle hurtBox = soldier.GetHurtBox();
+
+			// ===== RAMPAS =====
+			if (block.IsRamp()) {
+				float soldierCenterX = hurtBox.x + hurtBox.width / 2.0f;
+				if (soldierCenterX >= blockRect.x && soldierCenterX <= blockRect.x + blockRect.width) {
+					float rampSurfaceY = block.GetHeightAtX(soldierCenterX);
+					float feetY = hurtBox.y + hurtBox.height;
+					if (soldier.GetVelocityY() >= 0 && feetY >= rampSurfaceY) {
+						soldier.SetY(rampSurfaceY - soldier.GetHeight());
+						soldier.SetVelocityY(0);
+						soldier.SetGrounded(true);
+					}
+				}
+				continue;
+			}
 
 			float feetY = hurtBox.y + hurtBox.height;
 			float blockTopY = blockRect.y;
@@ -712,21 +753,23 @@ void Game::BlockCollisions() {
 		bool bulletJustHit = false;
 
 		if (!bIt->IsExploding()) {
-			// Tipo 2 (granada): colisiona con bloques sólidos cuando va hacia abajo
+			// Tipo 2 (bala soldado): colisiona con bloques sólidos y techo
 			if (bIt->GetType() == 2 && bIt->GetDirectionY() > 0) {
 				for (const auto& block : blocks) {
-					if (block.GetType() == BlockType::NORMAL && block.IsGround() &&
-						CheckCollisionRecs(bIt->GetHitbox(), block.GetRect())) {
+					bool isSolid = (block.GetType() == BlockType::NORMAL && block.IsGround())
+						|| block.GetType() == BlockType::CEILING;
+					if (isSolid && CheckCollisionRecs(bIt->GetHitbox(), block.GetRect())) {
 						bulletJustHit = true;
 						break;
 					}
 				}
 			}
-			// Tipo 1 y 3: solo con bloques sólidos azules
+			// Tipo 1 (pistola) y 3 (machinegun): colisiona con bloques sólidos y techo
 			else if (bIt->GetType() == 1 || bIt->GetType() == 3) {
 				for (const auto& block : blocks) {
-					if (block.GetType() == BlockType::NORMAL && block.IsGround() &&
-						CheckCollisionRecs(bIt->GetHitbox(), block.GetRect())) {
+					bool isSolid = (block.GetType() == BlockType::NORMAL && block.IsGround())
+						|| block.GetType() == BlockType::CEILING;
+					if (isSolid && CheckCollisionRecs(bIt->GetHitbox(), block.GetRect())) {
 						bulletJustHit = true;
 						break;
 					}
