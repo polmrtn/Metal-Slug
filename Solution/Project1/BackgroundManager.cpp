@@ -6,18 +6,22 @@ BackgroundManager::BackgroundManager() {
     AddSprite("Graphics/background sprites/bg1 2 3.png", { 10300, 0 }, 4.0f, 0.05f, 1.5f, false, 1);
     AddSprite("Graphics/background sprites/bg4.png", { 0, -165 }, 4.0f, 0.0f, 1.0f, false, 1);
     AddSprite("Graphics/background sprites/more shit and huts/rockboss2.png", { 2200, 670 }, 4.0f, 0.0f, 1.0f, false, 1);
+    AddSprite("Graphics/background sprites/more shit and huts/rockboss2.png", { 7700, 800 }, 4.0f, 0.0f, 1.0f, false, 2);
+    AddSprite("Graphics/background sprites/more shit and huts/metalboss4.png", { 5400, 690 }, 4.0f, 0.0f, 1.0f, true, 1);
     AddSprite("Graphics/background sprites/more shit and huts/metalboss4.png", { 5400, 690 }, 4.0f, 0.0f, 1.0f, true, 1);
 
-    AddAnimation("Graphics/background sprites/bg3.png", { 12000, 0 }, 8, 25.0f, 4.0f, 0.0f, 0.7f, 1.2f, false, 0);
-    AddAnimation("Graphics/background sprites/bg2 2.png", { 14500, -350 }, 5, 25.0f, 4.0f, 2.0f, 0.15f, 1.5f, false, 1);
-    AddAnimation("Graphics/background sprites/bg floor water.png", { 7440, 860 }, 8, 15.0f, 4.0f, 2.0f, 0.0f, 1.0f, false, 1);
-    AddAnimation("Graphics/background sprites/bgwaterfallTOFI.png", { 13350, -165 }, 8, 15.0f, 4.0f, 2.0f, 0.0f, 1.0f, false, 2);
-    AddAnimation("Graphics/background sprites/bfwaterfall2.png", { 13340, -165 }, 8, 15.0f, 4.0f, 2.0f, 0.0f,1.0f, true, 2);
+    AddAnimation("Graphics/background sprites/bg3.png", { 12000, 0 }, 8, 25.0f, 4.0f, 0.0f, 0.7f, 1.2f, false, 0, 1);
+    AddAnimation("Graphics/background sprites/bg2 2.png", { 14500, -350 }, 5, 25.0f, 4.0f, 2.0f, 0.15f, 1.5f, false, 1, 1);
+    AddAnimation("Graphics/background sprites/bg floor water.png", { 7440, 860 }, 8, 15.0f, 4.0f, 2.0f, 0.0f, 1.0f, false, 1, 1);
+    AddAnimation("Graphics/background sprites/bgwaterfallTOFI.png", { 13350, -165 }, 8, 15.0f, 4.0f, 2.0f, 0.0f, 1.0f, false, 2, 1);
+    AddAnimation("Graphics/background sprites/bfwaterfall2.png", { 13340, -165 }, 8, 15.0f, 4.0f, 2.0f, 0.0f, 1.0f, true, 2, 1);
+    AddAnimation("Graphics/background sprites/water.png", { 7540, 930 }, 8, 15.0f, 4.0f, 2.0f, 0.0f, 1.0f, true, 2, 6);
 
     AddEventSprite("Graphics/background sprites/more shit and huts/huts2.png", { 11050, 250 }, 6, 4.0f, 0.0f, 0.0f, false, 1);
     AddEventSprite("Graphics/background sprites/more shit and huts/hutss3big.png", { 11800, 150 }, 3, 4.0f, 0.0f, 0.0f, false, 1);
     AddEventSprite("Graphics/background sprites/more shit and huts/hutss3big.png", { 11800, 150 }, 3, 4.0f, 0.0f, 0.0f, false, 1);
     AddEventSprite("Graphics/background sprites/more shit and huts/woodboss1.png", { 8080, 800 }, 1, 4.0f, 0.0f, 0.0f, false, 1);
+   /* AddEventSprite("Graphics/background sprites/more shit and huts/somehutsandwood.png", { 10200, 150 }, 1, 4.0f, 0.0f, 0.0f, false, 2);*/
 
     scale = 4.0f;
     origin = { 0, 0 };
@@ -46,7 +50,7 @@ void BackgroundManager::AddSprite(const char* path, Vector2 pos, float scale, fl
     sprites.push_back(sprite);
 }
 
-void BackgroundManager::AddAnimation(const char* path, Vector2 pos, int frames, float fps, float scale, float spacing, float pFactor, float anchoExtra, bool isFrontground, int layer)
+void BackgroundManager::AddAnimation(const char* path, Vector2 pos, int frames, float fps, float scale, float spacing, float pFactor, float anchoExtra, bool isFrontground, int layer, int repeatCount)
 {
     Texture2D tex = LoadTexture(path);
     SetTextureFilter(tex, TEXTURE_FILTER_POINT);
@@ -64,6 +68,7 @@ void BackgroundManager::AddAnimation(const char* path, Vector2 pos, int frames, 
     newAnim.parallaxFactor = pFactor;
     newAnim.isFrontground = isFrontground;
     newAnim.layer = layer;
+    newAnim.repeatCount = repeatCount;
     newAnim.source = { 0, 0, fWidth, (float)tex.height };
     newAnim.dest = {
         pos.x, pos.y,
@@ -139,15 +144,18 @@ void BackgroundManager::Draw() {
         // Animaciones
         for (auto& anim : animations) {
             if (anim.isFrontground || anim.layer != currentLayer) continue;
-            Rectangle renderDest = anim.dest;
-            if (this->camX > 12500.0f) {
-                float relativeTravel = this->camX - 12500.0f;
-                renderDest.x = anim.dest.x + (relativeTravel * anim.parallaxFactor);
+
+            for (int r = 0; r < anim.repeatCount; r++) {
+                Rectangle renderDest = anim.dest;
+                renderDest.x = anim.dest.x + (anim.dest.width * r);
+
+                if (this->camX > 12500.0f) {
+                    float relativeTravel = this->camX - 12500.0f;
+                    renderDest.x += relativeTravel * anim.parallaxFactor;
+                }
+
+                DrawTexturePro(anim.texture, anim.source, renderDest, origin, 0, WHITE);
             }
-            else {
-                renderDest.x = anim.dest.x;
-            }
-            DrawTexturePro(anim.texture, anim.source, renderDest, origin, 0, WHITE);
         }
 
         // EventSprites
@@ -171,9 +179,12 @@ void BackgroundManager::Drawfrontground()
 
     for (auto& anim : animations) {
         if (!anim.isFrontground) continue;
-        Rectangle renderDest = anim.dest;
-        renderDest.x = anim.dest.x - (this->camX * anim.parallaxFactor);
-        DrawTexturePro(anim.texture, anim.source, renderDest, origin, 0, WHITE);
+
+        for (int r = 0; r < anim.repeatCount; r++) {
+            Rectangle renderDest = anim.dest;
+            renderDest.x = anim.dest.x + (anim.dest.width * r) - (this->camX * anim.parallaxFactor);
+            DrawTexturePro(anim.texture, anim.source, renderDest, origin, 0, WHITE);
+        }
     }
 
     for (auto& sprite : eventSprites) {
