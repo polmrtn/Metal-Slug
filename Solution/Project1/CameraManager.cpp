@@ -66,7 +66,7 @@ void CameraManager::Update(Vector2 playerPos, float bgWidth, float bgHeight, boo
             }
         }
     }
-    else if (playerPos.x >= 12000.0f && playerPos.x < 14000.0f) {
+    else if (playerPos.x >= 14000.0f && playerPos.x < 15000.0f) {
         // LIBERTAD: Aquí el clamp sigue al jugador sin umbral de 50px
         lockedYValue = Clamp(playerPos.y, minY, maxY);
     }

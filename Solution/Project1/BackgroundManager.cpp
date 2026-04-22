@@ -12,7 +12,7 @@ BackgroundManager::BackgroundManager() {
     AddSprite("Graphics/background sprites/spw.png", { 14070, -450 }, 4.0f, 0.0f, 1.0f, true, 2);
 
     AddAnimation("Graphics/background sprites/bg3.png", { 12000, 0 }, 8, 25.0f, 4.0f, 0.0f, 0.7f, 1.2f, false, 0, 1);
-    AddAnimation("Graphics/background sprites/bg2 2.png", { 14500, -350 }, 5, 25.0f, 4.0f, 2.0f, 0.15f, 1.5f, false, 1, 1);
+    AddAnimation("Graphics/background sprites/bg2 2.png", { 14500, -350 }, 5, 25.0f, 4.0f, 2.0f, 0.15f, 1.0f, false, 1, 1);
     AddAnimation("Graphics/background sprites/bg floor water.png", { 7440, 860 }, 8, 15.0f, 4.0f, 2.0f, 0.0f, 1.0f, false, 1, 1);
     AddAnimation("Graphics/background sprites/bgwaterfallTOFI.png", { 13350, -165 }, 8, 15.0f, 4.0f, 2.0f, 0.0f, 1.0f, false, 2, 1);
     AddAnimation("Graphics/background sprites/bfwaterfall2.png", { 13340, -165 }, 8, 15.0f, 4.0f, 2.0f, 0.0f, 1.0f, true, 2, 1);
