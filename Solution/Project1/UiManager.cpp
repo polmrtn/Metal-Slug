@@ -275,9 +275,18 @@ void UiManager::DrawHUD(Camera2D /*camera*/)
 
     if (weaponDisplay == WeaponDisplay::MACHINEGUN)
     {
-        // Machinegun: show current ammo count (3 digits, zero-padded)
-        float ammoW = MeasureHudNumber(3, numSc);
-        DrawHudNumber(ammo, 3, { armsCenterX - (ammoW * 0.5f), innerNumY }, numSc, WHITE);
+        char ammoBuf[8];
+        std::snprintf(ammoBuf, sizeof(ammoBuf), "%03d", ammo); // 3 cyfry jak w Metal Slug
+
+        float ammoScale = 1.0f;
+
+        float ammoW = MeasureScoreText(ammoBuf, ammoScale);
+
+        DrawScoreText(
+            ammoBuf,
+            { armsCenterX - ammoW * 0.5f, innerNumY },
+            ammoScale
+        );
     }
     else
     {
