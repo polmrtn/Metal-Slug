@@ -38,6 +38,8 @@ public:
     void LoadBlocksFromFile(const char* filename);
     void ShootMachinegun(float yOffset);
     void CheckBulletsOutOfCamera();
+    SceneManager& GetSceneManager() { return sceneManager; }
+    UiManager& GetUiManager() { return UiManager; }
 
 private:
     // ========== TEMPORIZADORES ==========

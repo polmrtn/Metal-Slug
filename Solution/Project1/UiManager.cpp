@@ -96,6 +96,23 @@ void UiManager::Update()
     UpdateGoTimer(dt);
 }
 
+void UiManager::DrawCreditsOnly()
+{
+    int SW = GetScreenWidth();
+    int SH = GetScreenHeight();
+
+    char cText[16];
+    std::snprintf(cText, sizeof(cText), "CREDIT %02d", credits);
+
+    float scale = 1.5f;
+    float w = MeasureScoreText(cText, scale);
+
+    float x = (float)SW - w - 40.0f;
+    float y = (float)SH - HSF_CHAR_H * scale - 10.0f;
+
+    DrawScoreText(cText, { x, y }, scale);
+}
+
 void UiManager::UpdateGoTimer(float dt)
 {
     idleTimer += dt;

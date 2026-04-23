@@ -82,6 +82,11 @@ SceneManager::~SceneManager()
     UnloadTexture(texBrrrt);
 }
 
+void SceneManager::SetUiManager(UiManager* u)
+{
+    ui = u;
+}
+
 void SceneManager::ResetIntro()
 {
     introTimer = 0.0f;  introPhase = 0;
@@ -542,6 +547,10 @@ void SceneManager::DrawTexts()
         int fSize = 20, fw = MeasureText(footer, fSize);
         DrawText(footer, SW / 2 - fw / 2 + 2, (int)(SH * 0.92f) + 2, fSize, BLACK);
         DrawText(footer, SW / 2 - fw / 2, (int)(SH * 0.92f), fSize, WHITE);
+        if (ui)
+        {
+            ui->DrawCreditsOnly();
+        }
         return;
     }
 
@@ -551,4 +560,8 @@ void SceneManager::DrawTexts()
     ClearBackground(BLACK);
     UpdateIntro();
     DrawIntro();
+    if (ui)
+    {
+        ui->DrawCreditsOnly();
+    }
 }

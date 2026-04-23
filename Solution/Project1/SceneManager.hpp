@@ -2,6 +2,7 @@
 #include "raylib.h"
 #include "raymath.h"
 #include <vector>
+#include "UiManager.hpp"
 
 class SceneManager {
 public:
@@ -16,6 +17,8 @@ public:
     void       SetGameState(Gamestates gamestate);
 
     Gamestates currentState;
+    UiManager* ui = nullptr;
+    void SetUiManager(UiManager* u);
 
 private:
     Texture2D texRedBg, texBlueBg;

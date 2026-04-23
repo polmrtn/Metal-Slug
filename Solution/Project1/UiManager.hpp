@@ -37,6 +37,7 @@ public:
     void SetWeaponDisplay(WeaponDisplay w) { weaponDisplay = w; }
 
     void NotifyPlayerMoved();
+    void DrawCreditsOnly();
 
 private:
     int credits;
