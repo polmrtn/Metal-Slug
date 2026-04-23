@@ -1,23 +1,37 @@
-<snippet>
-  <content><![CDATA[
-# ${1:Project Name}
-TODO: Write a project description
-## Installation
-TODO: Describe the installation process
-## Usage
-TODO: Write usage instructions
-## Contributing
-1. Fork it!
-2. Create your feature branch: `git checkout -b my-new-feature`
-3. Commit your changes: `git commit -am 'Add some feature'`
-4. Push to the branch: `git push origin my-new-feature`
-5. Submit a pull request :D
-## History
-TODO: Write history
-## Credits
-TODO: Write credits
-## License
-TODO: Write license
-]]></content>
-  <tabTrigger>readme</tabTrigger>
-</snippet>
+
+GitHub Project link: https://github.com/polmrtn/Metal-Slug
+
+YouTube video: 
+
+Members: 
+-Filip: https://github.com/Fpatyk7
+-Mikolaj: https://github.com/p1natturb0
+-Nicolás: https://github.com/Daegaz
+-Pol: https://github.com/polmrtn
+
+Description:
+
+Metal Slug is a fast-paced run-and-gun arcade game developed by Nazca Corporation. Players control soldier Marco Rossi as he fight through the Rebel Army to rescue prisoners and stop a coup. Known for its hand-drawn pixel art, over-the-top explosions, humor, and iconic SV-001 tank, the game offers tight controls, massive enemy bosses, and chaotic non-stop action.
+
+
+Controls: 
+
+Start – Start the game
+
+Left / Right Arrow Keys – Walk / Move left or right
+
+Up Arrow Key – Aim upward
+
+Down Arrow Key – Crouch
+
+Space – Jump
+
+D – Shoot
+
+S – Throw grenade
+
+R – Respawn (continue)
+
+
+Features:
+
