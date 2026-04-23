@@ -25,6 +25,8 @@ void CameraManager::Reset()
     maxScrollX = 0.0f;
     yLocked = false;
     lockedYValue = 0.0f;
+    isFirstFrame = true;
+    bossZoneLocked = false;
 }
 
 void CameraManager::Update(Vector2 playerPos, float bgWidth, float bgHeight, bool isGrounded) {
@@ -32,7 +34,6 @@ void CameraManager::Update(Vector2 playerPos, float bgWidth, float bgHeight, boo
     float halfScreenHeight = camera.offset.y;
 
     // --- INICIALIZACIÓN INSTANTÁNEA (Evita el Lerp al empezar) ---
-    static bool isFirstFrame = true;
     if (isFirstFrame) {
         maxScrollX = playerPos.x;
         camera.target.x = Clamp(maxScrollX, halfScreenWidth, bgWidth - halfScreenWidth);
@@ -80,7 +81,6 @@ void CameraManager::Update(Vector2 playerPos, float bgWidth, float bgHeight, boo
         lockedYValue = Clamp(playerPos.y, minY, maxY);
     }
     else if (playerPos.x >= 14000.0f) {
-        static bool bossZoneLocked = false;
         if (!bossZoneLocked) {
             lockedYValue = Clamp(playerPos.y, minY, maxY);
             bossZoneLocked = true;

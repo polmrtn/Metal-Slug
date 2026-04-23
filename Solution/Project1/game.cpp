@@ -114,6 +114,21 @@ void Game::Update() {
 		BeginDrawing();
 		ClearBackground(BLACK);
 		sceneManager.DrawTexts();
+
+		// ========== INSERTAR CRÉDITO EN MENÚ ==========
+		if (IsKeyPressed(KEY_C) && creditCooldown <= 0.0f) {
+			if (UiManager.GetCredits() < 99) {
+				UiManager.SetCredits(1);
+				creditCooldown = creditDelay;
+				TraceLog(LOG_INFO, "Crédito insertado en menú. Total: %d", UiManager.GetCredits());
+			}
+		}
+
+		// Actualizar cooldown de crédito
+		if (creditCooldown > 0.0f) {
+			creditCooldown -= GetFrameTime();
+		}
+
 		if (!musicStarted) {
 			audioManager.PlayMusic(audioManager.GetTitleMusic());
 			musicStarted = true;
@@ -128,10 +143,27 @@ void Game::Update() {
 			Vector2 deathPos = player.GetDeathPosition();
 			DrawText(TextFormat("YOU DIED at (%.0f, %.0f)", deathPos.x, deathPos.y),
 				GetScreenWidth() / 2 - 200, GetScreenHeight() / 2 - 50, 20, RED);
-			DrawText("Press R to respawn at death position",
-				GetScreenWidth() / 2 - 200, GetScreenHeight() / 2, 20, WHITE);
-			if (IsKeyPressed(KEY_R)) {
+
+			if (UiManager.GetCredits() > 0) {
+				DrawText("Press R to respawn (costs 1 credit)",
+					GetScreenWidth() / 2 - 200, GetScreenHeight() / 2, 20, WHITE);
+			}
+			else {
+				DrawText("NO CREDITS! Press C to insert coin",
+					GetScreenWidth() / 2 - 200, GetScreenHeight() / 2, 20, RED);
+			}
+
+			if (IsKeyPressed(KEY_R) && UiManager.GetCredits() > 0) {
+				UiManager.SetCredits(-1);  // Gasta 1 crédito
 				player.Respawn();
+				TraceLog(LOG_INFO, "Respawn. Créditos restantes: %d", UiManager.GetCredits());
+			}
+			if (IsKeyPressed(KEY_C) && creditCooldown <= 0.0f) {
+				if (UiManager.GetCredits() < 99) {
+					UiManager.SetCredits(1);
+					creditCooldown = creditDelay;
+					TraceLog(LOG_INFO, "Crédito insertado mientras muerto. Total: %d", UiManager.GetCredits());
+				}
 			}
 		}
 
@@ -197,6 +229,7 @@ void Game::Update() {
 
 		if (grenadeCooldown > 0.0f) grenadeCooldown -= GetFrameTime();
 		if (shootTimer > 0.0f) shootTimer -= GetFrameTime();
+		if (creditCooldown > 0.0f) creditCooldown -= GetFrameTime();
 
 		grenades.erase(std::remove_if(grenades.begin(), grenades.end(),
 			[](const Grenade& g) { return !g.IsActive(); }), grenades.end());
@@ -296,6 +329,7 @@ void Game::HandleInput()
 {
 	if (!player.IsAlive()) {
 		if (IsKeyPressed(KEY_R)) {
+			UiManager.SetCredits(-1);
 			player.Respawn();
 		}
 		return;
@@ -304,10 +338,14 @@ void Game::HandleInput()
 	// ========== CAMBIO DE ESCENA ==========
 	if (IsKeyPressed(KEY_ENTER)) {
 		if (sceneManager.currentState == SceneManager::TITLE) {
-			audioManager.StopMusic(audioManager.GetTitleMusic());
-			audioManager.PlaySound(audioManager.GetGameSound());
-			sceneManager.SetGameState(SceneManager::GAME);
-			musicStarted = false;
+			// Solo iniciar si hay créditos
+			if (UiManager.GetCredits() > 0) {
+				UiManager.SetCredits(-1);  // Gasta 1 crédito
+				audioManager.StopMusic(audioManager.GetTitleMusic());
+				audioManager.PlaySound(audioManager.GetGameSound());
+				sceneManager.SetGameState(SceneManager::GAME);
+				musicStarted = false;
+			}
 		}
 		else if (sceneManager.currentState == SceneManager::INTRO) {
 			sceneManager.SetGameState(SceneManager::TITLE);
@@ -411,8 +449,11 @@ void Game::HandleInput()
 	// ========== DEBUG ==========
 	if (IsKeyPressed(KEY_L)) UiManager.NextLevel();
 	if (IsKeyPressed(KEY_J)) UiManager.AddScore(100);
-	if (IsKeyPressed(KEY_C)) {
-		if (UiManager.GetCredits() < 99) UiManager.SetCredits(1);
+	if (IsKeyPressed(KEY_C) && creditCooldown <= 0.0f) {
+		if (UiManager.GetCredits() < 99) {
+			UiManager.SetCredits(1); 
+			creditCooldown = creditDelay;
+		}
 	}
 
 	// ========== MOVIMIENTO ==========

@@ -20,4 +20,6 @@ private:
     bool yLocked = false;       
     float lockedYValue = 0.0f;
     float maxScrollX = 0.0f;
+    bool isFirstFrame = true;
+    bool bossZoneLocked = false;
 };
