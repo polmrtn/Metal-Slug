@@ -1,9 +1,12 @@
-
 GitHub Project link: https://github.com/polmrtn/Metal-Slug
 
-YouTube video: 
 
-Members: 
+
+YouTube video:
+
+
+
+Members:
 -Filip: https://github.com/Fpatyk7
 -Mikolaj: https://github.com/p1natturb0
 -Nicolás: https://github.com/Daegaz
@@ -14,7 +17,10 @@ Description:
 Metal Slug is a fast-paced run-and-gun arcade game developed by Nazca Corporation. Players control soldier Marco Rossi as he fight through the Rebel Army to rescue prisoners and stop a coup. Known for its hand-drawn pixel art, over-the-top explosions, humor, and iconic SV-001 tank, the game offers tight controls, massive enemy bosses, and chaotic non-stop action.
 
 
-Controls: 
+
+
+
+Controls:
 
 Start – Start the game
 
@@ -32,8 +38,15 @@ S – Throw grenade
 
 R – Respawn (continue)
 
+C - Insert Coin
+
+
+
+
 
 Features:
+
+
 
 Jump
 
@@ -50,6 +63,7 @@ Platforming
 Knife-wielding enemy
 
 Grenade-throwing enemy
+
 
 
 
