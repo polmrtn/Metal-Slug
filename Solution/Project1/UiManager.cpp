@@ -3,7 +3,7 @@
 #include <cstring>
 #include <cmath>
 
-static const float TICK_INTERVAL = 1.0f;
+static const float TICK_INTERVAL = 5.0f;
 
 const float UiManager::INTRO_DURATION = 3.0f;
 const float UiManager::BLINK_INTERVAL = 0.25f;
@@ -320,21 +320,29 @@ void UiManager::DrawHUD(Camera2D /*camera*/)
     float hpBarY = topPad + ((float)texArms.height * hudSc) + 8.0f;
     DrawHpBar({ leftPad, hpBarY }, 10, 2.0f);
 
-    // --- SCORE & TIME (�RODEK) ---
-    char sBuf[16]; std::snprintf(sBuf, sizeof(sBuf), "%07d", score);
-    float sTW = MeasureScoreText(sBuf, scoreSc);
-    float sCX = (float)SW * 0.5f - sTW * 0.5f;
-    DrawScoreText(sBuf, { sCX, topPad }, scoreSc);
+    // --- SCORE (LEWY RÓG, wyrównany do prawej) ---
+    char sBuf[16];
+    std::snprintf(sBuf, sizeof(sBuf), "%d", score); // 🔥 bez zer z przodu
 
-    
-    const Color mSlugYellow = { 255, 220, 0, 255 };
-    float timeY = topPad + (HSF_CHAR_H * scoreSc) + 5.0f;
+    float scoreRight = 160.0f; // 🔥 tu ustawiasz gdzie kończy się score
+    float scoreY = topPad;
+
+    // policz szerokość tekstu
+    float scoreW = MeasureScoreText(sBuf, scoreSc);
+
+    // ustaw X tak, żeby prawa krawędź była stała
+    float scoreX = scoreRight - scoreW;
+
+    DrawScoreText(sBuf, { scoreX, scoreY }, scoreSc);
 
     // Separator = 2 cyfry szerokosci odst�pu mi�dzy timerem a levelem
 
     float timeScale = 2.5f;
 
-    float totalW = 16.0f * timeScale * 2; // 2 cyfry
+
+    float timeY = topPad + (HSF_CHAR_H * scoreSc) + 5.0f;
+
+    float totalW = 16.0f * timeScale * 2;
     float startXTime = (float)SW * 0.5f - totalW * 0.5f;
 
     DrawTimeNumber(timeLeft, { startXTime, timeY }, timeScale);
