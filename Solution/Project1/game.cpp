@@ -26,6 +26,29 @@ Game::~Game()
 {
 }
 
+void Game::Reset()
+{
+	player.ResetToStart();
+	if (!player.IsAlive()) player.Respawn();
+	soldiers.clear();
+	grenades.clear();
+	bullets = CreateBullets();
+	items.clear();
+	blocks.clear();
+	camera.Reset();
+	musicStarted = false;
+
+	FILE* file = fopen("level_blocks.txt", "r");
+	if (file) {
+		fclose(file);
+		LoadBlocksFromFile("level_blocks.txt");
+	}
+	else {
+		blocks = CreateBlocks();
+		items = CreateItems();
+	}
+}
+
 void Game::Draw()
 {
 	camera.Begin();
@@ -70,6 +93,10 @@ void Game::Draw()
 		DrawText("EDITOR MODE - F1:Salir | Click:Suelo | Right:Plataforma | Mid:Borrar | R:RampaUP | T:RampaDOWN | Y:Techo | 1:Soldado1 | 2:Soldado2 | B:Caja | G:MachinegunItem | F5:Guardar",
 			10, 10, 12, RED);
 
+		Vector2 pPos = player.GetPosition();
+		DrawText(TextFormat("Player: (%.0f, %.0f)", pPos.x, pPos.y),
+			10, 50, 15, GREEN);
+
 		Vector2 mousePos = GetMousePosition();
 		Vector2 worldPos = camera.GetScreenToWorld(mousePos);
 		DrawText(TextFormat("World: (%.0f, %.0f)", worldPos.x, worldPos.y), 10, 30, 15, YELLOW);
@@ -87,6 +114,21 @@ void Game::Update() {
 		BeginDrawing();
 		ClearBackground(BLACK);
 		sceneManager.DrawTexts();
+
+		// ========== INSERTAR CRÉDITO EN MENÚ ==========
+		if (IsKeyPressed(KEY_C) && creditCooldown <= 0.0f) {
+			if (UiManager.GetCredits() < 99) {
+				UiManager.SetCredits(1);
+				creditCooldown = creditDelay;
+				TraceLog(LOG_INFO, "Crédito insertado en menú. Total: %d", UiManager.GetCredits());
+			}
+		}
+
+		// Actualizar cooldown de crédito
+		if (creditCooldown > 0.0f) {
+			creditCooldown -= GetFrameTime();
+		}
+
 		if (!musicStarted) {
 			audioManager.PlayMusic(audioManager.GetTitleMusic());
 			musicStarted = true;
@@ -101,10 +143,27 @@ void Game::Update() {
 			Vector2 deathPos = player.GetDeathPosition();
 			DrawText(TextFormat("YOU DIED at (%.0f, %.0f)", deathPos.x, deathPos.y),
 				GetScreenWidth() / 2 - 200, GetScreenHeight() / 2 - 50, 20, RED);
-			DrawText("Press R to respawn at death position",
-				GetScreenWidth() / 2 - 200, GetScreenHeight() / 2, 20, WHITE);
-			if (IsKeyPressed(KEY_R)) {
+
+			if (UiManager.GetCredits() > 0) {
+				DrawText("Press R to respawn (costs 1 credit)",
+					GetScreenWidth() / 2 - 200, GetScreenHeight() / 2, 20, WHITE);
+			}
+			else {
+				DrawText("NO CREDITS! Press C to insert coin",
+					GetScreenWidth() / 2 - 200, GetScreenHeight() / 2, 20, RED);
+			}
+
+			if (IsKeyPressed(KEY_R) && UiManager.GetCredits() > 0) {
+				UiManager.SetCredits(-1);  // Gasta 1 crédito
 				player.Respawn();
+				TraceLog(LOG_INFO, "Respawn. Créditos restantes: %d", UiManager.GetCredits());
+			}
+			if (IsKeyPressed(KEY_C) && creditCooldown <= 0.0f) {
+				if (UiManager.GetCredits() < 99) {
+					UiManager.SetCredits(1);
+					creditCooldown = creditDelay;
+					TraceLog(LOG_INFO, "Crédito insertado mientras muerto. Total: %d", UiManager.GetCredits());
+				}
 			}
 		}
 
@@ -113,6 +172,16 @@ void Game::Update() {
 		player.Update(camera.GetLeftLimit());
 		ResolveCollisions();
 
+		// ===== WIN ZONE =====
+		Rectangle winZone = { 16190.0f, -9999.0f, 200.0f, 99999.0f }; 
+		if (CheckCollisionRecs(player.GetHitBox(), winZone))
+		{
+			audioManager.StopMusic(audioManager.GetGameMusic());
+			musicStarted = false;
+			shouldRestart = true;
+			sceneManager.SetGameState(SceneManager::TITLE);
+		}
+
 		for (auto& item : items) {
 			item.Update();
 
@@ -120,6 +189,11 @@ void Game::Update() {
 				if (item.GetType() == ItemType::SHOTGUN) {
 					player.EquipMachinegun();
 					item.Collect();
+					// ===== DZWIEK EQUIP MACHINEGUN =====
+					audioManager.PlaySound(audioManager.GetMachinegunEquipSound());
+					// ===== SYNC AMMO TO UIMANAGER =====
+					UiManager.SetAmmo(player.GetAmmo());
+					UiManager.SetWeaponDisplay(UiManager::WeaponDisplay::MACHINEGUN);
 				}
 			}
 
@@ -160,11 +234,12 @@ void Game::Update() {
 
 		if (grenadeCooldown > 0.0f) grenadeCooldown -= GetFrameTime();
 		if (shootTimer > 0.0f) shootTimer -= GetFrameTime();
+		if (creditCooldown > 0.0f) creditCooldown -= GetFrameTime();
 
 		grenades.erase(std::remove_if(grenades.begin(), grenades.end(),
 			[](const Grenade& g) { return !g.IsActive(); }), grenades.end());
 
-		// ========== RÁFAGA MACHINEGUN ==========
+		// ========== RÁFAGA MACHINEGUN (strzaly) ==========
 		if (machinegunBurst) {
 			machinegunBurstTimer += GetFrameTime();
 			if (machinegunBurstTimer >= machinegunBurstDelay) {
@@ -172,6 +247,7 @@ void Game::Update() {
 				if (player.GetAmmo() > 0) {
 					ShootMachinegun(burstOffsets[machinegunBurstCount]);
 					player.UseAmmo();
+					UiManager.UseAmmo(); // sync HUD ammo counter
 				}
 				machinegunBurstCount++;
 				if (machinegunBurstCount >= MACHINEGUN_BURST_SIZE || player.GetAmmo() <= 0) {
@@ -180,11 +256,29 @@ void Game::Update() {
 					if (!IsKeyDown(KEY_UP)) {
 						player.StopAimingUp();
 					}
+					// ===== JEZELI BRAK AMMO - WRÓC DO PISTOLETU =====
+					if (player.GetAmmo() <= 0) {
+						UiManager.SetAmmo(0);
+						UiManager.SetWeaponDisplay(UiManager::WeaponDisplay::PISTOL);
+					}
 				}
 			}
 		}
 
-		
+		// ========== DZWIEKI MACHINEGUN (4 dzwieki co 0.25s, osobny timer) ==========
+		if (machinegunSoundActive) {
+			machinegunSoundTimer += GetFrameTime();
+			if (machinegunSoundTimer >= MACHINEGUN_SOUND_DELAY) {
+				machinegunSoundTimer = 0.0f;
+				audioManager.PlaySound(audioManager.GetMachinegunShootSound());
+				machinegunSoundCount++;
+				if (machinegunSoundCount >= MACHINEGUN_SOUND_SHOTS) {
+					machinegunSoundActive = false;
+					machinegunSoundCount = 0;
+				}
+			}
+		}
+
 		BeginDrawing();
 		ClearBackground(BGCOLOR);
 		Draw();
@@ -259,6 +353,7 @@ void Game::HandleInput()
 {
 	if (!player.IsAlive()) {
 		if (IsKeyPressed(KEY_R)) {
+			UiManager.SetCredits(-1);
 			player.Respawn();
 		}
 		return;
@@ -267,10 +362,14 @@ void Game::HandleInput()
 	// ========== CAMBIO DE ESCENA ==========
 	if (IsKeyPressed(KEY_ENTER)) {
 		if (sceneManager.currentState == SceneManager::TITLE) {
-			audioManager.StopMusic(audioManager.GetTitleMusic());
-			audioManager.PlaySound(audioManager.GetGameSound());
-			sceneManager.SetGameState(SceneManager::GAME);
-			musicStarted = false;
+			// Solo iniciar si hay créditos
+			if (UiManager.GetCredits() > 0) {
+				UiManager.SetCredits(-1);  // Gasta 1 crédito
+				audioManager.StopMusic(audioManager.GetTitleMusic());
+				audioManager.PlaySound(audioManager.GetGameSound());
+				sceneManager.SetGameState(SceneManager::GAME);
+				musicStarted = false;
+			}
 		}
 		else if (sceneManager.currentState == SceneManager::INTRO) {
 			sceneManager.SetGameState(SceneManager::TITLE);
@@ -347,7 +446,6 @@ void Game::HandleInput()
 			TraceLog(LOG_INFO, "Machinegun item en (%.0f, %.0f)", worldPos.x, worldPos.y);
 		}
 		if (IsMouseButtonPressed(MOUSE_BUTTON_MIDDLE)) {
-			// Borrar bloque
 			float bX = blockX;
 			float bY = blockY;
 			auto it = std::remove_if(blocks.begin(), blocks.end(),
@@ -356,7 +454,6 @@ void Game::HandleInput()
 				});
 			blocks.erase(it, blocks.end());
 
-			// Borrar item
 			auto iIt = std::remove_if(items.begin(), items.end(),
 				[&worldPos](const Item& i) {
 					return CheckCollisionPointRec(worldPos, i.GetHitBox());
@@ -374,25 +471,35 @@ void Game::HandleInput()
 	// ========== DEBUG ==========
 	if (IsKeyPressed(KEY_L)) UiManager.NextLevel();
 	if (IsKeyPressed(KEY_J)) UiManager.AddScore(100);
-	if (IsKeyPressed(KEY_C)) {
-		if (UiManager.GetCredits() < 99) UiManager.SetCredits(1);
+	if (IsKeyPressed(KEY_C) && creditCooldown <= 0.0f) {
+		if (UiManager.GetCredits() < 99) {
+			UiManager.SetCredits(1); 
+			creditCooldown = creditDelay;
+		}
 	}
 
 	// ========== MOVIMIENTO ==========
 	if (machinegunBurst) {
 		if (machinegunBurstDir == PlayerDirection::LEFT) {
-			if (IsKeyDown(KEY_LEFT)) player.MoveLeft();
+			if (IsKeyDown(KEY_LEFT)) { player.MoveLeft(); UiManager.NotifyPlayerMoved(); }
 			else player.StopMovingHorizontal();
 		}
 		else if (machinegunBurstDir == PlayerDirection::RIGHT) {
-			if (IsKeyDown(KEY_RIGHT)) player.MoveRight();
+			if (IsKeyDown(KEY_RIGHT)) { player.MoveRight(); UiManager.NotifyPlayerMoved(); }
 			else player.StopMovingHorizontal();
 		}
-		if (IsKeyPressed(KEY_SPACE)) player.Jump();
+		if (IsKeyPressed(KEY_SPACE)) { player.Jump(); UiManager.NotifyPlayerMoved(); }
 		if (IsKeyDown(KEY_DOWN)) player.StartCrouching();
 		else player.StopCrouching();
 		return;
 	}
+
+	// ========== GO! IDLE DETECTION ==========
+	bool playerActing = IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_RIGHT) ||
+		IsKeyDown(KEY_UP) || IsKeyDown(KEY_DOWN) ||
+		IsKeyDown(KEY_SPACE) || IsKeyPressed(KEY_D) ||
+		IsKeyPressed(KEY_S);
+	if (playerActing) UiManager.NotifyPlayerMoved();
 
 	if (IsKeyDown(KEY_LEFT)) player.MoveLeft();
 	else if (IsKeyDown(KEY_RIGHT)) player.MoveRight();
@@ -417,6 +524,14 @@ void Game::HandleInput()
 				machinegunBurstDir = (player.GetAimDirection() == PlayerDirection::UP)
 					? PlayerDirection::UP
 					: (IsKeyDown(KEY_LEFT) ? PlayerDirection::LEFT : PlayerDirection::RIGHT);
+
+				// ===== START DZWIEKOW MACHINEGUN (4 x 0.25s) =====
+				machinegunSoundActive = true;
+				machinegunSoundCount = 0;
+				machinegunSoundTimer = 0.0f;
+				// Pierwszy dzwiek od razu
+				audioManager.PlaySound(audioManager.GetMachinegunShootSound());
+				machinegunSoundCount = 1;
 			}
 		}
 		else {
@@ -427,8 +542,10 @@ void Game::HandleInput()
 		}
 	}
 
-	if (IsKeyPressed(KEY_S) && player.IsAlive() && grenadeCooldown <= 0.0f) {
+	if (IsKeyPressed(KEY_S) && player.IsAlive() && grenadeCooldown <= 0.0f && UiManager.HasBombs()) {
 		ThrowGrenade();
+		UiManager.UseGrenade();
+		UiManager.NotifyPlayerMoved();
 		grenadeCooldown = grenadeDelay;
 	}
 }
@@ -816,7 +933,6 @@ void Game::SaveBlocksToFile(const char* filename) {
 	fopen_s(&file, filename, "w");
 	if (!file) return;
 
-	// Bloques con prefijo B
 	for (const auto& block : blocks) {
 		Rectangle rect = block.GetRect();
 		int typeValue = 0;
@@ -828,13 +944,11 @@ void Game::SaveBlocksToFile(const char* filename) {
 			rect.x, rect.y, rect.width, rect.height, typeValue);
 	}
 
-	// Soldados con prefijo S
 	for (const auto& soldier : soldiers) {
 		fprintf(file, "S %.0f,%.0f,%d\n",
 			soldier.GetX(), soldier.GetY(), const_cast<Soldier&>(soldier).GetType());
 	}
 
-	// Items con prefijo I
 	for (const auto& item : items) {
 		int itemType = (item.GetType() == ItemType::BOX) ? 1 : 0;
 		fprintf(file, "I %.0f,%.0f,%d\n",
@@ -858,7 +972,6 @@ void Game::LoadBlocksFromFile(const char* filename) {
 
 	char line[256];
 	while (fgets(line, sizeof(line), file)) {
-		// Formato nuevo con prefijo
 		if (line[0] == 'B') {
 			float x, y, w, h;
 			int typeValue;
@@ -885,7 +998,6 @@ void Game::LoadBlocksFromFile(const char* filename) {
 			}
 		}
 		else {
-			// Formato antiguo sin prefijo
 			float x, y, w, h;
 			int typeValue;
 			if (sscanf_s(line, "%f,%f,%f,%f,%d", &x, &y, &w, &h, &typeValue) == 5) {
@@ -941,33 +1053,26 @@ void Game::ShootMachinegun(float yOffset) {
 }
 
 void Game::CheckBulletsOutOfCamera() {
-	// Obtener los límites de la cámara en el mundo
 	Camera2D cam = camera.GetCamera();
 	float screenWidth = (float)GetScreenWidth();
 	float screenHeight = (float)GetScreenHeight();
 
-	// Calcular los bordes de la cámara en coordenadas del mundo
 	float leftBound = cam.target.x - screenWidth / 2.0f;
 	float rightBound = cam.target.x + screenWidth / 2.0f;
 	float topBound = cam.target.y - screenHeight / 2.0f;
 	float bottomBound = cam.target.y + screenHeight / 2.0f;
 
-	// Añadir un margen (por ejemplo 100 píxeles) para que no se borren justo en el borde
 	float margin = 200.0f;
 	leftBound -= margin;
 	rightBound += margin;
 	topBound -= margin;
 	bottomBound += margin;
 
-	// Recorrer las balas y eliminar las que estén fuera
 	auto bIt = bullets.begin();
 	while (bIt != bullets.end()) {
 		Vector2 bulletPos = bIt->GetPosition();
-
-		// Verificar si la bala está fuera de los límites de la cámara
 		if (bulletPos.x < leftBound || bulletPos.x > rightBound ||
 			bulletPos.y < topBound || bulletPos.y > bottomBound) {
-
 			TraceLog(LOG_INFO, "Bullet removed (out of camera bounds)");
 			bIt = bullets.erase(bIt);
 		}
