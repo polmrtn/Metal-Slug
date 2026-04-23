@@ -70,6 +70,7 @@ private:
     Texture2D texHighScore, texHighScoreSmall;
     Texture2D texHpBarLeft, texHpBarRight, texHpBarParts;
     Texture2D texGo;
+    Texture2D texTimeNum;
 
     // Metody pomocnicze
     void  DrawHudDigit(char c, Vector2 pos, float scale, Color tint) const;
@@ -82,6 +83,9 @@ private:
     void  DrawScoreChar(char c, Vector2 pos, float scale) const;
     void  DrawScoreText(const char* str, Vector2 pos, float scale) const;
     float MeasureScoreText(const char* str, float scale) const;
+
+    void  DrawTimeDigit(char c, Vector2 pos, float scale) const;
+    void  DrawTimeNumber(int value, Vector2 pos, float scale) const;
 
     // POPRAWIONA DEKLARACJA (3 argumenty, zgodna z .cpp)
     void  DrawHpBar(Vector2 pos, int segs, float scale) const;

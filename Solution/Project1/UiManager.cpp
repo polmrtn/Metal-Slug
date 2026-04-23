@@ -22,6 +22,7 @@ static const char* PATH_HPBAR_L = "Graphics/new fonts and HUDs/hpbarleft.png";
 static const char* PATH_HPBAR_R = "Graphics/new fonts and HUDs/hpbarright.png";
 static const char* PATH_HPBAR_P = "Graphics/new fonts and HUDs/hpbarparts.png";
 static const char* PATH_GO = "Graphics/new fonts and HUDs/GO.png";
+static const char* PATH_TIME_NUM = "Graphics/letters/time_numbers.png";
 
 static constexpr float NUM_CHAR_W = 12.0f;
 static constexpr float NUM_CHAR_H = 16.0f;
@@ -49,6 +50,7 @@ UiManager::UiManager()
     texHpBarRight = LoadTexture(PATH_HPBAR_R);
     texHpBarParts = LoadTexture(PATH_HPBAR_P);
     texGo = LoadTexture(PATH_GO);
+    texTimeNum = LoadTexture(PATH_TIME_NUM);
 
     SetTextureFilter(texHudFont2Num, TEXTURE_FILTER_POINT);
     SetTextureFilter(texHighScore, TEXTURE_FILTER_POINT);
@@ -59,6 +61,7 @@ UiManager::UiManager()
     SetTextureFilter(texCannon, TEXTURE_FILTER_POINT);
     SetTextureFilter(texTimeLevel, TEXTURE_FILTER_POINT);
     SetTextureFilter(texGo, TEXTURE_FILTER_POINT);
+    SetTextureFilter(texTimeNum, TEXTURE_FILTER_POINT);
     SetTextureFilter(texHpBarParts, TEXTURE_FILTER_POINT);
     SetTextureFilter(texHpBarLeft, TEXTURE_FILTER_POINT);
     SetTextureFilter(texHpBarRight, TEXTURE_FILTER_POINT);
@@ -73,6 +76,7 @@ UiManager::~UiManager()
     UnloadTexture(texHighScoreSmall);
     UnloadTexture(texHpBarLeft); UnloadTexture(texHpBarRight); UnloadTexture(texHpBarParts);
     UnloadTexture(texGo);
+    UnloadTexture(texTimeNum);
 }
 
 void UiManager::Update()
@@ -263,12 +267,12 @@ void UiManager::DrawHUD(Camera2D /*camera*/)
     const float topPad = 10.0f;
     const float leftPad = 180.0f; // MOCNE PRZESUNI�CIE W PRAWO
 
-    // --- RAMKI G�RNE ---
+    // --- RAMKI GRNE ---
     DrawTextureEx(texArms, { leftPad, topPad }, 0.0f, hudSc, WHITE);
     float bombOffsetX = 31.0f * hudSc;
     DrawTextureEx(texBomb, { leftPad + bombOffsetX, topPad }, 0.0f, hudSc, WHITE);
 
-    // NAPISY WEWN�TRZ RAMEK (Leciutko w d�)
+    // NAPISY WEWNTRZ RAMEK (Leciutko w d�)
     float innerNumY = topPad + (12.5f * hudSc) - (8.0f * numSc);
     float armsCenterX = leftPad + (18.0f * hudSc);
     float bombCenterX = leftPad + bombOffsetX + (18.0f * hudSc);
@@ -322,16 +326,18 @@ void UiManager::DrawHUD(Camera2D /*camera*/)
     float sCX = (float)SW * 0.5f - sTW * 0.5f;
     DrawScoreText(sBuf, { sCX, topPad }, scoreSc);
 
-    const float tSc = 2.5f;
+    
     const Color mSlugYellow = { 255, 220, 0, 255 };
     float timeY = topPad + (HSF_CHAR_H * scoreSc) + 5.0f;
 
     // Separator = 2 cyfry szerokosci odst�pu mi�dzy timerem a levelem
-    float digitW = NUM_CHAR_W * tSc;           // 16 * 2.5 = 40px
-    float totalTimeW = digitW * 2;
-    float startXTime = (float)SW * 0.5f - totalTimeW * 0.5f;
 
-    DrawHudNumber(timeLeft, 2, { startXTime, timeY }, tSc, mSlugYellow);
+    float timeScale = 2.5f;
+
+    float totalW = 16.0f * timeScale * 2; // 2 cyfry
+    float startXTime = (float)SW * 0.5f - totalW * 0.5f;
+
+    DrawTimeNumber(timeLeft, { startXTime, timeY }, timeScale);
 
     // --- DOLNY HUD ---
     char lvlText[16]; std::snprintf(lvlText, sizeof(lvlText), "LEVEL-%d", level);
@@ -378,3 +384,45 @@ int  UiManager::GetTimeLeft() const { return timeLeft; }
 bool UiManager::IsTimeUp()    const { return timeLeft <= 0; }
 void UiManager::NextLevel() { level++; introTimer = 0.0f; blinkAccum = 0.0f; blinkVisible = true; timeLeft = 60; timeAccum = 0.0f; }
 int  UiManager::GetLevel() const { return level; }
+
+void UiManager::DrawTimeDigit(char c, Vector2 pos, float scale) const
+{
+    if (c < '0' || c > '9') return;
+
+    int d = c - '0';
+
+    const int CHAR_W = 16;
+    const int CHAR_H = 16;
+
+    Rectangle src = {
+        (float)(d * CHAR_W),
+        0.0f,
+        (float)CHAR_W,
+        (float)CHAR_H
+    };
+
+    Rectangle dst = {
+        pos.x,
+        pos.y,
+        CHAR_W * scale,
+        CHAR_H * scale
+    };
+
+    DrawTexturePro(texTimeNum, src, dst, { 0,0 }, 0.0f, WHITE);
+}
+
+void UiManager::DrawTimeNumber(int value, Vector2 pos, float scale) const
+{
+    char buf[8];
+    std::snprintf(buf, sizeof(buf), "%02d", value);
+
+    float x = pos.x;
+
+    const int CHAR_W = 16;
+
+    for (int i = 0; buf[i]; ++i)
+    {
+        DrawTimeDigit(buf[i], { x, pos.y }, scale);
+        x += CHAR_W * scale;
+    }
+}
