@@ -1,4 +1,4 @@
-#include "SceneManager.hpp"
+ï»¿#include "SceneManager.hpp"
 #include "raymath.h"
 #include <cstdlib>
 #include <cmath>
@@ -36,7 +36,7 @@ static const float BULLET_TRAVEL = 0.22f;
 //  BODY FRONT (chwytaki):  x=1,   y=365, w=198, h=114
 //  BODY REAR  (wiezyczka): x=211, y=365, w=148, h=114
 //
-//  TRACKS B (B1-B4, dolny rzad — lepsza jakosc): y=672, h=127
+//  TRACKS B (B1-B4, dolny rzad ï¿½ lepsza jakosc): y=672, h=127
 //    B1: x=1,   w=163
 //    B2: x=210, w=163
 //    B3: x=421, w=162
@@ -388,7 +388,7 @@ void SceneManager::DrawIntro()
 
     float tankScale = GetTankScale(sH);
     float totalTankW = GetTotalTankW(tankScale);
-    float groundY = sY + sH * 0.88f;   // dol gasienicy = 88% wysokosci sceny
+    float groundY = sY + sH;   // dol gasienicy = gorna krawedz dolnej czarnej ramki
     int   tFrame = (int)(trackAnim * 8.0f) % 4;
     float centeredX = (float)SW * 0.5f - totalTankW * 0.5f;
 
@@ -490,7 +490,7 @@ void SceneManager::DrawIntro()
         }
     }
 
-    // ===== WNETRZE CZOLGU — PHASE 3 =====
+    // ===== WNETRZE CZOLGU ï¿½ PHASE 3 =====
     // Statyczny obraz + animowane efekty swietlne
     if (introPhase == 3 && capsuleAlpha > 0.01f)
     {
