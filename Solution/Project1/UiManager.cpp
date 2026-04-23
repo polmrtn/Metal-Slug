@@ -1,4 +1,4 @@
-#include "UiManager.hpp"
+ï»¿#include "UiManager.hpp"
 #include <cstdio>
 #include <cstring>
 #include <cmath>
@@ -8,7 +8,7 @@ static const float TICK_INTERVAL = 1.0f;
 const float UiManager::INTRO_DURATION = 3.0f;
 const float UiManager::BLINK_INTERVAL = 0.25f;
 
-// Œcie¿ki do plików
+// ï¿½cieï¿½ki do plikï¿½w
 static const char* PATH_ARMS = "Graphics/new fonts and HUDs/arms.png";
 static const char* PATH_BOMB = "Graphics/new fonts and HUDs/hudbomb.png";
 static const char* PATH_CANNON = "Graphics/new fonts and HUDs/hudcannon.png";
@@ -214,14 +214,14 @@ void UiManager::DrawHUD(Camera2D /*camera*/)
     const float numSc = 1.0f;
     const float scoreSc = 1.5f;
     const float topPad = 10.0f;
-    const float leftPad = 180.0f; // MOCNE PRZESUNIÊCIE W PRAWO
+    const float leftPad = 180.0f; // MOCNE PRZESUNIï¿½CIE W PRAWO
 
-    // --- RAMKI GÓRNE ---
+    // --- RAMKI Gï¿½RNE ---
     DrawTextureEx(texArms, { leftPad, topPad }, 0.0f, hudSc, WHITE);
     float bombOffsetX = 31.0f * hudSc;
     DrawTextureEx(texBomb, { leftPad + bombOffsetX, topPad }, 0.0f, hudSc, WHITE);
 
-    // NAPISY WEWN¥TRZ RAMEK (Leciutko w dó³)
+    // NAPISY WEWNï¿½TRZ RAMEK (Leciutko w dï¿½)
     float innerNumY = topPad + (12.5f * hudSc) - (8.0f * numSc);
     float armsCenterX = leftPad + (18.0f * hudSc);
     float bombCenterX = leftPad + bombOffsetX + (18.0f * hudSc);
@@ -245,7 +245,7 @@ void UiManager::DrawHUD(Camera2D /*camera*/)
     float hpBarY = topPad + ((float)texArms.height * hudSc) + 8.0f;
     DrawHpBar({ leftPad, hpBarY }, 10, 2.0f);
 
-    // --- SCORE & TIME (ŒRODEK) ---
+    // --- SCORE & TIME (ï¿½RODEK) ---
     char sBuf[16]; std::snprintf(sBuf, sizeof(sBuf), "%07d", score);
     float sTW = MeasureScoreText(sBuf, scoreSc);
     float sCX = (float)SW * 0.5f - sTW * 0.5f;
@@ -255,14 +255,12 @@ void UiManager::DrawHUD(Camera2D /*camera*/)
     const Color mSlugYellow = { 255, 220, 0, 255 };
     float timeY = topPad + (HSF_CHAR_H * scoreSc) + 5.0f;
 
-    // Separator = 2 cyfry szerokosci odstêpu miêdzy timerem a levelem
+    // Separator = 2 cyfry szerokosci odstï¿½pu miï¿½dzy timerem a levelem
     float digitW = NUM_CHAR_W * tSc;           // 16 * 2.5 = 40px
-    float separatorW = digitW * 1.5f;             // 60px odstêpu - czytelny
-    float totalTimeW = (digitW * 3) + separatorW + (digitW * 2);
+    float totalTimeW = digitW * 2;
     float startXTime = (float)SW * 0.5f - totalTimeW * 0.5f;
 
-    DrawHudNumber(timeLeft, 3, { startXTime, timeY }, tSc, mSlugYellow);
-    DrawHudNumber(level, 2, { startXTime + (digitW * 3) + separatorW, timeY }, tSc, mSlugYellow);
+    DrawHudNumber(timeLeft, 2, { startXTime, timeY }, tSc, mSlugYellow);
 
     // --- DOLNY HUD ---
     char lvlText[16]; std::snprintf(lvlText, sizeof(lvlText), "LEVEL-%d", level);
