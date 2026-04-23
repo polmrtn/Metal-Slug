@@ -62,9 +62,13 @@ Rectangle Soldier::GetHurtBox()
 Rectangle Soldier::GetHitBox() {
     float rayLength = 0;
     float rayX = 0;
+    float rayHeight = 0;
+    float rayYpos = 0;
 
     if (GetType() == 1) {
         rayLength = 50.f;
+        rayHeight = GetHeight() / 2;
+        rayYpos = position.y + GetHeight() / 2;
         if (!facingRight) {
             rayX = position.x - rayLength + rayLength;
         }
@@ -74,15 +78,18 @@ Rectangle Soldier::GetHitBox() {
     }
     else if (GetType() == 2) {
         rayLength = 300.f;
+        rayHeight = 800.f;
+        rayYpos = position.y - 200;
         if (!facingRight) {
             rayX = position.x - rayLength + 50;
+            
         }
         else {
             rayX = position.x + 100;
         }
     }
 
-    return Rectangle{ rayX, position.y + GetHeight() / 2, rayLength, GetHeight() / 2 };
+    return Rectangle{ rayX, rayYpos, rayLength, rayHeight};
 }
 
 void Soldier::SetSoliderState(SoldierState newState)
@@ -185,8 +192,13 @@ void Soldier::UpdateAI(Player& player)
 {
     stateTimer += GetFrameTime();
     float distToPlayer = fabsf(player.GetPosition().x - position.x);
-    if (distToPlayer >= 500.0f) {
-        velocity.x = 0;
+    if (distToPlayer >= 800.0f) {
+     
+        if (currentState != SoldierState::IDLE && currentState != SoldierState::DEAD) {
+            SetSoliderState(SoldierState::IDLE);
+            soldierAnim.SetAnimation(SoldierState::IDLE);
+            velocity.x = 0;
+        }
         return;
     }
     else if ((stateTimer >= 3.0f && !IsVisionRay(player) && isAlive) ||
