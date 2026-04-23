@@ -32,7 +32,7 @@ static constexpr float BIG_CHAR_W = 8.0f;
 static constexpr float BIG_CHAR_H = 16.0f;
 
 UiManager::UiManager()
-    : credits(2), score(0), level(1), timeLeft(60), bombs(10), ammo(0),
+    : credits(0), score(0), level(1), timeLeft(60), bombs(10), ammo(0),
     timeAccum(0.0f), introTimer(0.0f),
     blinkAccum(0.0f), blinkVisible(true),
     idleTimer(0.0f), goVisible(false), goBlinkAccum(0.0f), goBlinkOn(false)
@@ -406,7 +406,7 @@ void UiManager::DrawMissionIntroInternal()
     DrawScoreText(text, { (float)SW * 0.5f - w * 0.5f, (float)SH * 0.5f }, sc);
 }
 
-void UiManager::SetCredits(int amount) { credits = amount; if (credits > 99) credits = 99; if (credits < 0) credits = 0; }
+void UiManager::SetCredits(int amount) { credits += amount; if (credits > 99) credits = 99; if (credits < 0) credits = 0; }
 int  UiManager::GetCredits()  const { return credits; }
 void UiManager::AddScore(int amount) { score += amount; if (score > 9999999) score = 9999999; if (score < 0) score = 0; }
 int  UiManager::GetScore()    const { return score; }
