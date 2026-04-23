@@ -8,7 +8,7 @@ int main()
     SetTargetFPS(30);
 
     Game* game = new Game();
-    game.GetSceneManager().SetUiManager(&game.GetUiManager());
+    game->GetSceneManager().SetUiManager(&game->GetUiManager());
 
 
     while (WindowShouldClose() == false)
@@ -16,11 +16,11 @@ int main()
         game->HandleInput();
         game->Update();
 
-        // Si volvi� al t�tulo despu�s de ganar, reinicia todo
         if (game->ShouldRestart())
         {
             delete game;
             game = new Game();
+            game->GetSceneManager().SetUiManager(&game->GetUiManager());
         }
 
         EndDrawing();
