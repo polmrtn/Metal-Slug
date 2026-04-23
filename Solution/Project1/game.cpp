@@ -619,7 +619,7 @@ void Game::BulletsCollision() {
 		// 3. COLISIÓN CON CAJAS
 		if (!bulletHit) {
 			for (auto& item : items) {
-				if (item.IsActive() && item.GetType() == ItemType::BOX) {
+				if (item.IsActive() && item.GetType() == ItemType::BOX ) {
 					if (CheckCollisionRecs(bIt->GetHitbox(), item.GetHitBox()) &&
 						(bIt->GetType() == 1 || bIt->GetType() == 3)) {
 						item.Destroy();
@@ -873,7 +873,7 @@ void Game::BlockCollisions() {
 			// Tipo 2 (bala soldado): colisiona con bloques sólidos y techo
 			if (bIt->GetType() == 2 && bIt->GetDirectionY() > 0) {
 				for (const auto& block : blocks) {
-					bool isSolid = (block.GetType() == BlockType::NORMAL && block.IsGround())
+					bool isSolid = (block.GetType() == BlockType::NORMAL  && block.IsGround())
 						|| block.GetType() == BlockType::CEILING;
 					if (isSolid && CheckCollisionRecs(bIt->GetHitbox(), block.GetRect())) {
 						bulletJustHit = true;
