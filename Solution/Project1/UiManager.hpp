@@ -1,6 +1,5 @@
 #pragma once
 #include "raylib.h"
-#include <string>
 
 class UiManager {
 public:
@@ -8,28 +7,48 @@ public:
     ~UiManager();
 
     void Update();
-    void DrawCredits(Camera2D camera);
+    void DrawHUD(Camera2D camera);
     void DrawMissionIntro();
     bool IsMissionIntroOver() const;
+
+    void DrawCredits(Camera2D camera) { DrawHUD(camera); }
 
     void SetCredits(int amount);
     int  GetCredits() const;
 
     void AddScore(int amount);
-    int  GetScore()    const;
+    int  GetScore() const;
 
     int  GetTimeLeft() const;
     bool IsTimeUp()    const;
 
     void NextLevel();
-    int  GetLevel()    const;
+    int  GetLevel() const;
+
+    int  GetBombs() const { return bombs; }
+    bool HasBombs() const { return bombs > 0; }
+    void UseGrenade();
+
+    void SetAmmo(int amount);
+    int  GetAmmo() const { return ammo; }
+    void UseAmmo();
+
+    enum class WeaponDisplay { PISTOL, MACHINEGUN };
+    void SetWeaponDisplay(WeaponDisplay w) { weaponDisplay = w; }
+
+    void NotifyPlayerMoved();
+    void DrawCreditsOnly();
 
 private:
-    int   credits;
-    int   score;
-    int   level;
-    int   timeLeft;
+    int credits;
+    int score;
+    int level;
+    int timeLeft;
     int bombs;
+    int ammo;
+
+    WeaponDisplay weaponDisplay = WeaponDisplay::PISTOL;
+
     float timeAccum;
     float introTimer;
     float blinkAccum;
@@ -38,32 +57,40 @@ private:
     static const float INTRO_DURATION;
     static const float BLINK_INTERVAL;
 
-    Texture2D texMetalNumbers;
-    Texture2D texTimeNumbers;
-    Texture2D texYellowLetters;
+    // GO! system
+    float idleTimer = 0.0f;
+    float goBlinkAccum = 0.0f;
+    bool  goVisible = false;
+    bool  goBlinkOn = false;
+    static constexpr float IDLE_THRESHOLD = 5.0f;
+    static constexpr float GO_BLINK_RATE = 0.25f;
 
-    Font  slugFont;
-    bool  fontLoaded;
+    // Tekstury
+    Texture2D texArms, texBomb, texCannon, texTimeLevel;
+    Texture2D texHudFont2Big, texHudFont2Num, texHudFont2Small;
+    Texture2D texHighScore, texHighScoreSmall;
+    Texture2D texHpBarLeft, texHpBarRight, texHpBarParts;
+    Texture2D texGo;
+    Texture2D texTimeNum;
 
-    static const int METAL_W = 44;
-    static const int METAL_H = 48;
-    static const int TIME_W = 16;
-    static const int TIME_H = 16;
-    static const int YELLOW_W = 32;
-    static const int YELLOW_H = 32;
+    // Metody pomocnicze
+    void  DrawHudDigit(char c, Vector2 pos, float scale, Color tint) const;
+    void  DrawHudNumber(int value, int digits, Vector2 pos, float scale, Color tint) const;
+    float MeasureHudNumber(int digits, float scale) const;
 
-    void  DrawMetalDigit(int digit, Vector2 pos, float scale = 1.0f) const;
-    void  DrawMetalNumber(int value, int digits, Vector2 pos, float scale = 1.0f) const;
-    void  DrawTimeDigit(char c, Vector2 pos, float scale = 1.0f) const;
-    void  DrawTimeString(const char* str, Vector2 pos, float scale = 1.0f) const;
-    void  DrawYellowChar(char c, Vector2 pos, float scale = 1.0f, Color tint = WHITE) const;
-    void  DrawYellowText(const char* str, Vector2 pos, float scale = 1.0f, float spacing = 0.78f, Color tint = WHITE) const;
-    float MeasureYellowText(const char* str, float scale = 1.0f, float spacing = 0.78f) const;
-    float MeasureMetalNumber(int digits, float scale = 1.0f) const;
-    float MeasureTimeString(const char* str, float scale = 1.0f) const;
+    void  DrawBigLetter(char c, Vector2 pos, float scale) const;
+    float MeasureBigText(const char* str, float scale) const;
 
-    // rysuje TTF bez zadnego tinta - zachowuje wbudowane kolory COLR fonta
-    void  DrawSlugText(const char* str, Vector2 pos, float fontSize) const;
-    float MeasureSlugText(const char* str, float fontSize) const;
-    void DrawSlugTextShadow(const char* str, Vector2 pos, float fontSize) const;
+    void  DrawScoreChar(char c, Vector2 pos, float scale) const;
+    void  DrawScoreText(const char* str, Vector2 pos, float scale) const;
+    float MeasureScoreText(const char* str, float scale) const;
+
+    void  DrawTimeDigit(char c, Vector2 pos, float scale) const;
+    void  DrawTimeNumber(int value, Vector2 pos, float scale) const;
+
+    // POPRAWIONA DEKLARACJA (3 argumenty, zgodna z .cpp)
+    void  DrawHpBar(Vector2 pos, int segs, float scale) const;
+
+    void  UpdateGoTimer(float dt);
+    void  DrawMissionIntroInternal();
 };

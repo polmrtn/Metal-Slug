@@ -3,10 +3,52 @@
 #include <cstdlib>
 #include <cmath>
 
+static inline float EaseOut3(float t) { return 1.0f - (1.0f - t) * (1.0f - t) * (1.0f - t); }
+
+// ============================================================
+//  SEKWENCJA INTRO:
+//  PHASE 0  0.00-0.60   Czarny -> fade-in NIEBIESKIEGO tla
+//  PHASE 1  0.60-2.80   Czolg wjezdza z PRAWEJ do centrum (niebieskie tlo)
+//  PHASE 2  2.80-2.95   STRZAL: blysk + kapsulka + shake + lusksi
+//  PHASE 3  2.95-5.00   CZARNE TLO: capsuleload wycentrowany, armata lewy dolny rog
+//  PHASE 4  5.00-5.50   Fade black->red
+//  PHASE 5  5.50-7.00   Czolg na CZERWONYM tle, jedzie dalej w prawo
+//  PHASE 6  7.00-8.00   METAL z lewej, SLUG z prawej
+//  PHASE 7  8.00+       Logo stoi, PRESS ENTER miga
+// ============================================================
+
+static const float T_P0 = 0.00f;
+static const float T_P1 = 0.60f;
+static const float T_P2 = 2.80f;
+static const float T_P3 = 2.95f;
+static const float T_P4 = 5.00f;
+static const float T_P5 = 5.50f;
+static const float T_P6 = 7.00f;
+static const float T_P7 = 8.00f;
+
+static const float SHOT_FLASH_DUR = 0.12f;
+static const float BULLET_TRAVEL = 0.22f;
+
+// ============================================================
+//  Sprite sheet czolgu - zmierzone pikselowo
+//  body_rear  = tyl z wiezyczka:  x=209, y=365, w=151, h=113
+//  body_front = przod z chwytakiem: x=0,  y=365, w=200, h=113
+//  Gasienice (4 klatki):
+// ============================================================
+static const int BODY_REAR_X = 209, BODY_REAR_Y = 365, BODY_REAR_W = 151, BODY_REAR_H = 113;
+static const int BODY_FRONT_X = 0, BODY_FRONT_Y = 365, BODY_FRONT_W = 200, BODY_FRONT_H = 113;
+
+struct TrackFrame { int x, y, w, h; };
+static const TrackFrame TRACKS[4] = {
+    {  0, 528, 133, 110 },
+    {211, 528, 131, 110 },
+    {421, 528, 136, 110 },
+    {631, 528, 138, 110 },
+};
+
 SceneManager::SceneManager()
 {
     currentState = INTRO;
-
     texRedBg = LoadTexture("Graphics/intro/newintroredbg.png");
     texBlueBg = LoadTexture("Graphics/intro/newintrobluebg.png");
     texCannon = LoadTexture("Graphics/intro/newintrocannon.png");
@@ -23,441 +65,503 @@ SceneManager::SceneManager()
     texSlugTM = LoadTexture("Graphics/intro/NEWINTROmetalslugTM.png");
     texMetalSmall = LoadTexture("Graphics/intro/newintrometalslugggtiny.png");
     texLogoTop = LoadTexture("Graphics/intro/newintroagainmetalslug.png");
-
-    introTimer = 0.0f;
-    introPhase = 0;
-    cannonX = -600.0f;
-    bulletX = 2000.0f;
-    logoY = 950.0f;
-    metalX = -800.0f;
-    slugX = 2000.0f;
-    boomAlpha = 0.0f;
-    boomScale = 0.1f;
-    bgAlpha = 0.0f;
-    bulletsSpawned = false;
+    texBrrrt = LoadTexture("Graphics/intro/brrrt.png");
+    ResetIntro();
 }
 
 SceneManager::~SceneManager()
 {
-    UnloadTexture(texRedBg);
-    UnloadTexture(texBlueBg);
-    UnloadTexture(texCannon);
-    UnloadTexture(texCannonExplosion);
-    UnloadTexture(texBoom);
-    UnloadTexture(texBullets);
-    UnloadTexture(texExplodingPixels);
-    UnloadTexture(texExplo2sprites);
-    UnloadTexture(texTrees);
-    UnloadTexture(texTankShit);
-    UnloadTexture(texCapsuleCannon);
-    UnloadTexture(texCapsuleLoad);
-    UnloadTexture(texMetalBig);
-    UnloadTexture(texSlugTM);
-    UnloadTexture(texMetalSmall);
-    UnloadTexture(texLogoTop);
+    UnloadTexture(texRedBg);    UnloadTexture(texBlueBg);
+    UnloadTexture(texCannon);   UnloadTexture(texCannonExplosion);
+    UnloadTexture(texBoom);     UnloadTexture(texBullets);
+    UnloadTexture(texExplodingPixels); UnloadTexture(texExplo2sprites);
+    UnloadTexture(texTrees);    UnloadTexture(texTankShit);
+    UnloadTexture(texCapsuleCannon);   UnloadTexture(texCapsuleLoad);
+    UnloadTexture(texMetalBig); UnloadTexture(texSlugTM);
+    UnloadTexture(texMetalSmall); UnloadTexture(texLogoTop);
+    UnloadTexture(texBrrrt);
 }
 
-SceneManager::Gamestates SceneManager::GetGamestate()
+void SceneManager::SetUiManager(UiManager* u)
 {
-    return currentState;
+    ui = u;
 }
 
-void SceneManager::SetGameState(Gamestates gamestate)
+void SceneManager::ResetIntro()
 {
-    currentState = gamestate;
-
-    if (gamestate == INTRO)
-    {
-        introTimer = 0.0f;
-        introPhase = 0;
-        cannonX = -600.0f;
-        bulletX = 2000.0f;
-        logoY = 950.0f;
-        metalX = -800.0f;
-        slugX = 2000.0f;
-        boomAlpha = 0.0f;
-        boomScale = 0.1f;
-        bgAlpha = 0.0f;
-        bulletsSpawned = false;
-        flyingBullets.clear();
-    }
+    introTimer = 0.0f;  introPhase = 0;
+    tankX = 99999.0f;
+    bulletX = -999.0f;
+    metalX = -99999.0f; slugX = 99999.0f;
+    boomAlpha = 0.0f;  bgAlpha = 0.0f;
+    shakeTime = 0.0f;  shakeStrength = 0.0f;
+    flashAlpha = 0.0f;  trackAnim = 0.0f;
+    capsuleAlpha = 0.0f;
+    bulletVisible = false; bulletsSpawned = false;
+    pixelsSpawned = false;
+    treeScrollX = 0.0f;
+    flyingBullets.clear();
+    explodingPixels.clear();
 }
 
+SceneManager::Gamestates SceneManager::GetGamestate() { return currentState; }
+void SceneManager::SetGameState(Gamestates gs)
+{
+    currentState = gs;
+    if (gs == INTRO) ResetIntro();
+}
+
+// ============================================================
+//  Oblicz skale i geometry czolgu
+//  tankScale bazuje na wysokosci sceny
+//  Zwraca totalTankW = szerokosc calego czolgu (armata+oba body)
+// ============================================================
+static float GetTankScale(float sH)
+{
+    // Body rear jest referencja wysokosci
+    return (sH * 0.28f) / (float)BODY_REAR_H;
+}
+
+static float GetTotalTankW(float tankScale)
+{
+    float cannonHalfW = (float)(444 / 2) * tankScale;  // texCannon.width=444
+    float cannonOverlap = cannonHalfW * 0.17f;
+    float bodyRearW = BODY_REAR_W * tankScale;
+    float bodyFrontW = BODY_FRONT_W * tankScale;
+    return cannonHalfW - cannonOverlap + bodyRearW + bodyFrontW - bodyFrontW * 0.05f;
+}
+
+// ============================================================
+//  UPDATE
+// ============================================================
 void SceneManager::UpdateIntro()
 {
     float dt = GetFrameTime();
     introTimer += dt;
 
-    if (introTimer < 0.6f)  introPhase = 0;
-    else if (introTimer < 1.4f)  introPhase = 1;
-    else if (introTimer < 1.6f)  introPhase = 2;
-    else if (introTimer < 2.8f)  introPhase = 3;
-    else if (introTimer < 3.8f)  introPhase = 4;
-    else if (introTimer < 5.0f)  introPhase = 5;
-    else                         introPhase = 6;
-
     float SW = (float)GetScreenWidth();
     float SH = (float)GetScreenHeight();
+    int   border = 110;
+    float sH = SH - border * 2.0f;
 
-    bgAlpha = Clamp(introTimer / 0.5f, 0.0f, 1.0f);
+    if (introTimer < T_P1) introPhase = 0;
+    else if (introTimer < T_P2) introPhase = 1;
+    else if (introTimer < T_P3) introPhase = 2;
+    else if (introTimer < T_P4) introPhase = 3;
+    else if (introTimer < T_P5) introPhase = 4;
+    else if (introTimer < T_P6) introPhase = 5;
+    else if (introTimer < T_P7) introPhase = 6;
+    else                        introPhase = 7;
 
-    // Cannon slides in from left, stops at ~15% of screen
-    if (introPhase >= 1)
+    bgAlpha = Clamp(introTimer / T_P1, 0.0f, 1.0f);
+
+    float tankScale = GetTankScale(sH);
+    float totalTankW = GetTotalTankW(tankScale);
+    float centeredX = SW * 0.5f - totalTankW * 0.5f;
+
+    // PHASE 1: czolg wjezdza z prawej
+    if (introPhase == 1)
     {
-        float cannonScale = 1.4f;
-        float cannonSpriteW = (float)(texCannon.width / 2) * cannonScale;
-        float targetX = SW * 0.02f;
-        float t = Clamp((introTimer - 0.6f) / 0.5f, 0.0f, 1.0f);
-        float ease = 1.0f - (1.0f - t) * (1.0f - t);
-        cannonX = -cannonSpriteW + ease * (targetX + cannonSpriteW);
+        float t = Clamp((introTimer - T_P1) / (T_P2 - T_P1 - 0.5f), 0.0f, 1.0f);
+        tankX = SW + EaseOut3(t) * (centeredX - SW);
+        trackAnim += dt;
     }
 
-    // Capsule flies right from cannon tip
-    if (introPhase >= 2)
+    // PHASE 2: STRZAL
+    if (introPhase == 2)
     {
-        shakeTime = 0.2f;
-        shakeStrength = 8.0f;
-        flashAlpha = 1.0f;
+        tankX = centeredX;
+        float tF = Clamp((introTimer - T_P2) / SHOT_FLASH_DUR, 0.0f, 1.0f);
+        boomAlpha = 1.0f - tF;
+        flashAlpha = 1.0f - tF;
+        shakeStrength = 14.0f * (1.0f - tF);
+        shakeTime = SHOT_FLASH_DUR;
+        bulletVisible = true;
 
-        bulletT = Clamp((introTimer - 1.4f) / 0.08f, 0.0f, 1.0f);
-        float t = bulletT;
-
-        float cannonScale = 1.4f;
-        int halfW = texCannon.width / 2;
-
-        float startX = cannonX + (float)halfW * cannonScale * 0.95f;
-
-        float ease = t;
-        bulletX = startX + ease * (SW * 0.8f);
-
-        if (introTimer > 1.45f && introTimer < 1.55f)
-        {
-            boomAlpha = 1.0f;
-            boomScale = 0.9f;
-        }
-        else
-        {
-            boomAlpha = 0.0f;
-        }
+        float tB = Clamp((introTimer - T_P2) / BULLET_TRAVEL, 0.0f, 1.0f);
+        bulletX = tankX + tB * (SW + 400.0f);
     }
+    else if (introPhase < 2) { bulletVisible = false; boomAlpha = 0.0f; }
+    else { bulletVisible = false; boomAlpha = 0.0f; }
 
-    // Spawn bullet casings
-    if (introPhase >= 3 && !bulletsSpawned)
+    // Spawn lusek
+    if (introPhase >= 2 && !bulletsSpawned)
     {
         bulletsSpawned = true;
-        for (int i = 0; i < 6; i++)
+        float lufaY = (float)border + sH * 0.42f;
+        float cannonHalfW = (float)(444 / 2) * tankScale;
+        for (int i = 0; i < 8; i++)
         {
             Bullet2D b;
-            b.x = SW * 0.28f;
-            b.y = SH * 0.55f;
-            b.vx = (float)(rand() % 200) + 80.0f;
-            b.vy = (float)(rand() % 150) - 220.0f;
+            b.x = cannonHalfW * 0.3f;
+            b.y = lufaY;
+            b.vx = (float)(rand() % 250) + 80.0f;
+            b.vy = -(float)(rand() % 250) - 60.0f;
             b.alpha = 1.0f;
+            b.rot = 0.0f;
+            b.rotSpeed = (float)(rand() % 600) - 300.0f;
             flyingBullets.push_back(b);
         }
     }
-
     for (auto& b : flyingBullets)
     {
-        b.x += b.vx * dt;
-        b.y += b.vy * dt;
-        b.vy += 500.0f * dt;
-        b.alpha = Clamp(b.alpha - dt * 1.5f, 0.0f, 1.0f);
+        b.x += b.vx * dt; b.y += b.vy * dt;
+        b.vy += 600.0f * dt;
+        b.rot += b.rotSpeed * dt;
+        b.alpha = Clamp(b.alpha - dt * 1.2f, 0.0f, 1.0f);
     }
 
-    // METAL from left, SLUG from right
-    if (introPhase >= 5)
+    // PHASE 3: capsuleload fade in/out
+    if (introPhase == 3)
     {
-        float t = Clamp((introTimer - 3.8f) / 0.6f, 0.0f, 1.0f);
-        float ease = 1.0f - (1.0f - t) * (1.0f - t) * (1.0f - t);
-
-        // METAL target: left edge with small margin
-        float targetMetalX = SW * 0.02f;
-        metalX = -800.0f + ease * (targetMetalX + 800.0f);
-
-        // SLUG target: center-right
-        float scaleS = 2.5f;
-        float slugW = (float)texSlugTM.width * scaleS;
-        float targetSlugX = SW * 0.5f - slugW * 0.5f + SW * 0.1f;
-        slugX = SW + ease * (targetSlugX - SW);
+        float dur = T_P4 - T_P3;
+        float t = (introTimer - T_P3) / dur;
+        if (t < 0.12f) capsuleAlpha = t / 0.12f;
+        else if (t > 0.82f) capsuleAlpha = 1.0f - (t - 0.82f) / 0.18f;
+        else                capsuleAlpha = 1.0f;
     }
+    else capsuleAlpha = 0.0f;
 
-    // ===== SHAKE UPDATE =====
-    if (shakeTime > 0.0f)
+    // PHASE 4: crossfade black->red, czolg stoi
+    if (introPhase == 4) { tankX = centeredX; trackAnim += dt; }
+
+    // PHASE 5: czolg jedzie w prawo i wychodzi
+    if (introPhase == 5)
     {
-        shakeTime -= dt;
+        float t = Clamp((introTimer - T_P5) / (T_P6 - T_P5), 0.0f, 1.0f);
+        tankX = centeredX + t * (SW + totalTankW + 200.0f);
+        trackAnim += dt;
     }
 
-    // ===== FLASH UPDATE =====
-    flashAlpha = Clamp(flashAlpha - dt * 3.0f, 0.0f, 1.0f);
+    // PHASE 6: logo wjezdza
+    if (introPhase >= 6)
+    {
+        float t = Clamp((introTimer - T_P6) / (T_P7 - T_P6), 0.0f, 1.0f);
+        float ease = EaseOut3(t);
+        float scaleM = 2.2f, scaleS = 2.2f;
+        float mW = texMetalBig.width * scaleM;
+        float sW2 = texSlugTM.width * scaleS;
+        metalX = -mW + ease * (SW * 0.5f - mW * 0.5f - SW * 0.03f + mW);
+        slugX = SW + ease * (SW * 0.5f - sW2 * 0.5f + SW * 0.03f - SW);
+    }
+
+    if (shakeTime > 0.0f) shakeTime -= dt;
+    flashAlpha = Clamp(flashAlpha - dt * 5.0f, 0.0f, 1.0f);
+
+    // Drzewa powoli ida w prawo (paralax)
+    if (introPhase >= 1 && introPhase != 3)
+        treeScrollX += dt * 18.0f;   // px/s w naturalnej skali drzewa
 }
 
+// ============================================================
+//  DrawTank
+//  tankX  = lewa krawedz armaty (najdalsza lewa czesc czolgu)
+//  groundY = linia ziemi = dol gasienica
+// ============================================================
+void SceneManager::DrawTank(float tankX_, float groundY,
+    float tankScale, int trackFrame,
+    float ox, float oy) const
+{
+    const TrackFrame& tf = TRACKS[trackFrame];
+
+    float cannonHalfW = (float)(texCannon.width / 2) * tankScale;
+    float cannonH = (float)texCannon.height * tankScale;
+    float cannonOverlap = cannonHalfW * 0.17f;
+
+    float bodyRearW = BODY_REAR_W * tankScale;
+    float bodyRearH = BODY_REAR_H * tankScale;
+    float bodyFrontW = BODY_FRONT_W * tankScale;
+    float bodyFrontH = BODY_FRONT_H * tankScale;
+
+    float trackW = tf.w * tankScale;
+    float trackH = tf.h * tankScale;
+
+    // X pozycje:
+    // tankX_ = lewa krawedz armaty
+    float bodyRearX = tankX_ + cannonHalfW - cannonOverlap;
+    float bodyFrontX = bodyRearX + bodyRearW - bodyFrontW * 0.05f;
+    float totalBodyW = bodyFrontX + bodyFrontW - bodyRearX;
+    float trackX = bodyRearX + totalBodyW * 0.5f - trackW * 0.5f;
+
+    // Y pozycje:
+    float trackY = groundY - trackH;
+    float bodyY = trackY - bodyRearH + trackH * 0.42f;
+    float cannonY = bodyY + bodyRearH * 0.22f - cannonH * 0.5f;
+
+    // 1. Gasienice (pod spodem)
+    Rectangle tSrc = { (float)tf.x,(float)tf.y,(float)tf.w,(float)tf.h };
+    Rectangle tDst = { trackX + ox, trackY + oy, trackW, trackH };
+    DrawTexturePro(texTankShit, tSrc, tDst, { 0,0 }, 0.0f, WHITE);
+
+    // 2. Body tyl (wiezyczka) - rysowane pierwsze
+    Rectangle brSrc = { (float)BODY_REAR_X,(float)BODY_REAR_Y,
+                        (float)BODY_REAR_W,(float)BODY_REAR_H };
+    Rectangle brDst = { bodyRearX + ox, bodyY + oy, bodyRearW, bodyRearH };
+    DrawTexturePro(texTankShit, brSrc, brDst, { 0,0 }, 0.0f, WHITE);
+
+    // 3. Body przod (chwytaki) - na wierzchu tylu
+    Rectangle bfSrc = { (float)BODY_FRONT_X,(float)BODY_FRONT_Y,
+                        (float)BODY_FRONT_W,(float)BODY_FRONT_H };
+    Rectangle bfDst = { bodyFrontX + ox, bodyY + oy, bodyFrontW, bodyFrontH };
+    DrawTexturePro(texTankShit, bfSrc, bfDst, { 0,0 }, 0.0f, WHITE);
+
+    // 4. Armata (lewa polowa cannon sprite sheet)
+    float cHW = (float)(texCannon.width / 2);
+    Rectangle cSrc = { 0.0f, 0.0f, cHW, (float)texCannon.height };
+    Rectangle cDst = { tankX_ + ox, cannonY + oy, cannonHalfW, cannonH };
+    DrawTexturePro(texCannon, cSrc, cDst, { 0,0 }, 0.0f, WHITE);
+}
+
+// ============================================================
+//  DRAW INTRO
+// ============================================================
+void SceneManager::DrawIntro()
+{
+    int   SW = GetScreenWidth();
+    int   SH = GetScreenHeight();
+    int   border = 110;
+    float sX = 0.0f;
+    float sY = (float)border;
+    float sW = (float)SW;
+    float sH = (float)(SH - border * 2);
+
+    float ox = 0.0f, oy = 0.0f;
+    if (shakeTime > 0.0f)
+    {
+        ox = (float)((rand() % 3) - 1) * shakeStrength;
+        oy = (float)((rand() % 3) - 1) * shakeStrength;
+    }
+
+    float tankScale = GetTankScale(sH);
+    float totalTankW = GetTotalTankW(tankScale);
+    float groundY = sY + sH * 0.82f;
+    int   tFrame = (int)(trackAnim * 8.0f) % 4;
+    float centeredX = (float)SW * 0.5f - totalTankW * 0.5f;
+
+    // ===== TLO =====
+    auto DrawBg = [&](Texture2D tex, unsigned char alpha)
+        {
+            float s = std::max(sW / tex.width, sH / tex.height);
+            Rectangle src = { 0,0,(float)tex.width,(float)tex.height };
+            Rectangle dst = { sX + ox, sY + oy, tex.width * s, tex.height * s };
+            DrawTexturePro(tex, src, dst, { 0,0 }, 0.0f, { 255,255,255,alpha });
+        };
+
+    if (introPhase <= 2)
+        DrawBg(texBlueBg, (unsigned char)(bgAlpha * 255.0f));
+    else if (introPhase == 3)
+    {
+        // Czarne tlo dla capsuleload - nic nie rysujemy (ClearBackground juz je dalo)
+    }
+    else if (introPhase == 4)
+    {
+        float t = Clamp((introTimer - T_P4) / (T_P5 - T_P4), 0.0f, 1.0f);
+        DrawBg(texRedBg, (unsigned char)(t * 255.0f));
+    }
+    else
+        DrawBg(texRedBg, 255);
+
+    // ===== DRZEWA - dwa drzewa (lewe + srodkowe), bez zielonego slupa =====
+    // Sprite texTrees 192x192:
+    //   drzewo lewe:      x=0..67   (szerokosc ~68px)
+    //   drzewo srodkowe:  x=68..91  (szerokosc ~24px cienkie)
+    //   zielony slup:     x=128..143 - POMIJAMY
+    //
+    // Skalujemy wysokosc drzew na cala wysokosc sceny
+    if (introPhase >= 1 && introPhase != 3)
+    {
+        float treeH = (float)texTrees.height;
+        float treeScale = sH / treeH;    // drzewa na pelna wysokosc sceny
+        float treeY = sY;
+
+        // --- Drzewo lewe (x=0..67 w sprite) ---
+        // Pozycja: z lewej strony, przesuwa sie w prawo
+        float leftTreeSrcW = 68.0f;
+        float leftTreeDstW = leftTreeSrcW * treeScale;
+        float leftTreeX = sX - leftTreeDstW * 0.15f + treeScrollX * treeScale;
+
+        Rectangle srcL = { 0.0f, 0.0f, leftTreeSrcW, treeH };
+        Rectangle dstL = { leftTreeX, treeY, leftTreeDstW, sH };
+        DrawTexturePro(texTrees, srcL, dstL, { 0,0 }, 0.0f, WHITE);
+
+        // --- Drzewo srodkowe (x=68..91 w sprite) - bardziej po prawej =====
+        float midTreeSrcX = 68.0f;
+        float midTreeSrcW = 24.0f;
+        float midTreeDstW = midTreeSrcW * treeScale * 2.0f;  // troche szerzej
+        // bazowa pozycja: ok 35% ekranu + scroll
+        float midTreeX = sX + sW * 0.35f + treeScrollX * treeScale * 0.7f;
+
+        Rectangle srcM = { midTreeSrcX, 0.0f, midTreeSrcW, treeH };
+        Rectangle dstM = { midTreeX, treeY, midTreeDstW, sH };
+        DrawTexturePro(texTrees, srcM, dstM, { 0,0 }, 0.0f, WHITE);
+    }
+
+    // ===== CZOLG =====
+    bool drawTank = (introPhase == 1) || (introPhase == 2) || (introPhase == 4) || (introPhase == 5);
+    if (drawTank)
+        DrawTank(tankX, groundY, tankScale, tFrame, ox, oy);
+
+    // ===== KAPSULKA (pocisk) =====
+    if (bulletVisible && introPhase == 2)
+    {
+        float capScale = tankScale * 1.0f;
+        float cHW = (float)(texCapsuleCannon.width / 2) * capScale;
+        float cH = (float)texCapsuleCannon.height * capScale;
+        float capsY = sY + sH * 0.38f - cH * 0.5f;
+        Rectangle src = { 0.0f,0.0f,(float)(texCapsuleCannon.width / 2),(float)texCapsuleCannon.height };
+        Rectangle dst = { bulletX + ox, capsY + oy, cHW, cH };
+        DrawTexturePro(texCapsuleCannon, src, dst, { 0,0 }, 0.0f, WHITE);
+    }
+
+    // ===== BLYSK STRZALU =====
+    if (boomAlpha > 0.01f && introPhase == 2)
+    {
+        float tipX = tankX + ox;
+        float tipY = sY + sH * 0.42f + oy;
+        float bSc = tankScale * 0.9f;
+        DrawTextureEx(texBoom,
+            { tipX - texBoom.width * bSc * 0.5f, tipY - texBoom.height * bSc * 0.5f },
+            0.0f, bSc, { 255,255,255,(unsigned char)(boomAlpha * 220.0f) });
+        DrawTextureEx(texCannonExplosion,
+            { tipX - texCannonExplosion.width * bSc * 0.5f, tipY - texCannonExplosion.height * bSc * 0.5f },
+            0.0f, bSc, { 255,255,255,(unsigned char)(boomAlpha * 255.0f) });
+    }
+
+    // ===== LUSKSI =====
+    if (!flyingBullets.empty() && introPhase != 3)
+    {
+        int cols = 4, rows = 3;
+        float bW = (float)texBullets.width / cols;
+        float bH = (float)texBullets.height / rows;
+        float bSc = tankScale * 0.8f;
+        for (const auto& b : flyingBullets)
+        {
+            if (b.alpha <= 0.01f) continue;
+            int frame = ((int)(b.rot / 60.0f)) % 12; if (frame < 0) frame += 12;
+            Rectangle src = { (frame % cols) * bW,(frame / cols) * bH,bW,bH };
+            Rectangle dst = { tankX + b.x + ox, b.y + oy, bW * bSc, bH * bSc };
+            DrawTexturePro(texBullets, src, dst,
+                { bW * bSc * 0.5f,bH * bSc * 0.5f }, b.rot,
+                { 255,255,255,(unsigned char)(b.alpha * 255.0f) });
+        }
+    }
+
+    // ===== WNETRZE CZOLGU (phase 3) =====
+    // Czarne tlo + capsuleload wycentrowany - BEZ ARMATY
+    if (introPhase == 3)
+    {
+        if (capsuleAlpha > 0.01f)
+        {
+            float scaleW = sW / (float)texCapsuleLoad.width;
+            float scaleH = sH / (float)texCapsuleLoad.height;
+            float s = std::max(scaleW, scaleH);
+            float drawW = texCapsuleLoad.width * s;
+            float drawH = texCapsuleLoad.height * s;
+            float cx = sX + sW * 0.5f - drawW * 0.5f;
+            float cy = sY + sH * 0.5f - drawH * 0.5f;
+            Rectangle src = { 0,0,(float)texCapsuleLoad.width,(float)texCapsuleLoad.height };
+            Rectangle dst = { cx, cy, drawW, drawH };
+            DrawTexturePro(texCapsuleLoad, src, dst, { 0,0 }, 0.0f,
+                { 255,255,255,(unsigned char)(capsuleAlpha * 255.0f) });
+        }
+    }
+
+    // ===== LOGO =====
+    if (introPhase >= 6)
+    {
+        float scaleM = 2.2f, scaleS = 2.2f;
+        float metalH = texMetalBig.height * scaleM;
+        float slugH = texSlugTM.height * scaleS;
+        float startY = (float)SH * 0.50f - (metalH + slugH + 4.0f) * 0.5f;
+        DrawTextureEx(texMetalBig, { metalX + ox, startY + oy }, 0.0f, scaleM, WHITE);
+        DrawTextureEx(texSlugTM, { slugX + ox,  startY + metalH + 4.0f + oy }, 0.0f, scaleS, WHITE);
+    }
+
+    // ===== BIALY FLASH =====
+    if (flashAlpha > 0.01f)
+        DrawRectangle(0, 0, SW, SH, { 255,255,255,(unsigned char)(flashAlpha * 180.0f) });
+
+    // ===== RAMKA =====
+    DrawRectangle(0, 0, SW, border, BLACK);
+    DrawRectangle(0, SH - border, SW, border, BLACK);
+
+    // ===== PRESS ENTER =====
+    if (introPhase >= 7 && (int)(introTimer * 2.5f) % 2 == 0)
+    {
+        const char* txt = "PRESS ENTER";
+        int fs = 26, tw = MeasureText(txt, fs);
+        DrawText(txt, SW / 2 - tw / 2 + 2, (int)(SH * 0.87f) + 2, fs, BLACK);
+        DrawText(txt, SW / 2 - tw / 2, (int)(SH * 0.87f), fs, YELLOW);
+    }
+}
+
+// ============================================================
+//  DrawTexts
+// ============================================================
 void SceneManager::DrawTexts()
 {
     int SW = GetScreenWidth();
     int SH = GetScreenHeight();
 
-    int border = 60;
-    float sceneX = border;
-    float sceneY = border;
-    float sceneW = SW - border * 2;
-    float sceneH = SH - border * 2;
-
+    // ===== TITLE =====
     if (currentState == TITLE)
     {
         ClearBackground(BLACK);
 
-        int SW = GetScreenWidth();
-        int SH = GetScreenHeight();
+        // Tlo brrrt
+        float scaleW = (float)SW / texBrrrt.width, scaleH = (float)SH / texBrrrt.height;
+        DrawTextureEx(texBrrrt, { 0,0 }, 0.0f, std::max(scaleW, scaleH), WHITE);
 
-        // ===== BACKGROUND =====
-        float scaleW = (float)SW / texRedBg.width;
-        float scaleH = (float)SH / texRedBg.height;
-        float scale = (scaleW > scaleH) ? scaleW : scaleH;
+        // Bullet hole - WIEKSZY niz poprzednio (impactScale 5.0)
+        float impactScale = 5.0f;
+        int   halfW = texExplo2sprites.width / 2;
+        Rectangle src = { (float)halfW, 0.0f, (float)halfW, (float)texExplo2sprites.height };
+        Rectangle dst = {
+            SW * 0.5f - halfW * impactScale * 0.5f,
+            SH * 0.48f - texExplo2sprites.height * impactScale * 0.5f,
+            (float)halfW * impactScale, (float)texExplo2sprites.height * impactScale
+        };
+        DrawTexturePro(texExplo2sprites, src, dst, { 0,0 }, 0.0f, { 255,255,255,200 });
 
-        DrawTextureEx(texRedBg, { 0, 0 }, 0.0f, scale, WHITE);
-
-        // ===== FLASH / IMPACT ZA LOGIEM =====
-        float impactScale = 3.0f;
-        float ix = SW * 0.5f - texExplo2sprites.width * impactScale * 0.5f;
-        float iy = SH * 0.42f - texExplo2sprites.height * impactScale * 0.5f;
-
-        DrawTextureEx(texExplo2sprites, { ix, iy }, 0.0f, impactScale,
-            { 255, 255, 255, 200 });
-
-        // ===== LOGO METAL SLUG =====
-        float scaleM = 2.5f;
-        float scaleS = 2.5f;
-
-        float totalH = texMetalBig.height * scaleM + texSlugTM.height * scaleS + 8.0f;
-        float startY = SH * 0.45f - totalH * 0.5f;
-
-        float metalX = SW * 0.5f - texMetalBig.width * scaleM * 0.5f;
-        float slugX = SW * 0.5f - texSlugTM.width * scaleS * 0.5f;
-
-        // METAL
-        DrawTextureEx(texMetalBig, { metalX, startY }, 0.0f, scaleM, WHITE);
-
-        // SLUG
+        // Logo METAL SLUG - WIEKSZE (scale 3.2)
+        float scaleM = 3.2f, scaleS = 3.2f;
+        float totalH = texMetalBig.height * scaleM + texSlugTM.height * scaleS + 10.0f;
+        float startY = SH * 0.46f - totalH * 0.5f;
+        DrawTextureEx(texMetalBig,
+            { SW * 0.5f - texMetalBig.width * scaleM * 0.5f, startY },
+            0.0f, scaleM, WHITE);
         DrawTextureEx(texSlugTM,
-            { slugX, startY + texMetalBig.height * scaleM + 8.0f },
+            { SW * 0.5f - texSlugTM.width * scaleS * 0.5f,
+             startY + texMetalBig.height * scaleM + 10.0f },
             0.0f, scaleS, WHITE);
 
-        
+        // PUSH ENTER
         const char* txt = "PUSH ENTER TO START!";
-
         if ((int)(GetTime() * 2.5f) % 2 == 0)
         {
-            int fontSize = 28;
-
-            int tw = MeasureText(txt, fontSize);
-            int tx = SW / 2 - tw / 2;
-            int ty = SH * 0.82f;
-
-            
-            DrawText(txt, tx + 2, ty + 2, fontSize, BLACK);
-
-            
-            DrawText(txt, tx, ty, fontSize, YELLOW);
+            int fs = 28, tw = MeasureText(txt, fs);
+            DrawText(txt, SW / 2 - tw / 2 + 2, (int)(SH * 0.82f) + 2, fs, BLACK);
+            DrawText(txt, SW / 2 - tw / 2, (int)(SH * 0.82f), fs, YELLOW);
         }
-
-        // ===== STOPKA =====
         const char* footer = "2026 KURVVA PRODUCTIONS";
-
-        int fSize = 20;
-        int fw = MeasureText(footer, fSize);
-
-        int fx = SW / 2 - fw / 2;
-        int fy = SH * 0.92f;
-
-        // shadow
-        DrawText(footer, fx + 2, fy + 2, fSize, BLACK);
-
-        // main text
-        DrawText(footer, fx, fy, fSize, WHITE);
-
-        return;
-    }
-    if (currentState == GAME)
-    {
-        ClearBackground(BLACK);
-        return;
-    }
-
-    UpdateIntro();
-
-    // Background
-    if (introPhase < 4)
-    {
-        float scaleW = (float)SW / (float)texRedBg.width;
-        float scaleH = (float)SH / (float)texRedBg.height;
-        float s = (scaleW > scaleH) ? scaleW : scaleH;
-        DrawTextureEx(texRedBg, { sceneX, sceneY }, 0.0f, s,
-            { 255, 255, 255, (unsigned char)(bgAlpha * 255.0f) });
-    }
-    else
-    {
-        float t = Clamp((introTimer - 2.8f) / 1.0f, 0.0f, 1.0f);
-
-        float scaleRW = (float)SW / (float)texRedBg.width;
-        float scaleRH = (float)SH / (float)texRedBg.height;
-        float sR = (scaleRW > scaleRH) ? scaleRW : scaleRH;
-
-        float scaleBW = (float)SW / (float)texBlueBg.width;
-        float scaleBH = (float)SH / (float)texBlueBg.height;
-        float sB = (scaleBW > scaleBH) ? scaleBW : scaleBH;
-
-        DrawTextureEx(texRedBg, { sceneX, sceneY }, 0.0f, sR, WHITE);
-
-        DrawTextureEx(texBlueBg, { sceneX, sceneY }, 0.0f, sB,
-            { 255, 255, 255, (unsigned char)(t * 255.0f) });
-    }
-
-    // Trees
-    if (introPhase >= 1)
-    {
-        float scaleW = (float)SW / (float)texTrees.width;
-        float y = sceneY + sceneH - texTrees.height * scaleW;
-
-        DrawTextureEx(texTrees, { sceneX, y }, 0.0f, scaleW, WHITE);
-    }
-
-    // ===== TANK =====
-    if (introPhase >= 1)
-    {
-        float scale = 2.0f;
-
-        float x = sceneX + sceneW * 0.05f;
-        float y = sceneY + sceneH * 0.70f;
-
-        DrawTextureEx(texTankShit, { x, y }, 0.0f, scale, WHITE);
-    }
-
-    // Cannon — left half of spritesheet, scale 1.4, at ~55% height
-    if (introPhase >= 1)
-    {
-        float cannonScale = 1.4f;
-        int   halfW = texCannon.width / 2;
-        float y = sceneY + sceneH * 0.65f - (float)texCannon.height * cannonScale * 0.5f;
-        Rectangle src = { 0.0f, 0.0f, (float)halfW, (float)texCannon.height };
-        Rectangle dst = { sceneX + cannonX, y,
-                               (float)halfW * cannonScale,
-                               (float)texCannon.height * cannonScale };
-        DrawTexturePro(texCannon, src, dst, { 0.0f, 0.0f }, 0.0f, WHITE);
-    }
-
-    // Capsule flies from cannon tip (use texCapsuleCannon, left half only)
-    if (introPhase >= 2)
-    {
-        float scale = 1.5f;
-        int   halfW = texCapsuleCannon.width / 2;
-
-        float arc = 0.0f;
-
-        float y = sceneY + sceneH * 0.65f - arc - (float)texCapsuleCannon.height * scale * 0.5f;
-
-        Rectangle src = { 0.0f, 0.0f, (float)halfW, (float)texCapsuleCannon.height };
-        Rectangle dst = { sceneX + bulletX, y,
-                          (float)halfW * scale,
-                          (float)texCapsuleCannon.height * scale };
-
-        DrawTexturePro(texCapsuleCannon, src, dst, { sceneX, sceneY }, 0.0f, WHITE);
-    }
-
-    // Boom flash at cannon tip
-    if (introPhase >= 2 && boomAlpha > 0.01f)
-    {
-        float cannonScale = 1.4f;
-        int   halfW = texCannon.width / 2;
-        float tipX = sceneX + cannonX + (float)halfW * cannonScale * 0.95f;
-        float tipY = sceneY + sceneH * 0.65f - (float)texBoom.height * boomScale * 0.5f;
-        DrawTextureEx(texBoom, { tipX, tipY }, 0.0f, boomScale,
-            { 255, 255, 255, (unsigned char)(boomAlpha * 200.0f) });
-    }
-
-    // Cannon explosion sprite at tip
-    if (introPhase >= 2 && boomAlpha > 0.01f)
-    {
-        float cannonScale = 1.4f;
-        int   halfW = texCannon.width / 2;
-        float scale = 0.8f;
-        float tipX = cannonX + (float)halfW * cannonScale * 0.9f
-            - (float)texCannonExplosion.width * scale * 0.5f;
-        float tipY = sceneY + sceneH * 0.65f
-            - (float)texCannonExplosion.height * scale * 0.5f;
-        DrawTextureEx(texCannonExplosion, { tipX, tipY }, 0.0f, scale,
-            { 255, 255, 255, (unsigned char)(boomAlpha * 230.0f) });
-    }
-
-    // Exploding pixel debris
-    if (introPhase >= 3)
-    {
-        //float t = Clamp((introTimer - 2.0f) / 0.5f, 0.0f, 1.0f);
-        //float scale = 1.0f + t * 0.5f;
-        //unsigned char a = (unsigned char)((1.0f - t) * 180.0f);
-        //float x = (float)SW * 0.28f - (float)texExplodingPixels.width * scale * 0.5f;
-        //float y = (float)SH * 0.55f - (float)texExplodingPixels.height * scale * 0.5f;
-        //DrawTextureEx(texExplodingPixels, { x, y }, 0.0f, scale, { 255, 255, 255, a });
-    }
-
-    // Flying bullet casings
-    for (const auto& b : flyingBullets)
-    {
-        //int sprW = texBullets.width / 4;
-        //int sprH = texBullets.height / 2;
-        //Rectangle src = { 0.0f, 0.0f, (float)sprW, (float)sprH };
-        //Rectangle dst = { b.x, b.y, (float)sprW * 1.2f, (float)sprH * 1.2f };
-        //DrawTexturePro(texBullets, src, dst, { 0.0f, 0.0f }, 0.0f,
-        //    { 255, 255, 255, (unsigned char)(b.alpha * 255.0f) });
-    }
-
-    // METAL SLUG logo
-    if (introPhase >= 5)
-    {
-        float scaleM = 2.5f;
-        float scaleS = 2.5f;
-
-        // Logo block vertically centered
-        float totalH = (float)texMetalBig.height * scaleM
-            + (float)texSlugTM.height * scaleS + 8.0f;
-        float startY = (float)SH * 0.48f - totalH * 0.5f;
-
-        // METAL row
-        float my = startY;
-        DrawTextureEx(texMetalBig, { metalX, my }, 0.0f, scaleM, WHITE);
-
-        // SLUG row directly below METAL
-        float sy = my + (float)texMetalBig.height * scaleM + 8.0f;
-        DrawTextureEx(texSlugTM, { slugX, sy }, 0.0f, scaleS, WHITE);
-
-        // Small header logo centered at top of logo block
-        float logoHeaderScale = 1.2f;
-        float hx = (float)SW * 0.5f
-            - (float)texLogoTop.width * logoHeaderScale * 0.5f;
-        float hy = startY - (float)texLogoTop.height * logoHeaderScale - 8.0f;
-        DrawTextureEx(texLogoTop, { hx, hy }, 0.0f, logoHeaderScale, WHITE);
-    }
-
-    // TOP
-    DrawRectangle(0, 0, SW, border, BLACK);
-
-    // BOTTOM
-    DrawRectangle(0, SH - border, SW, border, BLACK);
-
-    // LEFT
-    DrawRectangle(0, 0, border, SH, BLACK);
-
-    // RIGHT
-    DrawRectangle(SW - border, 0, border, SH, BLACK);
-
-    // Press ENTER blinking
-    if (introPhase >= 6)
-    {
-        if ((int)(introTimer * 2.0f) % 2 == 0)
+        int fSize = 20, fw = MeasureText(footer, fSize);
+        DrawText(footer, SW / 2 - fw / 2 + 2, (int)(SH * 0.92f) + 2, fSize, BLACK);
+        DrawText(footer, SW / 2 - fw / 2, (int)(SH * 0.92f), fSize, WHITE);
+        if (ui)
         {
-            DrawText("Press ENTER to start",
-                SW / 2 - MeasureText("Press ENTER to start", 20) / 2,
-                (int)((float)SH * 0.88f), 20, YELLOW);
+            ui->DrawCreditsOnly();
         }
+        return;
+    }
+
+    if (currentState == GAME) { ClearBackground(BLACK); return; }
+
+    // ===== INTRO =====
+    ClearBackground(BLACK);
+    UpdateIntro();
+    DrawIntro();
+    if (ui)
+    {
+        ui->DrawCreditsOnly();
     }
 }

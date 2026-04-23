@@ -8,13 +8,15 @@ int main()
     SetTargetFPS(30);
 
     Game* game = new Game();
+    game.GetSceneManager().SetUiManager(&game.GetUiManager());
+
 
     while (WindowShouldClose() == false)
     {
         game->HandleInput();
         game->Update();
 
-        // Si volvió al título después de ganar, reinicia todo
+        // Si volviï¿½ al tï¿½tulo despuï¿½s de ganar, reinicia todo
         if (game->ShouldRestart())
         {
             delete game;
