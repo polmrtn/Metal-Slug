@@ -23,7 +23,7 @@ static const char* PATH_HPBAR_R = "Graphics/new fonts and HUDs/hpbarright.png";
 static const char* PATH_HPBAR_P = "Graphics/new fonts and HUDs/hpbarparts.png";
 static const char* PATH_GO = "Graphics/new fonts and HUDs/GO.png";
 
-static constexpr float NUM_CHAR_W = 12.0f;
+static constexpr float NUM_CHAR_W = 16.0f;
 static constexpr float NUM_CHAR_H = 16.0f;
 static constexpr float HSF_CHAR_W = 16.0f;
 static constexpr float HSF_CHAR_H = 16.0f;
@@ -254,11 +254,15 @@ void UiManager::DrawHUD(Camera2D /*camera*/)
     const float tSc = 2.5f;
     const Color mSlugYellow = { 255, 220, 0, 255 };
     float timeY = topPad + (HSF_CHAR_H * scoreSc) + 5.0f;
-    float totalTimeW = MeasureHudNumber(3, tSc) + 20.0f + MeasureHudNumber(2, tSc);
+
+    // Separator = 2 cyfry szerokosci odstêpu miêdzy timerem a levelem
+    float digitW = NUM_CHAR_W * tSc;           // 16 * 2.5 = 40px
+    float separatorW = digitW * 1.5f;             // 60px odstêpu - czytelny
+    float totalTimeW = (digitW * 3) + separatorW + (digitW * 2);
     float startXTime = (float)SW * 0.5f - totalTimeW * 0.5f;
 
     DrawHudNumber(timeLeft, 3, { startXTime, timeY }, tSc, mSlugYellow);
-    DrawHudNumber(level, 2, { startXTime + MeasureHudNumber(3, tSc) + 20.0f, timeY }, tSc, mSlugYellow);
+    DrawHudNumber(level, 2, { startXTime + (digitW * 3) + separatorW, timeY }, tSc, mSlugYellow);
 
     // --- DOLNY HUD ---
     char lvlText[16]; std::snprintf(lvlText, sizeof(lvlText), "LEVEL-%d", level);
