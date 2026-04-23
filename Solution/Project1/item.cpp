@@ -104,7 +104,7 @@ Rectangle Item::GetHitBox() const {
     return Rectangle{
         position.x - width / 2,
         position.y - height / 2,
-        width,
+        width, 
         height
     };
 }

@@ -4,27 +4,22 @@
 
 
 
-int main() 
+int main()
 {
     InitWindow(1200, 896, "Metal Slug");
     InitAudioDevice();
     SetTargetFPS(30);
-    
-    
+
     Game game;
-    SceneManager sceneManager;
-    while (WindowShouldClose() == false)
+
+    game.GetSceneManager().SetUiManager(&game.GetUiManager());
+
+    while (!WindowShouldClose())
     {
-       
-       game.HandleInput();
-       game.Update();
-       //game draw() ist inside game.cpp update()
+        game.HandleInput();
+        game.Update();
         EndDrawing();
-       
     }
-    
-    
-   
 
     CloseWindow();
     return 0;
