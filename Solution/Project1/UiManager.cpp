@@ -8,6 +8,7 @@ static const float TICK_INTERVAL = 1.0f;
 const float UiManager::INTRO_DURATION = 3.0f;
 const float UiManager::BLINK_INTERVAL = 0.25f;
 
+// Œcie¿ki do plików
 static const char* PATH_ARMS = "Graphics/new fonts and HUDs/arms.png";
 static const char* PATH_BOMB = "Graphics/new fonts and HUDs/hudbomb.png";
 static const char* PATH_CANNON = "Graphics/new fonts and HUDs/hudcannon.png";
@@ -154,7 +155,10 @@ void UiManager::DrawBigLetter(char c, Vector2 pos, float scale) const
 
 float UiManager::MeasureBigText(const char* str, float scale) const
 {
-    float w = 0; for (int i = 0; str[i]; ++i) w += BIG_CHAR_W * scale; return w;
+    float w = 0;
+    int len = (int)std::strlen(str);
+    for (int i = 0; i < len; ++i) w += BIG_CHAR_W * scale;
+    return w;
 }
 
 void UiManager::DrawScoreChar(char c, Vector2 pos, float scale) const
@@ -188,18 +192,17 @@ float UiManager::MeasureScoreText(const char* str, float scale) const
     return w;
 }
 
-void UiManager::DrawHpBar(Vector2 pos, int maxHP, int currentHP, float scale) const
+void UiManager::DrawHpBar(Vector2 pos, int segs, float scale) const
 {
-    float lW = (float)texHpBarLeft.width * scale;
+    DrawTextureEx(texHpBarLeft, pos, 0.0f, scale, WHITE);
+    float offsetX = (float)texHpBarLeft.width * scale;
     float pW = (float)texHpBarParts.width * scale;
-
-    DrawTextureEx(texHpBarLeft, { pos.x, pos.y }, 0.0f, scale, WHITE);
-    float x = pos.x + lW;
-    int segs = (currentHP < maxHP) ? currentHP : maxHP;
-    if (segs < 0) segs = 0;
-    if (segs > 12) segs = 12;
-    for (int i = 0; i < segs; ++i) { DrawTextureEx(texHpBarParts, { x, pos.y }, 0.0f, scale, WHITE); x += pW; }
-    DrawTextureEx(texHpBarRight, { x, pos.y }, 0.0f, scale, WHITE);
+    for (int i = 0; i < segs; ++i)
+    {
+        DrawTextureEx(texHpBarParts, { pos.x + offsetX, pos.y }, 0.0f, scale, WHITE);
+        offsetX += pW;
+    }
+    DrawTextureEx(texHpBarRight, { pos.x + offsetX, pos.y }, 0.0f, scale, WHITE);
 }
 
 void UiManager::DrawHUD(Camera2D /*camera*/)
@@ -211,17 +214,15 @@ void UiManager::DrawHUD(Camera2D /*camera*/)
     const float numSc = 1.0f;
     const float scoreSc = 1.5f;
     const float topPad = 10.0f;
-    const float leftPad = 280.0f; // PRZESUNIÊTE O WIELE W PRAWO
+    const float leftPad = 180.0f; // MOCNE PRZESUNIÊCIE W PRAWO
 
-    // --- RAMKA LEWA (ARMS + BOMB) ---
+    // --- RAMKI GÓRNE ---
     DrawTextureEx(texArms, { leftPad, topPad }, 0.0f, hudSc, WHITE);
-
     float bombOffsetX = 31.0f * hudSc;
     DrawTextureEx(texBomb, { leftPad + bombOffsetX, topPad }, 0.0f, hudSc, WHITE);
 
-    // POZYCJONOWANIE PIONOWE NAPISÓW (leciutko w dó³)
+    // NAPISY WEWN¥TRZ RAMEK (Leciutko w dó³)
     float innerNumY = topPad + (12.5f * hudSc) - (8.0f * numSc);
-
     float armsCenterX = leftPad + (18.0f * hudSc);
     float bombCenterX = leftPad + bombOffsetX + (18.0f * hudSc);
 
@@ -240,34 +241,24 @@ void UiManager::DrawHUD(Camera2D /*camera*/)
     float bombW = MeasureHudNumber(2, numSc);
     DrawHudNumber(bombs, 2, { bombCenterX - (bombW * 0.5f), innerNumY }, numSc, WHITE);
 
-    // --- PASEK HP ---
-    {
-        float hpY = topPad + ((float)texArms.height * hudSc) + 20.0f;
-        float hpX = leftPad;
-        const float lSc = 1.5f;
-        const char* lbl = "SLUG";
-        float lx = hpX;
-        for (int i = 0; lbl[i]; ++i) { DrawBigLetter(lbl[i], { lx, hpY }, lSc); lx += BIG_CHAR_W * lSc; }
-        float barY = hpY + BIG_CHAR_H * lSc + 2.0f;
-        DrawHpBar({ hpX, barY }, 10, 10, 2.0f);
-    }
+    // --- NOWY PASEK HP (POD RAMKAMI) ---
+    float hpBarY = topPad + ((float)texArms.height * hudSc) + 8.0f;
+    DrawHpBar({ leftPad, hpBarY }, 10, 2.0f);
 
-    // --- SCORE & TIME ---
+    // --- SCORE & TIME (ŒRODEK) ---
     char sBuf[16]; std::snprintf(sBuf, sizeof(sBuf), "%07d", score);
-    float sTW = (HSF_CHAR_W * scoreSc) * 7.0f;
+    float sTW = MeasureScoreText(sBuf, scoreSc);
     float sCX = (float)SW * 0.5f - sTW * 0.5f;
-    float sY = topPad;
-    DrawScoreText(sBuf, { sCX, sY }, scoreSc);
+    DrawScoreText(sBuf, { sCX, topPad }, scoreSc);
 
     const float tSc = 2.5f;
-    const Color yellowColor = { 255, 220, 0, 255 };
-    float timeY = sY + (HSF_CHAR_H * scoreSc) + 5.0f;
-
+    const Color mSlugYellow = { 255, 220, 0, 255 };
+    float timeY = topPad + (HSF_CHAR_H * scoreSc) + 5.0f;
     float totalTimeW = MeasureHudNumber(3, tSc) + 20.0f + MeasureHudNumber(2, tSc);
     float startXTime = (float)SW * 0.5f - totalTimeW * 0.5f;
 
-    DrawHudNumber(timeLeft, 3, { startXTime, timeY }, tSc, yellowColor);
-    DrawHudNumber(level, 2, { startXTime + MeasureHudNumber(3, tSc) + 20.0f, timeY }, tSc, yellowColor);
+    DrawHudNumber(timeLeft, 3, { startXTime, timeY }, tSc, mSlugYellow);
+    DrawHudNumber(level, 2, { startXTime + MeasureHudNumber(3, tSc) + 20.0f, timeY }, tSc, mSlugYellow);
 
     // --- DOLNY HUD ---
     char lvlText[16]; std::snprintf(lvlText, sizeof(lvlText), "LEVEL-%d", level);
@@ -306,7 +297,7 @@ void UiManager::DrawMissionIntroInternal()
     DrawScoreText(text, { (float)SW * 0.5f - w * 0.5f, (float)SH * 0.5f }, sc);
 }
 
-void UiManager::SetCredits(int amount) { credits += amount; if (credits > 99) credits = 99; if (credits < 0) credits = 0; }
+void UiManager::SetCredits(int amount) { credits = amount; if (credits > 99) credits = 99; if (credits < 0) credits = 0; }
 int  UiManager::GetCredits()  const { return credits; }
 void UiManager::AddScore(int amount) { score += amount; if (score > 9999999) score = 9999999; if (score < 0) score = 0; }
 int  UiManager::GetScore()    const { return score; }
