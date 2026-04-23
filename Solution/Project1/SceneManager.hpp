@@ -32,7 +32,7 @@ private:
 
     float introTimer = 0.0f;
     int   introPhase = 0;
-    float tankX = 99999.0f;  // lewa krawedz armaty
+    float tankX = 99999.0f;
     float bulletX = -999.0f;
     float metalX = -99999.0f;
     float slugX = 99999.0f;
@@ -43,7 +43,13 @@ private:
     float flashAlpha = 0.0f;
     float trackAnim = 0.0f;
     float capsuleAlpha = 0.0f;
-    float treeScrollX = 0.0f;  // przesuniecie drzew w prawo (px w skali sprite)
+    float treeScrollX = 0.0f;
+
+    // Animacja capsuleload (faza 3)
+    float capsulePulse = 0.0f;  // akumulator czasu dla pulsowania
+    float capsuleScanY = 0.0f;  // pozycja scanline 0..1
+    float capsuleVibration = 0.0f;  // losowe drzenie silnika
+
     bool  bulletVisible = false;
     bool  bulletsSpawned = false;
     bool  pixelsSpawned = false;
