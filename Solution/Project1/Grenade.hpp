@@ -53,6 +53,6 @@ private:
     float explosionFrameDelay = 0.03f;  // Velocidad de la explosión
     bool isExploding = false;
     Vector2 explosionPosition = { 0.0f, 0.0f };
-
+    bool explosionFacingRight = true;
 
 };
