@@ -278,6 +278,7 @@ void UiManager::DrawHUD(Camera2D /*camera*/)
     int SW = GetScreenWidth();
     int SH = GetScreenHeight();
 
+    float hudYOffset = 25.0f; 
     const float hudSc = 3.0f;
     const float numSc = 1.0f;
     const float scoreSc = 1.5f;
@@ -285,12 +286,12 @@ void UiManager::DrawHUD(Camera2D /*camera*/)
     const float leftPad = 260.0f; // MOCNE PRZESUNI�CIE W PRAWO
 
     // --- RAMKI GRNE ---
-    DrawTextureEx(texArms, { leftPad, topPad }, 0.0f, hudSc, WHITE);
+    DrawTextureEx(texArms, { leftPad, topPad + hudYOffset }, 0.0f, hudSc, WHITE);
     float bombOffsetX = 31.0f * hudSc;
-    DrawTextureEx(texBomb, { leftPad + bombOffsetX, topPad }, 0.0f, hudSc, WHITE);
+    DrawTextureEx(texBomb, { leftPad + bombOffsetX, topPad + hudYOffset }, 0.0f, hudSc, WHITE);
 
     // NAPISY WEWNTRZ RAMEK (Leciutko w d�)
-    float innerNumY = topPad + (12.5f * hudSc) - (8.0f * numSc);
+    float innerNumY = topPad + hudYOffset + (12.5f * hudSc) - (8.0f * numSc);
     float armsCenterX = leftPad + (18.0f * hudSc);
     float bombCenterX = leftPad + bombOffsetX + (18.0f * hudSc);
 
@@ -338,7 +339,7 @@ void UiManager::DrawHUD(Camera2D /*camera*/)
     std::snprintf(sBuf, sizeof(sBuf), "%d", score); 
 
     float scoreRight = 200.0f;
-    float scoreY = topPad;
+    float scoreY = topPad + hudYOffset;
 
     // policz szerokość tekstu
     float scoreW = MeasureScoreText(sBuf, scoreSc);
@@ -375,11 +376,19 @@ void UiManager::DrawHUD(Camera2D /*camera*/)
     float cY = (float)SH - HSF_CHAR_H * cSc - 10.0f;
     DrawScoreText(cText, { cX, cY }, cSc);
 
-    if (goVisible && goBlinkOn) {
-        const float goSc = 3.0f;
-        float goW = (float)texGo.width * goSc;
-        float goX = (float)SW - goW - 40.0f;
-        DrawTextureEx(texGo, { goX, topPad }, 0.0f, goSc, WHITE);
+    if (goVisible && goBlinkOn)
+    {
+        const float goSc = 4.5f; 
+
+        float goW = texGo.width * goSc;
+
+        
+        float goX = (float)SW * 0.80f - goW * 0.5f;
+
+        
+        float goY = topPad + hudYOffset + 40.0f;
+
+        DrawTextureEx(texGo, { goX, goY }, 0.0f, goSc, WHITE);
     }
 
     DrawMissionIntroInternal();
