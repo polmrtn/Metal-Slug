@@ -23,7 +23,7 @@ static const char* PATH_HPBAR_R = "Graphics/new fonts and HUDs/hpbarright.png";
 static const char* PATH_HPBAR_P = "Graphics/new fonts and HUDs/hpbarparts.png";
 static const char* PATH_GO = "Graphics/new fonts and HUDs/GO.png";
 
-static constexpr float NUM_CHAR_W = 16.0f;
+static constexpr float NUM_CHAR_W = 12.0f;
 static constexpr float NUM_CHAR_H = 16.0f;
 static constexpr float HSF_CHAR_W = 16.0f;
 static constexpr float HSF_CHAR_H = 16.0f;
@@ -118,9 +118,51 @@ void UiManager::UseAmmo() { if (ammo > 0) ammo--; }
 void UiManager::DrawHudDigit(char c, Vector2 pos, float scale, Color tint) const
 {
     if (c < '0' || c > '9') return;
-    int col = c - '0';
-    Rectangle src = { (float)col * NUM_CHAR_W, 0.0f, NUM_CHAR_W, NUM_CHAR_H };
-    Rectangle dst = { pos.x, pos.y, NUM_CHAR_W * scale, NUM_CHAR_H * scale };
+
+    // X starty z Twojego sprite
+    static const int digitX[10] = {
+        1,   // 0
+        13,  // 1
+        25,  // 2
+        37,  // 3
+        49,  // 4
+        61,  // 5
+        73,  // 6
+        85,  // 7
+        97,  // 8
+        109  // 9
+    };
+
+    // 🔥 PRAWDZIWE szerokości cyfr
+    static const int digitW[10] = {
+        9, // 0
+        6, // 1  👈 KLUCZ
+        9, // 2
+        9, // 3
+        9, // 4
+        9, // 5
+        9, // 6
+        9, // 7
+        9, // 8
+        9  // 9
+    };
+
+    int d = c - '0';
+
+    Rectangle src = {
+        (float)digitX[d],
+        0.0f,
+        (float)digitW[d],
+        NUM_CHAR_H
+    };
+
+    Rectangle dst = {
+        pos.x,
+        pos.y,
+        digitW[d] * scale,
+        NUM_CHAR_H * scale
+    };
+
     DrawTexturePro(texHudFont2Num, src, dst, { 0,0 }, 0.0f, tint);
 }
 
@@ -133,7 +175,12 @@ void UiManager::DrawHudNumber(int value, int digits, Vector2 pos, float scale, C
     for (int i = 0; buf[i]; ++i)
     {
         if (buf[i] != ' ') DrawHudDigit(buf[i], { x, pos.y }, scale, tint);
-        x += NUM_CHAR_W * scale;
+        static const int digitW[10] = {
+    9,6,9,9,9,9,9,9,9,9
+        };
+
+        int d = buf[i] - '0';
+        x += digitW[d] * scale;
     }
 }
 
@@ -226,20 +273,35 @@ void UiManager::DrawHUD(Camera2D /*camera*/)
     float armsCenterX = leftPad + (18.0f * hudSc);
     float bombCenterX = leftPad + bombOffsetX + (18.0f * hudSc);
 
-    if (weaponDisplay == WeaponDisplay::MACHINEGUN && ammo > 0)
+    if (weaponDisplay == WeaponDisplay::MACHINEGUN)
     {
-        DrawHudNumber(ammo, 3, { armsCenterX - (MeasureHudNumber(3, numSc) * 0.5f), innerNumY }, numSc, WHITE);
+        // Machinegun: show current ammo count (3 digits, zero-padded)
+        float ammoW = MeasureHudNumber(3, numSc);
+        DrawHudNumber(ammo, 3, { armsCenterX - (ammoW * 0.5f), innerNumY }, numSc, WHITE);
     }
     else
     {
-        float infW = MeasureBigText("INF", numSc);
+        // Pistol / default weapon: show INF
+        float infW = BIG_CHAR_W * numSc * 3.0f;
         float startX = armsCenterX - (infW * 0.5f);
-        DrawBigLetter('I', { startX, innerNumY }, numSc);
-        DrawBigLetter('N', { startX + (BIG_CHAR_W * numSc), innerNumY }, numSc);
-        DrawBigLetter('F', { startX + (BIG_CHAR_W * numSc * 2), innerNumY }, numSc);
+        DrawBigLetter('I', { startX,                          innerNumY }, numSc);
+        DrawBigLetter('N', { startX + BIG_CHAR_W * numSc,     innerNumY }, numSc);
+        DrawBigLetter('F', { startX + BIG_CHAR_W * numSc * 2, innerNumY }, numSc);
     }
-    float bombW = MeasureHudNumber(2, numSc);
-    DrawHudNumber(bombs, 2, { bombCenterX - (bombW * 0.5f), innerNumY }, numSc, WHITE);
+
+    char bombBuf[8];
+    std::snprintf(bombBuf, sizeof(bombBuf), "%02d", bombs);
+
+    // używamy fontu który już działa (score font)
+    float bombScale = 1.0f;
+
+    float bombW = MeasureScoreText(bombBuf, bombScale);
+
+    DrawScoreText(
+        bombBuf,
+        { bombCenterX - bombW * 0.5f, innerNumY },
+        bombScale
+    );
 
     // --- NOWY PASEK HP (POD RAMKAMI) ---
     float hpBarY = topPad + ((float)texArms.height * hudSc) + 8.0f;
