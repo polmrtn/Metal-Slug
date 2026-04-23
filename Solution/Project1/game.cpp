@@ -56,11 +56,12 @@ void Game::Draw()
 	backgroundManager.Draw();
 
 	player.Draw();
-	backgroundManager.Drawfrontground();
-
 	for (auto& Soldier : soldiers) {
 		Soldier.Draw();
 	}
+	backgroundManager.Drawfrontground();
+
+	
 
 	for (auto& block : blocks) {
 		block.Draw();

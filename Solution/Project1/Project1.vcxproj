@@ -73,6 +73,9 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LibraryPath>$(LibraryPath)</LibraryPath>
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir)libraries\raylib\include;</IncludePath>
+    <OutDir>$\Metal-Slug\Solution</OutDir>
+    <IntDir>$Metal-Slug\Solution\Project1</IntDir>
+    <TargetName>$Metal Slug</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>$(ProjectDir)\libraries\raylib\include;$(IncludePath)</IncludePath>
