@@ -121,6 +121,9 @@ void Game::Update() {
 					item.Collect();
 					// ===== DZWIEK EQUIP MACHINEGUN =====
 					audioManager.PlaySound(audioManager.GetMachinegunEquipSound());
+					// ===== SYNC AMMO TO UIMANAGER =====
+					UiManager.SetAmmo(player.GetAmmo());
+					UiManager.SetWeaponDisplay(UiManager::WeaponDisplay::MACHINEGUN);
 				}
 			}
 
@@ -173,6 +176,7 @@ void Game::Update() {
 				if (player.GetAmmo() > 0) {
 					ShootMachinegun(burstOffsets[machinegunBurstCount]);
 					player.UseAmmo();
+					UiManager.UseAmmo(); // sync HUD ammo counter
 				}
 				machinegunBurstCount++;
 				if (machinegunBurstCount >= MACHINEGUN_BURST_SIZE || player.GetAmmo() <= 0) {
@@ -180,6 +184,11 @@ void Game::Update() {
 					machinegunBurstCount = 0;
 					if (!IsKeyDown(KEY_UP)) {
 						player.StopAimingUp();
+					}
+					// ===== JEZELI BRAK AMMO - WRÓC DO PISTOLETU =====
+					if (player.GetAmmo() <= 0) {
+						UiManager.SetAmmo(0);
+						UiManager.SetWeaponDisplay(UiManager::WeaponDisplay::PISTOL);
 					}
 				}
 			}
@@ -393,18 +402,25 @@ void Game::HandleInput()
 	// ========== MOVIMIENTO ==========
 	if (machinegunBurst) {
 		if (machinegunBurstDir == PlayerDirection::LEFT) {
-			if (IsKeyDown(KEY_LEFT)) player.MoveLeft();
+			if (IsKeyDown(KEY_LEFT)) { player.MoveLeft(); UiManager.NotifyPlayerMoved(); }
 			else player.StopMovingHorizontal();
 		}
 		else if (machinegunBurstDir == PlayerDirection::RIGHT) {
-			if (IsKeyDown(KEY_RIGHT)) player.MoveRight();
+			if (IsKeyDown(KEY_RIGHT)) { player.MoveRight(); UiManager.NotifyPlayerMoved(); }
 			else player.StopMovingHorizontal();
 		}
-		if (IsKeyPressed(KEY_SPACE)) player.Jump();
+		if (IsKeyPressed(KEY_SPACE)) { player.Jump(); UiManager.NotifyPlayerMoved(); }
 		if (IsKeyDown(KEY_DOWN)) player.StartCrouching();
 		else player.StopCrouching();
 		return;
 	}
+
+	// ========== GO! IDLE DETECTION ==========
+	bool playerActing = IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_RIGHT) ||
+		IsKeyDown(KEY_UP) || IsKeyDown(KEY_DOWN) ||
+		IsKeyDown(KEY_SPACE) || IsKeyPressed(KEY_D) ||
+		IsKeyPressed(KEY_S);
+	if (playerActing) UiManager.NotifyPlayerMoved();
 
 	if (IsKeyDown(KEY_LEFT)) player.MoveLeft();
 	else if (IsKeyDown(KEY_RIGHT)) player.MoveRight();
@@ -447,8 +463,10 @@ void Game::HandleInput()
 		}
 	}
 
-	if (IsKeyPressed(KEY_S) && player.IsAlive() && grenadeCooldown <= 0.0f) {
+	if (IsKeyPressed(KEY_S) && player.IsAlive() && grenadeCooldown <= 0.0f && UiManager.HasBombs()) {
 		ThrowGrenade();
+		UiManager.UseGrenade();
+		UiManager.NotifyPlayerMoved();
 		grenadeCooldown = grenadeDelay;
 	}
 }

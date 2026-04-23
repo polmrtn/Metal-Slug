@@ -1,6 +1,5 @@
 #pragma once
 #include "raylib.h"
-#include <string>
 
 class UiManager {
 public:
@@ -8,62 +7,89 @@ public:
     ~UiManager();
 
     void Update();
-    void DrawCredits(Camera2D camera);
+    void DrawHUD(Camera2D camera);
     void DrawMissionIntro();
     bool IsMissionIntroOver() const;
 
+    // Alias dla kompatybilnosci z game.cpp
+    void DrawCredits(Camera2D camera) { DrawHUD(camera); }
+
+    // Credits
     void SetCredits(int amount);
     int  GetCredits() const;
 
+    // Score
     void AddScore(int amount);
-    int  GetScore()    const;
+    int  GetScore() const;
 
+    // Time
     int  GetTimeLeft() const;
     bool IsTimeUp()    const;
 
+    // Level
     void NextLevel();
-    int  GetLevel()    const;
+    int  GetLevel() const;
+
+    // Granaty
+    int  GetBombs() const { return bombs; }
+    bool HasBombs() const { return bombs > 0; }
+    void UseGrenade();
+
+    // Ammo (machinegun)
+    void SetAmmo(int amount);
+    int  GetAmmo() const { return ammo; }
+    void UseAmmo();
+
+    // Wyswietlana bron w HUD
+    enum class WeaponDisplay { PISTOL, MACHINEGUN };
+    void SetWeaponDisplay(WeaponDisplay w) { weaponDisplay = w; }
+
+    // GO! idle detection
+    void NotifyPlayerMoved();
+    void UpdateGoTimer(float dt);
 
 private:
-    int   credits;
-    int   score;
-    int   level;
-    int   timeLeft;
-    int bombs;
-    float timeAccum;
-    float introTimer;
-    float blinkAccum;
+    // Stan gry
+    int   credits, score, level, timeLeft, bombs, ammo;
+    WeaponDisplay weaponDisplay = WeaponDisplay::PISTOL;
+
+    float timeAccum, introTimer, blinkAccum;
     bool  blinkVisible;
 
     static const float INTRO_DURATION;
     static const float BLINK_INTERVAL;
 
-    Texture2D texMetalNumbers;
-    Texture2D texTimeNumbers;
-    Texture2D texYellowLetters;
+    // GO! idle system
+    float idleTimer, goBlinkAccum;
+    bool  goVisible, goBlinkOn;
+    static constexpr float IDLE_THRESHOLD = 5.0f;
+    static constexpr float GO_BLINK_RATE = 0.25f;
 
-    Font  slugFont;
-    bool  fontLoaded;
+    // Textury
+    Texture2D texArms, texBomb, texCannon, texTimeLevel;
+    Texture2D texHudFont2Big, texHudFont2Num, texHudFont2Small;
+    Texture2D texHighScore, texHighScoreSmall;
+    Texture2D texHpBarLeft, texHpBarRight, texHpBarParts;
+    Texture2D texGo;
 
-    static const int METAL_W = 44;
-    static const int METAL_H = 48;
-    static const int TIME_W = 16;
-    static const int TIME_H = 16;
-    static const int YELLOW_W = 32;
-    static const int YELLOW_H = 32;
+    // Metody rysowania pomocnicze
+    // hudfont2numbers (0-9, 12px kazdy)
+    void  DrawHudDigit(char c, Vector2 pos, float scale = 2.0f, Color tint = WHITE) const;
+    void  DrawHudNumber(int value, int digits, Vector2 pos, float scale = 2.0f, Color tint = WHITE) const;
+    float MeasureHudNumber(int digits, float scale = 2.0f) const;
 
-    void  DrawMetalDigit(int digit, Vector2 pos, float scale = 1.0f) const;
-    void  DrawMetalNumber(int value, int digits, Vector2 pos, float scale = 1.0f) const;
-    void  DrawTimeDigit(char c, Vector2 pos, float scale = 1.0f) const;
-    void  DrawTimeString(const char* str, Vector2 pos, float scale = 1.0f) const;
-    void  DrawYellowChar(char c, Vector2 pos, float scale = 1.0f, Color tint = WHITE) const;
-    void  DrawYellowText(const char* str, Vector2 pos, float scale = 1.0f, float spacing = 0.78f, Color tint = WHITE) const;
-    float MeasureYellowText(const char* str, float scale = 1.0f, float spacing = 0.78f) const;
-    float MeasureMetalNumber(int digits, float scale = 1.0f) const;
-    float MeasureTimeString(const char* str, float scale = 1.0f) const;
+    // hudfont2big (A-Z, 8px kazdy)
+    void  DrawBigLetter(char c, Vector2 pos, float scale = 2.0f) const;
+    float MeasureBigText(const char* str, float scale = 2.0f) const;
 
-    // rysuje TTF bez zadnego tinta - zachowuje wbudowane kolory COLR fonta
-    void  DrawSlugText(const char* str, Vector2 pos, float fontSize) const;
-    float MeasureSlugText(const char* str, float fontSize) const;
-    void DrawSlugTextShadow(const char* str, Vector2 pos, float fontSize) const;
+    // highscorefont (A-Z=0..25, 0-9=26..35, -=36, 16px kazdy)
+    void  DrawScoreChar(char c, Vector2 pos, float scale = 1.5f) const;
+    void  DrawScoreText(const char* str, Vector2 pos, float scale = 1.5f) const;
+    float MeasureScoreText(const char* str, float scale = 1.5f) const;
+
+    // HP bar
+    void DrawHpBar(Vector2 pos, int maxHP, int currentHP, float scale = 2.0f) const;
+
+    // Intro
+    void DrawMissionIntroInternal();
 };
