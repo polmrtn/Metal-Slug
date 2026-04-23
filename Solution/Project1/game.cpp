@@ -26,6 +26,29 @@ Game::~Game()
 {
 }
 
+void Game::Reset()
+{
+	player.ResetToStart();
+	if (!player.IsAlive()) player.Respawn();
+	soldiers.clear();
+	grenades.clear();
+	bullets = CreateBullets();
+	items.clear();
+	blocks.clear();
+	camera.Reset();
+	musicStarted = false;
+
+	FILE* file = fopen("level_blocks.txt", "r");
+	if (file) {
+		fclose(file);
+		LoadBlocksFromFile("level_blocks.txt");
+	}
+	else {
+		blocks = CreateBlocks();
+		items = CreateItems();
+	}
+}
+
 void Game::Draw()
 {
 	camera.Begin();
@@ -70,6 +93,10 @@ void Game::Draw()
 		DrawText("EDITOR MODE - F1:Salir | Click:Suelo | Right:Plataforma | Mid:Borrar | R:RampaUP | T:RampaDOWN | Y:Techo | 1:Soldado1 | 2:Soldado2 | B:Caja | G:MachinegunItem | F5:Guardar",
 			10, 10, 12, RED);
 
+		Vector2 pPos = player.GetPosition();
+		DrawText(TextFormat("Player: (%.0f, %.0f)", pPos.x, pPos.y),
+			10, 50, 15, GREEN);
+
 		Vector2 mousePos = GetMousePosition();
 		Vector2 worldPos = camera.GetScreenToWorld(mousePos);
 		DrawText(TextFormat("World: (%.0f, %.0f)", worldPos.x, worldPos.y), 10, 30, 15, YELLOW);
@@ -112,6 +139,16 @@ void Game::Update() {
 		HandleInput();
 		player.Update(camera.GetLeftLimit());
 		ResolveCollisions();
+
+		// ===== WIN ZONE =====
+		Rectangle winZone = { 16190.0f, -9999.0f, 200.0f, 99999.0f }; 
+		if (CheckCollisionRecs(player.GetHitBox(), winZone))
+		{
+			audioManager.StopMusic(audioManager.GetGameMusic());
+			musicStarted = false;
+			shouldRestart = true;
+			sceneManager.SetGameState(SceneManager::TITLE);
+		}
 
 		for (auto& item : items) {
 			item.Update();

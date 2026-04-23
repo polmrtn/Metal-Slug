@@ -91,6 +91,7 @@ public:
     bool IsFalling() const { return isFalling; }
     PlayerAnim& GetAnim() { return anim; }
     bool isLanding = false;
+    void ResetToStart();
 
 private:
     // ========== ANIMACIÓN ==========

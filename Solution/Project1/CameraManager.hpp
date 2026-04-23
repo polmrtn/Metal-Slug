@@ -13,6 +13,7 @@ public:
     void End();
     Camera2D GetCamera() { return camera; }
     Vector2 GetScreenToWorld(Vector2 screenPos);
+    void Reset();
 private:
 	BackgroundManager backgroundManager;
     Camera2D camera;

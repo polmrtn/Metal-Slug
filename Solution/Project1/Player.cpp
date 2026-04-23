@@ -11,6 +11,15 @@ Player::~Player() {
     anim.UnloadTextures();
 }
 
+void Player::ResetToStart()
+{
+    pos = { 300.0f, -50.0f };
+    vel = { 0.0f, 0.0f };
+    isAlive = true;
+    invincibilityTimer = 0.0f;
+    deathPosition = { 0.0f, 0.0f };
+}
+
 // ========== HITBOX ==========
 void Player::SetNormalHitbox() {
     hitboxWidth = 20.0f * SCALE;

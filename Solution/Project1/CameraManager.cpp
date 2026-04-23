@@ -18,6 +18,15 @@ float CameraManager::GetLeftLimit() {
     return camera.target.x - camera.offset.x;
 }
 
+void CameraManager::Reset()
+{
+    camera.target = { 0, 0 };
+    camera.offset = { 600.0f, 448.0f };
+    maxScrollX = 0.0f;
+    yLocked = false;
+    lockedYValue = 0.0f;
+}
+
 void CameraManager::Update(Vector2 playerPos, float bgWidth, float bgHeight, bool isGrounded) {
     float halfScreenWidth = camera.offset.x;
     float halfScreenHeight = camera.offset.y;
