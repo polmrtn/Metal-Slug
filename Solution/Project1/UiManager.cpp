@@ -207,91 +207,67 @@ void UiManager::DrawHUD(Camera2D /*camera*/)
     int SW = GetScreenWidth();
     int SH = GetScreenHeight();
 
-    const float hudSc = 2.0f;
-    const float numSc = 2.0f;
+    const float hudSc = 3.0f;
+    const float numSc = 1.0f;
     const float scoreSc = 1.5f;
     const float topPad = 10.0f;
-    const float leftPad = 10.0f;
+    const float leftPad = 280.0f; // PRZESUNIÊTE O WIELE W PRAWO
 
     // --- RAMKA LEWA (ARMS + BOMB) ---
     DrawTextureEx(texArms, { leftPad, topPad }, 0.0f, hudSc, WHITE);
 
-    // Mocne przesuniêcie w lewo na 31.0f
     float bombOffsetX = 31.0f * hudSc;
     DrawTextureEx(texBomb, { leftPad + bombOffsetX, topPad }, 0.0f, hudSc, WHITE);
 
-    // Pozycje cyfr (numY obni¿one o 9px w skali)
-    float numY = topPad + (9.0f * hudSc);
-    float armsNumX = leftPad + (6.0f * hudSc);
-    float bombNumX = leftPad + bombOffsetX + (12.0f * hudSc);
+    // POZYCJONOWANIE PIONOWE NAPISÓW (leciutko w dó³)
+    float innerNumY = topPad + (12.5f * hudSc) - (8.0f * numSc);
+
+    float armsCenterX = leftPad + (18.0f * hudSc);
+    float bombCenterX = leftPad + bombOffsetX + (18.0f * hudSc);
 
     if (weaponDisplay == WeaponDisplay::MACHINEGUN && ammo > 0)
     {
-        DrawHudNumber(ammo, 3, { armsNumX, numY }, numSc, WHITE);
+        DrawHudNumber(ammo, 3, { armsCenterX - (MeasureHudNumber(3, numSc) * 0.5f), innerNumY }, numSc, WHITE);
     }
     else
     {
-        const float bigCW = BIG_CHAR_W * numSc;
-        DrawBigLetter('I', { armsNumX,            numY }, numSc);
-        DrawBigLetter('N', { armsNumX + bigCW,     numY }, numSc);
-        DrawBigLetter('F', { armsNumX + bigCW * 2,   numY }, numSc);
+        float infW = MeasureBigText("INF", numSc);
+        float startX = armsCenterX - (infW * 0.5f);
+        DrawBigLetter('I', { startX, innerNumY }, numSc);
+        DrawBigLetter('N', { startX + (BIG_CHAR_W * numSc), innerNumY }, numSc);
+        DrawBigLetter('F', { startX + (BIG_CHAR_W * numSc * 2), innerNumY }, numSc);
     }
-    DrawHudNumber(bombs, 2, { bombNumX, numY }, numSc, WHITE);
+    float bombW = MeasureHudNumber(2, numSc);
+    DrawHudNumber(bombs, 2, { bombCenterX - (bombW * 0.5f), innerNumY }, numSc, WHITE);
 
     // --- PASEK HP ---
     {
-        float hpY = topPad + ((float)texArms.height * hudSc) + 15.0f;
+        float hpY = topPad + ((float)texArms.height * hudSc) + 20.0f;
         float hpX = leftPad;
         const float lSc = 1.5f;
         const char* lbl = "SLUG";
         float lx = hpX;
         for (int i = 0; lbl[i]; ++i) { DrawBigLetter(lbl[i], { lx, hpY }, lSc); lx += BIG_CHAR_W * lSc; }
-        float barY = hpY + BIG_CHAR_H * lSc + 1.0f;
+        float barY = hpY + BIG_CHAR_H * lSc + 2.0f;
         DrawHpBar({ hpX, barY }, 10, 10, 2.0f);
     }
 
     // --- SCORE & TIME ---
     char sBuf[16]; std::snprintf(sBuf, sizeof(sBuf), "%07d", score);
-    float sCW = HSF_CHAR_W * scoreSc;
-    float sTW = sCW * 7.0f;
+    float sTW = (HSF_CHAR_W * scoreSc) * 7.0f;
     float sCX = (float)SW * 0.5f - sTW * 0.5f;
     float sY = topPad;
     DrawScoreText(sBuf, { sCX, sY }, scoreSc);
 
-    float tlW = (float)texTimeLevel.width * hudSc;
-    float tlH = (float)texTimeLevel.height * hudSc;
-    float tlX = (float)SW * 0.5f - tlW * 0.5f;
-    float tlY = sY + HSF_CHAR_H * scoreSc + 1.0f;
-    DrawTexturePro(texTimeLevel, { 0,0,(float)texTimeLevel.width,(float)texTimeLevel.height },
-        { tlX, tlY, tlW, tlH }, { 0,0 }, 0.0f, WHITE);
-
     const float tSc = 2.5f;
-    const Color yellow = { 255, 220, 0, 255 };
-    float numY_time = tlY + tlH + 1.0f;
+    const Color yellowColor = { 255, 220, 0, 255 };
+    float timeY = sY + (HSF_CHAR_H * scoreSc) + 5.0f;
 
-    char tbuf[8]; std::snprintf(tbuf, sizeof(tbuf), "%3d", timeLeft);
-    float tw = NUM_CHAR_W * tSc * 3.0f;
-    float tx = tlX + tlW * 0.27f - tw * 0.5f;
-    for (int i = 0; tbuf[i]; ++i) {
-        if (tbuf[i] >= '0' && tbuf[i] <= '9') {
-            Rectangle src = { (float)(tbuf[i] - '0') * NUM_CHAR_W, 0.0f, NUM_CHAR_W, NUM_CHAR_H };
-            Rectangle dst = { tx, numY_time, NUM_CHAR_W * tSc, NUM_CHAR_H * tSc };
-            DrawTexturePro(texHudFont2Num, src, dst, { 0,0 }, 0.0f, yellow);
-        }
-        tx += NUM_CHAR_W * tSc;
-    }
+    float totalTimeW = MeasureHudNumber(3, tSc) + 20.0f + MeasureHudNumber(2, tSc);
+    float startXTime = (float)SW * 0.5f - totalTimeW * 0.5f;
 
-    char lbuf[8]; std::snprintf(lbuf, sizeof(lbuf), "%02d", level);
-    float lw = NUM_CHAR_W * tSc * 2.0f;
-    float lx2 = tlX + tlW * 0.78f - lw * 0.5f;
-    for (int i = 0; lbuf[i]; ++i) {
-        if (lbuf[i] >= '0' && lbuf[i] <= '9') {
-            Rectangle src = { (float)(lbuf[i] - '0') * NUM_CHAR_W, 0.0f, NUM_CHAR_W, NUM_CHAR_H };
-            Rectangle dst = { lx2, numY_time, NUM_CHAR_W * tSc, NUM_CHAR_H * tSc };
-            DrawTexturePro(texHudFont2Num, src, dst, { 0,0 }, 0.0f, yellow);
-        }
-        lx2 += NUM_CHAR_W * tSc;
-    }
+    DrawHudNumber(timeLeft, 3, { startXTime, timeY }, tSc, yellowColor);
+    DrawHudNumber(level, 2, { startXTime + MeasureHudNumber(3, tSc) + 20.0f, timeY }, tSc, yellowColor);
 
     // --- DOLNY HUD ---
     char lvlText[16]; std::snprintf(lvlText, sizeof(lvlText), "LEVEL-%d", level);
@@ -302,20 +278,17 @@ void UiManager::DrawHUD(Camera2D /*camera*/)
     DrawScoreText(lvlText, { lX, lY }, lSc);
 
     char cText[16]; std::snprintf(cText, sizeof(cText), "CREDIT %02d", credits);
-    float cSc = scoreSc;
+    float cSc = 1.5f;
     float cW = MeasureScoreText(cText, cSc);
-    float cX = (float)SW - cW - leftPad;
+    float cX = (float)SW - cW - 40.0f;
     float cY = (float)SH - HSF_CHAR_H * cSc - 10.0f;
     DrawScoreText(cText, { cX, cY }, cSc);
 
     if (goVisible && goBlinkOn) {
         const float goSc = 3.0f;
         float goW = (float)texGo.width * goSc;
-        float goH = (float)texGo.height * goSc;
-        float goX = (float)SW - goW - leftPad;
-        float goY = topPad;
-        DrawTexturePro(texGo, { 0,0,(float)texGo.width,(float)texGo.height },
-            { goX, goY, goW, goH }, { 0,0 }, 0.0f, WHITE);
+        float goX = (float)SW - goW - 40.0f;
+        DrawTextureEx(texGo, { goX, topPad }, 0.0f, goSc, WHITE);
     }
 
     DrawMissionIntroInternal();
