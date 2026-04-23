@@ -25,7 +25,7 @@ static const char* PATH_GO = "Graphics/new fonts and HUDs/GO.png";
 static const char* PATH_TIME_NUM = "Graphics/letters/time_numbers.png";
 
 static constexpr float NUM_CHAR_W = 12.0f;
-static constexpr float NUM_CHAR_H = 16.0f;
+static constexpr float NUM_CHAR_H = 14.0f;
 static constexpr float HSF_CHAR_W = 16.0f;
 static constexpr float HSF_CHAR_H = 16.0f;
 static constexpr float BIG_CHAR_W = 8.0f;
@@ -265,7 +265,7 @@ void UiManager::DrawHUD(Camera2D /*camera*/)
     const float numSc = 1.0f;
     const float scoreSc = 1.5f;
     const float topPad = 10.0f;
-    const float leftPad = 180.0f; // MOCNE PRZESUNI�CIE W PRAWO
+    const float leftPad = 260.0f; // MOCNE PRZESUNI�CIE W PRAWO
 
     // --- RAMKI GRNE ---
     DrawTextureEx(texArms, { leftPad, topPad }, 0.0f, hudSc, WHITE);
@@ -316,15 +316,11 @@ void UiManager::DrawHUD(Camera2D /*camera*/)
         bombScale
     );
 
-    // --- NOWY PASEK HP (POD RAMKAMI) ---
-    float hpBarY = topPad + ((float)texArms.height * hudSc) + 8.0f;
-    DrawHpBar({ leftPad, hpBarY }, 10, 2.0f);
-
     // --- SCORE (LEWY RÓG, wyrównany do prawej) ---
     char sBuf[16];
-    std::snprintf(sBuf, sizeof(sBuf), "%d", score); // 🔥 bez zer z przodu
+    std::snprintf(sBuf, sizeof(sBuf), "%d", score); 
 
-    float scoreRight = 160.0f; // 🔥 tu ustawiasz gdzie kończy się score
+    float scoreRight = 200.0f;
     float scoreY = topPad;
 
     // policz szerokość tekstu
@@ -337,10 +333,10 @@ void UiManager::DrawHUD(Camera2D /*camera*/)
 
     // Separator = 2 cyfry szerokosci odst�pu mi�dzy timerem a levelem
 
-    float timeScale = 2.5f;
+    float timeScale = 4.0f;
 
 
-    float timeY = topPad + (HSF_CHAR_H * scoreSc) + 5.0f;
+    float timeY = topPad + (HSF_CHAR_H * scoreSc) - 10.0f;
 
     float totalW = 16.0f * timeScale * 2;
     float startXTime = (float)SW * 0.5f - totalW * 0.5f;
