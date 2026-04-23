@@ -82,25 +82,25 @@ void Game::Draw()
 
 	UiManager.DrawCredits(camera.GetCamera());
 
-	if (editorMode) {
-		for (float x = fmod(gridOffset.x, gridSize); x < (float)GetScreenWidth(); x += gridSize) {
-			DrawLineV({ x, 0 }, { x, (float)GetScreenHeight() }, GRAY);
-		}
-		for (float y = fmod(gridOffset.y, gridSize); y < (float)GetScreenHeight(); y += gridSize) {
-			DrawLineV({ 0, y }, { (float)GetScreenWidth(), y }, GRAY);
-		}
+	//if (editorMode) {
+	//	for (float x = fmod(gridOffset.x, gridSize); x < (float)GetScreenWidth(); x += gridSize) {
+	//		DrawLineV({ x, 0 }, { x, (float)GetScreenHeight() }, GRAY);
+	//	}
+	//	for (float y = fmod(gridOffset.y, gridSize); y < (float)GetScreenHeight(); y += gridSize) {
+	//		DrawLineV({ 0, y }, { (float)GetScreenWidth(), y }, GRAY);
+	//	}
 
-		DrawText("EDITOR MODE - F1:Salir | Click:Suelo | Right:Plataforma | Mid:Borrar | R:RampaUP | T:RampaDOWN | Y:Techo | 1:Soldado1 | 2:Soldado2 | B:Caja | G:MachinegunItem | F5:Guardar",
-			10, 10, 12, RED);
+	//	DrawText("EDITOR MODE - F1:Salir | Click:Suelo | Right:Plataforma | Mid:Borrar | R:RampaUP | T:RampaDOWN | Y:Techo | 1:Soldado1 | 2:Soldado2 | B:Caja | G:MachinegunItem | F5:Guardar",
+	//		10, 10, 12, RED);
 
-		Vector2 pPos = player.GetPosition();
-		DrawText(TextFormat("Player: (%.0f, %.0f)", pPos.x, pPos.y),
-			10, 50, 15, GREEN);
+	//	Vector2 pPos = player.GetPosition();
+	//	DrawText(TextFormat("Player: (%.0f, %.0f)", pPos.x, pPos.y),
+	//		10, 50, 15, GREEN);
 
-		Vector2 mousePos = GetMousePosition();
-		Vector2 worldPos = camera.GetScreenToWorld(mousePos);
-		DrawText(TextFormat("World: (%.0f, %.0f)", worldPos.x, worldPos.y), 10, 30, 15, YELLOW);
-	}
+	//	Vector2 mousePos = GetMousePosition();
+	//	Vector2 worldPos = camera.GetScreenToWorld(mousePos);
+	//	DrawText(TextFormat("World: (%.0f, %.0f)", worldPos.x, worldPos.y), 10, 30, 15, YELLOW);
+	//}
 }
 
 void Game::Update() {
@@ -352,7 +352,7 @@ void Game::ThrowGrenade() {
 void Game::HandleInput()
 {
 	if (!player.IsAlive()) {
-		if (IsKeyPressed(KEY_R)) {
+		if (IsKeyPressed(KEY_R) && UiManager.GetCredits() > 0) {
 			UiManager.SetCredits(-1);
 			player.Respawn();
 		}
@@ -378,7 +378,7 @@ void Game::HandleInput()
 	}
 
 	// ========== MODO EDITOR ==========
-	static float f1Cooldown = 0.0f;
+	/*static float f1Cooldown = 0.0f;
 	if (IsKeyPressed(KEY_F1) && f1Cooldown <= 0.0f) {
 		editorMode = !editorMode;
 		f1Cooldown = 0.2f;
@@ -463,7 +463,7 @@ void Game::HandleInput()
 		if (IsKeyPressed(KEY_F5)) {
 			SaveBlocksToFile("level_blocks.txt");
 		}
-	}
+	}*/
 
 	// ========== SI ESTÁ CAYENDO, NO PROCESAR INPUT DEL JUGADOR ==========
 	if (player.IsFalling()) return;
@@ -611,7 +611,6 @@ void Game::BulletsCollision() {
 			if (player.IsAlive() && !player.IsInvincible()) {
 				if (CheckCollisionRecs(bIt->GetHitbox(), player.GetHitBox())) {
 					player.TakeDamage();
-					TraceLog(LOG_INFO, "Player hit by explosion");
 				}
 			}
 		}

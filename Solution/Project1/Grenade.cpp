@@ -115,8 +115,8 @@ void Grenade::Draw() {
 
     if (hasExploded && isExploding) {
         // Debug: dibujar hitbox de explosión
-        Rectangle explosionBox = GetExplosionHitBox();
-        DrawRectangleLinesEx(explosionBox, 2, YELLOW);
+        /*Rectangle explosionBox = GetExplosionHitBox();
+        DrawRectangleLinesEx(explosionBox, 2, YELLOW);*/
         if (!textureLoaded) return;
 
         float frameWidth = 52.0f;

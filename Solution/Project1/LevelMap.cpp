@@ -23,8 +23,8 @@ void Block::Draw() {
             { rect.x, rect.y },
             { rect.x + rect.width, rect.y + rect.height }
         };
-        DrawTriangle(points[0], points[1], points[2], ColorAlpha(ORANGE, 0.8f));
-        DrawTriangleLines(points[0], points[1], points[2], DARKGRAY);
+        //DrawTriangle(points[0], points[1], points[2], ColorAlpha(ORANGE, 0.8f));
+        //DrawTriangleLines(points[0], points[1], points[2], DARKGRAY);
     }
     else if (type == BlockType::RAMP_DOWN) {
         // Rampa que baja a la derecha - triángulo invertido
@@ -33,21 +33,21 @@ void Block::Draw() {
             { rect.x + rect.width, rect.y },
             { rect.x + rect.width, rect.y + rect.height }
         };
-        DrawTriangle(points[0], points[1], points[2], ColorAlpha(ORANGE, 0.8f));
-        DrawTriangleLines(points[0], points[1], points[2], DARKGRAY);
+        //DrawTriangle(points[0], points[1], points[2], ColorAlpha(ORANGE, 0.8f));
+        //DrawTriangleLines(points[0], points[1], points[2], DARKGRAY);
     }
     else if (type == BlockType::CEILING) {
         // Techo - color rojo o morado para diferenciar
         Color ceilingColor = ColorAlpha(PURPLE, 0.5f);
-        DrawRectangle(rect.x, rect.y, rect.width, rect.height, ceilingColor);
-        DrawRectangleLinesEx(rect, 1, DARKGRAY);
-        // Dibujar una línea indicando que es techo
-        DrawLine(rect.x, rect.y + rect.height, rect.x + rect.width, rect.y + rect.height, RED);
+        //DrawRectangle(rect.x, rect.y, rect.width, rect.height, ceilingColor);
+        //DrawRectangleLinesEx(rect, 1, DARKGRAY);
+        //// Dibujar una línea indicando que es techo
+        //DrawLine(rect.x, rect.y + rect.height, rect.x + rect.width, rect.y + rect.height, RED);
     }
     else {
         Color color = isGround ? ColorAlpha(BLUE, 0.5f) : ColorAlpha(GREEN, 0.5f);
-        DrawRectangle(rect.x, rect.y, rect.width, rect.height, color);
-        DrawRectangleLinesEx(rect, 1, DARKGRAY);
+        //DrawRectangle(rect.x, rect.y, rect.width, rect.height, color);
+        //DrawRectangleLinesEx(rect, 1, DARKGRAY);
     }
 }
 

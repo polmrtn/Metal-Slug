@@ -509,9 +509,9 @@ void Player::Draw() {
 }
 
 void Player::DrawHitBox() {
-    DrawRectangleLinesEx(GetHitBox(), 2, WHITE);
-    DrawRectangleLinesEx(GetLeftHitBox(), 2, RED);
-    DrawRectangleLinesEx(GetRightHitBox(), 2, BLUE);
+//    DrawRectangleLinesEx(GetHitBox(), 2, WHITE);
+//    DrawRectangleLinesEx(GetLeftHitBox(), 2, RED);
+//    DrawRectangleLinesEx(GetRightHitBox(), 2, BLUE);
 }
 
 // ========== DIBUJO AGACHADO ==========

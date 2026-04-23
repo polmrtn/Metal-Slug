@@ -89,7 +89,7 @@ Rectangle Bullet::GetHitbox()
 
 void Bullet::DrawHitBox()
 {
-	DrawRectangleLinesEx(GetHitbox(), 2, WHITE);
+//	DrawRectangleLinesEx(GetHitbox(), 2, WHITE);
 }
 
 void Bullet::Draw() {

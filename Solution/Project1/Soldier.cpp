@@ -107,8 +107,8 @@ bool Soldier::IsVisionRay(Player& player)
 
 void Soldier::DrawHitBox()
 {
-    DrawRectangleLinesEx(GetHitBox(), 2, RED);
-    DrawRectangleLinesEx(GetHurtBox(), 2, WHITE);
+    //DrawRectangleLinesEx(GetHitBox(), 2, RED);
+    //DrawRectangleLinesEx(GetHurtBox(), 2, WHITE);
 }
 
 void Soldier::Draw() {
