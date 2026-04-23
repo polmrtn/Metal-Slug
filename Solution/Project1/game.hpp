@@ -46,6 +46,8 @@ public:
     void ShootMachinegun(float yOffset);
     void CheckBulletsOutOfCamera();
     void MergeBlocks();
+    void Reset();
+    bool ShouldRestart() const { return shouldRestart; }
 
 private:
     // ========== TEMPORIZADORES ==========
@@ -96,4 +98,9 @@ private:
     // Offsets Y para el patrón arriba-medio-abajo (en píxeles)
     const float burstOffsets[6] = { -10.0f, 0.0f, 10.0f, -10.0f, 0.0f, 10.0f };
     PlayerDirection machinegunBurstDir = PlayerDirection::RIGHT;
+    bool shouldRestart = false;
+
+    // ========== CRÉDITOS ==========
+    float creditCooldown = 0.0f;
+    float creditDelay = 0.3f;  // Delay entre inserciones de crédito (segundos)
 };
