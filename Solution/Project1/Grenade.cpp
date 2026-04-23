@@ -73,7 +73,7 @@ void Grenade::CheckCollisionWithSoldiers(std::vector<Soldier>& soldiers) {
 
 void Grenade::Explode() {
     explosionPosition = position;
-    TraceLog(LOG_INFO, "Explode at position: %.2f, %.2f", position.x, position.y);
+    explosionFacingRight = (velocity.x >= 0);
     hasExploded = true;
     explosionTimer = 0.0f;
     StartExplosion();
@@ -97,7 +97,7 @@ Rectangle Grenade::GetExplosionHitBox() const {
     float width = 52.0f;
     float height = 112.0f;
     float scale = 2.0f;
-    float offsetX = -40.0f;
+    float offsetX = explosionFacingRight ? 10.0f : -65.0f;
     float offsetY = -height * scale + 10.0f;  // sube desde donde está la granada
 
     return Rectangle{
@@ -131,7 +131,7 @@ void Grenade::Draw() {
         };
 
         float scale = 2.0f;
-        float offsetX = -40.0f;
+        float offsetX = explosionFacingRight ? 10.0f : -65.0f;
         float offsetY = -frameHeight * scale + 20.0f;
 
         Rectangle destRect = {
