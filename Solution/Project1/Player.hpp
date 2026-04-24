@@ -162,4 +162,6 @@ private:
     float blinkTimer = 0.0f;
     float blinkDelay = 0.1f;
     bool blinkVisible = true;
+
+    Player player;
 };

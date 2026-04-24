@@ -4,6 +4,7 @@
 
 class CameraManager {
 public:
+    CameraManager();
     CameraManager(Vector2 screenCenter);
     ~CameraManager();
 

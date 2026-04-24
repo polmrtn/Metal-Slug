@@ -26,6 +26,7 @@ Item::~Item() {}
 
 void Item::Destroy() {
     if (type != ItemType::BOX || isDestroyed) return;
+
     isDestroyed = true;
     destroyFrame = 0;
     destroyTimer = 0.0f;
