@@ -1,10 +1,6 @@
 #pragma once
 #include <raylib.h>
-#include "Player.hpp"
-#include "UiManager.hpp"
-#include "SceneManager.hpp"
-#include "AudioManager.hpp"
-#include "TimerManager.hpp"
+#include "GlobalManagers.hpp"
 
 class InputManager
 {
@@ -15,12 +11,9 @@ public:
 	void InputCreditsPlayer();
 	void InputChangeScene();
 	void InputPlayer();
+	void InputUi();
 
 private:
-	Player player;
-	UiManager uiManager;
-	SceneManager sceneManager;
-	AudioManager audioManager;
-	TimerManager timerManager;
+	
 };
 

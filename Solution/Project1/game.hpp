@@ -46,12 +46,7 @@ public:
 
 private:
     // ========== TEMPORIZADORES ==========
-    float shootTimer = 0.0f;
-    float grenadeCooldown = 0.0f;
-    // Delays de armas
-    float shootDelayPistol = 0.2f;
-    float shootDelayMachinegun = 0.1f;
-    float grenadeDelay = 1.0f;
+  
     // ========== GESTORES ==========
     CameraManager camera;
     BackgroundManager backgroundManager;
@@ -62,39 +57,25 @@ private:
     // ========== JUGADOR ==========
     Player player;
     // ========== ENTIDADES ==========
-    std::vector<Bullet> bullets;
-    std::vector<Soldier> soldiers;
-    std::vector<Grenade> grenades;
-    std::vector<Item> items;
-    std::vector<Block> blocks;
+ 
     // ========== ANIMACIONES ==========
     SoldierAnim soldierAnim;
     // ========== METODOS DE CREACION ==========
-    std::vector<Bullet> CreateBullets();
-    std::vector<Block> CreateBlocks();
-    std::vector<Item> CreateItems();
+   
     // ========== MODO EDITOR ==========
-    bool editorMode = false;
-    float gridSize = 50.0f;
-    Vector2 gridOffset = { 0.0f, 0.0f };
-
+   
     bool machinegunBurst = false;
-    int machinegunBurstCount = 0;
-    float machinegunBurstTimer = 0.0f;
-    float machinegunBurstDelay = 0.04f;
+    
+   
     static constexpr int MACHINEGUN_BURST_SIZE = 6;
     const float burstOffsets[6] = { -10.0f, 0.0f, 10.0f, -10.0f, 0.0f, 10.0f };
     PlayerDirection machinegunBurstDir = PlayerDirection::RIGHT;
     bool shouldRestart = false;
 
     // ========== CRÉDITOS ==========
-    float creditCooldown = 0.0f;
-    float creditDelay = 0.3f;  // Delay entre inserciones de crédito (segundos)
+   // Delay entre inserciones de crédito (segundos)
 
     // ========== DZWIEK MACHINEGUN (osobny timer, 4 dzwieki co 0.25s) ==========
     bool machinegunSoundActive = false;
-    int machinegunSoundCount = 0;
-    float machinegunSoundTimer = 0.0f;
-    static constexpr int MACHINEGUN_SOUND_SHOTS = 4;
-    static constexpr float MACHINEGUN_SOUND_DELAY = 0.10f;
+   
 };
