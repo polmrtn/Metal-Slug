@@ -12,6 +12,7 @@ void TimerManager::Update(float deltaTime)
     machinegunBurstTimer = std::max(0.0f, machinegunBurstTimer - deltaTime);
     machinegunSoundTimer = std::max(0.0f, machinegunSoundTimer - deltaTime);
     creditCooldown = std::max(0.0f, creditCooldown - deltaTime);
+
 }
 
 float TimerManager::GetTimer(TimerType type) const
@@ -66,7 +67,7 @@ void TimerManager::StartTimer(TimerType type)
         machinegunSoundTimer = MACHINEGUN_SOUND_DELAY;
         break;
     default:
-        // For counters/constants do nothing here
+        // counters/constants do nothing here
         break;
     }
 }
@@ -98,6 +99,41 @@ void TimerManager::ResetTimer(TimerType type)
         break;
     default:
         // constants / delays left untouched
+        break;
+    }
+}
+
+bool TimerManager::IsReady(TimerType type) const
+{
+    // For runtime timers: ready if <= 0
+    switch (type)
+    {
+    case TimerType::SHOOT_TIMER:               return shootTimer <= 0.0f;
+    case TimerType::GRENADE_COOLDOWN:          return grenadeCooldown <= 0.0f;
+    case TimerType::MACHINEGUN_BURST_TIMER:    return machinegunBurstTimer <= 0.0f;
+    case TimerType::MACHINEGUN_SOUND_TIMER:    return machinegunSoundTimer <= 0.0f;
+    case TimerType::CREDIT_COOLDOWN:           return creditCooldown <= 0.0f;
+
+    // For configured delays/constants treat as "always ready" (they are values)
+    default: return true;
+    }
+}
+
+void TimerManager::SetTimerValue(TimerType type, float value)
+{
+    switch (type)
+    {
+    case TimerType::SHOOT_TIMER:               shootTimer = value; break;
+    case TimerType::GRENADE_COOLDOWN:          grenadeCooldown = value; break;
+    case TimerType::MACHINEGUN_BURST_TIMER:    machinegunBurstTimer = value; break;
+    case TimerType::MACHINEGUN_SOUND_TIMER:    machinegunSoundTimer = value; break;
+    case TimerType::CREDIT_COOLDOWN:           creditCooldown = value; break;
+
+    case TimerType::MACHINEGUN_SOUND_COUNT:    machinegunSoundCount = static_cast<int>(value); break;
+    case TimerType::MACHINEGUN_BURST_COUNT:    machinegunBurstCount = static_cast<int>(value); break;
+
+    default:
+        // Do nothing for constants/delays
         break;
     }
 }

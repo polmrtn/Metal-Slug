@@ -40,6 +40,13 @@ public:
     // Reset current timer to zero
     void ResetTimer(TimerType type);
 
+    // Return true if a runtime timer is ready (<= 0.0f).
+    // For constants/delays this returns true (they're not blocking).
+    bool IsReady(TimerType type) const;
+
+    // Explicit setter for a runtime timer or counter (use sparingly).
+    void SetTimerValue(TimerType type, float value);
+
 private:
     // runtime timers / counters
     float shootTimer = 0.0f;

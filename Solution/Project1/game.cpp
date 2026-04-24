@@ -103,34 +103,8 @@ void Game::Update() {
 	else if (sceneManager.GetGamestate() == SceneManager::GAME) {
 		UiManager.Update();
 
-		if (!player.IsAlive()) {
-			BeginDrawing();
-			Vector2 deathPos = player.GetDeathPosition();
-			DrawText(TextFormat("YOU DIED at (%.0f, %.0f)", deathPos.x, deathPos.y),
-				GetScreenWidth() / 2 - 200, GetScreenHeight() / 2 - 50, 20, RED);
-
-			if (UiManager.GetCredits() > 0) {
-				DrawText("Press R to respawn (costs 1 credit)",
-					GetScreenWidth() / 2 - 200, GetScreenHeight() / 2, 20, WHITE);
-			}
-			else {
-				DrawText("NO CREDITS! Press C to insert coin",
-					GetScreenWidth() / 2 - 200, GetScreenHeight() / 2, 20, RED);
-			}
-
-			if (IsKeyPressed(KEY_R) && UiManager.GetCredits() > 0) {
-				UiManager.SetCredits(-1);  // Gasta 1 crédito
-				player.Respawn();
-				TraceLog(LOG_INFO, "Respawn. Créditos restantes: %d", UiManager.GetCredits());
-			}
-			if (IsKeyPressed(KEY_C) && creditCooldown <= 0.0f) {
-				if (UiManager.GetCredits() < 99) {
-					UiManager.SetCredits(1);
-					creditCooldown = creditDelay;
-					TraceLog(LOG_INFO, "Crédito insertado mientras muerto. Total: %d", UiManager.GetCredits());
-				}
-			}
-		}
+		
+		
 
 		player.SavePreviousPosition();
 		HandleInput();
@@ -177,9 +151,6 @@ void Game::Update() {
 			grenade.CheckCollisionWithSoldiers(soldiers);
 		}
 
-		if (grenadeCooldown > 0.0f) grenadeCooldown -= GetFrameTime();
-		if (shootTimer > 0.0f) shootTimer -= GetFrameTime();
-		if (creditCooldown > 0.0f) creditCooldown -= GetFrameTime();
 
 		grenades.erase(std::remove_if(grenades.begin(), grenades.end(),
 			[](const Grenade& g) { return !g.IsActive(); }), grenades.end());
