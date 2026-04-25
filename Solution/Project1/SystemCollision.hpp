@@ -1,10 +1,7 @@
 #pragma once
 #include <raylib.h>
-#include "CreationManager.hpp"
-#include "Player.hpp"
-#include "AudioManager.hpp"
-#include "UiManager.hpp"
-#include "CameraManager.hpp"
+#include "GlobalManagers.hpp"
+
 
 class SystemCollision
 {
@@ -21,11 +18,7 @@ public:
 	void ItemPlayerCollision(Item item);
 
 private:
-	CreationManager creationManager;
-	Player player;
-	AudioManager audioManager;
-	UiManager uiManager;
-	CameraManager cameraManager;
+	
 	
 };
 

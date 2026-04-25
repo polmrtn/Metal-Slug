@@ -1,5 +1,6 @@
 #include "Debug.hpp"
 
+
 Debug::Debug()
 {
 	editorMode = false;
@@ -10,9 +11,9 @@ Debug::Debug()
 	}
 }
 void Debug::LoadBlocksFromFile(const char* filename) {
-creationManager.GetBlocks().clear();
-creationManager.GetSoldiers().clear();
-creationManager.GetItems().clear();
+	creationManager.GetBlocks().clear();
+	creationManager.GetSoldiers().clear();
+	creationManager.GetItems().clear();
 
 	FILE* file;
 	fopen_s(&file, filename, "r");
@@ -128,7 +129,7 @@ void Debug::EditorModeInput()
 
 	if (editorMode) {
 		if (IsKeyDown(KEY_W)) gridOffset.y -= 5.0f;
-		if (IsKeyDown(KEY_S)) gridOffset.y += 5.0f;
+		if (IsKeyDown(KEY_S)) gridOffset.y +		= 5.0f;
 		if (IsKeyDown(KEY_A)) gridOffset.x -= 5.0f;
 		if (IsKeyDown(KEY_D)) gridOffset.x += 5.0f;
 
@@ -209,12 +210,16 @@ void Debug::GeneralDebugInput()
 {
 	if (IsKeyPressed(KEY_L)) uiManager.NextLevel();
 	if (IsKeyPressed(KEY_J)) uiManager.AddScore(100);
-	if (IsKeyPressed(KEY_C) && creditCooldown <= 0.0f) {
+	// usar timer manager en lugar de creditCooldown local
+	if (IsKeyPressed(KEY_C) && timerManager.IsReady(TimerType::CREDIT_COOLDOWN)) {
 		if (uiManager.GetCredits() < 99) {
 			uiManager.SetCredits(1);
-			creditCooldown = creditDelay;
+			timerManager.StartTimer(TimerType::CREDIT_DELAY);
 		}
 	}
+}
+void Debug::EnableHitboxes()
+{
 }
 void Debug::MergeBlocks() {
 	if (creationManager.GetBlocks().empty()) return;
