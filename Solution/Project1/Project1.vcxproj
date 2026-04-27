@@ -73,6 +73,9 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LibraryPath>$(LibraryPath)</LibraryPath>
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir)libraries\raylib\include;</IncludePath>
+    <OutDir>$\Metal-Slug\Solution</OutDir>
+    <IntDir>$Metal-Slug\Solution\Project1</IntDir>
+    <TargetName>$Metal Slug</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>$(ProjectDir)\libraries\raylib\include;$(IncludePath)</IncludePath>
@@ -140,15 +143,35 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="AudioManager.cpp" />
+    <ClCompile Include="AudioManager.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="AudioManager.hpp" />
+    <ClCompile Include="BackgroundManager.cpp" />
+    <ClCompile Include="Bullet.cpp" />
+    <ClCompile Include="BulletAnim.cpp" />
+    <ClCompile Include="CameraManager.cpp" />
     <ClCompile Include="game.cpp" />
+    <ClCompile Include="Grenade.cpp" />
+    <ClCompile Include="item.cpp" />
+    <ClCompile Include="LevelMap.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Player.cpp" />
+    <ClCompile Include="playerAnim.cpp" />
     <ClCompile Include="SceneManager.cpp" />
     <ClCompile Include="Soldier.cpp" />
+    <ClCompile Include="SoldierAnim.cpp" />
+    <ClCompile Include="UiManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BackgroundManager.hpp" />
+    <ClInclude Include="Bullet.hpp" />
+    <ClInclude Include="BulletAnim.hpp" />
+    <ClInclude Include="CameraManager.hpp" />
+    <ClInclude Include="Grenade.hpp" />
+    <ClInclude Include="item.hpp" />
+    <ClInclude Include="playerAnim.hpp" />
     <ClInclude Include="SceneManager.hpp" />
     <ClInclude Include="Soldier.hpp" />
     <ClInclude Include="game.hpp" />
@@ -156,7 +179,12 @@
     <ClInclude Include="libraries\raylib\include\raymath.h" />
     <ClInclude Include="libraries\raylib\include\rlgl.h" />
     <ClInclude Include="Player.hpp" />
+    <ClInclude Include="SoldierAnim.hpp" />
+    <ClInclude Include="SoldierState.hpp" />
     <ClInclude Include="UiManager.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="LevelMap.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
