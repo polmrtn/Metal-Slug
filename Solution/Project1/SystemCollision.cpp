@@ -18,6 +18,7 @@ void SystemCollision::CollisionUpdate()
 	PlayerBlockCollision();
 	ItemBlockCollision();
 	BulletBlockCollision();
+	ItemPlayerCollision();
 }
 
 void SystemCollision::SoldierBlockCollision() {
@@ -293,24 +294,31 @@ void SystemCollision::PlayerBlockCollision()
 
 void SystemCollision::ItemBlockCollision()
 {
-	// ========== creationManager.GetItems() CON SUELO ==========
 	for (auto& item : creationManager.GetItems()) {
-		if (!item.IsGrounded() && item.GetType() == ItemType::SHOTGUN) {
-			Rectangle itemRect = item.GetHitBox();
-			for (const auto& block : creationManager.GetBlocks()) {
-				Rectangle blockRect = block.GetRect();
-				float feetY = itemRect.y + itemRect.height;
-				float blockTopY = blockRect.y;
-				bool isOver = (itemRect.x + itemRect.width > blockRect.x &&
-					itemRect.x < blockRect.x + blockRect.width);
-				if (isOver && feetY >= blockTopY && feetY <= blockTopY + 20.0f) {
-					item.SetGrounded(true);
-					item.SetGravity(false);
-				}
+		if (item.IsGrounded() || item.GetType() != ItemType::SHOTGUN) continue;
+
+		Rectangle itemRect = item.GetHitBox();
+		for (const auto& block : creationManager.GetBlocks()) {
+			if (block.IsRamp() || block.GetType() == BlockType::CEILING) continue;
+
+			Rectangle blockRect = block.GetRect();
+			float feetY = itemRect.y + itemRect.height;
+			float blockTopY = blockRect.y;
+			bool isOver = (itemRect.x + itemRect.width > blockRect.x &&
+				itemRect.x < blockRect.x + blockRect.width);
+
+			if (isOver && feetY >= blockTopY && feetY <= blockTopY + 30.0f) {
+				// Ajusta posición para que quede encima del bloque
+				float correction = blockTopY - itemRect.height;
+				// GetHitBox está centrado, así que position.y = correction + height/2
+				float hitboxOffsetY = item.GetPosition().y - itemRect.y;
+				item.SetPositionY(correction + hitboxOffsetY);
+				item.SetGrounded(true);
+				item.SetGravity(false);
+				break;
 			}
 		}
 	}
-
 }
 
 void SystemCollision::BulletBlockCollision() {
@@ -365,25 +373,24 @@ void SystemCollision::BulletBlockCollision() {
 	}
 }
 
-void SystemCollision::ItemPlayerCollision(Item item) {
-	
-	if (item.IsActive() && CheckCollisionRecs(item.GetHitBox(), player.GetHitBox())) {
-		if (item.GetType() == ItemType::SHOTGUN) {
-			player.EquipMachinegun();
-			item.Collect();
-			// ===== DZWIEK EQUIP MACHINEGUN =====
-			audioManager.PlaySound(audioManager.GetMachinegunEquipSound());
-			// ===== SYNC AMMO TO UIMANAGER =====
-			uiManager.SetAmmo(player.GetAmmo());
-			uiManager.SetWeaponDisplay(UiManager::WeaponDisplay::MACHINEGUN);
+void SystemCollision::ItemPlayerCollision()
+{
+	for (auto& item : creationManager.GetItems()) {
+		if (item.IsActive() && CheckCollisionRecs(item.GetHitBox(), player.GetHitBox())) {
+			if (item.GetType() == ItemType::SHOTGUN) {
+				player.EquipMachinegun();
+				item.Collect();
+				audioManager.PlaySound(audioManager.GetMachinegunEquipSound());
+				uiManager.SetAmmo(player.GetAmmo());
+				uiManager.SetWeaponDisplay(UiManager::WeaponDisplay::MACHINEGUN);
+			}
 		}
-	}
-
-	if (item.ShouldSpawnMachinegun()) {
-		item.ConsumeSpawn();
-		Vector2 spawnPos = { item.GetHitBox().x + 60.0f, item.GetHitBox().y - 20.0f };
-		Item newItem(spawnPos, ItemType::SHOTGUN);
-		newItem.SetGravity(true);
-		creationManager.GetItems().push_back(newItem);
+		if (item.ShouldSpawnMachinegun()) {
+			item.ConsumeSpawn();
+			Vector2 spawnPos = { item.GetHitBox().x + 60.0f, item.GetHitBox().y - 20.0f };
+			Item newItem(spawnPos, ItemType::SHOTGUN);
+			newItem.SetGravity(true);
+			creationManager.GetItems().push_back(newItem);
+		}
 	}
 }

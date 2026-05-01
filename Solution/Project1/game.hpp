@@ -22,6 +22,8 @@ public:
     void ThrowGrenade();
     void CheckBulletsOutOfCamera();
     void StartMachinegunBurst();
+    bool IsMachinegunBurst() const { return machinegunBurst; }
+    PlayerDirection GetMachinegunBurstDir() const { return machinegunBurstDir; }
 
     bool ShouldRestart() const { return shouldRestart; }
     SceneManager& GetSceneManager() { return sceneManager; }

@@ -14,6 +14,7 @@ public:
 	void InputChangeScene();
 	void InputPlayer();
 	void InputUi();
+	void InputMachinegunBurst();
 
 private:
 	Game* game;	

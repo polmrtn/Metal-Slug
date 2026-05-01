@@ -15,6 +15,15 @@ void InputManager::InputUpdate()
 
 void InputManager::InputCreditsPlayer()
 {
+	// Insertar crédito en cualquier momento
+	if (IsKeyPressed(KEY_C) && timerManager.IsReady(TimerType::CREDIT_COOLDOWN)) {
+		if (uiManager.GetCredits() < 99) {
+			uiManager.SetCredits(1);
+			timerManager.StartTimer(TimerType::CREDIT_DELAY);
+		}
+	}
+
+	// Respawn
 	if (!player.IsAlive()) {
 		if (IsKeyPressed(KEY_R) && uiManager.GetCredits() > 0) {
 			uiManager.SetCredits(-1);
@@ -121,4 +130,22 @@ void InputManager::InputUi()
 			}
 		}
 	}
+}
+
+void InputManager::InputMachinegunBurst()
+{
+	if (!game->IsMachinegunBurst()) return;
+
+	PlayerDirection dir = game->GetMachinegunBurstDir();
+	if (dir == PlayerDirection::LEFT) {
+		if (IsKeyDown(KEY_LEFT)) { player.MoveLeft(); uiManager.NotifyPlayerMoved(); }
+		else player.StopMovingHorizontal();
+	}
+	else if (dir == PlayerDirection::RIGHT) {
+		if (IsKeyDown(KEY_RIGHT)) { player.MoveRight(); uiManager.NotifyPlayerMoved(); }
+		else player.StopMovingHorizontal();
+	}
+	if (IsKeyPressed(KEY_SPACE)) { player.Jump(); uiManager.NotifyPlayerMoved(); }
+	if (IsKeyDown(KEY_DOWN)) player.StartCrouching();
+	else player.StopCrouching();
 }

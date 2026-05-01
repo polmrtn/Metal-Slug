@@ -114,9 +114,11 @@ void Game::Update()
     }
 
     // Limpiar items inactivos
-    auto& items = creationManager.GetItems();
-    items.erase(std::remove_if(items.begin(), items.end(),
-        [](const Item& i) { return !i.IsActive(); }), items.end());
+    for (auto& item : creationManager.GetItems()) item.Update();
+    creationManager.GetItems().erase(
+        std::remove_if(creationManager.GetItems().begin(), creationManager.GetItems().end(),
+            [](const Item& i) { return !i.IsActive(); }),
+        creationManager.GetItems().end());
 
     camera.Update(player.GetPosition(),
         backgroundManager.GetWidth(),
@@ -206,30 +208,18 @@ void Game::Update()
 // ─────────────────────────────────────────
 void Game::HandleInput()
 {
-    inputManager.InputChangeScene();  // ENTER para iniciar, créditos C en título
-    inputManager.InputCreditsPlayer(); // R para respawn
-    inputManager.InputUi();           // UI cuando muerto
+    inputManager.InputChangeScene();
+    inputManager.InputCreditsPlayer();
+    inputManager.InputUi();
 
     if (player.IsFalling()) return;
 
-    if (machinegunBurst)
-    {
-        if (machinegunBurstDir == PlayerDirection::LEFT) {
-            if (IsKeyDown(KEY_LEFT)) { player.MoveLeft(); uiManager.NotifyPlayerMoved(); }
-            else player.StopMovingHorizontal();
-        }
-        else if (machinegunBurstDir == PlayerDirection::RIGHT) {
-            if (IsKeyDown(KEY_RIGHT)) { player.MoveRight(); uiManager.NotifyPlayerMoved(); }
-            else player.StopMovingHorizontal();
-        }
-        if (IsKeyPressed(KEY_SPACE)) { player.Jump(); uiManager.NotifyPlayerMoved(); }
-        if (IsKeyDown(KEY_DOWN)) player.StartCrouching();
-        else player.StopCrouching();
+    if (machinegunBurst) {
+        inputManager.InputMachinegunBurst();
         return;
     }
 
-    inputManager.InputPlayer();  // movimiento, disparo, granadas
-
+    inputManager.InputPlayer();
 }
 
 // ─────────────────────────────────────────
