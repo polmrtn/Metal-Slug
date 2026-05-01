@@ -19,7 +19,7 @@ public:
     void CheckCollisionWithSoldiers(std::vector<Soldier>& soldiers);
     void Explode();
     void StartExplosion();
-    void CheckCollisionWithBlocks(const std::vector<Block>& blocks);
+    void CheckCollisionWithBlocks(const std::vector<CollisionRect>& colliders);
     bool HasPlayedSound() const { return soundPlayed; }
     void SetSoundPlayed(bool val) { soundPlayed = val; }
 

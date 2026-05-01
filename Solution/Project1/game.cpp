@@ -14,7 +14,7 @@ Game::Game() : camera({ 1200.0f / 2.0f, 896.0f / 2.0f })
     FILE* file = fopen("level_blocks.txt", "r");
     if (file) {
         fclose(file);
-        creationManager.LoadBlocksFromFile("level_blocks.txt");
+        creationManager.LoadFromFile("level.txt"); 
         // debug.LoadBlocksFromFile("level_blocks.txt");
     }
 }
@@ -39,13 +39,17 @@ void Game::Draw()
 {
     camera.Begin();
 
+#ifdef _DEBUG
+    creationManager.GetTileMap().DrawTiles();     // tiles individuales
+    creationManager.GetTileMap().DrawColliders(); // rectángulos fusionados
+#endif
+
     backgroundManager.Draw();
 
     player.Draw();
     for (auto& soldier : creationManager.GetSoldiers()) soldier.Draw();
     backgroundManager.Drawfrontground();
 
-    for (auto& block : creationManager.GetBlocks())   block.Draw();
     for (auto& bullet : creationManager.GetBullets())  bullet.Draw();
     for (auto& grenade : creationManager.GetGrenades()) grenade.Draw();
     for (auto& item : creationManager.GetItems())    item.Draw();
@@ -142,7 +146,7 @@ void Game::Update()
     // Actualizar granadas
     for (auto& grenade : creationManager.GetGrenades()) {
         grenade.Update();
-        grenade.CheckCollisionWithBlocks(creationManager.GetBlocks());
+        grenade.CheckCollisionWithBlocks(creationManager.GetTileMap().GetColliders());
         grenade.CheckCollisionWithSoldiers(creationManager.GetSoldiers());
     }
     auto& grenades = creationManager.GetGrenades();

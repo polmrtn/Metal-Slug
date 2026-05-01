@@ -32,7 +32,7 @@ public:
     float GetY() const { return position.y; }
     float GetX() const { return position.x; }
     Vector2 GetPosition() const { return position; }
-    bool GetisAlive() { return isAlive; }
+    bool GetisAlive() const { return isAlive; }
     void TriggerDeath(AudioManager& audio);
    
     void SetY(float newY) { position.y = newY; }
