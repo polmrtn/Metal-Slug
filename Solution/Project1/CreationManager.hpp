@@ -20,6 +20,8 @@ public:
     std::vector<Soldier>& GetSoldiers();
     std::vector<Grenade>& GetGrenades();
 
+    void LoadBlocksFromFile(const char* filename);
+
 private:
     std::vector<Bullet>   bullets;
     std::vector<Block>    blocks;

@@ -14,7 +14,7 @@ Game::Game() : camera({ 1200.0f / 2.0f, 896.0f / 2.0f })
     FILE* file = fopen("level_blocks.txt", "r");
     if (file) {
         fclose(file);
-        // Si tienes un método en Debug/CreationManager para cargar el nivel, llámalo aquí.
+        creationManager.LoadBlocksFromFile("level_blocks.txt");
         // debug.LoadBlocksFromFile("level_blocks.txt");
     }
 }
@@ -305,6 +305,14 @@ void Game::ShootMachinegun(float yOffset)
     }
 
     creationManager.GetBullets().emplace_back(bulletPos, 1000, (int)dirX, (int)dirY, 3);
+}
+
+void Game::StartMachinegunBurst() {
+    machinegunBurst = true;
+    machinegunBurstCount = 0;
+    machinegunBurstDir = player.GetAimDirection();
+    machinegunSoundActive = true;
+    timerManager.ResetTimer(TimerType::MACHINEGUN_SOUND_COUNT);
 }
 
 // ─────────────────────────────────────────

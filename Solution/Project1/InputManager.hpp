@@ -2,10 +2,12 @@
 #include <raylib.h>
 #include "GlobalManagers.hpp"
 
+class Game;
+
 class InputManager
 {
 public:
-	InputManager();
+	InputManager(Game* game);
 	~InputManager();
 	void InputUpdate();
 	void InputCreditsPlayer();
@@ -14,6 +16,6 @@ public:
 	void InputUi();
 
 private:
-	
+	Game* game;	
 };
 

@@ -19,6 +19,7 @@ void SystemCollision::CollisionUpdate()
 	ItemBlockCollision();
 	BulletBlockCollision();
 }
+
 void SystemCollision::SoldierBlockCollision() {
 	for (auto& soldier : creationManager.GetSoldiers()) {
 		soldier.SetLeftCollision(false);
@@ -134,14 +135,8 @@ void SystemCollision::GrenadesCollision() {
 		}
 	}
 }
+
 void SystemCollision::BulletCollision() {
-	Camera2D cam = cameraManager.GetCamera();
-	float halfW = GetScreenWidth() / 2.0f;
-	float halfH = GetScreenHeight() / 2.0f;
-	float camLeft = cam.target.x - halfW - 100.0f;
-	float camRight = cam.target.x + halfW + 100.0f;
-	float camTop = cam.target.y - halfH - 100.0f;
-	float camBottom = cam.target.y + halfH + 100.0f;
 
 	auto bIt = creationManager.GetBullets().begin();
 	while (bIt != creationManager.GetBullets().end()) {
@@ -151,12 +146,6 @@ void SystemCollision::BulletCollision() {
 		if (bIt->GetType() == 1 || bIt->GetType() == 3) {
 			auto sIt = creationManager.GetSoldiers().begin();
 			while (sIt != creationManager.GetSoldiers().end()) {
-				// Ignorar soldados fuera de cámara — su hitbox no es fiable
-				Vector2 sPos = sIt->GetPosition();
-				if (sPos.x < camLeft || sPos.x > camRight ||
-					sPos.y < camTop || sPos.y > camBottom) {
-					++sIt; continue;
-				}
 
 				if (sIt->GetisAlive() && CheckCollisionRecs(sIt->GetHurtBox(), bIt->GetHitbox())) {
 					sIt->TriggerDeath(audioManager);
@@ -203,6 +192,7 @@ void SystemCollision::BulletCollision() {
 		else ++sIt;
 	}
 }
+
 void SystemCollision::PlayerBlockCollision()
 {
 	bool onGround = false;
@@ -300,6 +290,7 @@ void SystemCollision::PlayerBlockCollision()
 		}
 	}
 }
+
 void SystemCollision::ItemBlockCollision()
 {
 	// ========== creationManager.GetItems() CON SUELO ==========
@@ -321,6 +312,7 @@ void SystemCollision::ItemBlockCollision()
 	}
 
 }
+
 void SystemCollision::BulletBlockCollision() {
 	auto bIt = creationManager.GetBullets().begin();
 	while (bIt != creationManager.GetBullets().end()) {
@@ -372,6 +364,7 @@ void SystemCollision::BulletBlockCollision() {
 		++bIt;
 	}
 }
+
 void SystemCollision::ItemPlayerCollision(Item item) {
 	
 	if (item.IsActive() && CheckCollisionRecs(item.GetHitBox(), player.GetHitBox())) {

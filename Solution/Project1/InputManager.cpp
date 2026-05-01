@@ -1,6 +1,7 @@
+ï»¿#include "game.hpp"   
 #include "InputManager.hpp"
 
-InputManager::InputManager()
+InputManager::InputManager(Game* game) : game(game) 
 {
 }
 
@@ -27,9 +28,9 @@ void InputManager::InputChangeScene()
 {
 	if (IsKeyPressed(KEY_ENTER)) {
 		if (sceneManager.currentState == SceneManager::TITLE) {
-			// Solo iniciar si hay créditos
+			// Solo iniciar si hay crÃ©ditos
 			if (uiManager.GetCredits() > 0) {
-				uiManager.SetCredits(-1);  // Gasta 1 crédito
+				uiManager.SetCredits(-1);  // Gasta 1 crÃ©dito
 				audioManager.StopMusic(audioManager.GetTitleMusic());
 				audioManager.PlaySound(audioManager.GetGameSound());
 				sceneManager.SetGameState(SceneManager::GAME);
@@ -66,35 +67,24 @@ void InputManager::InputPlayer()
 		if (player.GetCurrentWeapon() == WeaponType::MACHINEGUN) {
 			if (player.GetAmmo() > 0) {
 				player.Shoot();
-				// These variables belong to Game; keep them as application-wide flags if needed.
-				// If you want them in Globals, move them there. For now, assume Game still owns them.
-				// Example: gameMachinegunBurst = true; (optional)
-				// reset burst timer and start shoot delay for machinegun
+				game->StartMachinegunBurst();  // â† mÃ©todo nuevo en Game
 				timerManager.ResetTimer(TimerType::MACHINEGUN_BURST_TIMER);
 				timerManager.StartTimer(TimerType::DELAY_MACHINEGUN);
-
-				// determine burst direction
-				// note: InputManager doesn't own machinegunBurstDir; caller (Game) should react accordingly.
-
-				// ===== START MACHINEGUN SOUNDS =====
-				// If you centralize machinegun sound state, move those counters into TimerManager or Globals.
 				audioManager.PlaySound(audioManager.GetMachinegunShootSound());
 			}
 		}
 		else {
 			player.Shoot();
-			// Shoot(1, ...) is a function of Game; InputManager should notify Game to spawn bullets.
-			// If Shoot is global, call it via  or make Game expose a method.
-			// Here we assume there's a global function or Game will handle this input in its update.
+			game->Shoot(1, {}, false);
 			timerManager.StartTimer(TimerType::DELAY_PISTOL);
 			audioManager.PlaySound(audioManager.GetShootSound());
 		}
 	}
 
 	// GRENADE: use TimerManager to check/set cooldown
-	if (IsKeyPressed(KEY_S) && player.IsAlive() && timerManager.IsReady(TimerType::GRENADE_COOLDOWN) && uiManager.HasBombs()) {
-		// Again: spawning grenades is Game responsibility; notify Game or call a global method.
-		// For now call a function in Globals if implemented, or set a flag.
+	if (IsKeyPressed(KEY_S) && player.IsAlive() &&
+		timerManager.IsReady(TimerType::GRENADE_COOLDOWN) && uiManager.HasBombs()) {
+		game->ThrowGrenade();
 		uiManager.UseGrenade();
 		uiManager.NotifyPlayerMoved();
 		timerManager.StartTimer(TimerType::DELAY_GRENADE);
@@ -119,15 +109,15 @@ void InputManager::InputUi()
 		}
 
 		if (IsKeyPressed(KEY_R) && uiManager.GetCredits() > 0) {
-			uiManager.SetCredits(-1);  // Gasta 1 crédito
+			uiManager.SetCredits(-1);  // Gasta 1 crÃ©dito
 			player.Respawn();
-			TraceLog(LOG_INFO, "Respawn. Créditos restantes: %d", uiManager.GetCredits());
+			TraceLog(LOG_INFO, "Respawn. CrÃ©ditos restantes: %d", uiManager.GetCredits());
 		}
 		if (IsKeyPressed(KEY_C) && timerManager.GetTimer(TimerType::CREDIT_COOLDOWN) <= 0.0f) {
 			if (uiManager.GetCredits() < 99) {
 				uiManager.SetCredits(1);
 				timerManager.SetTimerValue(TimerType::CREDIT_COOLDOWN, timerManager.GetTimer(TimerType::CREDIT_DELAY));
-				TraceLog(LOG_INFO, "Crédito insertado mientras muerto. Total: %d", uiManager.GetCredits());
+				TraceLog(LOG_INFO, "CrÃ©dito insertado mientras muerto. Total: %d", uiManager.GetCredits());
 			}
 		}
 	}

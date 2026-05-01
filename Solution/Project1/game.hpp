@@ -6,6 +6,7 @@
 #include "Grenade.hpp"
 #include "InputManager.hpp"
 
+
 class Game {
 public:
     Game();
@@ -20,6 +21,7 @@ public:
     void ShootMachinegun(float yOffset);
     void ThrowGrenade();
     void CheckBulletsOutOfCamera();
+    void StartMachinegunBurst();
 
     bool ShouldRestart() const { return shouldRestart; }
     SceneManager& GetSceneManager() { return sceneManager; }
@@ -31,7 +33,7 @@ private:
 
     SystemCollision systemCollision;
 
-    InputManager inputManager;
+    InputManager inputManager{this};
 
     // Estado de la ráfaga de machinegun
     bool machinegunBurst = false;
