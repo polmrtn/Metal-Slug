@@ -1,3 +1,4 @@
+#define _CRT_SECURE_NO_WARNINGS
 #include "Debug.hpp"
 
 
@@ -129,7 +130,7 @@ void Debug::EditorModeInput()
 
 	if (editorMode) {
 		if (IsKeyDown(KEY_W)) gridOffset.y -= 5.0f;
-		if (IsKeyDown(KEY_S)) gridOffset.y +		= 5.0f;
+		if (IsKeyDown(KEY_S)) gridOffset.y += 5.0f;
 		if (IsKeyDown(KEY_A)) gridOffset.x -= 5.0f;
 		if (IsKeyDown(KEY_D)) gridOffset.x += 5.0f;
 

@@ -73,6 +73,10 @@ static const TrackFrame TRACKS[4] = {
 SceneManager::SceneManager()
 {
     currentState = INTRO;
+    ResetIntro();
+}
+
+void SceneManager::Init() {
     texRedBg = LoadTexture("Graphics/intro/newintroredbg.png");
     texBlueBg = LoadTexture("Graphics/intro/newintrobluebg.png");
     texCannon = LoadTexture("Graphics/intro/newintrocannon.png");
@@ -90,7 +94,6 @@ SceneManager::SceneManager()
     texMetalSmall = LoadTexture("Graphics/intro/newintrometalslugggtiny.png");
     texLogoTop = LoadTexture("Graphics/intro/newintroagainmetalslug.png");
     texBrrrt = LoadTexture("Graphics/intro/brrrt.png");
-    ResetIntro();
 }
 
 SceneManager::~SceneManager()

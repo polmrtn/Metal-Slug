@@ -22,6 +22,7 @@ class Player {
 public:
     Player();
     ~Player();
+    void Init();
 
     // ========== ACTUALIZACIÓN Y DIBUJO ==========
     void Update(float CameraLeftLimit);

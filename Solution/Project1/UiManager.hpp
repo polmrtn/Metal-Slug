@@ -5,6 +5,8 @@ class UiManager {
 public:
     UiManager();
     ~UiManager();
+    void Init();
+
 
     void Update();
     void DrawHUD(Camera2D camera);

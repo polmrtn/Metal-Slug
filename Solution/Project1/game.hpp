@@ -1,81 +1,47 @@
 #pragma once
-#include "Player.hpp"
-#include "Soldier.hpp"
-#include "AudioManager.hpp"
-#include "SceneManager.hpp"
-#include "Bullet.hpp"
-#include "BackgroundManager.hpp"
+#include "GlobalManagers.hpp"
 #include "CameraManager.hpp"
-#include "LevelMap.hpp"
-#include "UiManager.hpp"
-#include "SoldierAnim.hpp"
-#include "Grenade.hpp" 
-#include "Item.hpp"
-#include "BulletAnim.hpp"
-#include <vector>
+#include "SystemCollision.hpp"
+#include "Bullet.hpp"
+#include "Grenade.hpp"
+#include "InputManager.hpp"
 
 class Game {
 public:
     Game();
     ~Game();
-    // Ciclo principal
+
     void Update();
     void Draw();
-    // Input
     void HandleInput();
-    // Disparo y granadas
-    void Shoot();
-    void Shoot(int BulletType, Vector2 startPos, bool faceRight);
-    void ThrowGrenade();
-    // Colisiones
-    void ResolveCollisions();
-    void BlockCollisions();
-    void BulletsCollision();
-    void GrenadesCollision();
-    void SoldierBlockCollision();
-    // Guardar/Cargar nivel
-    void SaveBlocksToFile(const char* filename);
-    void LoadBlocksFromFile(const char* filename);
-    void ShootMachinegun(float yOffset);
-    void CheckBulletsOutOfCamera();
-    void MergeBlocks();
     void Reset();
+
+    void Shoot(int bulletType, Vector2 startPos, bool faceRight);
+    void ShootMachinegun(float yOffset);
+    void ThrowGrenade();
+    void CheckBulletsOutOfCamera();
+
     bool ShouldRestart() const { return shouldRestart; }
     SceneManager& GetSceneManager() { return sceneManager; }
-    UiManager& GetUiManager() { return UiManager; }
+    UiManager& GetUiManager() { return uiManager; }
 
 private:
-    // ========== TEMPORIZADORES ==========
-  
-    // ========== GESTORES ==========
+    // CameraManager local porque necesita el offset de pantalla en el constructor
     CameraManager camera;
-    BackgroundManager backgroundManager;
-    AudioManager audioManager;
-    SceneManager sceneManager;
-    UiManager UiManager;
-    BulletAnim bulletAnim;
-    // ========== JUGADOR ==========
-    Player player;
-    // ========== ENTIDADES ==========
- 
-    // ========== ANIMACIONES ==========
-    SoldierAnim soldierAnim;
-    // ========== METODOS DE CREACION ==========
-   
-    // ========== MODO EDITOR ==========
-   
+
+    SystemCollision systemCollision;
+
+    InputManager inputManager;
+
+    // Estado de la ráfaga de machinegun
     bool machinegunBurst = false;
-    
-   
     static constexpr int MACHINEGUN_BURST_SIZE = 6;
-    const float burstOffsets[6] = { -10.0f, 0.0f, 10.0f, -10.0f, 0.0f, 10.0f };
+    const float burstOffsets[MACHINEGUN_BURST_SIZE] = { -10.0f, 0.0f, 10.0f, -10.0f, 0.0f, 10.0f };
+    int machinegunBurstCount = 0;
     PlayerDirection machinegunBurstDir = PlayerDirection::RIGHT;
-    bool shouldRestart = false;
 
-    // ========== CRÉDITOS ==========
-   // Delay entre inserciones de crédito (segundos)
-
-    // ========== DZWIEK MACHINEGUN (osobny timer, 4 dzwieki co 0.25s) ==========
+    // Estado de sonido machinegun
     bool machinegunSoundActive = false;
-   
+
+    bool shouldRestart = false;
 };

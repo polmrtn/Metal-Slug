@@ -2,8 +2,11 @@
 
 // ========== CONSTRUCTOR / DESTRUCTOR ==========
 Player::Player() {
-    anim.LoadTextures();
     SetNormalHitbox();
+}
+
+void Player::Init() {
+    anim.LoadTextures();
     anim.StartParachute();
 }
 
