@@ -69,7 +69,16 @@ void Debug::EditorModeInput(Camera2D cam)
     if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT))
         creationManager.GetTileMap().AddTileWorld(worldPos.x, worldPos.y, TileType::PLATFORM);
     if (IsMouseButtonDown(MOUSE_BUTTON_MIDDLE) || IsKeyDown(KEY_DELETE))
+    {
         creationManager.GetTileMap().RemoveTileWorld(worldPos.x, worldPos.y);
+
+        auto& items = creationManager.GetItems();
+        items.erase(std::remove_if(items.begin(), items.end(),
+            [&worldPos](const Item& i) {
+                return CheckCollisionPointRec(worldPos, i.GetHitBox());
+            }), items.end());
+    }
+
 
     // Entidades
     static float spawnCooldown = 0.0f;

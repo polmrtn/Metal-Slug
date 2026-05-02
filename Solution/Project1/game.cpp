@@ -12,17 +12,11 @@ static Color BGCOLOR = { 195, 195, 170 };
 Game::Game() : camera({ 1200.0f / 2.0f, 896.0f / 2.0f })
 {
     creationManager.LoadFromFile("level.txt");
-    player.SetGrounded(true);  // ← evita la caída inicial
-    // opcional: posición inicial cómoda para editar
+    debug.SetGridOffset(creationManager.GetTileMap().GetGridOffset());
+
+    player.SetGrounded(true);
     player.SetX(300.0f);
     player.SetY(300.0f);
-
-    FILE* file = fopen("level_blocks.txt", "r");
-    if (file) {
-        fclose(file);
-        creationManager.LoadFromFile("level.txt"); 
-        // debug.LoadBlocksFromFile("level_blocks.txt");
-    }
 }
 
 Game::~Game() {}

@@ -23,35 +23,33 @@ static Color TileBorder(TileType t) {
     }
 }
 
-static Rectangle TileRectWithOffset(int col, int row, Vector2 offset) {
-    return { col * TILE_SIZE + offset.x, row * TILE_SIZE + offset.y, TILE_SIZE, TILE_SIZE };
-}
-
 // ─────────────────────────────────────────────────────────────
 //  Edición
 // ─────────────────────────────────────────────────────────────
-int TileMap::FindTile(int col, int row) const {
+int TileMap::FindTileAt(float worldX, float worldY) const {
+    const float EPS = 0.5f;
     for (int i = 0; i < (int)tiles.size(); ++i)
-        if (tiles[i].col == col && tiles[i].row == row) return i;
+        if (fabsf(tiles[i].worldX - worldX) < EPS &&
+            fabsf(tiles[i].worldY - worldY) < EPS)
+            return i;
     return -1;
 }
 
-void TileMap::AddTile(int col, int row, TileType type) {
-    int idx = FindTile(col, row);
-    if (idx >= 0) tiles[idx].type = type;
-    else          tiles.push_back({ col, row, type, gridOffset.x, gridOffset.y });
-}
-
 void TileMap::AddTileWorld(float worldX, float worldY, TileType type) {
-    int col = (int)floorf((worldX - gridOffset.x) / TILE_SIZE);
-    int row = (int)floorf((worldY - gridOffset.y) / TILE_SIZE);
-    AddTile(col, row, type);
+    // Snap al grid con el offset actual
+    float snappedX = SnapToGrid(worldX, gridOffset.x);
+    float snappedY = SnapToGrid(worldY, gridOffset.y);
+
+    int idx = FindTileAt(snappedX, snappedY);
+    if (idx >= 0) tiles[idx].type = type;
+    else          tiles.push_back({ snappedX, snappedY, type });
 }
 
 void TileMap::RemoveTileWorld(float worldX, float worldY) {
-    int col = (int)floorf((worldX - gridOffset.x) / TILE_SIZE);
-    int row = (int)floorf((worldY - gridOffset.y) / TILE_SIZE);
-    int idx = FindTile(col, row);
+    float snappedX = SnapToGrid(worldX, gridOffset.x);
+    float snappedY = SnapToGrid(worldY, gridOffset.y);
+
+    int idx = FindTileAt(snappedX, snappedY);
     if (idx >= 0) tiles.erase(tiles.begin() + idx);
 }
 
@@ -61,88 +59,87 @@ void TileMap::Clear() {
 }
 
 // ─────────────────────────────────────────────────────────────
-//  Bake
+//  Bake — fusiona tiles adyacentes del mismo tipo
 // ─────────────────────────────────────────────────────────────
 void TileMap::Bake() {
     colliders.clear();
     if (tiles.empty()) return;
 
     struct MarkedTile {
-        int col, row;
+        float    worldX, worldY;
         TileType type;
-        float offsetX, offsetY;
-        bool used = false;
+        bool     used = false;
     };
+
     std::vector<MarkedTile> marked;
     marked.reserve(tiles.size());
-    for (auto& t : tiles) marked.push_back({ t.col, t.row, t.type, t.offsetX, t.offsetY, false });
+    for (auto& t : tiles) marked.push_back({ t.worldX, t.worldY, t.type, false });
 
+    // Ordenar por Y luego X
     std::sort(marked.begin(), marked.end(), [](const MarkedTile& a, const MarkedTile& b) {
-        if (a.row != b.row) return a.row < b.row;
-        return a.col < b.col;
+        if (fabsf(a.worldY - b.worldY) > 0.1f) return a.worldY < b.worldY;
+        return a.worldX < b.worldX;
         });
+
+    const float EPS = 0.5f;
 
     for (int i = 0; i < (int)marked.size(); ++i) {
         if (marked[i].used) continue;
 
-        // Rampas: collider individual con su propio offset
+        // Rampas: collider individual
         if (marked[i].type == TileType::RAMP_UP) {
-            Rectangle r = TileRectWithOffset(marked[i].col, marked[i].row,
-                { marked[i].offsetX, marked[i].offsetY });
-            colliders.push_back({ r, marked[i].type });
+            colliders.push_back({
+                { marked[i].worldX, marked[i].worldY, TILE_SIZE, TILE_SIZE },
+                marked[i].type
+                });
             marked[i].used = true;
             continue;
         }
 
         TileType type = marked[i].type;
-        int      startCol = marked[i].col;
-        int      row = marked[i].row;
-        float    ox = marked[i].offsetX;
-        float    oy = marked[i].offsetY;
+        float    startX = marked[i].worldX;
+        float    rowY = marked[i].worldY;
 
-        // 1. Extender en X — mismo tipo, adyacente, mismo offset
-        int endCol = startCol;
+        // 1. Extender en X
+        float endX = startX;
         for (int j = i + 1; j < (int)marked.size(); ++j) {
-            if (marked[j].used)               continue;
-            if (marked[j].row != row)        break;
-            if (marked[j].type != type)       continue;
-            if (marked[j].col != endCol + 1) break;
-            if (marked[j].offsetX != ox || marked[j].offsetY != oy) break;
-            endCol = marked[j].col;
+            if (marked[j].used)                              continue;
+            if (fabsf(marked[j].worldY - rowY) > EPS)       break;
+            if (marked[j].type != type)                      continue;
+            if (fabsf(marked[j].worldX - (endX + TILE_SIZE)) > EPS) break;
+            endX = marked[j].worldX;
         }
 
-        // 2. Extender en Y — mismo rango de columnas, mismo offset
-        int  endRow = row;
-        bool canExtend = true;
+        // 2. Extender en Y
+        float endY = rowY;
+        bool  canExtend = true;
         while (canExtend) {
-            int nextRow = endRow + 1;
-            for (int c = startCol; c <= endCol; ++c) {
+            float nextY = endY + TILE_SIZE;
+            for (float cx = startX; cx <= endX + EPS; cx += TILE_SIZE) {
                 bool found = false;
                 for (auto& m : marked)
-                    if (!m.used && m.row == nextRow && m.col == c &&
-                        m.type == type && m.offsetX == ox && m.offsetY == oy)
+                    if (!m.used && m.type == type &&
+                        fabsf(m.worldY - nextY) < EPS &&
+                        fabsf(m.worldX - cx) < EPS)
                     {
                         found = true; break;
                     }
                 if (!found) { canExtend = false; break; }
             }
-            if (canExtend) endRow = nextRow;
+            if (canExtend) endY = nextY;
         }
 
         // 3. Marcar usados
         for (auto& m : marked)
             if (!m.used && m.type == type &&
-                m.col >= startCol && m.col <= endCol &&
-                m.row >= row && m.row <= endRow &&
-                m.offsetX == ox && m.offsetY == oy)
+                m.worldX >= startX - EPS && m.worldX <= endX + EPS &&
+                m.worldY >= rowY - EPS && m.worldY <= endY + EPS)
                 m.used = true;
 
-        // 4. Crear CollisionRect con el offset del grupo
-        float x = startCol * TILE_SIZE + ox;
-        float y = row * TILE_SIZE + oy;
-        float w = (endCol - startCol + 1) * TILE_SIZE;
-        float h = (endRow - row + 1) * TILE_SIZE;
-        colliders.push_back({ { x, y, w, h }, type });
+        // 4. Crear CollisionRect
+        float w = (endX - startX) + TILE_SIZE;
+        float h = (endY - rowY) + TILE_SIZE;
+        colliders.push_back({ { startX, rowY, w, h }, type });
     }
 
     TraceLog(LOG_INFO, "TileMap::Bake — %d tiles -> %d colliders",
@@ -150,16 +147,18 @@ void TileMap::Bake() {
 }
 
 // ─────────────────────────────────────────────────────────────
-//  Serialización
+//  Serialización — guarda posición mundial directamente
 // ─────────────────────────────────────────────────────────────
 void TileMap::SaveToFile(const char* filename) const {
     FILE* f = fopen(filename, "w");
     if (!f) { TraceLog(LOG_WARNING, "TileMap: no se pudo guardar %s", filename); return; }
 
+    // Guardar offset del grid para restaurarlo en el editor
     fprintf(f, "O %.4f %.4f\n", gridOffset.x, gridOffset.y);
 
+    // Guardar posición mundial exacta de cada tile
     for (auto& t : tiles)
-        fprintf(f, "%d %d %d %.4f %.4f\n", t.col, t.row, (int)t.type, t.offsetX, t.offsetY);
+        fprintf(f, "T %.4f %.4f %d\n", t.worldX, t.worldY, (int)t.type);
 
     fclose(f);
     TraceLog(LOG_INFO, "TileMap guardado: %s (%d tiles)", filename, (int)tiles.size());
@@ -177,15 +176,12 @@ void TileMap::LoadFromFile(const char* filename) {
             if (sscanf(line + 2, "%f %f", &ox, &oy) == 2)
                 gridOffset = { ox, oy };
         }
-        else if (line[0] == 'S' || line[0] == 'I') {
-            // soldados e items — los maneja CreationManager
+        else if (line[0] == 'T') {
+            float wx, wy; int type;
+            if (sscanf(line + 2, "%f %f %d", &wx, &wy, &type) == 3)
+                tiles.push_back({ wx, wy, (TileType)type });
         }
-        else {
-            int col, row, type;
-            float ox = 0.0f, oy = 0.0f;
-            if (sscanf(line, "%d %d %d %f %f", &col, &row, &type, &ox, &oy) >= 3)
-                tiles.push_back({ col, row, (TileType)type, ox, oy });
-        }
+        // S e I los maneja CreationManager
     }
 
     fclose(f);
@@ -199,7 +195,8 @@ void TileMap::LoadFromFile(const char* filename) {
 // ─────────────────────────────────────────────────────────────
 void TileMap::DrawTiles() const {
     for (auto& t : tiles) {
-        Rectangle r = TileRectWithOffset(t.col, t.row, { t.offsetX, t.offsetY });
+        Rectangle r = { t.worldX, t.worldY, TILE_SIZE, TILE_SIZE };
+
         if (t.type == TileType::RAMP_UP) {
             Vector2 a = { r.x,           r.y + r.height };
             Vector2 b = { r.x + r.width, r.y };
@@ -213,6 +210,7 @@ void TileMap::DrawTiles() const {
             DrawRectangleRec(r, TileColor(t.type));
             DrawRectangleLinesEx(r, 1.0f, TileBorder(t.type));
         }
+
         const char* label = "";
         switch (t.type) {
         case TileType::SOLID:    label = "S"; break;
@@ -239,13 +237,4 @@ void TileMap::DrawColliders() const {
             DrawRectangleLinesEx(c.rect, 2.0f, TileBorder(c.type));
         }
     }
-}
-
-void TileMap::DrawGrid() const {
-    int screenW = GetScreenWidth();
-    int screenH = GetScreenHeight();
-    for (float x = fmodf(gridOffset.x, TILE_SIZE); x < screenW; x += TILE_SIZE)
-        DrawLineV({ x, 0 }, { x, (float)screenH }, ColorAlpha(GRAY, 0.3f));
-    for (float y = fmodf(gridOffset.y, TILE_SIZE); y < screenH; y += TILE_SIZE)
-        DrawLineV({ 0, y }, { (float)screenW, y }, ColorAlpha(GRAY, 0.3f));
 }

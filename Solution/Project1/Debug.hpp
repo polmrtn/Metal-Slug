@@ -17,6 +17,7 @@ public:
     void SaveToFile(const char* filename) const;
     void DrawEditorGrid(Camera2D cam);
     bool GetEditorMode() const { return editorMode; }
+    void SetGridOffset(Vector2 offset) { gridOffset = offset; }
 
 private:
     bool      editorMode = false;
