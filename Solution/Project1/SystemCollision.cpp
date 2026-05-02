@@ -135,7 +135,6 @@ void SystemCollision::PlayerBlockCollision()
             }
             break;
         }
-
         case TileType::RAMP_UP:
         {
             float centerX = pr.x + pr.width / 2.0f;
@@ -144,11 +143,12 @@ void SystemCollision::PlayerBlockCollision()
             float surfaceY = col.GetRampSurfaceY(centerX);
             float feetY = pr.y + pr.height;
 
-            if (player.GetVelocityY() >= 0 && feetY >= surfaceY)
+            if (feetY >= surfaceY - 10.0f && feetY <= surfaceY + 45.0f)
             {
                 player.SetY(surfaceY - player.GetHeight());
-                player.SetVelocityY(0.0f);
+                player.SetVelocityY(3.0f);
                 onGround = true;
+                player.SetWasOnRamp(true); 
                 pr = player.GetHitBox();
             }
             break;

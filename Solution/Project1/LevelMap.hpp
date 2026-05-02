@@ -5,7 +5,7 @@
 // ─────────────────────────────────────────────────────────────
 //  Tamaño del tile — modifica aquí si necesitas otro tamaño
 // ─────────────────────────────────────────────────────────────
-constexpr float TILE_SIZE = 50.0f;
+constexpr float TILE_SIZE = 30.0f;
 
 // ─────────────────────────────────────────────────────────────
 //  Tipos de tile
@@ -72,10 +72,15 @@ public:
     void DrawColliders() const;   // rectángulos fusionados
     void DrawGrid() const;        // cuadrícula de referencia
 
+    void SetGridOffset(Vector2 offset) { gridOffset = offset; }
+    Vector2 GetGridOffset() const { return gridOffset; }
+
 private:
     struct Tile {
         int      col, row;
         TileType type;
+        float    offsetX = 0.0f;
+        float    offsetY = 0.0f;
     };
 
     std::vector<Tile>          tiles;      // tiles sin fusionar
@@ -85,6 +90,7 @@ private:
     static Rectangle TileRect(int col, int row) {
         return { col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE };
     }
+    Vector2 gridOffset = { 0.0f, 0.0f };
 
     // Encuentra el índice de un tile por col/row, -1 si no existe
     int FindTile(int col, int row) const;

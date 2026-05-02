@@ -94,6 +94,9 @@ public:
     bool isLanding = false;
     void ResetToStart();
 
+    void SetWasOnRamp(bool val) { wasOnRamp = val; }
+    bool GetWasOnRamp() const { return wasOnRamp; }
+
 private:
     // ========== ANIMACIÓN ==========
     PlayerAnim anim;
@@ -163,6 +166,6 @@ private:
     float blinkTimer = 0.0f;
     float blinkDelay = 0.1f;
     bool blinkVisible = true;
-
+    bool wasOnRamp = false;
    
 };
