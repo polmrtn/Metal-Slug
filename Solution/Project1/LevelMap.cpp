@@ -156,11 +156,10 @@ void TileMap::SaveToFile(const char* filename) const {
     FILE* f = fopen(filename, "w");
     if (!f) { TraceLog(LOG_WARNING, "TileMap: no se pudo guardar %s", filename); return; }
 
-    // Offset primero
     fprintf(f, "O %.4f %.4f\n", gridOffset.x, gridOffset.y);
 
     for (auto& t : tiles)
-        fprintf(f, "%d %d %d\n", t.col, t.row, (int)t.type);
+        fprintf(f, "%d %d %d %.4f %.4f\n", t.col, t.row, (int)t.type, t.offsetX, t.offsetY);
 
     fclose(f);
     TraceLog(LOG_INFO, "TileMap guardado: %s (%d tiles)", filename, (int)tiles.size());
@@ -183,8 +182,9 @@ void TileMap::LoadFromFile(const char* filename) {
         }
         else {
             int col, row, type;
-            if (sscanf(line, "%d %d %d", &col, &row, &type) == 3)
-                AddTile(col, row, (TileType)type);
+            float ox = 0.0f, oy = 0.0f;
+            if (sscanf(line, "%d %d %d %f %f", &col, &row, &type, &ox, &oy) >= 3)
+                tiles.push_back({ col, row, (TileType)type, ox, oy });
         }
     }
 
