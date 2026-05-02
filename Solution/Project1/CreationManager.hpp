@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <raylib.h>
 #include <vector>
 #include "Bullet.hpp"
@@ -13,19 +13,25 @@ public:
     CreationManager();
     ~CreationManager();
 
-    // Getters � devuelven referencia para permitir modificaci�n directa
+    // ── TileMap (colisiones + nivel) ──────────────────────────
+    TileMap& GetTileMap() { return tileMap; }
+
+    // ── Entidades dinámicas ───────────────────────────────────
     std::vector<Bullet>& GetBullets();
-    std::vector<Block>& GetBlocks();
-    std::vector<Item>& GetItems();
     std::vector<Soldier>& GetSoldiers();
     std::vector<Grenade>& GetGrenades();
+    std::vector<Item>& GetItems();
 
-    void LoadBlocksFromFile(const char* filename);
+    // ── Carga del nivel ───────────────────────────────────────
+    // Formato nuevo: tiles  (col row type por línea)
+    // Soldados:  S x y type
+    // Items:     I x y type
+    void LoadFromFile(const char* filename);
 
 private:
-    std::vector<Bullet>   bullets;
-    std::vector<Block>    blocks;
-    std::vector<Item>     items;
-    std::vector<Soldier>  soldiers;
-    std::vector<Grenade>  grenades;
+    TileMap              tileMap;
+    std::vector<Bullet>  bullets;
+    std::vector<Soldier> soldiers;
+    std::vector<Grenade> grenades;
+    std::vector<Item>    items;
 };

@@ -11,10 +11,16 @@ static Color BGCOLOR = { 195, 195, 170 };
 // ─────────────────────────────────────────
 Game::Game() : camera({ 1200.0f / 2.0f, 896.0f / 2.0f })
 {
+    creationManager.LoadFromFile("level.txt");
+    player.SetGrounded(true);  // ← evita la caída inicial
+    // opcional: posición inicial cómoda para editar
+    player.SetX(300.0f);
+    player.SetY(300.0f);
+
     FILE* file = fopen("level_blocks.txt", "r");
     if (file) {
         fclose(file);
-        creationManager.LoadBlocksFromFile("level_blocks.txt");
+        creationManager.LoadFromFile("level.txt"); 
         // debug.LoadBlocksFromFile("level_blocks.txt");
     }
 }
@@ -40,18 +46,21 @@ void Game::Draw()
     camera.Begin();
 
     backgroundManager.Draw();
-
     player.Draw();
     for (auto& soldier : creationManager.GetSoldiers()) soldier.Draw();
     backgroundManager.Drawfrontground();
-
-    for (auto& block : creationManager.GetBlocks())   block.Draw();
     for (auto& bullet : creationManager.GetBullets())  bullet.Draw();
     for (auto& grenade : creationManager.GetGrenades()) grenade.Draw();
     for (auto& item : creationManager.GetItems())    item.Draw();
 
+    // Tiles en coordenadas de mundo
+    creationManager.GetTileMap().DrawTiles();
+    creationManager.GetTileMap().DrawColliders();
+    debug.DrawEditorGrid(camera.GetCamera());
+
     camera.End();
 
+    debug.SetEditorMode(camera.GetCamera());  // ← solo HUD en pantalla
     uiManager.DrawCredits(camera.GetCamera());
 }
 
@@ -142,7 +151,7 @@ void Game::Update()
     // Actualizar granadas
     for (auto& grenade : creationManager.GetGrenades()) {
         grenade.Update();
-        grenade.CheckCollisionWithBlocks(creationManager.GetBlocks());
+        grenade.CheckCollisionWithBlocks(creationManager.GetTileMap().GetColliders());
         grenade.CheckCollisionWithSoldiers(creationManager.GetSoldiers());
     }
     auto& grenades = creationManager.GetGrenades();
@@ -208,6 +217,10 @@ void Game::Update()
 // ─────────────────────────────────────────
 void Game::HandleInput()
 {
+    debug.EditorModeInput(camera.GetCamera());
+
+    if (debug.GetEditorMode()) return; 
+
     inputManager.InputChangeScene();
     inputManager.InputCreditsPlayer();
     inputManager.InputUi();

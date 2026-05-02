@@ -1,27 +1,26 @@
 #pragma once
+#define _CRT_SECURE_NO_WARNINGS
 #include <raylib.h>
 #include <algorithm>
-#define _CRT_SECURE_NO_WARNINGS
 #include "GlobalManagers.hpp"
 
 class Debug
 {
 public:
-	Debug();
-	~Debug();
-	void LoadBlocksFromFile(const char* filename);
-	void MergeBlocks();
-	void SaveBlocksToFile(const char* filename);
-	bool GetEditorMode() { return editorMode; };
-	void SetEditorMode();
-	void EditorModeInput();
-	void GeneralDebugInput();
-	void EnableHitboxes();
+    Debug();
+    ~Debug();
+
+    void SetEditorMode(Camera2D cam);       // dibuja el editor (llamar dentro de camera.Begin())
+    void EditorModeInput(Camera2D cam);     // procesa input del editor (llamar cada frame)
+    void GeneralDebugInput();   // cheats (L=nivel, J=score, C=crédito)
+    void EnableHitboxes();
+    void SaveToFile(const char* filename) const;
+    void DrawEditorGrid(Camera2D cam);
+    bool GetEditorMode() const { return editorMode; }
+
 private:
-	FILE* file;
-	bool editorMode ;
-	float gridSize = 50.0f;
-	Vector2 gridOffset = { 0.0f, 0.0f };
-
+    bool      editorMode = false;
+    float     gridSize = TILE_SIZE;   // sincronizado con el tamaño de tile
+    TileType  activeTileType = TileType::SOLID;
+    Vector2 gridOffset = { 0.0f, 0.0f };
 };
-

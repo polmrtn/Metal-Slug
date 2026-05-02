@@ -123,6 +123,10 @@ void Player::Update(float CameraLeftLimit) {
     }
 
     // Física y movimiento
+    if (rampGroundedFrames > 0) {
+        rampGroundedFrames--;
+        grounded = true;
+    }
     if (!grounded) {
         vel.y += GRAVITY;
         pos.y += vel.y;
@@ -189,6 +193,7 @@ void Player::Jump() {
     if (grounded && !crouching && mode != Mode::FULL_BODY) {
         vel.y = JUMP_FORCE;
         grounded = false;
+        rampGroundedFrames = 0;  
         anim.ResetJump();
     }
 }

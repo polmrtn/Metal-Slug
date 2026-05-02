@@ -170,33 +170,27 @@ void Grenade::Draw() {
     DrawTexturePro(texture, sourceRect, destRect, { 0, 0 }, 0, WHITE);
 }
 
-void Grenade::CheckCollisionWithBlocks(const std::vector<Block>& blocks) {
+void Grenade::CheckCollisionWithBlocks(const std::vector<CollisionRect>& colliders) {
     if (!isActive || hasExploded) return;
 
     Rectangle grenadeBox = GetHitBox();
 
-    for (const auto& block : blocks) {
-        // Ignorar rampas
-        if (block.IsRamp()) continue;
+    for (const auto& col : colliders) {
+        if (col.type == TileType::RAMP_UP || col.type == TileType::PLATFORM) continue;
 
-        Rectangle blockRect = block.GetRect();
-        if (!CheckCollisionRecs(grenadeBox, blockRect)) continue;
+        const Rectangle& br = col.rect;
+        if (!CheckCollisionRecs(grenadeBox, br)) continue;
 
-        // ===== TECHO: solo bloquea si la granada va hacia ARRIBA =====
-        if (block.GetType() == BlockType::CEILING) {
+        if (col.type == TileType::CEILING) {
             if (velocity.y < 0) {
-                position.y = blockRect.y + blockRect.height + 11.0f;
+                position.y = br.y + br.height + 11.0f;
                 velocity.y = -velocity.y * bounceDamping;
             }
             return;
         }
 
-        // ===== SUELO NORMAL: viene de arriba (cayendo) =====
-        if (velocity.y > 0 &&
-            position.y - velocity.y * GetFrameTime() < blockRect.y) {
-
-            position.y = blockRect.y - 11.0f;
-
+        if (velocity.y > 0 && position.y - velocity.y * GetFrameTime() < br.y) {
+            position.y = br.y - 11.0f;
             if (!hasBounced) {
                 velocity.y = -velocity.y * bounceDamping;
                 velocity.x *= 0.7f;
@@ -208,7 +202,6 @@ void Grenade::CheckCollisionWithBlocks(const std::vector<Block>& blocks) {
             return;
         }
 
-        // ===== LATERAL: explota =====
         Explode();
         return;
     }

@@ -5,6 +5,7 @@
 #include "Bullet.hpp"
 #include "Grenade.hpp"
 #include "InputManager.hpp"
+#include "Debug.hpp"
 
 
 class Game {
@@ -32,10 +33,9 @@ public:
 private:
     // CameraManager local porque necesita el offset de pantalla en el constructor
     CameraManager camera;
-
     SystemCollision systemCollision;
-
     InputManager inputManager{this};
+    Debug debug;
 
     // Estado de la ráfaga de machinegun
     bool machinegunBurst = false;
