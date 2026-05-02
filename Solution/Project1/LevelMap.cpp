@@ -202,7 +202,7 @@ void TileMap::DrawTiles() const {
         Rectangle r = TileRectWithOffset(t.col, t.row, { t.offsetX, t.offsetY });
         if (t.type == TileType::RAMP_UP) {
             Vector2 a = { r.x,           r.y + r.height };
-            Vector2 b = { r.x,           r.y };
+            Vector2 b = { r.x + r.width, r.y };
             Vector2 c = { r.x + r.width, r.y + r.height };
             DrawTriangle(a, b, c, TileColor(t.type));
             DrawLine((int)a.x, (int)a.y, (int)b.x, (int)b.y, TileBorder(t.type));
@@ -228,7 +228,7 @@ void TileMap::DrawColliders() const {
     for (auto& c : colliders) {
         if (c.type == TileType::RAMP_UP) {
             Vector2 a = { c.rect.x,               c.rect.y + c.rect.height };
-            Vector2 b = { c.rect.x,               c.rect.y };
+            Vector2 b = { c.rect.x + c.rect.width, c.rect.y };
             Vector2 c2 = { c.rect.x + c.rect.width, c.rect.y + c.rect.height };
             DrawTriangle(a, b, c2, ColorAlpha(ORANGE, 0.25f));
             DrawLine((int)a.x, (int)a.y, (int)b.x, (int)b.y, ORANGE);

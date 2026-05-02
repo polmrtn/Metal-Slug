@@ -40,7 +40,8 @@ void SystemCollision::PlayerBlockCollision()
             // -- Suelo --
             float feetY = pr.y + pr.height;
             float prevFeetY = player.GetPreviousY() + player.GetHeight();
-            bool  wasAbove = prevFeetY <= br.y + 1.0f;
+            // ← más permisivo si viene de rampa
+            bool  wasAbove = prevFeetY <= br.y + 8.0f;
             bool  overlapX = (pr.x + pr.width > br.x + 2.0f) &&
                 (pr.x < br.x + br.width - 2.0f);
             float penetration = feetY - br.y;
@@ -148,7 +149,7 @@ void SystemCollision::PlayerBlockCollision()
                 player.SetY(surfaceY - player.GetHeight());
                 player.SetVelocityY(3.0f);
                 onGround = true;
-                player.SetWasOnRamp(true); 
+                player.SetRampGroundedFrames(3);  // ← 3 frames de gracia
                 pr = player.GetHitBox();
             }
             break;
@@ -156,7 +157,12 @@ void SystemCollision::PlayerBlockCollision()
         }
     }
 
-    player.SetGrounded(onGround);
+    if (onGround)
+        player.SetGrounded(true);
+    else if (player.GetRampGroundedFrames() > 0)
+        player.SetGrounded(true);  // los frames de gracia los decrementa Player::Update
+    else
+        player.SetGrounded(false);
 }
 
 // ═════════════════════════════════════════════════════════════
