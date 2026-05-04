@@ -90,6 +90,10 @@ private:
     void  DrawTimeDigit(char c, Vector2 pos, float scale) const;
     void  DrawTimeNumber(int value, Vector2 pos, float scale) const;
 
+    void  DrawInnerChar(char c, Vector2 pos, float scale) const;
+    void  DrawInnerText(const char* str, Vector2 pos, float scale) const;
+    float MeasureInnerText(const char* str, float scale) const;
+
     // POPRAWIONA DEKLARACJA (3 argumenty, zgodna z .cpp)
     void  DrawHpBar(Vector2 pos, int segs, float scale) const;
 

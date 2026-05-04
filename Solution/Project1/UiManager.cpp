@@ -282,7 +282,6 @@ void UiManager::DrawHUD(Camera2D /*camera*/)
     int SH = GetScreenHeight();
 
     const float topPad = 10.0f;
-    const float numSc  = 1.0f;
     const float scoreSc = 1.5f;
     const float timeScale = 4.0f;
 
@@ -304,7 +303,9 @@ void UiManager::DrawHUD(Camera2D /*camera*/)
     DrawTextureEx(texArms, { hudX,              hudY }, 0.0f, hudSc, WHITE);
     DrawTextureEx(texBomb, { hudX + bombOffsetX, hudY }, 0.0f, hudSc, WHITE);
 
-    float innerNumY  = hudY + (12.5f * hudSc) - (8.0f * numSc);
+    const float innerSc   = 1.0f;
+    const float innerCharW = 16.0f * innerSc;
+    float innerNumY  = hudY + (12.5f * hudSc) - (8.0f * innerSc);
     float armsCenterX = hudX + (18.0f * hudSc);
     float bombCenterX = hudX + bombOffsetX + (18.0f * hudSc);
 
@@ -312,24 +313,21 @@ void UiManager::DrawHUD(Camera2D /*camera*/)
     {
         char ammoBuf[8];
         std::snprintf(ammoBuf, sizeof(ammoBuf), "%03d", ammo);
-        float ammoScale = 1.0f;
-        float ammoW = MeasureScoreText(ammoBuf, ammoScale);
-        DrawScoreText(ammoBuf, { armsCenterX - ammoW * 0.5f, innerNumY }, ammoScale);
+        float ammoW = MeasureInnerText(ammoBuf, innerSc);
+        DrawInnerText(ammoBuf, { armsCenterX - ammoW * 0.5f, innerNumY }, innerSc);
     }
     else
     {
-        float infW  = BIG_CHAR_W * numSc * 3.0f;
-        float startX = armsCenterX - (infW * 0.5f);
-        DrawBigLetter('I', { startX,                          innerNumY }, numSc);
-        DrawBigLetter('N', { startX + BIG_CHAR_W * numSc,     innerNumY }, numSc);
-        DrawBigLetter('F', { startX + BIG_CHAR_W * numSc * 2, innerNumY }, numSc);
+        // Tymczasowy placeholder dla INF — trzy kropki
+        const char* infPlaceholder = "...";
+        float infW = MeasureInnerText(infPlaceholder, innerSc);
+        DrawInnerText(infPlaceholder, { armsCenterX - infW * 0.5f, innerNumY }, innerSc);
     }
 
     char bombBuf[8];
     std::snprintf(bombBuf, sizeof(bombBuf), "%02d", bombs);
-    float bombScale = 1.0f;
-    float bombW = MeasureScoreText(bombBuf, bombScale);
-    DrawScoreText(bombBuf, { bombCenterX - bombW * 0.5f, innerNumY }, bombScale);
+    float bombW = MeasureInnerText(bombBuf, innerSc);
+    DrawInnerText(bombBuf, { bombCenterX - bombW * 0.5f, innerNumY }, innerSc);
 
     // --- SCORE — na lewo od ramek ARMS/BOMB ---
     char sBuf[16];
@@ -433,4 +431,39 @@ void UiManager::DrawTimeNumber(int value, Vector2 pos, float scale) const
         DrawTimeDigit(buf[i], { x, pos.y }, scale);
         x += CHAR_W * scale;
     }
+}
+
+// Sprite: 0123456789:. — każdy znak 16x16 px
+void UiManager::DrawInnerChar(char c, Vector2 pos, float scale) const
+{
+    const int CHAR_W = 16;
+    const int CHAR_H = 16;
+
+    int idx = -1;
+    if (c >= '0' && c <= '9') idx = c - '0';
+    else if (c == ':')        idx = 10;
+    else if (c == '.')        idx = 11;
+    if (idx < 0) return;
+
+    Rectangle src = { (float)(idx * CHAR_W), 0.0f, (float)CHAR_W, (float)CHAR_H };
+    Rectangle dst = { pos.x, pos.y, CHAR_W * scale, CHAR_H * scale };
+    DrawTexturePro(texTimeNum, src, dst, { 0,0 }, 0.0f, WHITE);
+}
+
+void UiManager::DrawInnerText(const char* str, Vector2 pos, float scale) const
+{
+    const float CHAR_W = 16.0f;
+    float x = pos.x;
+    for (int i = 0; str[i]; ++i)
+    {
+        DrawInnerChar(str[i], { x, pos.y }, scale);
+        x += CHAR_W * scale;
+    }
+}
+
+float UiManager::MeasureInnerText(const char* str, float scale) const
+{
+    int len = 0;
+    for (int i = 0; str[i]; ++i) ++len;
+    return len * 16.0f * scale;
 }
