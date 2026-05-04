@@ -200,6 +200,10 @@ void Game::Update()
     ClearBackground(BGCOLOR);
     Draw();
 
+    // Flash del sprite del boss en background
+    Color bossTint = boss.IsFlashing() ? ORANGE : WHITE;
+    backgroundManager.SetEventSpriteTint(4, bossTint);  // índice 4 = boss1.png
+
     backgroundManager.FollowPlayer(camera.GetCamera().target);
     backgroundManager.Update(GetFrameTime());
 

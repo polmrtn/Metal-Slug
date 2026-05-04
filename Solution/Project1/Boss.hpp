@@ -12,11 +12,24 @@ public:
 
     bool IsActive() const { return active; }
     int  GetHealth() const { return health; }
-    void TakeDamage() { if (active) health--; }
+    
+    void TakeDamage() {
+        if (active) {
+            health--;
+            StartFlash();
+        }
+    }
+    void StartFlash() {
+        isFlashing = true;
+        hitFlashTimer = 0.0f;
+        hitFlashCount = 0;
+    }
+    bool IsFlashing() const { return isFlashing && hitFlashCount % 2 == 0; }
+
     Rectangle GetHitBox() const {
         return { posX, posY, CANNON_FRAME_W * CANNON_SCALE, CANNON_FRAME_H * CANNON_SCALE };
     }
-
+    
 private:
     // ── Estado general ────────────────────────────────────────
     bool active = false;
@@ -69,4 +82,10 @@ private:
 
     // ── Helpers ───────────────────────────────────────────────
     void UpdateCannon(float dt);
+
+    float hitFlashTimer = 0.0f;
+    static constexpr float HIT_FLASH_DURATION = 0.08f;
+    static constexpr int   HIT_FLASH_COUNT = 6;  // número de parpadeos
+    int   hitFlashCount = 0;
+    bool  isFlashing = false;
 };

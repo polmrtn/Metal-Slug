@@ -26,6 +26,19 @@ void Boss::Update(float playerX)
         else return;
     }
 
+    // Flash al recibir daño
+    if (isFlashing) {
+        hitFlashTimer += GetFrameTime();
+        if (hitFlashTimer >= HIT_FLASH_DURATION) {
+            hitFlashTimer = 0.0f;
+            hitFlashCount++;
+            if (hitFlashCount >= HIT_FLASH_COUNT) {
+                isFlashing = false;
+                hitFlashCount = 0;
+            }
+        }
+    }
+
     UpdateCannon(GetFrameTime());
 }
 
@@ -167,5 +180,6 @@ void Boss::Draw()
         CANNON_FRAME_W * CANNON_SCALE,
         CANNON_FRAME_H * CANNON_SCALE
     };
-    DrawTexturePro(cannonSheet, src, dst, { 0, 0 }, 0.0f, WHITE);
+    Color tint = (isFlashing && hitFlashCount % 2 == 0) ? ORANGE : WHITE;
+    DrawTexturePro(cannonSheet, src, dst, { 0, 0 }, 0.0f, tint);
 }
