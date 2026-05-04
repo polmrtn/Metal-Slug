@@ -15,8 +15,10 @@ Game::Game() : camera({ 1200.0f / 2.0f, 896.0f / 2.0f })
     debug.SetGridOffset(creationManager.GetTileMap().GetGridOffset());
 
     player.SetGrounded(true);
-    player.SetX(300.0f);
-    player.SetY(300.0f);
+    player.SetX(15000.0f);
+    player.SetY(100.0f);
+
+    boss.Init();
 }
 
 Game::~Game() {}
@@ -51,6 +53,7 @@ void Game::Draw()
     creationManager.GetTileMap().DrawTiles();
     creationManager.GetTileMap().DrawColliders();
     debug.DrawEditorGrid(camera.GetCamera());
+    boss.Draw();
 
     camera.End();
 
@@ -98,6 +101,7 @@ void Game::Update()
     // ── GAME ───────────────────────────────
     uiManager.Update();
     timerManager.Update(GetFrameTime());
+    boss.Update(player.GetPosition().x);
 
     player.SavePreviousPosition();
     HandleInput();

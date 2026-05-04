@@ -11,6 +11,7 @@ int main()
     uiManager.Init();
     sceneManager.Init();
     backgroundManager.Init();
+    boss.Init();
 
     sceneManager.SetGameState(SceneManager::GAME);
     uiManager.SetCredits(99);
