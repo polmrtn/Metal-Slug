@@ -2,6 +2,7 @@
 #include <cstdio>
 #include <cstring>
 #include <cmath>
+#include <algorithm>
 
 static const float TICK_INTERVAL = 5.0f;
 
@@ -304,46 +305,51 @@ void UiManager::DrawHUD(Camera2D /*camera*/)
     float hudY = timeY;
     float hudX = startXTime - totalFrameW - 12.0f;
 
-    DrawTextureEx(texArms, { hudX,              hudY }, 0.0f, hudSc, WHITE);
-    DrawTextureEx(texBomb, { hudX + bombOffsetX, hudY }, 0.0f, hudSc, WHITE);
-
-    const float innerSc   = 1.0f;
-    const float innerCharW = 16.0f * innerSc;
-    float innerNumY  = hudY + (12.5f * hudSc) - (8.0f * innerSc);
-    float armsCenterX = hudX + (18.0f * hudSc);
-    float bombCenterX = hudX + bombOffsetX + (18.0f * hudSc);
-
-    if (weaponDisplay == WeaponDisplay::MACHINEGUN)
-    {
-        char ammoBuf[8];
-        std::snprintf(ammoBuf, sizeof(ammoBuf), "%03d", ammo);
-        float ammoW = MeasureInnerText(ammoBuf, innerSc);
-        DrawInnerText(ammoBuf, { armsCenterX - ammoW * 0.5f, innerNumY }, innerSc);
-    }
-    else
-    {
-        // Tymczasowy placeholder dla INF — trzy kropki
-        const char* infPlaceholder = "...";
-        float infW = MeasureInnerText(infPlaceholder, innerSc);
-        DrawInnerText(infPlaceholder, { armsCenterX - infW * 0.5f, innerNumY }, innerSc);
-    }
-
-    char bombBuf[8];
-    std::snprintf(bombBuf, sizeof(bombBuf), "%02d", bombs);
-    float bombW = MeasureInnerText(bombBuf, innerSc);
-    DrawInnerText(bombBuf, { bombCenterX - bombW * 0.5f, innerNumY }, innerSc);
-
-    // --- SCORE — na lewo od ramek ARMS/BOMB ---
+    // Pozycja score
     char sBuf[16];
     std::snprintf(sBuf, sizeof(sBuf), "%d", score);
     float scoreW = MeasureScoreText(sBuf, scoreSc);
     float scoreX = hudX - scoreW - 8.0f;
-    float scoreY = hudY;
-    DrawScoreText(sBuf, { scoreX, scoreY }, scoreSc);
 
-    // Zapamiętaj pozycję score — continue label będzie po lewej na tym samym Y
-    continueLabelX = scoreX;
-    continueLabelY = scoreY;
+    if (continueScreenActive)
+    {
+        // score i ramki ukryte — nic nie rysujemy w tym miejscu
+    }
+    else
+    {
+        // Normalne rysowanie ramek i score
+        DrawTextureEx(texArms, { hudX,              hudY }, 0.0f, hudSc, WHITE);
+        DrawTextureEx(texBomb, { hudX + bombOffsetX, hudY }, 0.0f, hudSc, WHITE);
+
+        const float innerSc = 1.0f;
+        float innerNumY   = hudY + (12.5f * hudSc) - (8.0f * innerSc);
+        float armsCenterX = hudX + (18.0f * hudSc);
+        float bombCenterX = hudX + bombOffsetX + (18.0f * hudSc);
+
+        if (weaponDisplay == WeaponDisplay::MACHINEGUN)
+        {
+            char ammoBuf[8];
+            std::snprintf(ammoBuf, sizeof(ammoBuf), "%03d", ammo);
+            float ammoW = MeasureInnerText(ammoBuf, innerSc);
+            DrawInnerText(ammoBuf, { armsCenterX - ammoW * 0.5f, innerNumY }, innerSc);
+        }
+        else
+        {
+            const char* infPlaceholder = "...";
+            float infW = MeasureInnerText(infPlaceholder, innerSc);
+            DrawInnerText(infPlaceholder, { armsCenterX - infW * 0.5f, innerNumY }, innerSc);
+        }
+
+        char bombBuf[8];
+        std::snprintf(bombBuf, sizeof(bombBuf), "%02d", bombs);
+        float bombW = MeasureInnerText(bombBuf, innerSc);
+        DrawInnerText(bombBuf, { bombCenterX - bombW * 0.5f, innerNumY }, innerSc);
+
+        DrawScoreText(sBuf, { scoreX, hudY }, scoreSc);
+
+        continueLabelX = scoreX;
+        continueLabelY = hudY;
+    }
 
     // --- DOLNY HUD ---
     char lvlText[16]; std::snprintf(lvlText, sizeof(lvlText), "LEVEL-%d", level);
@@ -482,9 +488,15 @@ float UiManager::MeasureInnerText(const char* str, float scale) const
 
 void UiManager::StartContinue()
 {
-    continueElapsed    = 0.0f;
-    continueBlinkAccum = 0.0f;
-    continueBlinkOn    = true;
+    continueElapsed      = 0.0f;
+    continueBlinkAccum   = 0.0f;
+    continueBlinkOn      = true;
+    continueScreenActive = true;
+}
+
+void UiManager::StopContinue()
+{
+    continueScreenActive = false;
 }
 
 void UiManager::UpdateContinue(float dt)
@@ -545,14 +557,6 @@ void UiManager::DrawContinueScreen()
     float textW  = MeasureScoreText(contText, textSc);
     float textY  = (float)SH * 0.25f;
     DrawScoreText(contText, { (float)SW * 0.5f - textW * 0.5f, textY }, textSc);
-
-    // "CONTINUE X" — na lewo od score, miga
-    if (continueBlinkOn) {
-        char topText[16];
-        std::snprintf(topText, sizeof(topText), "CONTINUE %d", currentDigit);
-        float labelW = MeasureScoreText(topText, 1.5f);
-        DrawScoreText(topText, { continueLabelX - labelW - 8.0f, continueLabelY }, 1.5f);
-    }
 
     // Liczba kreditow (dolny prawy rog)
     DrawCreditsOnly();

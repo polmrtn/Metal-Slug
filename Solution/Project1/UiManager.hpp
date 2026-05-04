@@ -107,9 +107,11 @@ private:
     bool  continueBlinkOn    = true;
     float continueLabelX     = 10.0f;
     float continueLabelY     = 10.0f;
+    bool  continueScreenActive = false;
 
 public:
     void StartContinue();
+    void StopContinue();
     void UpdateContinue(float dt);
     void DrawContinueScreen();
     bool IsContinueOver() const;

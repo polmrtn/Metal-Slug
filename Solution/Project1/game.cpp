@@ -13,6 +13,7 @@ Game::Game() : camera({ 1200.0f / 2.0f, 896.0f / 2.0f })
 {
     creationManager.LoadFromFile("level.txt");
     debug.SetGridOffset(creationManager.GetTileMap().GetGridOffset());
+    player.ResetToStart();
 }
 
 Game::~Game() {}
@@ -102,6 +103,7 @@ void Game::Update()
         if (IsKeyPressed(KEY_C)) {
             uiManager.SetCredits(1);
             uiManager.SetCredits(-1);
+            uiManager.StopContinue();
             player.Respawn();
             sceneManager.SetGameState(SceneManager::GAME);
             BeginDrawing();
@@ -121,10 +123,43 @@ void Game::Update()
             return;
         }
 
+        // Aktualizuj swiat gry (bez inputu gracza)
+        player.Update(camera.GetLeftLimit());
+        systemCollision.CollisionUpdate();
+
+        for (auto& item : creationManager.GetItems()) item.Update();
+        creationManager.GetItems().erase(
+            std::remove_if(creationManager.GetItems().begin(), creationManager.GetItems().end(),
+                [](const Item& i) { return !i.IsActive(); }),
+            creationManager.GetItems().end());
+
+        camera.Update(player.GetPosition(),
+            backgroundManager.GetWidth(),
+            backgroundManager.GetHeight(),
+            player.GetIsGrounded());
+
+        for (auto& soldier : creationManager.GetSoldiers()) {
+            soldier.UpdateAI(player);
+            soldier.Update();
+        }
+        for (auto& bullet : creationManager.GetBullets()) bullet.Update();
+        CheckBulletsOutOfCamera();
+
+        for (auto& grenade : creationManager.GetGrenades()) {
+            grenade.Update();
+            grenade.CheckCollisionWithBlocks(creationManager.GetTileMap().GetColliders());
+            grenade.CheckCollisionWithSoldiers(creationManager.GetSoldiers());
+        }
+        auto& grenades = creationManager.GetGrenades();
+        grenades.erase(std::remove_if(grenades.begin(), grenades.end(),
+            [](const Grenade& g) { return !g.IsActive(); }), grenades.end());
+
         BeginDrawing();
         ClearBackground(BGCOLOR);
         Draw();
         uiManager.DrawContinueScreen();
+        backgroundManager.FollowPlayer(camera.GetCamera().target);
+        backgroundManager.Update(dt);
         audioManager.UpdateMusic(audioManager.GetGameMusic());
         return;
     }
