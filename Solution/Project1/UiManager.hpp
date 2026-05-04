@@ -74,6 +74,7 @@ private:
     Texture2D texHpBarLeft, texHpBarRight, texHpBarParts;
     Texture2D texGo;
     Texture2D texTimeNum;
+    Texture2D texMetalBigNum;
 
     // Metody pomocnicze
     void  DrawHudDigit(char c, Vector2 pos, float scale, Color tint) const;
@@ -99,4 +100,19 @@ private:
 
     void  UpdateGoTimer(float dt);
     void  DrawMissionIntroInternal();
+
+    // Continue screen
+    float continueElapsed    = 0.0f;
+    float continueBlinkAccum = 0.0f;
+    bool  continueBlinkOn    = true;
+    float continueLabelX     = 10.0f;
+    float continueLabelY     = 10.0f;
+
+public:
+    void StartContinue();
+    void UpdateContinue(float dt);
+    void DrawContinueScreen();
+    bool IsContinueOver() const;
+
+private:
 };

@@ -22,7 +22,8 @@ static const char* PATH_HPBAR_L = "Graphics/new fonts and HUDs/hpbarleft.png";
 static const char* PATH_HPBAR_R = "Graphics/new fonts and HUDs/hpbarright.png";
 static const char* PATH_HPBAR_P = "Graphics/new fonts and HUDs/hpbarparts.png";
 static const char* PATH_GO = "Graphics/new fonts and HUDs/GO.png";
-static const char* PATH_TIME_NUM = "Graphics/letters/time_numbers.png";
+static const char* PATH_TIME_NUM      = "Graphics/letters/time_numbers.png";
+static const char* PATH_METAL_BIGNUM  = "Graphics/letters/metal_numbers.png";
 
 static constexpr float NUM_CHAR_W = 12.0f;
 static constexpr float NUM_CHAR_H = 14.0f;
@@ -52,7 +53,8 @@ void UiManager::Init() {
     texHpBarRight = LoadTexture(PATH_HPBAR_R);
     texHpBarParts = LoadTexture(PATH_HPBAR_P);
     texGo = LoadTexture(PATH_GO);
-    texTimeNum = LoadTexture(PATH_TIME_NUM);
+    texTimeNum     = LoadTexture(PATH_TIME_NUM);
+    texMetalBigNum = LoadTexture(PATH_METAL_BIGNUM);
 
     SetTextureFilter(texHudFont2Num, TEXTURE_FILTER_POINT);
     SetTextureFilter(texHighScore, TEXTURE_FILTER_POINT);
@@ -63,8 +65,9 @@ void UiManager::Init() {
     SetTextureFilter(texCannon, TEXTURE_FILTER_POINT);
     SetTextureFilter(texTimeLevel, TEXTURE_FILTER_POINT);
     SetTextureFilter(texGo, TEXTURE_FILTER_POINT);
-    SetTextureFilter(texTimeNum, TEXTURE_FILTER_POINT);
-    SetTextureFilter(texHpBarParts, TEXTURE_FILTER_POINT);
+    SetTextureFilter(texTimeNum,     TEXTURE_FILTER_POINT);
+    SetTextureFilter(texMetalBigNum, TEXTURE_FILTER_POINT);
+    SetTextureFilter(texHpBarParts,  TEXTURE_FILTER_POINT);
     SetTextureFilter(texHpBarLeft, TEXTURE_FILTER_POINT);
     SetTextureFilter(texHpBarRight, TEXTURE_FILTER_POINT);
 
@@ -80,6 +83,7 @@ UiManager::~UiManager()
     UnloadTexture(texHpBarLeft); UnloadTexture(texHpBarRight); UnloadTexture(texHpBarParts);
     UnloadTexture(texGo);
     UnloadTexture(texTimeNum);
+    UnloadTexture(texMetalBigNum);
 }
 
 void UiManager::Update()
@@ -337,6 +341,10 @@ void UiManager::DrawHUD(Camera2D /*camera*/)
     float scoreY = hudY;
     DrawScoreText(sBuf, { scoreX, scoreY }, scoreSc);
 
+    // Zapamiętaj pozycję score — continue label będzie po lewej na tym samym Y
+    continueLabelX = scoreX;
+    continueLabelY = scoreY;
+
     // --- DOLNY HUD ---
     char lvlText[16]; std::snprintf(lvlText, sizeof(lvlText), "LEVEL-%d", level);
     float lSc = 1.5f;
@@ -466,4 +474,86 @@ float UiManager::MeasureInnerText(const char* str, float scale) const
     int len = 0;
     for (int i = 0; str[i]; ++i) ++len;
     return len * 16.0f * scale;
+}
+
+// ─────────────────────────────────────────
+//  Continue screen
+// ─────────────────────────────────────────
+
+void UiManager::StartContinue()
+{
+    continueElapsed    = 0.0f;
+    continueBlinkAccum = 0.0f;
+    continueBlinkOn    = true;
+}
+
+void UiManager::UpdateContinue(float dt)
+{
+    continueElapsed    += dt;
+    continueBlinkAccum += dt;
+    if (continueBlinkAccum >= 0.25f) {
+        continueBlinkAccum -= 0.25f;
+        continueBlinkOn = !continueBlinkOn;
+    }
+}
+
+bool UiManager::IsContinueOver() const
+{
+    return continueElapsed >= 10.0f;
+}
+
+void UiManager::DrawContinueScreen()
+{
+    int SW = GetScreenWidth();
+    int SH = GetScreenHeight();
+
+    // Aktualnie wyswietlana cyfra (9 -> 0)
+    int currentDigit = 9 - (int)continueElapsed;
+    if (currentDigit < 0) currentDigit = 0;
+
+    // Animacja "obrotu" — skalowanie w osi X
+    // sprite: "1234567890" => index cyfry d: d==0 -> 9, else d-1
+    float flipPhase = std::fmod(continueElapsed, 1.0f);
+    float xScale;
+    if (flipPhase < 0.2f)
+        xScale = flipPhase / 0.2f;
+    else if (flipPhase < 0.82f)
+        xScale = 1.0f;
+    else
+        xScale = 1.0f - (flipPhase - 0.82f) / 0.18f;
+    if (xScale < 0.0f) xScale = 0.0f;
+
+    int spriteIdx = (currentDigit == 0) ? 9 : currentDigit - 1;
+    float charW   = (float)texMetalBigNum.width / 10.0f;
+    float charH   = (float)texMetalBigNum.height;
+    float bigSc   = 4.5f;
+
+    float renderW    = charW * bigSc * xScale;
+    float renderH    = charH * bigSc;
+    float numCenterX = (float)SW * 0.5f;
+    float numY       = (float)SH * 0.42f;
+
+    if (renderW > 0.5f) {
+        Rectangle src = { spriteIdx * charW, 0.0f, charW, charH };
+        Rectangle dst = { numCenterX - renderW * 0.5f, numY, renderW, renderH };
+        DrawTexturePro(texMetalBigNum, src, dst, { 0.0f, 0.0f }, 0.0f, WHITE);
+    }
+
+    // "CONTINUE" wycentrowane nad cyfra
+    const char* contText = "CONTINUE";
+    float textSc = 4.0f;
+    float textW  = MeasureScoreText(contText, textSc);
+    float textY  = (float)SH * 0.25f;
+    DrawScoreText(contText, { (float)SW * 0.5f - textW * 0.5f, textY }, textSc);
+
+    // "CONTINUE X" — na lewo od score, miga
+    if (continueBlinkOn) {
+        char topText[16];
+        std::snprintf(topText, sizeof(topText), "CONTINUE %d", currentDigit);
+        float labelW = MeasureScoreText(topText, 1.5f);
+        DrawScoreText(topText, { continueLabelX - labelW - 8.0f, continueLabelY }, 1.5f);
+    }
+
+    // Liczba kreditow (dolny prawy rog)
+    DrawCreditsOnly();
 }

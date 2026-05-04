@@ -6,7 +6,7 @@
 
 class SceneManager {
 public:
-    enum Gamestates { INTRO, TITLE, GAME };
+    enum Gamestates { INTRO, TITLE, GAME, CONTINUE_SCREEN };
 
     SceneManager();
     ~SceneManager();

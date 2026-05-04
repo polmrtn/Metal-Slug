@@ -13,10 +13,6 @@ Game::Game() : camera({ 1200.0f / 2.0f, 896.0f / 2.0f })
 {
     creationManager.LoadFromFile("level.txt");
     debug.SetGridOffset(creationManager.GetTileMap().GetGridOffset());
-
-    //player.SetGrounded(true);//
-    //player.SetX(300.0f);//
-    //player.SetY(300.0f);//
 }
 
 Game::~Game() {}
@@ -92,6 +88,44 @@ void Game::Update()
             musicStarted = true;
         }
         audioManager.UpdateMusic(audioManager.GetTitleMusic());
+        return;
+    }
+
+    // ── CONTINUE SCREEN ───────────────────
+    if (sceneManager.GetGamestate() == SceneManager::CONTINUE_SCREEN)
+    {
+        float dt = GetFrameTime();
+        uiManager.UpdateContinue(dt);
+        timerManager.Update(dt);
+
+        // C -> dodaj credit i natychmiast kontynuuj
+        if (IsKeyPressed(KEY_C)) {
+            uiManager.SetCredits(1);
+            uiManager.SetCredits(-1);
+            player.Respawn();
+            sceneManager.SetGameState(SceneManager::GAME);
+            BeginDrawing();
+            ClearBackground(BGCOLOR);
+            Draw();
+            return;
+        }
+
+        // Countdown skonczony -> TITLE
+        if (uiManager.IsContinueOver()) {
+            audioManager.StopMusic(audioManager.GetGameMusic());
+            musicStarted = false;
+            shouldRestart = true;
+            sceneManager.SetGameState(SceneManager::TITLE);
+            BeginDrawing();
+            ClearBackground(BLACK);
+            return;
+        }
+
+        BeginDrawing();
+        ClearBackground(BGCOLOR);
+        Draw();
+        uiManager.DrawContinueScreen();
+        audioManager.UpdateMusic(audioManager.GetGameMusic());
         return;
     }
 
@@ -177,6 +211,17 @@ void Game::Update()
         }
     }
 
+
+    // Gracz zniknal po animacji smierci
+    if (!player.IsAlive() && player.IsDisappeared()) {
+        if (uiManager.GetCredits() > 0) {
+            uiManager.SetCredits(-1);
+            player.Respawn();
+        } else {
+            uiManager.StartContinue();
+            sceneManager.SetGameState(SceneManager::CONTINUE_SCREEN);
+        }
+    }
 
     BeginDrawing();
     ClearBackground(BGCOLOR);
