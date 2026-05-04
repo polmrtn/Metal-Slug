@@ -12,7 +12,7 @@ public:
 
     bool IsActive() const { return active; }
     int  GetHealth() const { return health; }
-    
+
     void TakeDamage() {
         if (active) {
             health--;
@@ -29,7 +29,7 @@ public:
     Rectangle GetHitBox() const {
         return { posX, posY, CANNON_FRAME_W * CANNON_SCALE, CANNON_FRAME_H * CANNON_SCALE };
     }
-    
+
 private:
     // ── Estado general ────────────────────────────────────────
     bool active = false;
@@ -42,12 +42,12 @@ private:
     // ── Estado del cañón ──────────────────────────────────────
     enum class CannonState {
         MOVING,
-        OPENING_DOWN,    // fila 1 adelante
-        SHOOTING_DOWN,   // fila 2
-        CLOSING_DOWN,    // fila 1 atrás
-        OPENING_UP,      // fila 3 adelante
-        SHOOTING_UP,     // fila 4
-        CLOSING_UP,      // fila 3 atrás
+        OPENING_DOWN,
+        SHOOTING_DOWN,
+        CLOSING_DOWN,
+        OPENING_UP,
+        SHOOTING_UP,
+        CLOSING_UP,
     };
 
     CannonState cannonState = CannonState::MOVING;
@@ -64,28 +64,58 @@ private:
 
     Texture2D cannonSheet = { 0 };
 
-    // ── Constantes spritesheet ────────────────────────────────
     static constexpr int   CANNON_FRAMES = 19;
     static constexpr float CANNON_FRAME_W = 56.0f;
     static constexpr float CANNON_FRAME_H = 96.0f;
     static constexpr float CANNON_SCALE = 4.0f;
 
-    static constexpr int   OPEN_DOWN_FRAMES = 9;   // fila 1
+    static constexpr int   OPEN_DOWN_FRAMES = 9;
     static constexpr float OPEN_DOWN_ROW_Y = 1 * 96.0f;
-    static constexpr int   SHOOT_DOWN_FRAMES = 8;   // fila 2
+    static constexpr int   SHOOT_DOWN_FRAMES = 8;
     static constexpr float SHOOT_DOWN_ROW_Y = 2 * 96.0f;
 
-    static constexpr int   OPEN_UP_FRAMES = 9;   // fila 3
+    static constexpr int   OPEN_UP_FRAMES = 9;
     static constexpr float OPEN_UP_ROW_Y = 3 * 96.0f;
-    static constexpr int   SHOOT_UP_FRAMES = 8;   // fila 4
+    static constexpr int   SHOOT_UP_FRAMES = 8;
     static constexpr float SHOOT_UP_ROW_Y = 4 * 96.0f;
 
-    // ── Helpers ───────────────────────────────────────────────
     void UpdateCannon(float dt);
 
+    // ── Hit flash ─────────────────────────────────────────────
     float hitFlashTimer = 0.0f;
-    static constexpr float HIT_FLASH_DURATION = 0.08f;
-    static constexpr int   HIT_FLASH_COUNT = 6;  // número de parpadeos
+    static constexpr float HIT_FLASH_DURATION = 0.05f;
+    static constexpr int   HIT_FLASH_COUNT = 2;
     int   hitFlashCount = 0;
     bool  isFlashing = false;
+
+    // ── Bolas de plasma ───────────────────────────────────────
+    struct PlasmaBall {
+        Vector2 pos;
+        Vector2 vel;
+        bool    active = false;
+        float   gravity = 600.0f;
+    };
+
+    static constexpr int MAX_PLASMA = 3;
+    PlasmaBall plasma[MAX_PLASMA];
+    int        shootRepeatCount = 0;
+    int        plasmaFired = 0;
+    float      plasmaRadius = 8.0f;
+    float      plasmaSpread = 50.0f;
+    float      capturedPlayerX = 0.0f;
+
+    void FirePlasma();
+    void UpdatePlasma(float dt);
+    void DrawPlasma() const;
+
+    // ── Destello disparo (sincronizado con frames del ataque) ─
+    Texture2D flashSheet = { 0 };
+    int       flashFrame = 0;
+    bool      flashActive = false;
+
+    static constexpr int   FLASH_FRAMES = 6;
+    static constexpr float FLASH_FRAME_W = 64.0f;
+    static constexpr float FLASH_FRAME_H = 64.0f;
+    static constexpr float FLASH_ROW_Y = 0.0f;
+    static constexpr float FLASH_SCALE = 4.0f;
 };
