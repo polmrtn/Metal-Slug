@@ -313,7 +313,25 @@ void UiManager::DrawHUD(Camera2D /*camera*/)
 
     if (continueScreenActive)
     {
-        // score i ramki ukryte — nic nie rysujemy w tym miejscu
+        if (continueBlinkOn)
+        {
+            const char* contLabel = "CONTINUE";
+            const float lblScY = 4.0f;
+            const float areaW  = startXTime * 0.55f - 18.0f;
+            const float baseW  = MeasureScoreText(contLabel, 1.0f);
+            const float lblScX = (baseW > 0.0f && areaW > 0.0f)
+                                 ? std::min(2.5f, areaW / baseW) : 2.5f;
+            float x = 10.0f;
+            for (int i = 0; contLabel[i]; ++i) {
+                char c = contLabel[i];
+                int col = (c >= 'A' && c <= 'Z') ? c - 'A' : (c >= 'a' && c <= 'z') ? c - 'a' : -1;
+                if (col < 0) { x += HSF_CHAR_W * lblScX; continue; }
+                Rectangle src = { (float)col * HSF_CHAR_W, 0.0f, HSF_CHAR_W, HSF_CHAR_H };
+                Rectangle dst = { x, hudY, HSF_CHAR_W * lblScX, HSF_CHAR_H * lblScY };
+                DrawTexturePro(texHighScore, src, dst, { 0.0f, 0.0f }, 0.0f, WHITE);
+                x += HSF_CHAR_W * lblScX;
+            }
+        }
     }
     else
     {
@@ -551,8 +569,8 @@ void UiManager::DrawContinueScreen()
         DrawTexturePro(texMetalBigNum, src, dst, { 0.0f, 0.0f }, 0.0f, WHITE);
     }
 
-    // "CONTINUE" wycentrowane nad cyfra
-    const char* contText = "CONTINUE";
+    // "CONTINUE?" wycentrowane nad cyfra
+    const char* contText = "CONTINUE?";
     float textSc = 4.0f;
     float textW  = MeasureScoreText(contText, textSc);
     float textY  = (float)SH * 0.25f;

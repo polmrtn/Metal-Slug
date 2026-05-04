@@ -14,6 +14,8 @@ Game::Game() : camera({ 1200.0f / 2.0f, 896.0f / 2.0f })
     creationManager.LoadFromFile("level.txt");
     debug.SetGridOffset(creationManager.GetTileMap().GetGridOffset());
     player.ResetToStart();
+    uiManager.SetAmmo(0);
+    uiManager.SetWeaponDisplay(UiManager::WeaponDisplay::PISTOL);
 }
 
 Game::~Game() {}
@@ -114,6 +116,7 @@ void Game::Update()
 
         // Countdown skonczony -> TITLE
         if (uiManager.IsContinueOver()) {
+            uiManager.StopContinue();
             audioManager.StopMusic(audioManager.GetGameMusic());
             musicStarted = false;
             shouldRestart = true;

@@ -19,8 +19,14 @@ void Player::ResetToStart()
     pos = { 300.0f, -50.0f };
     vel = { 0.0f, 0.0f };
     isAlive = true;
+    isDisappeared = false;
     invincibilityTimer = 0.0f;
     deathPosition = { 0.0f, 0.0f };
+    currentWeapon = WeaponType::PISTOL;
+    machinegunAmmo = 0;
+    anim.StopMachinegun();
+    anim.StopMachinegunAiming();
+    anim.StopMachinegunCrouch();
 }
 
 // ========== HITBOX ==========
