@@ -281,42 +281,44 @@ void UiManager::DrawHUD(Camera2D /*camera*/)
     int SW = GetScreenWidth();
     int SH = GetScreenHeight();
 
-    float hudYOffset = 25.0f; 
-    const float hudSc = 3.0f;
-    const float numSc = 1.0f;
-    const float scoreSc = 1.5f;
     const float topPad = 10.0f;
-    const float leftPad = 260.0f; // MOCNE PRZESUNI�CIE W PRAWO
+    const float numSc  = 1.0f;
+    const float scoreSc = 1.5f;
+    const float timeScale = 4.0f;
 
-    // --- RAMKI GRNE ---
-    DrawTextureEx(texArms, { leftPad, topPad + hudYOffset }, 0.0f, hudSc, WHITE);
+    // --- TIMER (center top) ---
+    float timeY   = topPad + (HSF_CHAR_H * scoreSc) - 10.0f;
+    float timerH  = 16.0f * timeScale;
+    float totalW  = 16.0f * timeScale * 2;
+    float startXTime = (float)SW * 0.5f - totalW * 0.5f;
+    DrawTimeNumber(timeLeft, { startXTime, timeY }, timeScale);
+
+    // --- ARMS/BOMB — skalowane do wysokości timera ---
+    float hudSc      = timerH / (float)texArms.height;
     float bombOffsetX = 31.0f * hudSc;
-    DrawTextureEx(texBomb, { leftPad + bombOffsetX, topPad + hudYOffset }, 0.0f, hudSc, WHITE);
+    float totalFrameW = bombOffsetX + (float)texBomb.width * hudSc;
 
-    // NAPISY WEWNTRZ RAMEK (Leciutko w d�)
-    float innerNumY = topPad + hudYOffset + (12.5f * hudSc) - (8.0f * numSc);
-    float armsCenterX = leftPad + (18.0f * hudSc);
-    float bombCenterX = leftPad + bombOffsetX + (18.0f * hudSc);
+    float hudY = timeY;
+    float hudX = startXTime - totalFrameW - 12.0f;
+
+    DrawTextureEx(texArms, { hudX,              hudY }, 0.0f, hudSc, WHITE);
+    DrawTextureEx(texBomb, { hudX + bombOffsetX, hudY }, 0.0f, hudSc, WHITE);
+
+    float innerNumY  = hudY + (12.5f * hudSc) - (8.0f * numSc);
+    float armsCenterX = hudX + (18.0f * hudSc);
+    float bombCenterX = hudX + bombOffsetX + (18.0f * hudSc);
 
     if (weaponDisplay == WeaponDisplay::MACHINEGUN)
     {
         char ammoBuf[8];
-        std::snprintf(ammoBuf, sizeof(ammoBuf), "%03d", ammo); // 3 cyfry jak w Metal Slug
-
+        std::snprintf(ammoBuf, sizeof(ammoBuf), "%03d", ammo);
         float ammoScale = 1.0f;
-
         float ammoW = MeasureScoreText(ammoBuf, ammoScale);
-
-        DrawScoreText(
-            ammoBuf,
-            { armsCenterX - ammoW * 0.5f, innerNumY },
-            ammoScale
-        );
+        DrawScoreText(ammoBuf, { armsCenterX - ammoW * 0.5f, innerNumY }, ammoScale);
     }
     else
     {
-        // Pistol / default weapon: show INF
-        float infW = BIG_CHAR_W * numSc * 3.0f;
+        float infW  = BIG_CHAR_W * numSc * 3.0f;
         float startX = armsCenterX - (infW * 0.5f);
         DrawBigLetter('I', { startX,                          innerNumY }, numSc);
         DrawBigLetter('N', { startX + BIG_CHAR_W * numSc,     innerNumY }, numSc);
@@ -325,44 +327,17 @@ void UiManager::DrawHUD(Camera2D /*camera*/)
 
     char bombBuf[8];
     std::snprintf(bombBuf, sizeof(bombBuf), "%02d", bombs);
-
-    // używamy fontu który już działa (score font)
     float bombScale = 1.0f;
-
     float bombW = MeasureScoreText(bombBuf, bombScale);
+    DrawScoreText(bombBuf, { bombCenterX - bombW * 0.5f, innerNumY }, bombScale);
 
-    DrawScoreText(
-        bombBuf,
-        { bombCenterX - bombW * 0.5f, innerNumY },
-        bombScale
-    );
-
-    // --- SCORE (LEWY RÓG, wyrównany do prawej) ---
+    // --- SCORE — na lewo od ramek ARMS/BOMB ---
     char sBuf[16];
-    std::snprintf(sBuf, sizeof(sBuf), "%d", score); 
-
-    float scoreRight = 200.0f;
-    float scoreY = topPad + hudYOffset;
-
-    // policz szerokość tekstu
+    std::snprintf(sBuf, sizeof(sBuf), "%d", score);
     float scoreW = MeasureScoreText(sBuf, scoreSc);
-
-    // ustaw X tak, żeby prawa krawędź była stała
-    float scoreX = scoreRight - scoreW;
-
+    float scoreX = hudX - scoreW - 8.0f;
+    float scoreY = hudY;
     DrawScoreText(sBuf, { scoreX, scoreY }, scoreSc);
-
-    // Separator = 2 cyfry szerokosci odst�pu mi�dzy timerem a levelem
-
-    float timeScale = 4.0f;
-
-
-    float timeY = topPad + (HSF_CHAR_H * scoreSc) - 10.0f;
-
-    float totalW = 16.0f * timeScale * 2;
-    float startXTime = (float)SW * 0.5f - totalW * 0.5f;
-
-    DrawTimeNumber(timeLeft, { startXTime, timeY }, timeScale);
 
     // --- DOLNY HUD ---
     char lvlText[16]; std::snprintf(lvlText, sizeof(lvlText), "LEVEL-%d", level);
@@ -389,7 +364,7 @@ void UiManager::DrawHUD(Camera2D /*camera*/)
         float goX = (float)SW * 0.80f - goW * 0.5f;
 
         
-        float goY = topPad + hudYOffset + 40.0f;
+        float goY = hudY + 40.0f;
 
         DrawTextureEx(texGo, { goX, goY }, 0.0f, goSc, WHITE);
     }
