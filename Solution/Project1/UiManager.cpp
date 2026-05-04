@@ -321,7 +321,7 @@ void UiManager::DrawHUD(Camera2D /*camera*/)
             const float baseW  = MeasureScoreText(contLabel, 1.0f);
             const float lblScX = (baseW > 0.0f && areaW > 0.0f)
                                  ? std::min(2.5f, areaW / baseW) : 2.5f;
-            float x = 10.0f;
+            float x = 28.0f;
             for (int i = 0; contLabel[i]; ++i) {
                 char c = contLabel[i];
                 int col = (c >= 'A' && c <= 'Z') ? c - 'A' : (c >= 'a' && c <= 'z') ? c - 'a' : -1;
@@ -339,7 +339,7 @@ void UiManager::DrawHUD(Camera2D /*camera*/)
         DrawTextureEx(texArms, { hudX,              hudY }, 0.0f, hudSc, WHITE);
         DrawTextureEx(texBomb, { hudX + bombOffsetX, hudY }, 0.0f, hudSc, WHITE);
 
-        const float innerSc = 1.0f;
+        const float innerSc = 1.4f;
         float innerNumY   = hudY + (12.5f * hudSc) - (8.0f * innerSc);
         float armsCenterX = hudX + (18.0f * hudSc);
         float bombCenterX = hudX + bombOffsetX + (18.0f * hudSc);
