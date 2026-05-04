@@ -177,21 +177,6 @@ void Game::Update()
         }
     }
 
-    // ── SONIDOS MACHINEGUN ─────────────────
-    if (machinegunSoundActive)
-    {
-        if (timerManager.IsReady(TimerType::MACHINEGUN_SOUND_TIMER))
-        {
-            timerManager.StartTimer(TimerType::MACHINEGUN_SOUND_DELAY);
-            audioManager.PlaySound(audioManager.GetMachinegunShootSound());
-            int count = static_cast<int>(timerManager.GetTimer(TimerType::MACHINEGUN_SOUND_COUNT)) + 1;
-            timerManager.SetTimerValue(TimerType::MACHINEGUN_SOUND_COUNT, static_cast<float>(count));
-            if (count >= static_cast<int>(timerManager.GetTimer(TimerType::MACHINEGUN_SOUND_SHOTS_CONST))) {
-                machinegunSoundActive = false;
-                timerManager.ResetTimer(TimerType::MACHINEGUN_SOUND_COUNT);
-            }
-        }
-    }
 
     BeginDrawing();
     ClearBackground(BGCOLOR);
@@ -309,8 +294,6 @@ void Game::StartMachinegunBurst() {
     machinegunBurst = true;
     machinegunBurstCount = 0;
     machinegunBurstDir = player.GetAimDirection();
-    machinegunSoundActive = true;
-    timerManager.ResetTimer(TimerType::MACHINEGUN_SOUND_COUNT);
 }
 
 // ─────────────────────────────────────────
