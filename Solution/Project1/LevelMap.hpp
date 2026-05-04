@@ -1,48 +1,64 @@
 ﻿#pragma once
 #include <raylib.h>
 #include <vector>
-#include "Player.hpp"
 
-// Tipos de bloque
-enum class BlockType {
-    NORMAL,     // Bloque normal
-    RAMP_UP,    // Rampa que sube hacia la derecha
-    RAMP_DOWN,   // Rampa que baja hacia la derecha
-    CEILING     // NUEVO: Techo (bloquea desde arriba)
+constexpr float TILE_SIZE = 30.0f;
+
+enum class TileType {
+    SOLID,
+    PLATFORM,
+    CEILING,
+    RAMP_UP,
 };
 
-struct SoldierData {
-    float x, y;
-    int type;
+struct CollisionRect {
+    Rectangle rect;
+    TileType  type;
+
+    float GetRampSurfaceY(float worldX) const {
+        float t = (worldX - rect.x) / rect.width;
+        if (t < 0.0f) t = 0.0f;
+        if (t > 1.0f) t = 1.0f;
+        return rect.y + rect.height - t * rect.height;
+    }
 };
 
-struct ItemData {
-    float x, y;
-    int type;  // 0 = SHOTGUN, 1 = BOX
-};
-
-class Block {
+class TileMap {
 public:
-    Block(float x, float y, float width, float height, bool ground = true);
-    Block(float x, float y, float width, float height, BlockType type);  // Constructor para rampas
+    TileMap() = default;
 
-    void Draw();
-    void Draw(float rotation);  // Mantenemos por compatibilidad
-    Rectangle GetRect() const;
-    bool IsGround() const { return isGround; }
-    BlockType GetType() const { return type; }
-    bool IsRamp() const { return type != BlockType::NORMAL; }
+    // Añade tile en posición mundial exacta (snapped al grid con offset)
+    void AddTileWorld(float worldX, float worldY, TileType type);
+    // Elimina tile en posición mundial
+    void RemoveTileWorld(float worldX, float worldY);
+    void Clear();
+    void Bake();
 
-    // Para compatibilidad con el editor (aunque no se use en rampas)
-    void SetRotation(float rot) { rotation = rot; }
-    float GetRotation() const { return rotation; }
+    const std::vector<CollisionRect>& GetColliders() const { return colliders; }
 
-    // Para rampas
-    float GetHeightAtX(float playerX) const;
+    void SaveToFile(const char* filename) const;
+    void LoadFromFile(const char* filename);
+
+    void DrawTiles() const;
+    void DrawColliders() const;
+
+    void SetGridOffset(Vector2 offset) { gridOffset = offset; }
+    Vector2 GetGridOffset() const { return gridOffset; }
 
 private:
-    Rectangle rect;
-    bool isGround;
-    BlockType type = BlockType::NORMAL;
-    float rotation = 0.0f;  // Para compatibilidad
+    struct Tile {
+        float    worldX, worldY;  // posición mundial exacta (ya con snap)
+        TileType type;
+    };
+
+    std::vector<Tile>          tiles;
+    std::vector<CollisionRect> colliders;
+    Vector2                    gridOffset = { 0.0f, 0.0f };
+
+    // Snap de una coordenada mundial al grid con offset
+    float SnapToGrid(float val, float offset) const {
+        return floorf((val - offset) / TILE_SIZE) * TILE_SIZE + offset;
+    }
+
+    int FindTileAt(float worldX, float worldY) const;
 };

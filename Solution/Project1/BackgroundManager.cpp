@@ -2,6 +2,11 @@
 #include <math.h>
 
 BackgroundManager::BackgroundManager() {
+    scale = 4.0f;
+    origin = { 0, 0 };
+}
+
+void BackgroundManager::Init() {
     AddSprite("Graphics/background sprites/bg1 1.png", { 8000, 155 }, 4.0f, 0.05f, 1.0f, false, 0);
     AddSprite("Graphics/background sprites/bg1 2 3.png", { 10300, 0 }, 4.0f, 0.05f, 1.5f, false, 1);
     AddSprite("Graphics/background sprites/bg4.png", { 0, -165 }, 4.0f, 0.0f, 1.0f, false, 1);
@@ -23,7 +28,7 @@ BackgroundManager::BackgroundManager() {
     AddEventSprite("Graphics/background sprites/more shit and huts/hutss3big.png", { 11800, 150 }, 3, 4.0f, 0.0f, 0.0f, false, 1);
     AddEventSprite("Graphics/background sprites/more shit and huts/hutss3big.png", { 11800, 150 }, 3, 4.0f, 0.0f, 0.0f, false, 1);
     AddEventSprite("Graphics/background sprites/more shit and huts/woodboss1.png", { 8080, 800 }, 1, 4.0f, 0.0f, 0.0f, false, 1);
- /* AddEventSprite("Graphics/background sprites/more shit and huts/somehutsandwood.png", { 10200, 150 }, 1, 4.0f, 0.0f, 0.0f, false, 2);*/
+    /* AddEventSprite("Graphics/background sprites/more shit and huts/somehutsandwood.png", { 10200, 150 }, 1, 4.0f, 0.0f, 0.0f, false, 2);*/
     AddEventSprite("Graphics/boss1.png", { 15100, -400 }, 5, 4.0f, 0.0f, 0.0f, false, 2);
     scale = 4.0f;
     origin = { 0, 0 };

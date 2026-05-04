@@ -27,6 +27,7 @@ public:
     void SetGrounded(bool val) { grounded = val; }
     bool IsGrounded() const { return grounded; }
     Vector2 GetPosition() const { return position; }
+    void SetPositionY(float y) { position.y = y; }
 
 private:
     Vector2 position;

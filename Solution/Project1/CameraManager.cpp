@@ -1,7 +1,9 @@
 #include "CameraManager.hpp"
 
 #include <raymath.h>
+CameraManager::CameraManager() {
 
+}
 CameraManager::CameraManager(Vector2 screenCenter) {
     camera.target = { 0, 0 };     
     camera.offset = screenCenter; 

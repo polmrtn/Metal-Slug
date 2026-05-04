@@ -61,6 +61,7 @@ class BackgroundManager {
 public:
     BackgroundManager();
     ~BackgroundManager();
+    void Init();
     void FollowPlayer(Vector2 cameraPos);
     void AddAnimation(const char* path, Vector2 pos, int frames, float fps, float scale, float spacing, float pFactor, float anchoExtra = 1.0f, bool isFrontground = false, int layer = 0, int repeatcount = 1);
     void AddSprite(const char* path, Vector2 pos, float scale, float parallaxFactor = 0.0f, float anchoExtra = 1.0f, bool isFrontground = false, int layer = 0);

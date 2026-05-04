@@ -10,6 +10,8 @@ public:
 
     SceneManager();
     ~SceneManager();
+    void Init();
+
 
     void       DrawTexts();
     void       UpdateIntro();

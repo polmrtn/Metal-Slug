@@ -36,7 +36,9 @@ UiManager::UiManager()
     timeAccum(0.0f), introTimer(0.0f),
     blinkAccum(0.0f), blinkVisible(true),
     idleTimer(0.0f), goVisible(false), goBlinkAccum(0.0f), goBlinkOn(false)
-{
+{ }
+
+void UiManager::Init() {
     texArms = LoadTexture(PATH_ARMS);
     texBomb = LoadTexture(PATH_BOMB);
     texCannon = LoadTexture(PATH_CANNON);
@@ -65,6 +67,7 @@ UiManager::UiManager()
     SetTextureFilter(texHpBarParts, TEXTURE_FILTER_POINT);
     SetTextureFilter(texHpBarLeft, TEXTURE_FILTER_POINT);
     SetTextureFilter(texHpBarRight, TEXTURE_FILTER_POINT);
+
 }
 
 UiManager::~UiManager()
