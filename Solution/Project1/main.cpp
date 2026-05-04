@@ -7,13 +7,12 @@ int main()
     InitAudioDevice();
     SetTargetFPS(30);
 
+    audioManager.Init();
     player.Init();
     uiManager.Init();
     sceneManager.Init();
     backgroundManager.Init();
 
-    sceneManager.SetGameState(SceneManager::GAME);
-    uiManager.SetCredits(99);
 
     Game* game = new Game();
     game->GetSceneManager().SetUiManager(&game->GetUiManager());

@@ -14,9 +14,9 @@ Game::Game() : camera({ 1200.0f / 2.0f, 896.0f / 2.0f })
     creationManager.LoadFromFile("level.txt");
     debug.SetGridOffset(creationManager.GetTileMap().GetGridOffset());
 
-    player.SetGrounded(true);
-    player.SetX(300.0f);
-    player.SetY(300.0f);
+    //player.SetGrounded(true);//
+    //player.SetX(300.0f);//
+    //player.SetY(300.0f);//
 }
 
 Game::~Game() {}
@@ -96,6 +96,7 @@ void Game::Update()
     }
 
     // ── GAME ───────────────────────────────
+    
     uiManager.Update();
     timerManager.Update(GetFrameTime());
 

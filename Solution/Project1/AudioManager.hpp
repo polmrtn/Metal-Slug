@@ -11,6 +11,7 @@ public:
     void UpdateMusic(Music music);
     void PlaySound(Sound sound);
     void StopSound(Sound sound);
+    void Init();
 
     Music& GetTitleMusic();
     Music& GetGameMusic();
