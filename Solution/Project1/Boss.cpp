@@ -11,7 +11,7 @@ void Boss::Init()
     UnloadImage(img);
     SetTextureFilter(cannonSheet, TEXTURE_FILTER_POINT);
 
-    Image imgFlash = LoadImage("Graphics/boss/explo64x64.png");
+    Image imgFlash = LoadImage("Graphics/boss/shootingcannon56x96.png");
     flashSheet = LoadTextureFromImage(imgFlash);
     UnloadImage(imgFlash);
     SetTextureFilter(flashSheet, TEXTURE_FILTER_POINT);
@@ -329,7 +329,13 @@ void Boss::Draw()
             break;
         }
 
-        Rectangle dst = { posX, posY, CANNON_FRAME_W * CANNON_SCALE, CANNON_FRAME_H * CANNON_SCALE };
+        float drawY = posY;
+        if (cannonState == CannonState::OPENING_UP ||
+            cannonState == CannonState::SHOOTING_UP ||
+            cannonState == CannonState::CLOSING_UP)
+            drawY = posY - 150.0f;
+
+        Rectangle dst = { posX, drawY, CANNON_FRAME_W * CANNON_SCALE, CANNON_FRAME_H * CANNON_SCALE };
         Color tint = (isFlashing && hitFlashCount % 2 == 0) ? Color{ 255, 220, 100, 255 } : WHITE;
         DrawTexturePro(cannonSheet, src, dst, { 0, 0 }, 0.0f, tint);
 
@@ -346,12 +352,12 @@ void Boss::Draw()
 
             float fx, fy;
             if (isDown) {
-                fx = 16220.0f + 50.0f - (FLASH_FRAME_W * FLASH_SCALE) / 2.0f;  // igual de derecha
+                fx = 16220.0f - (FLASH_FRAME_W * FLASH_SCALE) / 2.0f;  // igual de derecha
                 fy = 285.0f - (FLASH_FRAME_H * FLASH_SCALE) / 2.0f;    // más arriba
             }
             else {
-                fx = 16220.0f + 70.0f - (FLASH_FRAME_W * FLASH_SCALE) / 2.0f;  // más a la derecha
-                fy = posY + 30 - (FLASH_FRAME_H * FLASH_SCALE) / 2.0f;               // igual
+                fx = 16220.0f - (FLASH_FRAME_W * FLASH_SCALE) / 2.0f;  // más a la derecha
+                fy = posY  - (FLASH_FRAME_H * FLASH_SCALE) / 2.0f;               // igual
             }
 
             Rectangle flashDst = { fx, fy, FLASH_FRAME_W * FLASH_SCALE, FLASH_FRAME_H * FLASH_SCALE };

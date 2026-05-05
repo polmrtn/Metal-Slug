@@ -114,8 +114,8 @@ private:
     bool      flashActive = false;
 
     static constexpr int   FLASH_FRAMES = 6;
-    static constexpr float FLASH_FRAME_W = 64.0f;
-    static constexpr float FLASH_FRAME_H = 64.0f;
+    static constexpr float FLASH_FRAME_W = 56.0f;
+    static constexpr float FLASH_FRAME_H = 96.0f;
     static constexpr float FLASH_ROW_Y = 0.0f;
     static constexpr float FLASH_SCALE = 4.0f;
 
