@@ -189,9 +189,9 @@ void Game::Update()
             return;
         }
 
-        // Koniec -> TITLE
+        // Koniec -> INTRO
         shouldRestart = true;
-        sceneManager.SetGameState(SceneManager::TITLE);
+        sceneManager.SetGameState(SceneManager::INTRO);
         BeginDrawing();
         ClearBackground(BLACK);
         return;
