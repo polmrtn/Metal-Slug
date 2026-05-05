@@ -75,6 +75,7 @@ private:
     Texture2D texGo;
     Texture2D texTimeNum;
     Texture2D texMetalBigNum;
+    Texture2D texGameOver;
 
     // Metody pomocnicze
     void  DrawHudDigit(char c, Vector2 pos, float scale, Color tint) const;
@@ -115,6 +116,9 @@ public:
     void UpdateContinue(float dt);
     void DrawContinueScreen();
     bool IsContinueOver() const;
+
+    void DrawGameOverOverlay(float t);   // czerwony filtr + fade to black
+    void DrawGameOverSprite(float t);    // sprite game over (t=czas od wejscia w faze 3)
 
 private:
 };

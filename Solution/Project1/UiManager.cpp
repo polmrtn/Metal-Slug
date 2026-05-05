@@ -25,6 +25,7 @@ static const char* PATH_HPBAR_P = "Graphics/new fonts and HUDs/hpbarparts.png";
 static const char* PATH_GO = "Graphics/new fonts and HUDs/GO.png";
 static const char* PATH_TIME_NUM      = "Graphics/letters/time_numbers.png";
 static const char* PATH_METAL_BIGNUM  = "Graphics/letters/metal_numbers.png";
+static const char* PATH_GAMEOVER      = "Graphics/gameover1.png";
 
 static constexpr float NUM_CHAR_W = 12.0f;
 static constexpr float NUM_CHAR_H = 14.0f;
@@ -56,6 +57,8 @@ void UiManager::Init() {
     texGo = LoadTexture(PATH_GO);
     texTimeNum     = LoadTexture(PATH_TIME_NUM);
     texMetalBigNum = LoadTexture(PATH_METAL_BIGNUM);
+    texGameOver    = LoadTexture(PATH_GAMEOVER);
+    SetTextureFilter(texGameOver, TEXTURE_FILTER_POINT);
 
     SetTextureFilter(texHudFont2Num, TEXTURE_FILTER_POINT);
     SetTextureFilter(texHighScore, TEXTURE_FILTER_POINT);
@@ -85,6 +88,7 @@ UiManager::~UiManager()
     UnloadTexture(texGo);
     UnloadTexture(texTimeNum);
     UnloadTexture(texMetalBigNum);
+    UnloadTexture(texGameOver);
 }
 
 void UiManager::Update()
@@ -578,4 +582,54 @@ void UiManager::DrawContinueScreen()
 
     // Liczba kreditow (dolny prawy rog)
     DrawCreditsOnly();
+}
+
+// ─────────────────────────────────────────
+//  Game Over sequence
+// ─────────────────────────────────────────
+
+// Faza 1 (t 0-3s): czerwony filtr narasta
+// Faza 2 (t 3-4s): ekran gaśnie do czerni (czarny overlay na wierzchu)
+void UiManager::DrawGameOverOverlay(float t)
+{
+    int SW = GetScreenWidth();
+    int SH = GetScreenHeight();
+
+    if (t < 3.0f)
+    {
+        unsigned char alpha = (unsigned char)((t / 3.0f) * 180.0f);
+        DrawRectangle(0, 0, SW, SH, { 180, 0, 0, alpha });
+    }
+    else
+    {
+        // czerwony pelny + czarny narasta
+        DrawRectangle(0, 0, SW, SH, { 180, 0, 0, 180 });
+        float progress = (t - 3.0f) / 1.0f;
+        if (progress > 1.0f) progress = 1.0f;
+        unsigned char blackAlpha = (unsigned char)(progress * 255.0f);
+        DrawRectangle(0, 0, SW, SH, { 0, 0, 0, blackAlpha });
+    }
+}
+
+// Faza 3 (t 0-5s): sprite game over na czarnym tle, fade-in przez 0.5s
+void UiManager::DrawGameOverSprite(float t)
+{
+    int SW = GetScreenWidth();
+    int SH = GetScreenHeight();
+
+    DrawRectangle(0, 0, SW, SH, BLACK);
+
+    float fadeIn = t / 0.5f;
+    if (fadeIn > 1.0f) fadeIn = 1.0f;
+    unsigned char alpha = (unsigned char)(fadeIn * 255.0f);
+
+    float scX = (float)SW / (float)texGameOver.width;
+    float scY = (float)SH / (float)texGameOver.height;
+    float sc  = (scX < scY ? scX : scY) * 0.85f;
+    float w   = texGameOver.width  * sc;
+    float h   = texGameOver.height * sc;
+    float x   = ((float)SW - w) * 0.5f;
+    float y   = ((float)SH - h) * 0.5f;
+
+    DrawTextureEx(texGameOver, { x, y }, 0.0f, sc, { 255, 255, 255, alpha });
 }

@@ -114,15 +114,13 @@ void Game::Update()
             return;
         }
 
-        // Countdown skonczony -> TITLE
+        // Countdown skonczony -> sekwencja GAME OVER
         if (uiManager.IsContinueOver()) {
             uiManager.StopContinue();
             audioManager.StopMusic(audioManager.GetGameMusic());
             musicStarted = false;
-            shouldRestart = true;
-            sceneManager.SetGameState(SceneManager::TITLE);
-            BeginDrawing();
-            ClearBackground(BLACK);
+            gameOverTimer = 0.0f;
+            sceneManager.SetGameState(SceneManager::GAME_OVER);
             return;
         }
 
@@ -167,8 +165,40 @@ void Game::Update()
         return;
     }
 
+    // ── GAME OVER SEQUENCE ────────────────
+    if (sceneManager.GetGamestate() == SceneManager::GAME_OVER)
+    {
+        float dt = GetFrameTime();
+        gameOverTimer += dt;
+
+        // Faza 1+2: czerwony filtr + zaciemnienie (0-4s) — swiat gry widoczny pod filtrem
+        if (gameOverTimer < 4.0f)
+        {
+            BeginDrawing();
+            ClearBackground(BGCOLOR);
+            Draw();
+            uiManager.DrawGameOverOverlay(gameOverTimer);
+            return;
+        }
+
+        // Faza 3: sprite game over (4-9s)
+        if (gameOverTimer < 9.0f)
+        {
+            BeginDrawing();
+            uiManager.DrawGameOverSprite(gameOverTimer - 4.0f);
+            return;
+        }
+
+        // Koniec -> TITLE
+        shouldRestart = true;
+        sceneManager.SetGameState(SceneManager::TITLE);
+        BeginDrawing();
+        ClearBackground(BLACK);
+        return;
+    }
+
     // ── GAME ───────────────────────────────
-    
+
     uiManager.Update();
     timerManager.Update(GetFrameTime());
 
