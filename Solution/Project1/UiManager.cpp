@@ -248,7 +248,6 @@ void UiManager::DrawScoreChar(char c, Vector2 pos, float scale) const
     else if (c >= 'a' && c <= 'z') col = c - 'a';
     else if (c >= '0' && c <= '9') col = 26 + (c - '0');
     else if (c == '-')              col = 36;
-    else if (c == '?')              col = 37;
     if (col < 0) return;
     Rectangle src = { (float)col * HSF_CHAR_W, 0.0f, HSF_CHAR_W, HSF_CHAR_H };
     Rectangle dst = { pos.x, pos.y, HSF_CHAR_W * scale, HSF_CHAR_H * scale };
@@ -585,12 +584,29 @@ void UiManager::DrawContinueScreen()
         DrawTexturePro(texMetalBigNum, src, dst, { 0.0f, 0.0f }, 0.0f, WHITE);
     }
 
-    // "CONTINUE?" wycentrowane nad cyfra
-    const char* contText = "CONTINUE?";
-    float textSc = 4.0f;
-    float textW  = MeasureScoreText(contText, textSc);
-    float textY  = (float)SH * 0.25f;
-    DrawScoreText(contText, { (float)SW * 0.5f - textW * 0.5f, textY }, textSc);
+    // "CONTINUE?" — CONTINUE z highscorefont, ? z highscorefontsmall
+    const char* contText = "CONTINUE";
+    const float textSc   = 4.0f;
+    const float textY    = (float)SH * 0.25f;
+
+    // '?' z hudfont2numbers.png — 14 znakow: 0-9 (10) + - / ? : (4)
+    // Obliczamy szerokosc slotu z rzeczywistej szerokosci tekstury / 14
+    const int   NUM2_TOTAL_CHARS = 14;
+    const float Q_SLOT_W = (float)texHudFont2Num.width / (float)NUM2_TOTAL_CHARS;
+    const float Q_SLOT_H = (float)texHudFont2Num.height;
+    const float Q_SRC_X  = 12.0f * Q_SLOT_W;   // slot 12 = '?'  (0-9=sloty 0-9, -=10, /=11, ?=12)
+    const float Q_DST_H  = HSF_CHAR_H * textSc;
+    const float Q_DST_W  = Q_SLOT_W * (Q_DST_H / Q_SLOT_H);
+
+    float continueW = MeasureScoreText(contText, textSc);
+    float totalW    = continueW + Q_DST_W;
+    float startX    = (float)SW * 0.5f - totalW * 0.5f;
+
+    DrawScoreText(contText, { startX, textY }, textSc);
+
+    Rectangle qSrc = { Q_SRC_X, 0.0f, Q_SLOT_W, Q_SLOT_H };
+    Rectangle qDst = { startX + continueW, textY, Q_DST_W, Q_DST_H };
+    DrawTexturePro(texHudFont2Num, qSrc, qDst, { 0.0f, 0.0f }, 0.0f, WHITE);
 
     // Liczba kreditow (dolny prawy rog)
     DrawCreditsOnly();
