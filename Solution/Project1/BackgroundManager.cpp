@@ -170,7 +170,7 @@ void BackgroundManager::Draw() {
             if (sprite.isFrontground || sprite.layer != currentLayer) continue;
             Rectangle dest = sprite.dest;
             dest.x = sprite.dest.x - (this->camX * sprite.parallaxFactor);
-            DrawTexturePro(sprite.texture, sprite.source, dest, origin, 0, WHITE);
+            DrawTexturePro(sprite.texture, sprite.source, dest, origin, 0, sprite.tint);
         }
     }
 }
@@ -198,7 +198,7 @@ void BackgroundManager::Drawfrontground()
         if (!sprite.isFrontground) continue;
         Rectangle dest = sprite.dest;
         dest.x = sprite.dest.x - (this->camX * sprite.parallaxFactor);
-        DrawTexturePro(sprite.texture, sprite.source, dest, origin, 0, WHITE);
+        DrawTexturePro(sprite.texture, sprite.source, dest, origin, 0, sprite.tint);
     }
 }
 

@@ -11,6 +11,7 @@ namespace Globals
     CameraManager cameraManager;
     BackgroundManager backgroundManager;
     CreationManager creationManager;
+    Boss boss;
 }
 
 // Definición de los aliases (referencias) vinculados a las instancias en Globals
@@ -22,3 +23,4 @@ TimerManager& timerManager = Globals::timerManager;
 CameraManager& cameraManager = Globals::cameraManager;
 BackgroundManager& backgroundManager = Globals::backgroundManager;
 CreationManager& creationManager = Globals::creationManager;
+Boss& boss = Globals::boss;

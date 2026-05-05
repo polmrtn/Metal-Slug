@@ -279,7 +279,15 @@ void SystemCollision::BulletCollision()
                 }
             }
         }
-
+        // 4. DAÑO AL BOSS
+        if (!hit && boss.IsActive() && (bIt->GetType() == 1 || bIt->GetType() == 3))
+        {
+            if (CheckCollisionRecs(bIt->GetHitbox(), boss.GetHitBox()))
+            {
+                boss.TakeDamage();
+                hit = true;
+            }
+        }
         if (hit) bIt = bullets.erase(bIt);
         else     ++bIt;
     }

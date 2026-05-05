@@ -55,6 +55,7 @@ struct BackgroundEventSprite {
             source.x = currentFrame * (frameWidth + spacing);
         }
     }
+    Color tint = WHITE;
 };
 
 class BackgroundManager {
@@ -72,6 +73,11 @@ public:
     void Drawfrontground();
     float GetWidth() const { return totalWidth; }
     float GetHeight() const { return totalHeight; }
+
+    void SetEventSpriteTint(int index, Color tint) {
+        if (index >= 0 && index < (int)eventSprites.size())
+            eventSprites[index].tint = tint;
+    }
 
 private:
     Vector2 origin;
