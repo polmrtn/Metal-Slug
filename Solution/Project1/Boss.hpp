@@ -33,7 +33,7 @@ public:
 private:
     // ── Estado general ────────────────────────────────────────
     bool active = false;
-    int  health = 200;
+    int  health = 10; //cambiar luego a 200
 
     // ── Posición ──────────────────────────────────────────────
     float posX = 16130.0f;
@@ -118,4 +118,39 @@ private:
     static constexpr float FLASH_FRAME_H = 64.0f;
     static constexpr float FLASH_ROW_Y = 0.0f;
     static constexpr float FLASH_SCALE = 4.0f;
+
+    // ── Fase 2 ────────────────────────────────────────────────
+    bool phase2 = false;
+    bool phase2Pending = false;
+
+    enum class LaserState {
+        MOVING,
+        CHARGING,   // fila 0 o 3 — 2 sprites alternando
+        FIRING,     // fila 1 o 4 — 10 sprites + laser 1s
+    };
+
+    LaserState    laserState = LaserState::MOVING;
+    int           laserFrame = 0;
+    float         laserFrameTimer = 0.0f;
+    float         laserFrameDelay = 0.1f;
+    float         laserTimer = 0.0f;
+    static constexpr float LASER_DURATION = 1.0f;
+
+    Texture2D laserSheet = { 0 };
+    static constexpr float LASER_FRAME_W = 88.0f;
+    static constexpr float LASER_FRAME_H = 96.0f;
+    static constexpr int   CHARGE_FRAMES = 2;
+    static constexpr int   FIRE_FRAMES = 10;
+
+    static constexpr float CHARGE_DOWN_ROW_Y = 0 * 96.0f; 
+    static constexpr float FIRE_DOWN_ROW_Y = 1 * 96.0f;  
+    static constexpr float CHARGE_UP_ROW_Y = 2 * 96.0f;  
+    static constexpr float FIRE_UP_ROW_Y = 3 * 96.0f; 
+
+    static constexpr float CHARGE_DURATION = 2.0f;  // segundos cargando
+    float chargeTimer = 0.0f;
+
+    void UpdateLaser(float dt);
+    void DrawLaser() const;
+
 };

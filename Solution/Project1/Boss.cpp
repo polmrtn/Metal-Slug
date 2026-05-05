@@ -16,6 +16,11 @@ void Boss::Init()
     UnloadImage(imgFlash);
     SetTextureFilter(flashSheet, TEXTURE_FILTER_POINT);
 
+    Image imgLaser = LoadImage("Graphics/boss/laser88x96.png");
+    laserSheet = LoadTextureFromImage(imgLaser);
+    UnloadImage(imgLaser);
+    SetTextureFilter(laserSheet, TEXTURE_FILTER_POINT);
+
     cannonFrame = 0;
     cannonGoingUp = true;
     cannonFrameTimer = 0.0f;
@@ -47,8 +52,17 @@ void Boss::Update(float playerX)
         }
     }
 
-    UpdatePlasma(GetFrameTime());
-    UpdateCannon(GetFrameTime());
+    // Activar fase 2
+    if (!phase2 && !phase2Pending && health <= 5)
+        phase2Pending = true; //cambiar a 100
+
+    if (phase2)
+        UpdateLaser(GetFrameTime());
+    else
+        UpdateCannon(GetFrameTime());
+
+    if (!phase2)
+        UpdatePlasma(GetFrameTime());
 }
 
 void Boss::UpdateCannon(float dt)
@@ -57,7 +71,6 @@ void Boss::UpdateCannon(float dt)
 
     switch (cannonState)
     {
-        // ── MOVING ───────────────────────────────────────────────
     case CannonState::MOVING:
         flashActive = false;
         if (cannonFrameTimer < cannonFrameDelay) return;
@@ -67,8 +80,18 @@ void Boss::UpdateCannon(float dt)
             cannonFrame++;
             if (cannonFrame >= CANNON_FRAMES - 1) {
                 cannonFrame = CANNON_FRAMES - 1;
-                cannonState = CannonState::OPENING_UP;
-                openFrame = 0;
+                if (phase2Pending) {
+                    phase2 = true;
+                    phase2Pending = false;
+                    laserState = LaserState::CHARGING;
+                    laserFrame = 0;
+                    chargeTimer = 0.0f;
+                    laserFrameTimer = 0.0f;
+                }
+                else {
+                    cannonState = CannonState::OPENING_UP;
+                    openFrame = 0;
+                }
                 cannonFrameTimer = 0.0f;
             }
         }
@@ -76,8 +99,18 @@ void Boss::UpdateCannon(float dt)
             cannonFrame--;
             if (cannonFrame <= 0) {
                 cannonFrame = 0;
-                cannonState = CannonState::OPENING_DOWN;
-                openFrame = 0;
+                if (phase2Pending) {
+                    phase2 = true;
+                    phase2Pending = false;
+                    laserState = LaserState::CHARGING;
+                    laserFrame = 0;
+                    chargeTimer = 0.0f;
+                    laserFrameTimer = 0.0f;
+                }
+                else {
+                    cannonState = CannonState::OPENING_DOWN;
+                    openFrame = 0;
+                }
                 cannonFrameTimer = 0.0f;
             }
         }
@@ -101,7 +134,6 @@ void Boss::UpdateCannon(float dt)
         cannonFrameTimer = 0.0f;
         openFrame++;
 
-        // Flash sincronizado: frame 0-5 del disparo = frame 0-5 del flash
         if (openFrame < FLASH_FRAMES) {
             flashActive = true;
             flashFrame = openFrame;
@@ -158,7 +190,6 @@ void Boss::UpdateCannon(float dt)
         cannonFrameTimer = 0.0f;
         openFrame++;
 
-        // Flash sincronizado
         if (openFrame < FLASH_FRAMES) {
             flashActive = true;
             flashFrame = openFrame;
@@ -199,62 +230,135 @@ void Boss::UpdateCannon(float dt)
     }
 }
 
+void Boss::UpdateLaser(float dt)
+{
+    laserFrameTimer += dt;
+
+    switch (laserState)
+    {
+    case LaserState::MOVING:
+        if (laserFrameTimer < cannonFrameDelay) return;
+        laserFrameTimer = 0.0f;
+
+        if (cannonGoingUp) {
+            cannonFrame++;
+            if (cannonFrame >= CANNON_FRAMES - 1) {
+                cannonFrame = CANNON_FRAMES - 1;
+                laserState = LaserState::CHARGING;
+                laserFrame = 0;
+                chargeTimer = 0.0f;
+                laserFrameTimer = 0.0f;
+            }
+        }
+        else {
+            cannonFrame--;
+            if (cannonFrame <= 0) {
+                cannonFrame = 0;
+                laserState = LaserState::CHARGING;
+                laserFrame = 0;
+                chargeTimer = 0.0f;
+                laserFrameTimer = 0.0f;
+            }
+        }
+        break;
+
+    case LaserState::CHARGING:
+        chargeTimer += dt;
+
+        // Alternar entre frame 0 y 1
+        if (laserFrameTimer >= laserFrameDelay) {
+            laserFrameTimer = 0.0f;
+            laserFrame = (laserFrame + 1) % CHARGE_FRAMES;
+        }
+
+        if (chargeTimer >= CHARGE_DURATION) {
+            laserState = LaserState::FIRING;
+            laserFrame = 0;
+            laserTimer = 0.0f;
+            laserFrameTimer = 0.0f;
+        }
+        break;
+
+    case LaserState::FIRING:
+        laserTimer += dt;
+
+        if (laserFrameTimer >= laserFrameDelay) {
+            laserFrameTimer = 0.0f;
+            laserFrame = (laserFrame + 1) % FIRE_FRAMES;
+        }
+
+        if (laserTimer >= LASER_DURATION) {
+            // Terminó — moverse al otro extremo
+            cannonGoingUp = !cannonGoingUp;
+            laserState = LaserState::MOVING;
+            laserFrame = 0;
+            laserFrameTimer = 0.0f;
+        }
+        break;
+    }
+}
+
 void Boss::Draw()
 {
     if (!active) return;
 
-    // ── Cañón ─────────────────────────────────────────────────
-    Rectangle src;
-    switch (cannonState)
-    {
-    case CannonState::OPENING_DOWN:
-    case CannonState::CLOSING_DOWN:
-        src = { openFrame * CANNON_FRAME_W, OPEN_DOWN_ROW_Y,  CANNON_FRAME_W, CANNON_FRAME_H };
-        break;
-    case CannonState::SHOOTING_DOWN:
-        src = { openFrame * CANNON_FRAME_W, SHOOT_DOWN_ROW_Y, CANNON_FRAME_W, CANNON_FRAME_H };
-        break;
-    case CannonState::OPENING_UP:
-    case CannonState::CLOSING_UP:
-        src = { openFrame * CANNON_FRAME_W, OPEN_UP_ROW_Y,    CANNON_FRAME_W, CANNON_FRAME_H };
-        break;
-    case CannonState::SHOOTING_UP:
-        src = { openFrame * CANNON_FRAME_W, SHOOT_UP_ROW_Y,   CANNON_FRAME_W, CANNON_FRAME_H };
-        break;
-    default:
-        src = { cannonFrame * CANNON_FRAME_W, 0.0f, CANNON_FRAME_W, CANNON_FRAME_H };
-        break;
+    if (phase2) {
+        DrawLaser();
     }
-
-    Rectangle dst = { posX, posY, CANNON_FRAME_W * CANNON_SCALE, CANNON_FRAME_H * CANNON_SCALE };
-    Color tint = (isFlashing && hitFlashCount % 2 == 0) ? Color{ 255, 220, 100, 255 } : WHITE;
-    DrawTexturePro(cannonSheet, src, dst, { 0, 0 }, 0.0f, tint);
-
-    // ── Destello ──────────────────────────────────────────────
-    if (flashActive) {
-        Rectangle flashSrc = {
-            flashFrame * FLASH_FRAME_W,
-            FLASH_ROW_Y,
-            FLASH_FRAME_W,
-            FLASH_FRAME_H
-        };
-
-        bool isDown = (cannonState == CannonState::SHOOTING_DOWN);
-
-        float fx, fy;
-        if (isDown) {
-            fx = 16220.0f + 50.0f - (FLASH_FRAME_W * FLASH_SCALE) / 2.0f;  // igual de derecha
-            fy = 285.0f - (FLASH_FRAME_H * FLASH_SCALE) / 2.0f;    // más arriba
-        }
-        else {
-            fx = 16220.0f + 70.0f - (FLASH_FRAME_W * FLASH_SCALE) / 2.0f;  // más a la derecha
-            fy = posY + 30 - (FLASH_FRAME_H * FLASH_SCALE) / 2.0f;               // igual
+    else {
+        // ── Cañón ─────────────────────────────────────────────────
+        Rectangle src;
+        switch (cannonState)
+        {
+        case CannonState::OPENING_DOWN:
+        case CannonState::CLOSING_DOWN:
+            src = { openFrame * CANNON_FRAME_W, OPEN_DOWN_ROW_Y,  CANNON_FRAME_W, CANNON_FRAME_H };
+            break;
+        case CannonState::SHOOTING_DOWN:
+            src = { openFrame * CANNON_FRAME_W, SHOOT_DOWN_ROW_Y, CANNON_FRAME_W, CANNON_FRAME_H };
+            break;
+        case CannonState::OPENING_UP:
+        case CannonState::CLOSING_UP:
+            src = { openFrame * CANNON_FRAME_W, OPEN_UP_ROW_Y,    CANNON_FRAME_W, CANNON_FRAME_H };
+            break;
+        case CannonState::SHOOTING_UP:
+            src = { openFrame * CANNON_FRAME_W, SHOOT_UP_ROW_Y,   CANNON_FRAME_W, CANNON_FRAME_H };
+            break;
+        default:
+            src = { cannonFrame * CANNON_FRAME_W, 0.0f, CANNON_FRAME_W, CANNON_FRAME_H };
+            break;
         }
 
-        Rectangle flashDst = { fx, fy, FLASH_FRAME_W * FLASH_SCALE, FLASH_FRAME_H * FLASH_SCALE };
-        DrawTexturePro(flashSheet, flashSrc, flashDst, { 0, 0 }, 0.0f, WHITE);
-    }
+        Rectangle dst = { posX, posY, CANNON_FRAME_W * CANNON_SCALE, CANNON_FRAME_H * CANNON_SCALE };
+        Color tint = (isFlashing && hitFlashCount % 2 == 0) ? Color{ 255, 220, 100, 255 } : WHITE;
+        DrawTexturePro(cannonSheet, src, dst, { 0, 0 }, 0.0f, tint);
 
+        // ── Destello ──────────────────────────────────────────────
+        if (flashActive) {
+            Rectangle flashSrc = {
+                flashFrame * FLASH_FRAME_W,
+                FLASH_ROW_Y,
+                FLASH_FRAME_W,
+                FLASH_FRAME_H
+            };
+
+            bool isDown = (cannonState == CannonState::SHOOTING_DOWN);
+
+            float fx, fy;
+            if (isDown) {
+                fx = 16220.0f + 50.0f - (FLASH_FRAME_W * FLASH_SCALE) / 2.0f;  // igual de derecha
+                fy = 285.0f - (FLASH_FRAME_H * FLASH_SCALE) / 2.0f;    // más arriba
+            }
+            else {
+                fx = 16220.0f + 70.0f - (FLASH_FRAME_W * FLASH_SCALE) / 2.0f;  // más a la derecha
+                fy = posY + 30 - (FLASH_FRAME_H * FLASH_SCALE) / 2.0f;               // igual
+            }
+
+            Rectangle flashDst = { fx, fy, FLASH_FRAME_W * FLASH_SCALE, FLASH_FRAME_H * FLASH_SCALE };
+            DrawTexturePro(flashSheet, flashSrc, flashDst, { 0, 0 }, 0.0f, WHITE);
+        }
+    }
+    
     DrawPlasma();
 }
 
@@ -332,5 +436,39 @@ void Boss::DrawPlasma() const
         DrawCircleV(plasma[i].pos, plasmaRadius, { 180, 60, 255, 255 });
         DrawCircleLines((int)plasma[i].pos.x, (int)plasma[i].pos.y,
             plasmaRadius, { 255, 180, 255, 255 });
+    }
+}
+
+void Boss::DrawLaser() const
+{
+    if (laserState == LaserState::MOVING) {
+        Rectangle src = { cannonFrame * CANNON_FRAME_W, 0.0f, CANNON_FRAME_W, CANNON_FRAME_H };
+        Rectangle dst = { posX, posY, CANNON_FRAME_W * CANNON_SCALE, CANNON_FRAME_H * CANNON_SCALE };
+        Color tint = (isFlashing && hitFlashCount % 2 == 0) ? Color{ 255,220,100,255 } : WHITE;
+        DrawTexturePro(cannonSheet, src, dst, { 0,0 }, 0.0f, tint);
+        return;
+    }
+
+    float rowY = 0.0f;
+    if (laserState == LaserState::CHARGING)
+        rowY = cannonGoingUp ? CHARGE_UP_ROW_Y : CHARGE_DOWN_ROW_Y;
+    else
+        rowY = cannonGoingUp ? FIRE_UP_ROW_Y : FIRE_DOWN_ROW_Y;
+
+    TraceLog(LOG_INFO, "laserFrame=%d rowY=%.0f cannonGoingUp=%d",
+        laserFrame, rowY, (int)cannonGoingUp);
+
+    Rectangle src = { laserFrame * LASER_FRAME_W, rowY, LASER_FRAME_W, LASER_FRAME_H };
+    Rectangle dst = { posX, posY, LASER_FRAME_W * CANNON_SCALE, LASER_FRAME_H * CANNON_SCALE };
+    Color tint = (isFlashing && hitFlashCount % 2 == 0) ? Color{ 255,220,100,255 } : WHITE;
+    DrawTexturePro(laserSheet, src, dst, { 0,0 }, 0.0f, tint);
+
+    DrawRectangleLinesEx(dst, 2, RED);
+
+    if (laserState == LaserState::FIRING) {
+        float startX = posX;
+        float startY = posY + (LASER_FRAME_H * CANNON_SCALE) / 2.0f;
+        float endX = posX - 2000.0f;
+        DrawLineEx({ startX, startY }, { endX, startY }, 6.0f, { 0, 200, 255, 200 });
     }
 }
