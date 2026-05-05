@@ -248,6 +248,7 @@ void UiManager::DrawScoreChar(char c, Vector2 pos, float scale) const
     else if (c >= 'a' && c <= 'z') col = c - 'a';
     else if (c >= '0' && c <= '9') col = 26 + (c - '0');
     else if (c == '-')              col = 36;
+    else if (c == '?')              col = 37;
     if (col < 0) return;
     Rectangle src = { (float)col * HSF_CHAR_W, 0.0f, HSF_CHAR_W, HSF_CHAR_H };
     Rectangle dst = { pos.x, pos.y, HSF_CHAR_W * scale, HSF_CHAR_H * scale };
@@ -319,16 +320,27 @@ void UiManager::DrawHUD(Camera2D /*camera*/)
     {
         if (continueBlinkOn)
         {
-            const char* contLabel = "CONTINUE";
+            // "CONTINUE X" — ta sama czcionka, cyfra bez animacji
+            int contDigit = 9 - (int)continueElapsed;
+            if (contDigit < 0) contDigit = 0;
+            char contLabel[16];
+            std::snprintf(contLabel, sizeof(contLabel), "CONTINUE %d", contDigit);
+
             const float lblScY = 4.0f;
             const float areaW  = startXTime * 0.55f - 18.0f;
             const float baseW  = MeasureScoreText(contLabel, 1.0f);
             const float lblScX = (baseW > 0.0f && areaW > 0.0f)
                                  ? std::min(2.5f, areaW / baseW) : 2.5f;
-            float x = 28.0f;
+            float x = 50.0f;
             for (int i = 0; contLabel[i]; ++i) {
                 char c = contLabel[i];
-                int col = (c >= 'A' && c <= 'Z') ? c - 'A' : (c >= 'a' && c <= 'z') ? c - 'a' : -1;
+                if (c == ' ') { x += HSF_CHAR_W * lblScX * 0.5f; continue; }
+                int col = -1;
+                if (c >= 'A' && c <= 'Z')      col = c - 'A';
+                else if (c >= 'a' && c <= 'z') col = c - 'a';
+                else if (c >= '0' && c <= '9') col = 26 + (c - '0');
+                else if (c == '-')             col = 36;
+                else if (c == '?')             col = 37;
                 if (col < 0) { x += HSF_CHAR_W * lblScX; continue; }
                 Rectangle src = { (float)col * HSF_CHAR_W, 0.0f, HSF_CHAR_W, HSF_CHAR_H };
                 Rectangle dst = { x, hudY, HSF_CHAR_W * lblScX, HSF_CHAR_H * lblScY };
@@ -619,17 +631,15 @@ void UiManager::DrawGameOverSprite(float t)
 
     DrawRectangle(0, 0, SW, SH, BLACK);
 
-    float fadeIn = t / 0.5f;
-    if (fadeIn > 1.0f) fadeIn = 1.0f;
-    unsigned char alpha = (unsigned char)(fadeIn * 255.0f);
+    // fade-in 0-0.5s, pelny 0.5-4s, fade-out 4-5s
+    float alpha01;
+    if (t < 0.5f)       alpha01 = t / 0.5f;
+    else if (t < 4.0f)  alpha01 = 1.0f;
+    else                alpha01 = 1.0f - (t - 4.0f) / 1.0f;
+    if (alpha01 < 0.0f) alpha01 = 0.0f;
+    unsigned char alpha = (unsigned char)(alpha01 * 255.0f);
 
-    float scX = (float)SW / (float)texGameOver.width;
-    float scY = (float)SH / (float)texGameOver.height;
-    float sc  = (scX < scY ? scX : scY) * 0.85f;
-    float w   = texGameOver.width  * sc;
-    float h   = texGameOver.height * sc;
-    float x   = ((float)SW - w) * 0.5f;
-    float y   = ((float)SH - h) * 0.5f;
-
-    DrawTextureEx(texGameOver, { x, y }, 0.0f, sc, { 255, 255, 255, alpha });
+    Rectangle src = { 0.0f, 0.0f, (float)texGameOver.width, (float)texGameOver.height };
+    Rectangle dst = { 0.0f, 0.0f, (float)SW, (float)SH };
+    DrawTexturePro(texGameOver, src, dst, { 0.0f, 0.0f }, 0.0f, { 255, 255, 255, alpha });
 }
