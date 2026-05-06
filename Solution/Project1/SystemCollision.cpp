@@ -402,27 +402,54 @@ void SystemCollision::ItemBlockCollision()
 void SystemCollision::ItemPlayerCollision()
 {
     auto& items = creationManager.GetItems();
-    for (auto& item : items)
+
+    for (int i = 0; i < (int)items.size(); i++)
     {
+        auto& item = items[i];
         if (!item.IsActive()) continue;
 
-        if (item.GetType() == ItemType::SHOTGUN &&
-            CheckCollisionRecs(item.GetHitBox(), player.GetHitBox()))
+        bool playerTouching = CheckCollisionRecs(item.GetHitBox(), player.GetHitBox());
+
+        // ========== SHOTGUN — lógica especial ==========
+        if (item.GetType() == ItemType::SHOTGUN && playerTouching)
         {
             player.EquipMachinegun();
             item.Collect();
             audioManager.PlaySound(audioManager.GetMachinegunEquipSound());
             uiManager.SetAmmo(player.GetAmmo());
             uiManager.SetWeaponDisplay(UiManager::WeaponDisplay::MACHINEGUN);
+            continue;
         }
 
-        if (item.ShouldSpawnMachinegun())
+        // ========== Items recolectables genéricos ==========
+        if (playerTouching && item.GetType() != ItemType::BOX)
+        {
+            switch (item.GetType()) {
+            case ItemType::PLUSHY:
+                uiManager.AddScore(200);
+                break;
+            case ItemType::FISH:
+                uiManager.AddScore(500);
+                break;
+            default:
+                break;
+            }
+            item.Collect();
+            continue;
+        }
+
+        // ========== SPAWN al destruirse BOX ==========
+        if (item.ShouldSpawnItem())
         {
             item.ConsumeSpawn();
-            Vector2 spawnPos = { item.GetHitBox().x + 60.0f, item.GetHitBox().y - 20.0f };
-            Item newItem(spawnPos, ItemType::SHOTGUN);
+            Item newItem(item.GetSpawnPosition(), ItemType::SHOTGUN);
             newItem.SetGravity(true);
             items.push_back(newItem);
         }
     }
+
+    items.erase(std::remove_if(items.begin(), items.end(),
+        [](const Item& i) { return !i.IsActive(); }), items.end());
+
+
 }

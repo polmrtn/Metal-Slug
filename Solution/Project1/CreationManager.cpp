@@ -39,10 +39,20 @@ void CreationManager::LoadFromFile(const char* filename)
         }
         else if (line[0] == 'I') {
             float x, y; int type;
-            if (sscanf(line + 2, "%f %f %d", &x, &y, &type) == 3)
-                items.emplace_back(Vector2{ x, y },
-                    type == 1 ? ItemType::BOX : ItemType::SHOTGUN);
+            if (sscanf(line + 2, "%f %f %d", &x, &y, &type) == 3) {
+                ItemType itemType;
+                switch (type) {
+                case 0: itemType = ItemType::SHOTGUN; break;
+                case 1: itemType = ItemType::BOX;     break;
+                case 2: itemType = ItemType::PLUSHY;  break;
+                case 3: itemType = ItemType::FISH;    break;
+                case 4: itemType = ItemType::MEDAL;   break;
+                default: itemType = ItemType::BOX;    break;
+                }
+                items.emplace_back(Vector2{ x, y }, itemType);
+            }
         }
+        
     }
 
     fclose(f);
