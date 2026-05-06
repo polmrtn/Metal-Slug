@@ -63,7 +63,7 @@ private:
 
     CannonState cannonState = CannonState::MOVING;
     float       stateTimer = 0.0f;
-    float       pauseDuration = 0.8f;
+    float       pauseDuration = 0.4f;
 
     bool  cannonGoingUp = true;
     int   cannonFrame = 0;
@@ -71,7 +71,7 @@ private:
     int   closeFrame = 0;
 
     float cannonFrameTimer = 0.0f;
-    float cannonFrameDelay = 0.08f;
+    float cannonFrameDelay = 0.04f;
 
     Texture2D cannonSheet = { 0 };
 
@@ -153,15 +153,16 @@ private:
     enum class LaserState {
         MOVING,
         CHARGING,   // fila 0 o 3 — 2 sprites alternando
+        CHARGING2,
         FIRING,     // fila 1 o 4 — 10 sprites + laser 1s
     };
 
     LaserState    laserState = LaserState::MOVING;
     int           laserFrame = 0;
     float         laserFrameTimer = 0.0f;
-    float         laserFrameDelay = 0.1f;
+    float         laserFrameDelay = 0.05f;
     float         laserTimer = 0.0f;
-    static constexpr float LASER_DURATION = 1.0f;
+    static constexpr float LASER_DURATION = 0.5f;
 
     Texture2D laserSheet = { 0 };
     static constexpr float LASER_FRAME_W = 112.0f;
@@ -174,7 +175,7 @@ private:
     static constexpr float CHARGE_UP_ROW_Y = 0 * 96.0f;  
     static constexpr float FIRE_UP_ROW_Y = 1 * 96.0f; 
 
-    static constexpr float CHARGE_DURATION = 2.0f;  // segundos cargando
+    static constexpr float CHARGE_DURATION = 1.0f;  // segundos cargando
     float chargeTimer = 0.0f;
 
     void UpdateLaser(float dt);
@@ -241,7 +242,7 @@ private:
     void DrawTent() const;
 
     float preIntroTimer = 0.0f;
-    static constexpr float PRE_INTRO_DELAY = 5.0f;
+    static constexpr float PRE_INTRO_DELAY = 2.5f;
     bool playerInRange = false;
 
     Texture2D laserBeamSheet = { 0 };
@@ -259,7 +260,7 @@ private:
     Texture2D beamSheet = { 0 };
     int       beamFrame = 0;
     float     beamTimer = 0.0f;
-    float     beamDelay = 0.1f;
+    float     beamDelay = 0.05f;
     bool      beamRetracting = false;  // false=disparando, true=recogiendo
     float flashLoopTimer = 0.0f;
 
@@ -268,5 +269,17 @@ private:
     static constexpr int   BEAM_FRAMES = 2;   // fila 0: loop 0-1
     static constexpr int   BEAM_RET_FRAMES = 8; // fila 1: sprites 0-7
     float laserFlashRowY = 0.0f;
+    static constexpr int CHARGE2_FRAMES = 15;
 
+    // ── Splatter fin laser ────────────────────────────────────
+    Texture2D splatterSheet = { 0 };
+    int       splatterFrame = 0;
+    float     splatterTimer = 0.0f;
+    float     splatterDelay = 0.03f;
+    bool      splatterActive = false;
+
+    static constexpr float SPLATTER_W = 64.0f;
+    static constexpr float SPLATTER_H = 48.0f;
+    static constexpr int   SPLATTER_FRAMES = 6;
+    bool splatterDone = false;
 };

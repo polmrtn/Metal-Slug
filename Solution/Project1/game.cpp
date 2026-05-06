@@ -110,16 +110,6 @@ void Game::Update()
     // Colisiones (todos los sistemas)
     systemCollision.CollisionUpdate();
 
-    // Zona de victoria
-    Rectangle winZone = { 16190.0f, -9999.0f, 200.0f, 99999.0f };
-    if (CheckCollisionRecs(player.GetHitBox(), winZone))
-    {
-        audioManager.StopMusic(audioManager.GetGameMusic());
-        musicStarted = false;
-        shouldRestart = true;
-        sceneManager.SetGameState(SceneManager::TITLE);
-    }
-
     // Limpiar items inactivos
     for (auto& item : creationManager.GetItems()) item.Update();
     creationManager.GetItems().erase(

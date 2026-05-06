@@ -108,7 +108,7 @@ void SystemCollision::PlayerBlockCollision()
             float penetration = feetY - br.y;
 
             if (overlapX && wasAbove && player.GetVelocityY() >= 0 &&
-                penetration >= 0.0f && penetration <= 45.0f)
+                penetration >= -1.0f && penetration <= 45.0f)
             {
                 player.SetY(br.y - player.GetHeight());
                 player.SetVelocityY(0.0f);
