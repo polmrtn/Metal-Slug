@@ -16,7 +16,7 @@ void Boss::Init()
     UnloadImage(imgFlash);
     SetTextureFilter(flashSheet, TEXTURE_FILTER_POINT);
 
-    Image imgLaser = LoadImage("Graphics/boss/laser88x96.png");
+    Image imgLaser = LoadImage("Graphics/boss/laser112x96.png");
     laserSheet = LoadTextureFromImage(imgLaser);
     UnloadImage(imgLaser);
     SetTextureFilter(laserSheet, TEXTURE_FILTER_POINT);
@@ -30,6 +30,13 @@ void Boss::Init()
     tentSheet = LoadTextureFromImage(imgTent);
     UnloadImage(imgTent);
     SetTextureFilter(tentSheet, TEXTURE_FILTER_POINT);
+
+    Image imgLaserFlash = LoadImage("Graphics/boss/laserexplo112x96.png");
+    laserFlashSheet = LoadTextureFromImage(imgLaserFlash);
+    UnloadImage(imgLaserFlash);
+    SetTextureFilter(laserFlashSheet, TEXTURE_FILTER_POINT);
+    laserFlashDelay = CHARGE_DURATION / (float)CHARGE_PATTERN_LENGTH;
+
 
     cannonFrame = 9;
     cannonGoingUp = true;
@@ -85,6 +92,7 @@ void Boss::Update(float playerX)
         UpdateCannon(dt);
 
     UpdatePlasma(dt);
+    UpdateLaserFlash(dt);
 }
 
 void Boss::UpdateIntro(float playerX, float dt)
@@ -322,6 +330,11 @@ void Boss::UpdateLaser(float dt)
                 laserFrame = 0;
                 chargeTimer = 0.0f;
                 laserFrameTimer = 0.0f;
+                laserFlashActive = true;
+                laserFlashStep = 0;
+                laserFlashFrame = CHARGE_PATTERN[0];
+                laserFlashTimer = 0.0f;
+                laserFlashDelay = CHARGE_DURATION / (float)CHARGE_PATTERN_LENGTH;
             }
         }
         else {
@@ -332,24 +345,30 @@ void Boss::UpdateLaser(float dt)
                 laserFrame = 0;
                 chargeTimer = 0.0f;
                 laserFrameTimer = 0.0f;
+                laserFlashActive = true;
+                laserFlashStep = 0;
+                laserFlashFrame = CHARGE_PATTERN[0];
+                laserFlashTimer = 0.0f;
+                laserFlashDelay = CHARGE_DURATION / (float)CHARGE_PATTERN_LENGTH;
             }
         }
         break;
 
     case LaserState::CHARGING:
         chargeTimer += dt;
-
         // Alternar entre frame 0 y 1
         if (laserFrameTimer >= laserFrameDelay) {
             laserFrameTimer = 0.0f;
             laserFrame = (laserFrame + 1) % CHARGE_FRAMES;
         }
-
         if (chargeTimer >= CHARGE_DURATION) {
             laserState = LaserState::FIRING;
             laserFrame = 0;
             laserTimer = 0.0f;
             laserFrameTimer = 0.0f;
+            laserFlashFrame = 0;
+            laserFlashTimer = 0.0f;
+            laserFlashDelay = LASER_DURATION / (float)LASER_FIRE_FRAMES;  // ← nuevo delay para disparo
         }
         break;
 
@@ -369,6 +388,25 @@ void Boss::UpdateLaser(float dt)
             laserFrameTimer = 0.0f;
         }
         break;
+    }
+}
+
+void Boss::UpdateLaserFlash(float dt)
+{
+    laserFlashTimer += dt;
+    if (laserFlashTimer < laserFlashDelay) return;
+    laserFlashTimer = 0.0f;
+
+    if (laserState == LaserState::CHARGING) {
+        laserFlashStep++;
+        if (laserFlashStep >= CHARGE_PATTERN_LENGTH)
+            laserFlashStep = CHARGE_PATTERN_LENGTH - 1;
+        laserFlashFrame = CHARGE_PATTERN[laserFlashStep];
+    }
+    else if (laserState == LaserState::FIRING) {
+        laserFlashFrame++;
+        if (laserFlashFrame >= LASER_FIRE_FRAMES)
+            laserFlashFrame = LASER_FIRE_FRAMES - 1;  // queda en el último frame
     }
 }
 
@@ -586,7 +624,9 @@ void Boss::DrawLaser() const
         laserFrame, rowY, (int)cannonGoingUp);
 
     Rectangle src = { laserFrame * LASER_FRAME_W, rowY, LASER_FRAME_W, LASER_FRAME_H };
-    Rectangle dst = { posX, posY, LASER_FRAME_W * CANNON_SCALE, LASER_FRAME_H * CANNON_SCALE };
+    bool isDown = !cannonGoingUp;
+    float laserDrawY = posY + (isDown ? laserOffsetDownY : laserOffsetUpY);
+    Rectangle dst = { posX + laserOffsetX, laserDrawY, LASER_FRAME_W * CANNON_SCALE, LASER_FRAME_H * CANNON_SCALE };
     Color tint = (isFlashing && hitFlashCount % 2 == 0) ? Color{ 255,220,100,255 } : WHITE;
     DrawTexturePro(laserSheet, src, dst, { 0,0 }, 0.0f, tint);
 
@@ -598,6 +638,7 @@ void Boss::DrawLaser() const
         float endX = posX - 2000.0f;
         DrawLineEx({ startX, startY }, { endX, startY }, 6.0f, { 0, 200, 255, 200 });
     }
+    DrawLaserFlash();
 }
 
 void Boss::DrawTent() const
@@ -615,4 +656,21 @@ void Boss::DrawTent() const
     Rectangle src = { frame * TENT_FRAME_W, rowY, TENT_FRAME_W, TENT_FRAME_H };
     Rectangle dst = { posX + tentOffsetX, posY -30.0f, TENT_FRAME_W * TENT_SCALE, TENT_FRAME_H * TENT_SCALE };
     DrawTexturePro(tentSheet, src, dst, { 0, 0 }, 0.0f, WHITE);
+}
+
+void Boss::DrawLaserFlash() const
+{
+
+    if (laserState != LaserState::CHARGING) return;
+    float rowY = (laserState == LaserState::FIRING) ? LASER_FLASH_FRAME_H : 0.0f;
+
+    int frame = (laserState == LaserState::FIRING)
+        ? laserFlashFrame      // ← recorre los 17 sprites sin loop
+        : laserFlashFrame;     // patrón fila 0
+    
+    bool isDown = !cannonGoingUp;
+    float flashDrawY = posY + (isDown ? laserOffsetDownY -10.0f : laserOffsetUpY);  // ← +50 extra abajo
+    Rectangle dst = { posX + laserOffsetX, flashDrawY, LASER_FLASH_FRAME_W * CANNON_SCALE, LASER_FLASH_FRAME_H * CANNON_SCALE };
+    Rectangle src = { frame * LASER_FLASH_FRAME_W, rowY, LASER_FLASH_FRAME_W, LASER_FLASH_FRAME_H };
+    DrawTexturePro(laserFlashSheet, src, dst, { 0, 0 }, 0.0f, WHITE);
 }

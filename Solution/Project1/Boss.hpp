@@ -164,26 +164,53 @@ private:
     static constexpr float LASER_DURATION = 1.0f;
 
     Texture2D laserSheet = { 0 };
-    static constexpr float LASER_FRAME_W = 88.0f;
+    static constexpr float LASER_FRAME_W = 112.0f;
     static constexpr float LASER_FRAME_H = 96.0f;
     static constexpr int   CHARGE_FRAMES = 2;
     static constexpr int   FIRE_FRAMES = 10;
 
-    static constexpr float CHARGE_DOWN_ROW_Y = 0 * 96.0f; 
-    static constexpr float FIRE_DOWN_ROW_Y = 1 * 96.0f;  
-    static constexpr float CHARGE_UP_ROW_Y = 2 * 96.0f;  
-    static constexpr float FIRE_UP_ROW_Y = 3 * 96.0f; 
+    static constexpr float CHARGE_DOWN_ROW_Y = 2 * 96.0f; 
+    static constexpr float FIRE_DOWN_ROW_Y = 3 * 96.0f;  
+    static constexpr float CHARGE_UP_ROW_Y = 0 * 96.0f;  
+    static constexpr float FIRE_UP_ROW_Y = 1 * 96.0f; 
 
     static constexpr float CHARGE_DURATION = 2.0f;  // segundos cargando
     float chargeTimer = 0.0f;
 
     void UpdateLaser(float dt);
     void DrawLaser() const;
+    float laserOffsetX = -223.0f;  // ajusta hasta que quede bien
+    float laserOffsetY = 0.0f;
+    float laserOffsetDownY = 85.0f;   // offset Y cuando dispara abajo
+    float laserOffsetUpY = -50.0f;   // offset Y cuando dispara arriba
 
     float offsetDownX = 0.0f;
     float offsetDownY = 0.0f;
     float offsetUpX = 0.0f;
     float offsetUpY = -150.0f;
+
+    // ── Flash laser fase 2 ────────────────────────────────────
+    Texture2D laserFlashSheet = { 0 };
+    int       laserFlashFrame = 0;
+    int       laserFlashStep = 0;   // paso en el patrón (0-23)
+    float     laserFlashTimer = 0.0f;
+    float laserFlashDelay = 0.06f;  // se sobreescribe en Init()
+    bool      laserFlashActive = false;
+
+    static constexpr float LASER_FLASH_FRAME_W = 112.0f;
+    static constexpr float LASER_FLASH_FRAME_H = 96.0f;
+    static constexpr int   LASER_FIRE_FRAMES = 17;  // fila 1
+
+    // Patrón de carga: 0-1-0-1-0-1-0-1-2-1-2-1-2-1-2-3-2-3-2-3-2-3
+    static constexpr int CHARGE_PATTERN_LENGTH = 22;
+    static constexpr int CHARGE_PATTERN[22] = {
+        0,1,0,1,0,1,0,1,
+        2,1,2,1,2,1,2,
+        3,2,3,2,3,2,3
+    };
+
+    void UpdateLaserFlash(float dt);
+    void DrawLaserFlash() const;
 
     // ── Manta (intro) ─────────────────────────────────────────
     enum class IntroState {
