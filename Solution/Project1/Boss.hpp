@@ -267,5 +267,6 @@ private:
     static constexpr float BEAM_H = 32.0f;
     static constexpr int   BEAM_FRAMES = 2;   // fila 0: loop 0-1
     static constexpr int   BEAM_RET_FRAMES = 8; // fila 1: sprites 0-7
+    float laserFlashRowY = 0.0f;
 
 };

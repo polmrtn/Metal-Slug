@@ -414,6 +414,7 @@ void Boss::UpdateLaser(float dt)
 
                 // explo loop 16-17 — timer separado
                 flashLoopTimer += dt;
+                laserFlashRowY = 1.0f;
                 if (flashLoopTimer >= 0.1f) {
                     flashLoopTimer = 0.0f;
                     laserFlashFrame = (laserFlashFrame == 15) ? 16 : 15;
@@ -436,6 +437,11 @@ void Boss::UpdateLaser(float dt)
                     beamTimer = 0.0f;
                     if (beamFrame < BEAM_RET_FRAMES - 1) beamFrame++;
                 }
+                // Mapeo flash según frame del beam de recogida
+                if (beamFrame <= 3) { laserFlashFrame = 15; laserFlashRowY = 1.0f; }
+                else if (beamFrame <= 5) { laserFlashFrame = 16; laserFlashRowY = 1.0f; }
+                else if (beamFrame == 6) { laserFlashFrame = 3;  laserFlashRowY = 0.0f; }
+                else { laserFlashFrame = 1;  laserFlashRowY = 0.0f; }
 
                 if (laserFrame >= 10) {
                     cannonGoingUp = !cannonGoingUp;
@@ -723,7 +729,7 @@ void Boss::DrawLaser() const
     // ── Beam arriba ───────────────────────────────────────────
     if (laserState == LaserState::FIRING && cannonGoingUp) {
         float beamY = posY + laserOffsetUpY + (LASER_FRAME_H * CANNON_SCALE) / 2.0f
-            - (BEAM_H * CANNON_SCALE) / 2.0f;
+            - (BEAM_H * CANNON_SCALE) / 2.0f + 20.0f;
         float beamRowY = beamRetracting ? BEAM_H : 0.0f;
         int   maxFrames = beamRetracting ? BEAM_RET_FRAMES : BEAM_FRAMES;
         int   drawFrame = (beamFrame < maxFrames) ? beamFrame : maxFrames - 1;
@@ -770,10 +776,9 @@ void Boss::DrawLaserFlash() const
                           LASER_FLASH_FRAME_W, LASER_FLASH_FRAME_H };
         DrawTexturePro(laserFlashSheet, src, dst, { 0,0 }, 0.0f, WHITE);
     }
-    else if (laserState == LaserState::FIRING && cannonGoingUp && laserFrame <= 5) {
-        // fila 1, sprites 16-17
-        Rectangle src = { laserFlashFrame * LASER_FLASH_FRAME_W, LASER_FLASH_FRAME_H,
+    else if (laserState == LaserState::FIRING && cannonGoingUp) {
+        Rectangle src = { laserFlashFrame * LASER_FLASH_FRAME_W, laserFlashRowY * LASER_FLASH_FRAME_H,
                           LASER_FLASH_FRAME_W, LASER_FLASH_FRAME_H };
         DrawTexturePro(laserFlashSheet, src, dst, { 0,0 }, 0.0f, WHITE);
     }
-    }
+}
