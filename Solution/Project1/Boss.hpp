@@ -244,5 +244,28 @@ private:
     static constexpr float PRE_INTRO_DELAY = 5.0f;
     bool playerInRange = false;
 
+    Texture2D laserBeamSheet = { 0 };
+    int       laserBeamFrame = 0;
+    float     laserBeamTimer = 0.0f;
+    float     laserBeamDelay = 0.06f;
+    static constexpr float LASER_BEAM_W = 80.0f;
+    static constexpr float LASER_BEAM_H = 26.0f;
+    static constexpr int   LASER_BEAM_FRAMES = 4;
+    float laserBeamX = 0.0f;
+    float laserBeamSpeed = 800.0f;  // píxeles/segundo — ajusta
+    bool  laserBeamActive = false;
+
+    // ── Beam laser arriba ─────────────────────────────────────
+    Texture2D beamSheet = { 0 };
+    int       beamFrame = 0;
+    float     beamTimer = 0.0f;
+    float     beamDelay = 0.1f;
+    bool      beamRetracting = false;  // false=disparando, true=recogiendo
+    float flashLoopTimer = 0.0f;
+
+    static constexpr float BEAM_W = 16.0f;
+    static constexpr float BEAM_H = 32.0f;
+    static constexpr int   BEAM_FRAMES = 2;   // fila 0: loop 0-1
+    static constexpr int   BEAM_RET_FRAMES = 8; // fila 1: sprites 0-7
 
 };
