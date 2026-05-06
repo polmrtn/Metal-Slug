@@ -697,36 +697,13 @@ void Boss::DrawLaser() const
         return;
     }
 
-    // ── Cañón laser ───────────────────────────────────────────
     float rowY = 0.0f;
     if (laserState == LaserState::CHARGING)
         rowY = cannonGoingUp ? CHARGE_UP_ROW_Y : CHARGE_DOWN_ROW_Y;
     else
         rowY = cannonGoingUp ? FIRE_UP_ROW_Y : FIRE_DOWN_ROW_Y;
 
-    // Arriba disparando: congelar en frame 5
-    Rectangle src;
-    if (laserState == LaserState::FIRING && cannonGoingUp && laserFrame == 5)
-        src = { 5 * LASER_FRAME_W, FIRE_UP_ROW_Y, LASER_FRAME_W, LASER_FRAME_H };
-    else
-        src = { laserFrame * LASER_FRAME_W, rowY, LASER_FRAME_W, LASER_FRAME_H };
-
-    bool isDown = !cannonGoingUp;
-    float laserDrawY = posY + (isDown ? laserOffsetDownY : laserOffsetUpY);
-    Rectangle dst = { posX + laserOffsetX, laserDrawY, LASER_FRAME_W * CANNON_SCALE, LASER_FRAME_H * CANNON_SCALE };
-    Color tint = (isFlashing && hitFlashCount % 2 == 0) ? Color{ 255,220,100,255 } : WHITE;
-    DrawTexturePro(laserSheet, src, dst, { 0,0 }, 0.0f, tint);
-
-    // ── Beam abajo ────────────────────────────────────────────
-    if (laserState == LaserState::FIRING && !cannonGoingUp && laserBeamActive) {
-        float beamY = posY + laserOffsetDownY + (LASER_FRAME_H * CANNON_SCALE) / 2.0f
-            - (LASER_BEAM_H * CANNON_SCALE) / 2.0f;
-        Rectangle beamSrc = { laserBeamFrame * LASER_BEAM_W, 0.0f, LASER_BEAM_W, LASER_BEAM_H };
-        Rectangle beamDst = { laserBeamX, beamY, LASER_BEAM_W * CANNON_SCALE, LASER_BEAM_H * CANNON_SCALE };
-        DrawTexturePro(laserBeamSheet, beamSrc, beamDst, { 0,0 }, 0.0f, WHITE);
-    }
-
-    // ── Beam arriba ───────────────────────────────────────────
+    // 1. Beam arriba — detrás de todo
     if (laserState == LaserState::FIRING && cannonGoingUp) {
         float beamY = posY + laserOffsetUpY + (LASER_FRAME_H * CANNON_SCALE) / 2.0f
             - (BEAM_H * CANNON_SCALE) / 2.0f + 20.0f;
@@ -743,7 +720,36 @@ void Boss::DrawLaser() const
         }
     }
 
-    DrawLaserFlash();
+    // 2. Beam abajo — detrás de todo
+    if (laserState == LaserState::FIRING && !cannonGoingUp && laserBeamActive) {
+        float beamY = posY + laserOffsetDownY + (LASER_FRAME_H * CANNON_SCALE) / 2.0f
+            - (LASER_BEAM_H * CANNON_SCALE) / 2.0f;
+        Rectangle beamSrc = { laserBeamFrame * LASER_BEAM_W, 0.0f, LASER_BEAM_W, LASER_BEAM_H };
+        Rectangle beamDst = { laserBeamX, beamY, LASER_BEAM_W * CANNON_SCALE, LASER_BEAM_H * CANNON_SCALE };
+        DrawTexturePro(laserBeamSheet, beamSrc, beamDst, { 0,0 }, 0.0f, WHITE);
+    }
+
+    // 3. sprite 15 — detrás del cañón
+    if (laserState == LaserState::FIRING && cannonGoingUp && laserFlashFrame == 15)
+        DrawLaserFlash();
+
+    // 4. Cañón
+    Rectangle src;
+    if (laserState == LaserState::FIRING && cannonGoingUp && laserFrame == 5)
+        src = { 5 * LASER_FRAME_W, FIRE_UP_ROW_Y, LASER_FRAME_W, LASER_FRAME_H };
+    else
+        src = { laserFrame * LASER_FRAME_W, rowY, LASER_FRAME_W, LASER_FRAME_H };
+
+    bool isDown = !cannonGoingUp;
+    float laserDrawY = posY + (isDown ? laserOffsetDownY : laserOffsetUpY);
+    Rectangle dst = { posX + laserOffsetX, laserDrawY, LASER_FRAME_W * CANNON_SCALE, LASER_FRAME_H * CANNON_SCALE };
+    Color tint = (isFlashing && hitFlashCount % 2 == 0) ? Color{ 255,220,100,255 } : WHITE;
+    DrawTexturePro(laserSheet, src, dst, { 0,0 }, 0.0f, tint);
+
+    // 5. sprite 16 y CHARGING — delante del cañón
+    if (laserState == LaserState::CHARGING ||
+        (laserState == LaserState::FIRING && cannonGoingUp && laserFlashFrame != 15))
+        DrawLaserFlash();
 }
 
 void Boss::DrawTent() const
