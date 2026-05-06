@@ -12,9 +12,10 @@ public:
 
     bool IsActive() const { return active; }
     int  GetHealth() const { return health; }
+    bool IsInIntro() const { return introState != IntroState::DONE; }
 
     void TakeDamage() {
-        if (active) {
+        if (active || introState != IntroState::DONE) {
             health--;
             StartFlash();
         }
@@ -30,14 +31,24 @@ public:
         return { posX, posY, CANNON_FRAME_W * CANNON_SCALE, CANNON_FRAME_H * CANNON_SCALE };
     }
 
+    void StartIntro() {
+        if (introState == IntroState::IDLE) {
+            playerInRange = true;
+            introState = IntroState::UNVEILING;  // ← salta WAITING directamente
+            tentFrame = 0;
+            tentFrameTimer = 0.0f;
+            preIntroTimer = 0.0f;
+        }
+    }
+
 private:
     // ── Estado general ────────────────────────────────────────
     bool active = false;
     int  health = 10; //cambiar luego a 200
 
     // ── Posición ──────────────────────────────────────────────
-    float posX = 16130.0f;
-    float posY = 90.0f;
+    float posX = 16090.0f;
+    float posY = 98.0f;
 
     // ── Estado del cañón ──────────────────────────────────────
     enum class CannonState {
@@ -94,6 +105,17 @@ private:
         Vector2 vel;
         bool    active = false;
         float   gravity = 600.0f;
+
+        static constexpr int TRAIL_LENGTH = 6;
+        Vector2 trail[TRAIL_LENGTH];  
+        int     trailCount = 0;
+        float   trailTimer = 0.0f;
+        float   trailDelay = 0.033f;     
+
+        float trailAnimTimer[TRAIL_LENGTH] = {};
+        int   trailAnimFrame[TRAIL_LENGTH] = {};
+        static constexpr float TRAIL_ANIM_DELAY = 0.05f;
+        static constexpr int   TRAIL_ANIM_ROWS = 3;
     };
 
     static constexpr int MAX_PLASMA = 3;
@@ -103,6 +125,11 @@ private:
     float      plasmaRadius = 8.0f;
     float      plasmaSpread = 50.0f;
     float      capturedPlayerX = 0.0f;
+
+    Texture2D plasmaSheet = { 0 };
+    static constexpr float PLASMA_FRAME_W = 10.0f;
+    static constexpr float PLASMA_FRAME_H = 10.0f;
+    static constexpr float PLASMA_SCALE = 4.0f;
 
     void FirePlasma();
     void UpdatePlasma(float dt);
@@ -152,5 +179,43 @@ private:
 
     void UpdateLaser(float dt);
     void DrawLaser() const;
+
+    float offsetDownX = 0.0f;
+    float offsetDownY = 0.0f;
+    float offsetUpX = 0.0f;
+    float offsetUpY = -150.0f;
+
+    // ── Manta (intro) ─────────────────────────────────────────
+    enum class IntroState {
+        IDLE,       // esperando que el jugador llegue a X
+        WAITING,    // jugador llegó, manta visible, esperando 0.5s
+        UNVEILING,  // animación de manta quitándose (15 frames)
+        PAUSE,      // pausa antes de que el cañón empiece
+        DONE,       // intro terminada, boss activo
+    };
+
+    IntroState introState = IntroState::IDLE;
+    float      introTimer = 0.0f;
+    int        tentFrame = 0;
+    float      tentFrameTimer = 0.0f;
+    float      tentFrameDelay = 0.10f;
+    float tentOffsetX = 0.0f;
+
+    Texture2D  tentSheet = { 0 };
+    static constexpr float TENT_FRAME_W = 120.0f;
+    static constexpr float TENT_FRAME_H = 104.0f;
+    static constexpr int   TENT_FRAMES = 15;
+    static constexpr float TENT_SCALE = 4.0f;
+    static constexpr float TENT_WAIT = 0.5f;   // espera antes de animación
+    static constexpr float TENT_PAUSE = 0.3f;   // pausa antes de activar cañón
+    static constexpr float TENT_ACTIVATE_X = 15500.0f;
+
+    void UpdateIntro(float playerX, float dt);
+    void DrawTent() const;
+
+    float preIntroTimer = 0.0f;
+    static constexpr float PRE_INTRO_DELAY = 5.0f;
+    bool playerInRange = false;
+
 
 };

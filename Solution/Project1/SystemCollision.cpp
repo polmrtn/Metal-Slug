@@ -280,11 +280,13 @@ void SystemCollision::BulletCollision()
             }
         }
         // 4. DAÑO AL BOSS
-        if (!hit && boss.IsActive() && (bIt->GetType() == 1 || bIt->GetType() == 3))
+        if (!hit && (boss.IsActive() || boss.IsInIntro()) &&
+            (bIt->GetType() == 1 || bIt->GetType() == 3))
         {
             if (CheckCollisionRecs(bIt->GetHitbox(), boss.GetHitBox()))
             {
                 boss.TakeDamage();
+                boss.StartIntro();
                 hit = true;
             }
         }

@@ -21,7 +21,17 @@ void Boss::Init()
     UnloadImage(imgLaser);
     SetTextureFilter(laserSheet, TEXTURE_FILTER_POINT);
 
-    cannonFrame = 0;
+    Image imgPlasma = LoadImage("Graphics/boss/small10x10.png");
+    plasmaSheet = LoadTextureFromImage(imgPlasma);
+    UnloadImage(imgPlasma);
+    SetTextureFilter(plasmaSheet, TEXTURE_FILTER_POINT);
+
+    Image imgTent = LoadImage("Graphics/boss/tent120x104.png");
+    tentSheet = LoadTextureFromImage(imgTent);
+    UnloadImage(imgTent);
+    SetTextureFilter(tentSheet, TEXTURE_FILTER_POINT);
+
+    cannonFrame = 9;
     cannonGoingUp = true;
     cannonFrameTimer = 0.0f;
     cannonState = CannonState::MOVING;
@@ -34,14 +44,28 @@ void Boss::Init()
 
 void Boss::Update(float playerX)
 {
-    if (!active) {
-        if (playerX >= 14000.0f) active = true;
-        else return;
+    float dt = GetFrameTime();
+
+    if (introState != IntroState::DONE) {
+        UpdateIntro(playerX, dt);
+        // Hit flash funciona aunque esté en intro
+        if (isFlashing) {
+            hitFlashTimer += dt;
+            if (hitFlashTimer >= HIT_FLASH_DURATION) {
+                hitFlashTimer = 0.0f;
+                hitFlashCount++;
+                if (hitFlashCount >= HIT_FLASH_COUNT) {
+                    isFlashing = false;
+                    hitFlashCount = 0;
+                }
+            }
+        }
+        return;
     }
 
     // Hit flash
     if (isFlashing) {
-        hitFlashTimer += GetFrameTime();
+        hitFlashTimer += dt;
         if (hitFlashTimer >= HIT_FLASH_DURATION) {
             hitFlashTimer = 0.0f;
             hitFlashCount++;
@@ -52,17 +76,67 @@ void Boss::Update(float playerX)
         }
     }
 
-    // Activar fase 2
     if (!phase2 && !phase2Pending && health <= 5)
-        phase2Pending = true; //cambiar a 100
+        phase2Pending = true;
 
     if (phase2)
-        UpdateLaser(GetFrameTime());
+        UpdateLaser(dt);
     else
-        UpdateCannon(GetFrameTime());
+        UpdateCannon(dt);
 
-    if (!phase2)
-        UpdatePlasma(GetFrameTime());
+    UpdatePlasma(dt);
+}
+
+void Boss::UpdateIntro(float playerX, float dt)
+{
+    switch (introState)
+    {
+    case IntroState::IDLE:
+        if (playerX >= TENT_ACTIVATE_X) {
+            playerInRange = true;
+        }
+        if (playerInRange) {
+            preIntroTimer += dt;
+            if (preIntroTimer >= PRE_INTRO_DELAY) {
+                introState = IntroState::WAITING;
+                introTimer = 0.0f;
+            }
+        }
+        break;
+
+    case IntroState::WAITING:
+        introTimer += dt;
+        if (introTimer >= TENT_WAIT) {
+            introState = IntroState::UNVEILING;
+            tentFrame = 0;
+            tentFrameTimer = 0.0f;
+        }
+        break;
+
+    case IntroState::UNVEILING:
+        tentFrameTimer += dt;
+        if (tentFrameTimer >= tentFrameDelay) {
+            tentFrameTimer = 0.0f;
+            tentFrame++;
+            tentOffsetX += 25.0f;  // ← píxeles que se mueve a la derecha por frame
+            if (tentFrame >= TENT_FRAMES) {
+                introState = IntroState::PAUSE;
+                introTimer = 0.0f;
+            }
+        }
+        break;
+
+    case IntroState::PAUSE:
+        introTimer += dt;
+        if (introTimer >= TENT_PAUSE) {
+            introState = IntroState::DONE;
+            active = true;  // ahora recibe daño y ataca
+        }
+        break;
+
+    case IntroState::DONE:
+        break;
+    }
 }
 
 void Boss::UpdateCannon(float dt)
@@ -142,7 +216,7 @@ void Boss::UpdateCannon(float dt)
             flashActive = false;
         }
 
-        if (openFrame >= SHOOT_DOWN_FRAMES - 1) {
+        if (openFrame >= SHOOT_DOWN_FRAMES - 2) {
             if (shootRepeatCount == 0)
                 capturedPlayerX = player.GetPosition().x;
             FirePlasma();
@@ -198,7 +272,7 @@ void Boss::UpdateCannon(float dt)
             flashActive = false;
         }
 
-        if (openFrame >= SHOOT_UP_FRAMES - 1) {
+        if (openFrame >= SHOOT_UP_FRAMES - 2) {
             if (shootRepeatCount == 0)
                 capturedPlayerX = player.GetPosition().x;
             FirePlasma();
@@ -300,7 +374,17 @@ void Boss::UpdateLaser(float dt)
 
 void Boss::Draw()
 {
-    if (!active) return;
+    if (introState == IntroState::IDLE && !playerInRange) return;
+
+    // Durante la intro dibuja el cañón en reposo y la manta encima
+    if (introState != IntroState::DONE) {
+        // Cañón en reposo — frame del medio
+        Rectangle src = { cannonFrame * CANNON_FRAME_W, 0.0f, CANNON_FRAME_W, CANNON_FRAME_H };
+        Rectangle dst = { posX, posY, CANNON_FRAME_W * CANNON_SCALE, CANNON_FRAME_H * CANNON_SCALE };
+        DrawTexturePro(cannonSheet, src, dst, { 0, 0 }, 0.0f, WHITE);
+        DrawTent();
+        return;
+    }
 
     if (phase2) {
         DrawLaser();
@@ -347,20 +431,10 @@ void Boss::Draw()
                 FLASH_FRAME_W,
                 FLASH_FRAME_H
             };
-
             bool isDown = (cannonState == CannonState::SHOOTING_DOWN);
-
-            float fx, fy;
-            if (isDown) {
-                fx = 16220.0f - (FLASH_FRAME_W * FLASH_SCALE) / 2.0f;  // igual de derecha
-                fy = 285.0f - (FLASH_FRAME_H * FLASH_SCALE) / 2.0f;    // más arriba
-            }
-            else {
-                fx = 16220.0f - (FLASH_FRAME_W * FLASH_SCALE) / 2.0f;  // más a la derecha
-                fy = posY  - (FLASH_FRAME_H * FLASH_SCALE) / 2.0f;               // igual
-            }
-
-            Rectangle flashDst = { fx, fy, FLASH_FRAME_W * FLASH_SCALE, FLASH_FRAME_H * FLASH_SCALE };
+            float flashDrawY = posY;
+            if (!isDown) flashDrawY += offsetUpY;
+            Rectangle flashDst = { posX + offsetDownX, flashDrawY, CANNON_FRAME_W * CANNON_SCALE, CANNON_FRAME_H * CANNON_SCALE };
             DrawTexturePro(flashSheet, flashSrc, flashDst, { 0, 0 }, 0.0f, WHITE);
         }
     }
@@ -414,6 +488,27 @@ void Boss::UpdatePlasma(float dt)
     for (int i = 0; i < MAX_PLASMA; i++) {
         if (!plasma[i].active) continue;
 
+        // Guardar posición en el trail
+        plasma[i].trailTimer += dt;
+        if (plasma[i].trailTimer >= plasma[i].trailDelay) {
+            plasma[i].trailTimer = 0.0f;
+            // Desplazar trail hacia atrás
+            for (int t = PlasmaBall::TRAIL_LENGTH - 1; t > 0; t--)
+                plasma[i].trail[t] = plasma[i].trail[t - 1];
+            plasma[i].trail[0] = plasma[i].pos;
+            if (plasma[i].trailCount < PlasmaBall::TRAIL_LENGTH)
+                plasma[i].trailCount++;
+        }
+
+        // Actualizar animación de cada punto del trail
+        for (int t = 0; t < plasma[i].trailCount; t++) {
+            plasma[i].trailAnimTimer[t] += dt;
+            if (plasma[i].trailAnimTimer[t] >= PlasmaBall::TRAIL_ANIM_DELAY) {
+                plasma[i].trailAnimTimer[t] = 0.0f;
+                plasma[i].trailAnimFrame[t] = (plasma[i].trailAnimFrame[t] + 1) % PlasmaBall::TRAIL_ANIM_ROWS;
+            }
+        }
+
         plasma[i].vel.y += plasma[i].gravity * dt;
         plasma[i].pos.x += plasma[i].vel.x * dt;
         plasma[i].pos.y += plasma[i].vel.y * dt;
@@ -429,6 +524,7 @@ void Boss::UpdatePlasma(float dt)
             if (col.type == TileType::CEILING) continue;
             if (CheckCollisionRecs(ball, col.rect)) {
                 plasma[i].active = false;
+                plasma[i].trailCount = 0;
                 break;
             }
         }
@@ -439,9 +535,34 @@ void Boss::DrawPlasma() const
 {
     for (int i = 0; i < MAX_PLASMA; i++) {
         if (!plasma[i].active) continue;
-        DrawCircleV(plasma[i].pos, plasmaRadius, { 180, 60, 255, 255 });
-        DrawCircleLines((int)plasma[i].pos.x, (int)plasma[i].pos.y,
-            plasmaRadius, { 255, 180, 255, 255 });
+
+        // Dibujar trail — del más viejo al más nuevo
+        for (int t = plasma[i].trailCount - 1; t >= 0; t--) {
+            Rectangle src = {
+                (float)t * PLASMA_FRAME_W,  // cada punto del trail = un sprite diferente
+                plasma[i].trailAnimFrame[t] * PLASMA_FRAME_H, 
+                PLASMA_FRAME_W, 
+                PLASMA_FRAME_H 
+            };
+
+            Rectangle dst = {
+                plasma[i].trail[t].x - (PLASMA_FRAME_W * PLASMA_SCALE) / 2.0f,
+                plasma[i].trail[t].y - (PLASMA_FRAME_H * PLASMA_SCALE) / 2.0f,
+                PLASMA_FRAME_W * PLASMA_SCALE,
+                PLASMA_FRAME_H * PLASMA_SCALE
+            };
+            DrawTexturePro(plasmaSheet, src, dst, { 0, 0 }, 0.0f, WHITE);
+        }
+
+        // Dibujar cabeza — sprite 0 (el más brillante)
+        Rectangle src = { 0.0f, plasma[i].trailAnimFrame[0] * PLASMA_FRAME_H, PLASMA_FRAME_W, PLASMA_FRAME_H };
+        Rectangle dst = {
+            plasma[i].pos.x - (PLASMA_FRAME_W * PLASMA_SCALE) / 2.0f,
+            plasma[i].pos.y - (PLASMA_FRAME_H * PLASMA_SCALE) / 2.0f,
+            PLASMA_FRAME_W * PLASMA_SCALE,
+            PLASMA_FRAME_H * PLASMA_SCALE
+        };
+        DrawTexturePro(plasmaSheet, src, dst, { 0, 0 }, 0.0f, WHITE);
     }
 }
 
@@ -477,4 +598,21 @@ void Boss::DrawLaser() const
         float endX = posX - 2000.0f;
         DrawLineEx({ startX, startY }, { endX, startY }, 6.0f, { 0, 200, 255, 200 });
     }
+}
+
+void Boss::DrawTent() const
+{
+    if (introState == IntroState::DONE) return;
+
+    int frame = (introState == IntroState::IDLE || introState == IntroState::WAITING)
+        ? 0  // fila 0, sprite estático
+        : tentFrame;  // fila 1, animación
+
+    float rowY = (introState == IntroState::IDLE || introState == IntroState::WAITING)
+        ? 0.0f
+        : TENT_FRAME_H;  // fila 1
+
+    Rectangle src = { frame * TENT_FRAME_W, rowY, TENT_FRAME_W, TENT_FRAME_H };
+    Rectangle dst = { posX + tentOffsetX, posY -30.0f, TENT_FRAME_W * TENT_SCALE, TENT_FRAME_H * TENT_SCALE };
+    DrawTexturePro(tentSheet, src, dst, { 0, 0 }, 0.0f, WHITE);
 }
