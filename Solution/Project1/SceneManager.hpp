@@ -2,6 +2,7 @@
 #include "raylib.h"
 #include "raymath.h"
 #include <vector>
+#include <deque>
 #include "UiManager.hpp"
 
 class SceneManager {
@@ -11,7 +12,6 @@ public:
     SceneManager();
     ~SceneManager();
     void Init();
-
 
     void       DrawTexts();
     void       UpdateIntro();
@@ -23,47 +23,37 @@ public:
     void SetUiManager(UiManager* u);
 
 private:
-    Texture2D texRedBg, texBlueBg;
-    Texture2D texCannon, texCannonExplosion;
-    Texture2D texBoom, texBullets;
-    Texture2D texExplodingPixels, texExplo2sprites;
-    Texture2D texTrees, texTankShit;
-    Texture2D texCapsuleCannon, texCapsuleLoad;
-    Texture2D texMetalBig, texSlugTM, texMetalSmall;
-    Texture2D texLogoTop, texBrrrt;
+    // ── TITLE screen textures ─────────────────────────────────
+    Texture2D texBrrrt;
+    Texture2D texExplo2sprites;
+    Texture2D texMetalBig;
+    Texture2D texSlugTM;
 
-    float introTimer = 0.0f;
-    int   introPhase = 0;
-    float tankX = 99999.0f;
-    float bulletX = -999.0f;
-    float metalX = -99999.0f;
-    float slugX = 99999.0f;
-    float boomAlpha = 0.0f;
-    float bgAlpha = 0.0f;
-    float shakeTime = 0.0f;
-    float shakeStrength = 0.0f;
-    float flashAlpha = 0.0f;
-    float trackAnim = 0.0f;
-    float capsuleAlpha = 0.0f;
-    float treeScrollX = 0.0f;
+    // ── Streaming frame player ────────────────────────────────
+    // Frame files: Graphics/intro/frames/frames_60fps/frame_000001.jpg
+    // (6-digit index, starts at 1)
+    int   totalIntroFrames  = 0;   // total files found on disk
+    int   introFrameIdx     = 0;   // currently displayed frame (0-based)
+    float introFrameTimer   = 0.0f;
+    float introTimer        = 0.0f;
 
-    // Animacja capsuleload (faza 3)
-    float capsulePulse = 0.0f;  // akumulator czasu dla pulsowania
-    float capsuleScanY = 0.0f;  // pozycja scanline 0..1
-    float capsuleVibration = 0.0f;  // losowe drzenie silnika
+    static constexpr float INTRO_PLAYBACK_FPS = 60.0f;
 
-    bool  bulletVisible = false;
-    bool  bulletsSpawned = false;
-    bool  pixelsSpawned = false;
+    // ── Ring-buffer: keep INTRO_BUF frames in GPU memory ─────
+    // Front of deque = oldest loaded frame index
+    static constexpr int INTRO_BUF = 6;   // frames kept in VRAM at once
 
-    struct Bullet2D { float x, y, vx, vy, alpha, rot, rotSpeed; };
-    std::vector<Bullet2D> flyingBullets;
+    struct FrameSlot { int idx; Texture2D tex; };
+    std::deque<FrameSlot> frameBuffer;
 
-    struct ExPixel { float x, y, vx, vy, life; Color col; };
-    std::vector<ExPixel> explodingPixels;
+    // CPU-side preload: one Image decoded ahead of time
+    Image preloadImg       = {};
+    int   preloadImgIdx    = -1;
+    bool  preloadImgReady  = false;
 
     void ResetIntro();
-    void DrawIntro();
-    void DrawTank(float tankX, float groundY, float tankScale,
-        int trackFrame, float ox, float oy) const;
+    void DrawIntro() const;
+    void IntroLoadNextIntoBuffer();
+    void IntroPurgeOldFrames();
+    const Texture2D* IntroGetCurrentTex() const;
 };
