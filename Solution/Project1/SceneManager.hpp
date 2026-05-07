@@ -2,6 +2,7 @@
 #include "raylib.h"
 #include "raymath.h"
 #include <vector>
+#include <future>
 #include "UiManager.hpp"
 
 class SceneManager {
@@ -47,15 +48,15 @@ private:
     float     introTimer       = 0.0f;
 
     Image     imgCur  = {};        // current frame pixels (CPU)
-    Image     imgNext = {};        // next    frame pixels (CPU, pre-loaded)
-    bool      imgNextReady = false;
-
     Texture2D introTex = {};       // current frame on GPU (one at a time)
+
+    // Background preload: next frame decoded on a separate thread
+    std::future<Image> nextFrameFuture;
 
     static constexpr float INTRO_PLAYBACK_FPS = 60.0f;
 
     void ResetIntro();
     void DrawIntro() const;
-    void IntroLoadNext();          // loads imgNext from disk
-    void IntroAdvanceFrame();      // swap cur←next, upload GPU, trigger next load
+    void IntroStartPreload(int idx);   // kick off async decode of frame idx
+    void IntroAdvanceFrame();          // swap cur←next, upload GPU, kick next preload
 };

@@ -3,6 +3,8 @@
 #include <cstdio>
 #include <algorithm>
 #include <cstring>
+#include <future>
+#include <chrono>
 
 // Frame path — 1920x1080 PNG (lossless copy of original JPEGs, raylib loads PNG natively)
 static void IntroFramePath(char* buf, int bufSize, int zeroBasedIdx)
@@ -16,9 +18,8 @@ static void IntroFramePath(char* buf, int bufSize, int zeroBasedIdx)
 SceneManager::SceneManager()
 {
     currentState = INTRO;
-    memset(&introTex,  0, sizeof(introTex));
-    memset(&imgCur,    0, sizeof(imgCur));
-    memset(&imgNext,   0, sizeof(imgNext));
+    memset(&introTex, 0, sizeof(introTex));
+    memset(&imgCur,   0, sizeof(imgCur));
 }
 
 void SceneManager::Init()
@@ -50,9 +51,9 @@ SceneManager::~SceneManager()
     UnloadTexture(texMetalBig);
     UnloadTexture(texSlugTM);
 
+    if (nextFrameFuture.valid()) nextFrameFuture.wait();
     if (introTex.id)  UnloadTexture(introTex);
     if (imgCur.data)  UnloadImage(imgCur);
-    if (imgNext.data) UnloadImage(imgNext);
 }
 
 void SceneManager::SetUiManager(UiManager* u) { ui = u; }
@@ -74,43 +75,44 @@ void SceneManager::ResetIntro()
     introTimer      = 0.0f;
     introFrameTimer = 0.0f;
     introFrameIdx   = 0;
-    imgNextReady    = false;
 
     // Free old data
-    if (introTex.id)  { UnloadTexture(introTex);      memset(&introTex,  0, sizeof(introTex)); }
-    if (imgCur.data)  { UnloadImage(imgCur); }
-    if (imgNext.data) { UnloadImage(imgNext); }
+    // Cancel any running preload
+    if (nextFrameFuture.valid())
+        nextFrameFuture.wait();   // wait for thread to finish before freeing memory
+
+    if (introTex.id)  { UnloadTexture(introTex); memset(&introTex, 0, sizeof(introTex)); }
+    if (imgCur.data)  { UnloadImage(imgCur);      memset(&imgCur,   0, sizeof(imgCur));  }
 
     if (introTotalFrames == 0) return;
 
-    // Load frame 0 → GPU immediately
+    // Load frame 0 synchronously → GPU
     char path[512];
     IntroFramePath(path, sizeof(path), 0);
-    imgCur    = LoadImage(path);
-    introTex  = LoadTextureFromImage(imgCur);
+    imgCur   = LoadImage(path);
+    introTex = LoadTextureFromImage(imgCur);
     SetTextureFilter(introTex, TEXTURE_FILTER_BILINEAR);
 
-    // Pre-load frame 1 → CPU RAM
-    IntroLoadNext();
+    // Start async preload of frame 1
+    IntroStartPreload(1);
 }
 
 // ============================================================
-//  IntroLoadNext — loads imgNext for frame (introFrameIdx + 1)
+//  IntroStartPreload — async decode of frame idx on background thread
 // ============================================================
-void SceneManager::IntroLoadNext()
+void SceneManager::IntroStartPreload(int idx)
 {
-    int nextIdx = introFrameIdx + 1;
-    if (nextIdx >= introTotalFrames) { imgNextReady = false; return; }
-
+    if (idx >= introTotalFrames) return;
     char path[512];
-    IntroFramePath(path, sizeof(path), nextIdx);
-    if (imgNext.data) { UnloadImage(imgNext); }
-    imgNext      = LoadImage(path);   // JPEG decode via stb_image (~5-8 ms at 1920x1080)
-    imgNextReady = (imgNext.data != nullptr);
+    IntroFramePath(path, sizeof(path), idx);
+    std::string pathStr(path);
+    // LoadImage has no OpenGL calls → safe on any thread
+    nextFrameFuture = std::async(std::launch::async,
+        [pathStr]() -> Image { return LoadImage(pathStr.c_str()); });
 }
 
 // ============================================================
-//  IntroAdvanceFrame — swap cur←next, upload GPU, trigger next load
+//  IntroAdvanceFrame — swap cur←preloaded, upload GPU, kick next preload
 // ============================================================
 void SceneManager::IntroAdvanceFrame()
 {
@@ -122,30 +124,28 @@ void SceneManager::IntroAdvanceFrame()
     }
 
     // Free old CPU frame
-    if (imgCur.data) { UnloadImage(imgCur); }
+    if (imgCur.data) { UnloadImage(imgCur); memset(&imgCur, 0, sizeof(imgCur)); }
 
-    if (imgNextReady)
+    if (nextFrameFuture.valid())
     {
-        // Fast path: next frame already decoded in RAM — just move pointer
-        imgCur       = imgNext;
-        memset(&imgNext, 0, sizeof(imgNext));
-        imgNextReady = false;
+        // Wait for background thread to finish (should already be done in most cases)
+        imgCur = nextFrameFuture.get();
     }
     else
     {
-        // Fallback: load synchronously (shouldn't normally happen)
+        // Fallback: synchronous load (only on first frame or if preload wasn't started)
         char path[512];
         IntroFramePath(path, sizeof(path), introFrameIdx);
         imgCur = LoadImage(path);
     }
 
-    // Upload to GPU (pixels already in RAM → very fast, ~1 ms)
+    // GPU upload — pixels already in RAM → ~1 ms
     if (introTex.id) { UnloadTexture(introTex); memset(&introTex, 0, sizeof(introTex)); }
     introTex = LoadTextureFromImage(imgCur);
     SetTextureFilter(introTex, TEXTURE_FILTER_BILINEAR);
 
-    // Pre-load the NEXT frame into imgNext while this one is displayed
-    IntroLoadNext();
+    // Immediately kick off background decode of NEXT frame
+    IntroStartPreload(introFrameIdx + 1);
 }
 
 // ============================================================
