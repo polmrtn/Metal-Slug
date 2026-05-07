@@ -217,7 +217,7 @@ void SceneManager::DrawTexts()
         float scaleH = (float)SH / texBrrrt.height;
         DrawTextureEx(texBrrrt, { 0, 0 }, 0.0f, std::max(scaleW, scaleH), WHITE);
 
-        float impactScale = 5.0f;
+        float impactScale = 4.2f;
         int   halfW = texExplo2sprites.width / 2;
         Rectangle src = { (float)halfW, 0.0f, (float)halfW, (float)texExplo2sprites.height };
         Rectangle dst = {
@@ -228,7 +228,7 @@ void SceneManager::DrawTexts()
         };
         DrawTexturePro(texExplo2sprites, src, dst, { 0.0f, 0.0f }, 0.0f, { 255, 255, 255, 200 });
 
-        float scaleM = 3.2f, scaleS = 3.2f;
+        float scaleM = 3.7f, scaleS = 3.7f;
         float totalH = texMetalBig.height * scaleM + texSlugTM.height * scaleS + 10.0f;
         float startY = SH * 0.46f - totalH * 0.5f;
         DrawTextureEx(texMetalBig,
