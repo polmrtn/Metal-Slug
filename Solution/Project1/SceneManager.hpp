@@ -2,7 +2,6 @@
 #include "raylib.h"
 #include "raymath.h"
 #include <vector>
-#include <deque>
 #include "UiManager.hpp"
 
 class SceneManager {
@@ -29,31 +28,17 @@ private:
     Texture2D texMetalBig;
     Texture2D texSlugTM;
 
-    // ── Streaming frame player ────────────────────────────────
-    // Frame files: Graphics/intro/frames/frames_60fps/frame_000001.jpg
-    // (6-digit index, starts at 1)
-    int   totalIntroFrames  = 0;   // total files found on disk
-    int   introFrameIdx     = 0;   // currently displayed frame (0-based)
-    float introFrameTimer   = 0.0f;
-    float introTimer        = 0.0f;
+    // ── Intro frame player ────────────────────────────────────
+    // All frames pre-decoded into CPU RAM (Image = raw pixels, no GPU cost).
+    // Only ONE Texture2D lives on the GPU at any moment.
+    std::vector<Image> introImages;   // all frames in RAM
+    Texture2D          introTex = {}; // current frame on GPU
+    int   introFrameIdx   = 0;
+    float introFrameTimer = 0.0f;
+    float introTimer      = 0.0f;
 
     static constexpr float INTRO_PLAYBACK_FPS = 60.0f;
 
-    // ── Ring-buffer: keep INTRO_BUF frames in GPU memory ─────
-    // Front of deque = oldest loaded frame index
-    static constexpr int INTRO_BUF = 6;   // frames kept in VRAM at once
-
-    struct FrameSlot { int idx; Texture2D tex; };
-    std::deque<FrameSlot> frameBuffer;
-
-    // CPU-side preload: one Image decoded ahead of time
-    Image preloadImg       = {};
-    int   preloadImgIdx    = -1;
-    bool  preloadImgReady  = false;
-
     void ResetIntro();
     void DrawIntro() const;
-    void IntroLoadNextIntoBuffer();
-    void IntroPurgeOldFrames();
-    const Texture2D* IntroGetCurrentTex() const;
 };
