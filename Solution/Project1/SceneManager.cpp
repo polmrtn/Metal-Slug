@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <cstring>
 
-// Frame file path: Graphics/intro/frames/frames_png/frame_000001.png
+// Frame path helper — 6-digit index starting at 1
 static void IntroFramePath(char* buf, int bufSize, int zeroBasedIdx)
 {
     snprintf(buf, bufSize,
@@ -13,34 +13,33 @@ static void IntroFramePath(char* buf, int bufSize, int zeroBasedIdx)
 }
 
 // ============================================================
-//  Constructor / Destructor
-// ============================================================
 SceneManager::SceneManager()
 {
     currentState = INTRO;
-    memset(&introTex, 0, sizeof(introTex));
+    memset(&introTex,  0, sizeof(introTex));
+    memset(&imgCur,    0, sizeof(imgCur));
+    memset(&imgNext,   0, sizeof(imgNext));
 }
 
 void SceneManager::Init()
 {
-    // ── Title screen assets ───────────────────────────────────
+    // Title screen textures
     texBrrrt         = LoadTexture("Graphics/intro/brrrt.png");
     texExplo2sprites = LoadTexture("Graphics/intro/newintro2explosprites.png");
     texMetalBig      = LoadTexture("Graphics/intro/NEWintroMETALSLUG1.png");
     texSlugTM        = LoadTexture("Graphics/intro/NEWINTROmetalslugTM.png");
 
-    // ── Pre-load ALL intro frames into CPU RAM ────────────────
-    // Frames are 320×180 PNG — ~175 MB total, loads in ~1-2 s.
+    // Count total intro frames
     char path[512];
-    for (int i = 0; ; i++)
+    introTotalFrames = 0;
+    for (;;)
     {
-        IntroFramePath(path, sizeof(path), i);
+        IntroFramePath(path, sizeof(path), introTotalFrames);
         if (!FileExists(path)) break;
-        introImages.push_back(LoadImage(path));
-        if (i > 99999) break; // safety
+        introTotalFrames++;
+        if (introTotalFrames > 99999) break;
     }
 
-    // Upload first frame to GPU immediately
     ResetIntro();
 }
 
@@ -51,15 +50,13 @@ SceneManager::~SceneManager()
     UnloadTexture(texMetalBig);
     UnloadTexture(texSlugTM);
 
-    if (introTex.id) UnloadTexture(introTex);
-    for (auto& img : introImages) UnloadImage(img);
-    introImages.clear();
+    if (introTex.id)      UnloadTexture(introTex);
+    if (imgCur.data)      UnloadImage(imgCur);
+    if (imgNext.data)     UnloadImage(imgNext);
 }
 
 void SceneManager::SetUiManager(UiManager* u) { ui = u; }
 
-// ============================================================
-//  State management
 // ============================================================
 SceneManager::Gamestates SceneManager::GetGamestate() { return currentState; }
 
@@ -69,19 +66,86 @@ void SceneManager::SetGameState(Gamestates gs)
     if (gs == INTRO) ResetIntro();
 }
 
+// ============================================================
+//  ResetIntro — load frame 0 to GPU, pre-load frame 1 to RAM
+// ============================================================
 void SceneManager::ResetIntro()
 {
     introTimer      = 0.0f;
     introFrameTimer = 0.0f;
     introFrameIdx   = 0;
+    imgNextReady    = false;
 
-    // Upload frame 0 to GPU
-    if (introTex.id) { UnloadTexture(introTex); memset(&introTex, 0, sizeof(introTex)); }
-    if (!introImages.empty())
+    // Free old data
+    if (introTex.id)  { UnloadTexture(introTex);  memset(&introTex,  0, sizeof(introTex)); }
+    if (imgCur.data)  { UnloadImage(imgCur);       memset(&imgCur,    0, sizeof(imgCur));   }
+    if (imgNext.data) { UnloadImage(imgNext);      memset(&imgNext,   0, sizeof(imgNext));  }
+
+    if (introTotalFrames == 0) return;
+
+    // Load frame 0 → GPU immediately
+    char path[512];
+    IntroFramePath(path, sizeof(path), 0);
+    imgCur    = LoadImage(path);
+    introTex  = LoadTextureFromImage(imgCur);
+    SetTextureFilter(introTex, TEXTURE_FILTER_BILINEAR);
+
+    // Pre-load frame 1 → CPU RAM
+    IntroLoadNext();
+}
+
+// ============================================================
+//  IntroLoadNext — loads imgNext for frame (introFrameIdx + 1)
+// ============================================================
+void SceneManager::IntroLoadNext()
+{
+    int nextIdx = introFrameIdx + 1;
+    if (nextIdx >= introTotalFrames) { imgNextReady = false; return; }
+
+    char path[512];
+    IntroFramePath(path, sizeof(path), nextIdx);
+    if (imgNext.data) { UnloadImage(imgNext); memset(&imgNext, 0, sizeof(imgNext)); }
+    imgNext      = LoadImage(path);   // PNG decode to CPU (~5-10 ms at 1280x720)
+    imgNextReady = (imgNext.data != nullptr);
+}
+
+// ============================================================
+//  IntroAdvanceFrame — swap cur←next, upload GPU, trigger next load
+// ============================================================
+void SceneManager::IntroAdvanceFrame()
+{
+    introFrameIdx++;
+    if (introFrameIdx >= introTotalFrames)
     {
-        introTex = LoadTextureFromImage(introImages[0]);
-        SetTextureFilter(introTex, TEXTURE_FILTER_BILINEAR);
+        SetGameState(TITLE);
+        return;
     }
+
+    // Free old CPU frame
+    if (imgCur.data) { UnloadImage(imgCur); memset(&imgCur, 0, sizeof(imgCur)); }
+
+    if (imgNextReady)
+    {
+        // Fast path: next frame already decoded in RAM — just move pointer
+        imgCur       = imgNext;
+        memset(&imgNext, 0, sizeof(imgNext));
+        imgNextReady = false;
+    }
+    else
+    {
+        // Fallback: load synchronously (shouldn't normally happen)
+        char path[512];
+        IntroFramePath(path, sizeof(path), introFrameIdx);
+        imgCur = LoadImage(path);
+    }
+
+    // Upload to GPU (pixels already in RAM → very fast, ~1 ms)
+    if (introTex.id) { UnloadTexture(introTex); memset(&introTex, 0, sizeof(introTex)); }
+    introTex = LoadTextureFromImage(imgCur);
+    SetTextureFilter(introTex, TEXTURE_FILTER_BILINEAR);
+
+    // Pre-load the NEXT frame into imgNext while this one is displayed
+    IntroLoadNext();
 }
 
 // ============================================================
@@ -89,42 +153,26 @@ void SceneManager::ResetIntro()
 // ============================================================
 void SceneManager::UpdateIntro()
 {
-    if (introImages.empty())
-    {
-        SetGameState(TITLE);
-        return;
-    }
+    if (introTotalFrames == 0) { SetGameState(TITLE); return; }
 
     float dt = GetFrameTime();
     introTimer      += dt;
     introFrameTimer += dt;
 
-    // Advance to next frame?
     const float frameDur = 1.0f / INTRO_PLAYBACK_FPS;
     if (introFrameTimer >= frameDur)
     {
         introFrameTimer -= frameDur;
-        introFrameIdx++;
-
-        if (introFrameIdx >= (int)introImages.size())
-        {
-            SetGameState(TITLE);
-            return;
-        }
-
-        // Swap GPU texture: unload old, upload new (fast — pixels already in RAM)
-        if (introTex.id) UnloadTexture(introTex);
-        introTex = LoadTextureFromImage(introImages[introFrameIdx]);
-        SetTextureFilter(introTex, TEXTURE_FILTER_BILINEAR);
+        IntroAdvanceFrame();  // swap + GPU upload + pre-load next
+        if (currentState != INTRO) return;
     }
 
-    // Skip with Enter or Space
     if (IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_SPACE))
         SetGameState(TITLE);
 }
 
 // ============================================================
-//  DrawIntro  — fullscreen, no letterbox
+//  DrawIntro — fullscreen fill (no black bars)
 // ============================================================
 void SceneManager::DrawIntro() const
 {
@@ -132,11 +180,9 @@ void SceneManager::DrawIntro() const
 
     int   SW = GetScreenWidth();
     int   SH = GetScreenHeight();
-
-    // std::max  → fill whole screen (crops slightly if aspect differs)
     float scaleX = (float)SW / (float)introTex.width;
     float scaleY = (float)SH / (float)introTex.height;
-    float scale  = std::max(scaleX, scaleY);   // ← fullscreen fill
+    float scale  = std::max(scaleX, scaleY);  // fill whole screen
 
     float drawW = introTex.width  * scale;
     float drawH = introTex.height * scale;
@@ -150,41 +196,34 @@ void SceneManager::DrawIntro() const
 }
 
 // ============================================================
-//  DrawTexts  (main entry called by game loop)
+//  DrawTexts
 // ============================================================
 void SceneManager::DrawTexts()
 {
     int SW = GetScreenWidth();
     int SH = GetScreenHeight();
 
-    // ── TITLE ─────────────────────────────────────────────────
     if (currentState == TITLE)
     {
         ClearBackground(BLACK);
 
         float scaleW = (float)SW / texBrrrt.width;
         float scaleH = (float)SH / texBrrrt.height;
-        DrawTextureEx(texBrrrt, { 0, 0 }, 0.0f,
-                      std::max(scaleW, scaleH), WHITE);
+        DrawTextureEx(texBrrrt, { 0, 0 }, 0.0f, std::max(scaleW, scaleH), WHITE);
 
-        // Impact sprite (right half of sheet)
         float impactScale = 5.0f;
         int   halfW = texExplo2sprites.width / 2;
-        Rectangle src = { (float)halfW, 0.0f,
-                          (float)halfW, (float)texExplo2sprites.height };
+        Rectangle src = { (float)halfW, 0.0f, (float)halfW, (float)texExplo2sprites.height };
         Rectangle dst = {
             SW * 0.5f - halfW * impactScale * 0.5f,
             SH * 0.48f - texExplo2sprites.height * impactScale * 0.5f,
             (float)halfW * impactScale,
             (float)texExplo2sprites.height * impactScale
         };
-        DrawTexturePro(texExplo2sprites, src, dst,
-                       { 0.0f, 0.0f }, 0.0f, { 255, 255, 255, 200 });
+        DrawTexturePro(texExplo2sprites, src, dst, { 0.0f, 0.0f }, 0.0f, { 255, 255, 255, 200 });
 
-        // METAL / SLUG logo
         float scaleM = 3.2f, scaleS = 3.2f;
-        float totalH = texMetalBig.height * scaleM
-                     + texSlugTM.height   * scaleS + 10.0f;
+        float totalH = texMetalBig.height * scaleM + texSlugTM.height * scaleS + 10.0f;
         float startY = SH * 0.46f - totalH * 0.5f;
         DrawTextureEx(texMetalBig,
             { SW * 0.5f - texMetalBig.width * scaleM * 0.5f, startY },
@@ -194,7 +233,6 @@ void SceneManager::DrawTexts()
               startY + texMetalBig.height * scaleM + 10.0f },
             0.0f, scaleS, WHITE);
 
-        // Blinking INSERT COIN
         const char* txt = "INSERT COINT!";
         if ((int)(GetTime() * 2.5f) % 2 == 0)
         {
@@ -214,7 +252,7 @@ void SceneManager::DrawTexts()
 
     if (currentState == GAME) { ClearBackground(BLACK); return; }
 
-    // ── INTRO ─────────────────────────────────────────────────
+    // INTRO
     ClearBackground(BLACK);
     UpdateIntro();
     DrawIntro();
