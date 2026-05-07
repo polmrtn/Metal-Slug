@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <cstring>
 
-// Frame path helper — 6-digit index starting at 1
+// Frame path — 1920x1080 PNG (lossless copy of original JPEGs, raylib loads PNG natively)
 static void IntroFramePath(char* buf, int bufSize, int zeroBasedIdx)
 {
     snprintf(buf, bufSize,
@@ -50,9 +50,9 @@ SceneManager::~SceneManager()
     UnloadTexture(texMetalBig);
     UnloadTexture(texSlugTM);
 
-    if (introTex.id)      UnloadTexture(introTex);
-    if (imgCur.data)      UnloadImage(imgCur);
-    if (imgNext.data)     UnloadImage(imgNext);
+    if (introTex.id)  UnloadTexture(introTex);
+    if (imgCur.data)  UnloadImage(imgCur);
+    if (imgNext.data) UnloadImage(imgNext);
 }
 
 void SceneManager::SetUiManager(UiManager* u) { ui = u; }
@@ -77,9 +77,9 @@ void SceneManager::ResetIntro()
     imgNextReady    = false;
 
     // Free old data
-    if (introTex.id)  { UnloadTexture(introTex);  memset(&introTex,  0, sizeof(introTex)); }
-    if (imgCur.data)  { UnloadImage(imgCur);       memset(&imgCur,    0, sizeof(imgCur));   }
-    if (imgNext.data) { UnloadImage(imgNext);      memset(&imgNext,   0, sizeof(imgNext));  }
+    if (introTex.id)  { UnloadTexture(introTex);      memset(&introTex,  0, sizeof(introTex)); }
+    if (imgCur.data)  { UnloadImage(imgCur); }
+    if (imgNext.data) { UnloadImage(imgNext); }
 
     if (introTotalFrames == 0) return;
 
@@ -104,8 +104,8 @@ void SceneManager::IntroLoadNext()
 
     char path[512];
     IntroFramePath(path, sizeof(path), nextIdx);
-    if (imgNext.data) { UnloadImage(imgNext); memset(&imgNext, 0, sizeof(imgNext)); }
-    imgNext      = LoadImage(path);   // PNG decode to CPU (~5-10 ms at 1280x720)
+    if (imgNext.data) { UnloadImage(imgNext); }
+    imgNext      = LoadImage(path);   // JPEG decode via stb_image (~5-8 ms at 1920x1080)
     imgNextReady = (imgNext.data != nullptr);
 }
 
@@ -122,7 +122,7 @@ void SceneManager::IntroAdvanceFrame()
     }
 
     // Free old CPU frame
-    if (imgCur.data) { UnloadImage(imgCur); memset(&imgCur, 0, sizeof(imgCur)); }
+    if (imgCur.data) { UnloadImage(imgCur); }
 
     if (imgNextReady)
     {
