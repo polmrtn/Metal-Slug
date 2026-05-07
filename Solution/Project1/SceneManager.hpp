@@ -50,13 +50,18 @@ private:
     Image     imgCur  = {};        // current frame pixels (CPU)
     Texture2D introTex = {};       // current frame on GPU (one at a time)
 
-    // Background preload: next frame decoded on a separate thread
-    std::future<Image> nextFrameFuture;
-
+    // 3-frame async preload buffer:
+    //   preloadFutures[0] = N+1  (started 1 frame ago,  ~16 ms to decode)
+    //   preloadFutures[1] = N+2  (started 2 frames ago, ~32 ms to decode)
+    //   preloadFutures[2] = N+3  (started 3 frames ago, ~48 ms to decode)
+    // On advance N→N+1: get [0], rotate [1]→[0] [2]→[1], start new [2]=N+4
+    static constexpr int   PRELOAD_AHEAD      = 3;
     static constexpr float INTRO_PLAYBACK_FPS = 60.0f;
+
+    std::future<Image> preloadFutures[PRELOAD_AHEAD];
 
     void ResetIntro();
     void DrawIntro() const;
-    void IntroStartPreload(int idx);   // kick off async decode of frame idx
-    void IntroAdvanceFrame();          // swap cur←next, upload GPU, kick next preload
+    void IntroStartPreload(int slot, int frameIdx);
+    void IntroAdvanceFrame();
 };

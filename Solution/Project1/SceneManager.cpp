@@ -51,7 +51,8 @@ SceneManager::~SceneManager()
     UnloadTexture(texMetalBig);
     UnloadTexture(texSlugTM);
 
-    if (nextFrameFuture.valid()) nextFrameFuture.wait();
+    for (int i = 0; i < PRELOAD_AHEAD; i++)
+        if (preloadFutures[i].valid()) preloadFutures[i].wait();
     if (introTex.id)  UnloadTexture(introTex);
     if (imgCur.data)  UnloadImage(imgCur);
 }
@@ -77,12 +78,12 @@ void SceneManager::ResetIntro()
     introFrameIdx   = 0;
 
     // Free old data
-    // Cancel any running preload
-    if (nextFrameFuture.valid())
-        nextFrameFuture.wait();   // wait for thread to finish before freeing memory
+    // Cancel all running preloads
+    for (int i = 0; i < PRELOAD_AHEAD; i++)
+        if (preloadFutures[i].valid()) preloadFutures[i].wait();
 
-    if (introTex.id)  { UnloadTexture(introTex); memset(&introTex, 0, sizeof(introTex)); }
-    if (imgCur.data)  { UnloadImage(imgCur);      memset(&imgCur,   0, sizeof(imgCur));  }
+    if (introTex.id) { UnloadTexture(introTex); memset(&introTex, 0, sizeof(introTex)); }
+    if (imgCur.data) { UnloadImage(imgCur);      memset(&imgCur,   0, sizeof(imgCur));  }
 
     if (introTotalFrames == 0) return;
 
@@ -93,26 +94,30 @@ void SceneManager::ResetIntro()
     introTex = LoadTextureFromImage(imgCur);
     SetTextureFilter(introTex, TEXTURE_FILTER_BILINEAR);
 
-    // Start async preload of frame 1
-    IntroStartPreload(1);
+    // Kick off PRELOAD_AHEAD async decodes immediately
+    for (int i = 0; i < PRELOAD_AHEAD; i++)
+        IntroStartPreload(i, i + 1);
 }
 
 // ============================================================
-//  IntroStartPreload — async decode of frame idx on background thread
+//  IntroStartPreload — async decode of frameIdx into slot
 // ============================================================
-void SceneManager::IntroStartPreload(int idx)
+void SceneManager::IntroStartPreload(int slot, int frameIdx)
 {
-    if (idx >= introTotalFrames) return;
+    if (frameIdx >= introTotalFrames) return;
     char path[512];
-    IntroFramePath(path, sizeof(path), idx);
+    IntroFramePath(path, sizeof(path), frameIdx);
     std::string pathStr(path);
-    // LoadImage has no OpenGL calls → safe on any thread
-    nextFrameFuture = std::async(std::launch::async,
+    preloadFutures[slot] = std::async(std::launch::async,
         [pathStr]() -> Image { return LoadImage(pathStr.c_str()); });
 }
 
 // ============================================================
-//  IntroAdvanceFrame — swap cur←preloaded, upload GPU, kick next preload
+//  IntroAdvanceFrame
+//  preloadFutures[0] = N+1  ← take this (has had PRELOAD_AHEAD frames to decode)
+//  preloadFutures[1] = N+2  → becomes [0]
+//  preloadFutures[2] = N+3  → becomes [1]
+//  start new future for N+1+PRELOAD_AHEAD → slot [2]
 // ============================================================
 void SceneManager::IntroAdvanceFrame()
 {
@@ -126,26 +131,27 @@ void SceneManager::IntroAdvanceFrame()
     // Free old CPU frame
     if (imgCur.data) { UnloadImage(imgCur); memset(&imgCur, 0, sizeof(imgCur)); }
 
-    if (nextFrameFuture.valid())
-    {
-        // Wait for background thread to finish (should already be done in most cases)
-        imgCur = nextFrameFuture.get();
-    }
+    // Get next frame from slot 0 (started PRELOAD_AHEAD frames ago — plenty of time)
+    if (preloadFutures[0].valid())
+        imgCur = preloadFutures[0].get();
     else
     {
-        // Fallback: synchronous load (only on first frame or if preload wasn't started)
         char path[512];
         IntroFramePath(path, sizeof(path), introFrameIdx);
         imgCur = LoadImage(path);
     }
 
-    // GPU upload — pixels already in RAM → ~1 ms
+    // Rotate buffer: [1]→[0], [2]→[1]
+    for (int i = 0; i < PRELOAD_AHEAD - 1; i++)
+        preloadFutures[i] = std::move(preloadFutures[i + 1]);
+
+    // Start new preload for the furthest-ahead frame
+    IntroStartPreload(PRELOAD_AHEAD - 1, introFrameIdx + PRELOAD_AHEAD);
+
+    // GPU upload (~1 ms — pixels already in RAM)
     if (introTex.id) { UnloadTexture(introTex); memset(&introTex, 0, sizeof(introTex)); }
     introTex = LoadTextureFromImage(imgCur);
     SetTextureFilter(introTex, TEXTURE_FILTER_BILINEAR);
-
-    // Immediately kick off background decode of NEXT frame
-    IntroStartPreload(introFrameIdx + 1);
 }
 
 // ============================================================
