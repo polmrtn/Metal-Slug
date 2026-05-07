@@ -52,7 +52,7 @@ private:
 
     Texture2D introTex = {};       // current frame on GPU (one at a time)
 
-    static constexpr float INTRO_PLAYBACK_FPS = 30.0f;  // 30fps → 33ms per frame → czas na load 1080p PNG
+    static constexpr float INTRO_PLAYBACK_FPS = 60.0f;
 
     void ResetIntro();
     void DrawIntro() const;
