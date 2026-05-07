@@ -155,21 +155,27 @@ void SceneManager::IntroAdvanceFrame()
 }
 
 // ============================================================
-//  UpdateIntro
+//  UpdateIntro — time-based sync (frame index = elapsed time * FPS)
+//  Video stays perfectly in sync with audio regardless of load time.
 // ============================================================
 void SceneManager::UpdateIntro()
 {
     if (introTotalFrames == 0) { SetGameState(TITLE); return; }
 
-    float dt = GetFrameTime();
-    introTimer      += dt;
-    introFrameTimer += dt;
+    introTimer += GetFrameTime();
 
-    const float frameDur = 1.0f / INTRO_PLAYBACK_FPS;
-    if (introFrameTimer >= frameDur)
+    // Which frame should we be showing right now?
+    int targetFrame = (int)(introTimer * INTRO_PLAYBACK_FPS);
+    if (targetFrame >= introTotalFrames)
     {
-        introFrameTimer -= frameDur;
-        IntroAdvanceFrame();  // swap + GPU upload + pre-load next
+        SetGameState(TITLE);
+        return;
+    }
+
+    // Advance frame(s) until we're caught up with real time
+    while (introFrameIdx < targetFrame)
+    {
+        IntroAdvanceFrame();
         if (currentState != INTRO) return;
     }
 

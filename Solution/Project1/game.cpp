@@ -65,6 +65,11 @@ void Game::Update()
     // ── INTRO ──────────────────────────────
     if (sceneManager.GetGamestate() == SceneManager::INTRO)
     {
+        if (!musicStarted) {
+            audioManager.PlayMusic(audioManager.GetIntroMusic());
+            musicStarted = true;
+        }
+        audioManager.UpdateMusic(audioManager.GetIntroMusic());
         BeginDrawing();
         ClearBackground(BLACK);
         sceneManager.DrawTexts();
@@ -74,6 +79,13 @@ void Game::Update()
     // ── TITLE ──────────────────────────────
     if (sceneManager.GetGamestate() == SceneManager::TITLE)
     {
+        // Intro music kontynuuje bez przerwy przez title
+        if (!musicStarted) {
+            audioManager.PlayMusic(audioManager.GetIntroMusic());
+            musicStarted = true;
+        }
+        audioManager.UpdateMusic(audioManager.GetIntroMusic());
+
         BeginDrawing();
         ClearBackground(BLACK);
         sceneManager.DrawTexts();
@@ -85,12 +97,6 @@ void Game::Update()
             }
         }
         timerManager.Update(GetFrameTime());
-
-        if (!musicStarted) {
-            audioManager.PlayMusic(audioManager.GetTitleMusic());
-            musicStarted = true;
-        }
-        audioManager.UpdateMusic(audioManager.GetTitleMusic());
         return;
     }
 
@@ -299,6 +305,8 @@ void Game::Update()
     backgroundManager.Update(GetFrameTime());
 
     if (!musicStarted) {
+        // Zatrzymaj intro muzykę i puść game muzykę
+        audioManager.StopMusic(audioManager.GetIntroMusic());
         audioManager.PlayMusic(audioManager.GetGameMusic());
         musicStarted = true;
     }

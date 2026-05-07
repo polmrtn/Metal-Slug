@@ -13,6 +13,7 @@ public:
     void StopSound(Sound sound);
     void Init();
 
+    Music& GetIntroMusic();
     Music& GetTitleMusic();
     Music& GetGameMusic();
     Sound& GetGameSound();
@@ -23,6 +24,7 @@ public:
     Sound& GetMachinegunShootSound();
 
 private:
+    Music introMusic;
     Music titleMusic;
     Music gameMusic;
     Sound gameSound;
