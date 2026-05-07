@@ -9,6 +9,7 @@ AudioManager::AudioManager()
 void AudioManager::Init() {
     introMusic = LoadMusicStream("OST/FX AUDIO/INTRO AUDIO.ogg");
     introMusic.looping = false;   // gra tylko raz, nie zapętla
+    SetMusicVolume(introMusic, 4.0f);
     titleMusic = LoadMusicStream("OST/04. Steel Beast 5Beats (Boss Stage).ogg");
     gameMusic = LoadMusicStream("OST/03. Main Theme from Metal Slug (Stage 1).ogg");
     gameSound = LoadSound("OST/FX AUDIO/file002 mission 1 start.ogg");
