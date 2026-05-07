@@ -252,9 +252,8 @@ void SceneManager::DrawTexts()
 
     if (currentState == GAME) { ClearBackground(BLACK); return; }
 
-    // INTRO
+    // INTRO — nie rysujemy HUD credits, bo klatki mają własny tekst
     ClearBackground(BLACK);
     UpdateIntro();
     DrawIntro();
-    if (ui) ui->DrawCreditsOnly();
 }
