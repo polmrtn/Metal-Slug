@@ -1,108 +1,134 @@
 #include "CameraManager.hpp"
-
 #include <raymath.h>
-CameraManager::CameraManager() {
+#include <algorithm>
 
-}
+// ?????????????????????????????????????????????????????????????????????????????
+CameraManager::CameraManager() {}
+
 CameraManager::CameraManager(Vector2 screenCenter) {
-    camera.target = { 0, 0 };     
-    camera.offset = screenCenter; 
+    camera.target = { 0, 0 };
+    camera.offset = screenCenter;
     camera.rotation = 0.0f;
     camera.zoom = 1.00f;
 
-    yLocked = false;              
-    lockedYValue = 0.0f;
-}
-
-CameraManager::~CameraManager() {}
-
-float CameraManager::GetLeftLimit() {
-    return camera.target.x - camera.offset.x;
-}
-
-void CameraManager::Reset()
-{
-    camera.target = { 0, 0 };
-    camera.offset = { 600.0f, 448.0f };
-    maxScrollX = 0.0f;
     yLocked = false;
     lockedYValue = 0.0f;
     isFirstFrame = true;
     bossZoneLocked = false;
 }
 
-void CameraManager::Update(Vector2 playerPos, float bgWidth, float bgHeight, bool isGrounded) {
-    float halfScreenWidth = camera.offset.x;
-    float halfScreenHeight = camera.offset.y;
+CameraManager::~CameraManager() {}
 
-    // --- INICIALIZACIÓN INSTANTÁNEA (Evita el Lerp al empezar) ---
+// ?????????????????????????????????????????????????????????????????????????????
+float CameraManager::GetLeftLimit() {
+    return camera.target.x - camera.offset.x;
+}
+
+Vector2 CameraManager::GetScreenToWorld(Vector2 screenPos) {
+    return GetScreenToWorld2D(screenPos, camera);
+}
+
+// ?????????????????????????????????????????????????????????????????????????????
+void CameraManager::Reset() {
+    camera.target = { 0, 0 };
+    camera.offset = { 640.0f, 448.0f };
+    maxScrollX = 0.0f;
+    yLocked = false;
+    lockedYValue = 0.0f;
+    isFirstFrame = true;
+    bossZoneLocked = false;
+    currentMinY = 0.f;
+    currentMaxY = 0.f;
+}
+
+// ?? Zone system ???????????????????????????????????????????????????????????????
+void CameraManager::AddZone(const std::string& id, float triggerX, float minY, float maxY) {
+    // replace if id already exists
+    for (auto& z : zones) {
+        if (z.id == id) {
+            z = { id, triggerX, minY, maxY, true };
+            return;
+        }
+    }
+    zones.push_back({ id, triggerX, minY, maxY, true });
+}
+
+void CameraManager::RemoveZone(const std::string& id) {
+    zones.erase(std::remove_if(zones.begin(), zones.end(),
+        [&id](const CameraZone& z) { return z.id == id; }), zones.end());
+}
+
+void CameraManager::ActivateZone(const std::string& id) {
+    for (auto& z : zones) {
+        if (z.id == id) { z.active = true; return; }
+    }
+}
+
+void CameraManager::DeactivateZone(const std::string& id) {
+    for (auto& z : zones) {
+        if (z.id == id) { z.active = false; return; }
+    }
+}
+
+// ?????????????????????????????????????????????????????????????????????????????
+void CameraManager::Update(Vector2 playerPos, float bgWidth, float bgHeight, bool isGrounded) {
+    float halfW = camera.offset.x;
+    float halfH = camera.offset.y;
+
+    // ?? First frame: instant snap, no lerp ???????????????????????????????????
     if (isFirstFrame) {
         maxScrollX = playerPos.x;
-        camera.target.x = Clamp(maxScrollX, halfScreenWidth, bgWidth - halfScreenWidth);
+        camera.target.x = Clamp(maxScrollX, halfW, bgWidth - halfW);
 
-        // Calculamos un minY/maxY inicial para el primer frame
-        float startMinY = halfScreenHeight + 100.0f;
-        float startMaxY = bgHeight - halfScreenHeight - 165.0f;
-        lockedYValue = Clamp(playerPos.y, startMinY, startMaxY);
-
-        camera.target.y = lockedYValue; // Asignación directa, sin Lerp
+        float defMinY = halfH + 100.0f;
+        float defMaxY = bgHeight - halfH - 165.0f;
+        lockedYValue = Clamp(playerPos.y, defMinY, defMaxY);
+        camera.target.y = lockedYValue;
+        currentMinY = defMinY;
+        currentMaxY = defMaxY;
         isFirstFrame = false;
         return;
     }
-    // -------------------------------------------------------------
 
-    // 1. Seguimiento horizontal clásico
+    // ?? 1. Horizontal ?????????????????????????????????????????????????????????
     if (playerPos.x > maxScrollX) maxScrollX = playerPos.x;
-
     camera.target.x = Lerp(camera.target.x, maxScrollX, 0.1f);
-    camera.target.x = Clamp(camera.target.x, halfScreenWidth, bgWidth - halfScreenWidth);
+    camera.target.x = Clamp(camera.target.x, halfW, bgWidth - halfW);
 
-    // 2. Límites de seguridad (Clamps del fondo)
-    float minY = halfScreenHeight + 100.0f;
-    float maxY = bgHeight - halfScreenHeight - 165.0f;
+    // ?? 2. Default Y limits ???????????????????????????????????????????????????
+    float minY = halfH + 100.0f;
+    float maxY = bgHeight - halfH - 165.0f;
 
-    if (playerPos.x > 14000.0f) {
-        minY -= 400.0f;
-        maxY -= 400.0f;
+    // ?? 3. Apply active zones (highest triggerX that player has passed wins) ??
+    // Sort zones by triggerX so the most advanced active zone takes effect
+    float bestTrigger = -1.f;
+    for (const auto& zone : zones) {
+        if (zone.active && playerPos.x >= zone.triggerX && zone.triggerX > bestTrigger) {
+            bestTrigger = zone.triggerX;
+            minY = zone.minY;
+            maxY = zone.maxY;
+        }
     }
+
     if (minY > maxY) maxY = minY;
+    currentMinY = minY;
+    currentMaxY = maxY;
 
-    // 3. LÓGICA DE ZONAS (Tu código corregido)
-    if (playerPos.x < 14000.0f) {
-        // ... (Tu lógica de < 300 y > 600 se mantiene igual)
-      
-        if (playerPos.y > 600) {
-            float targetY = Clamp(playerPos.y, minY, maxY);
-            if (abs(targetY - lockedYValue) > 50.0f) {
-                lockedYValue = targetY;
-            }
+    // ?? 4. Vertical tracking ??????????????????????????????????????????????????
+    if (playerPos.y > 100.f) {
+        float targetY = Clamp(playerPos.y, minY, maxY);
+        if (fabsf(targetY - lockedYValue) > 50.0f) {
+            lockedYValue = targetY;
         }
-    }
-    else if (playerPos.x >= 14000.0f && playerPos.x < 15000.0f) {
-        // LIBERTAD: Aquí el clamp sigue al jugador sin umbral de 50px
-        lockedYValue = Clamp(playerPos.y, minY, maxY);
-    }
-    else if (playerPos.x >= 14000.0f) {
-        if (!bossZoneLocked) {
-            lockedYValue = Clamp(playerPos.y, minY, maxY);
-            bossZoneLocked = true;
-        }
-    }
-
-    // 4. Aplicación suave (Solo si no es el primer frame)
-    if (playerPos.y > 100) {
         camera.target.y = Lerp(camera.target.y, lockedYValue, 0.06f);
     }
 }
 
+// ?????????????????????????????????????????????????????????????????????????????
 void CameraManager::Begin() {
     BeginMode2D(camera);
 }
 
 void CameraManager::End() {
     EndMode2D();
-}
-
-Vector2 CameraManager::GetScreenToWorld(Vector2 screenPos) {
-    return GetScreenToWorld2D(screenPos, camera);
 }
