@@ -28,8 +28,9 @@ void Game::Reset()
     player.ResetToStart();
     if (!player.IsAlive()) player.Respawn();
     camera.Reset();
-    musicStarted = false;
-    introSkipped  = false;
+    musicStarted           = false;
+    introSkipped           = false;
+    howtoplayMusicStarted  = false;
 }
 
 // ─────────────────────────────────────────
@@ -118,9 +119,20 @@ void Game::Update()
     if (sceneManager.GetGamestate() == SceneManager::HOWTOPLAY)
     {
         musicStarted = false; // reset zeby GAME odpalil muzyke i dzwiek od nowa
+        if (!howtoplayMusicStarted) {
+            audioManager.PlayMusic(audioManager.GetHowtoplayMusic());
+            howtoplayMusicStarted = true;
+        }
+        audioManager.UpdateMusic(audioManager.GetHowtoplayMusic());
+
         BeginDrawing();
         ClearBackground(BLACK);
         sceneManager.DrawTexts();
+        // Jezeli HOWTOPLAY sie skonczylo naturalnie — zatrzymaj muzyke
+        if (sceneManager.GetGamestate() != SceneManager::HOWTOPLAY) {
+            StopMusicStream(audioManager.GetHowtoplayMusic());
+            howtoplayMusicStarted = false;
+        }
         return;
     }
 

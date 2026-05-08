@@ -10,6 +10,8 @@ void AudioManager::Init() {
     introMusic = LoadMusicStream("OST/FX AUDIO/INTRO AUDIO.ogg");
     introMusic.looping = false;   // gra tylko raz, nie zapętla
     SetMusicVolume(introMusic, 4.0f);
+    howtoplayMusic = LoadMusicStream("OST/FX AUDIO/HOWTOPLAY AUDIO.ogg");
+    howtoplayMusic.looping = false;
     titleMusic = LoadMusicStream("OST/04. Steel Beast 5Beats (Boss Stage).ogg");
     gameMusic = LoadMusicStream("OST/03. Main Theme from Metal Slug (Stage 1).ogg");
     gameSound = LoadSound("OST/FX AUDIO/file002 mission 1 start.ogg");
@@ -26,9 +28,10 @@ Sound& AudioManager::GetGrenadeSound() { return grenadeSound; }
 Sound& AudioManager::GetMachinegunEquipSound() { return machinegunEquipSound; }
 Sound& AudioManager::GetMachinegunShootSound() { return machinegunShootSound; }
 
-Music& AudioManager::GetIntroMusic() { return introMusic; }
-Music& AudioManager::GetTitleMusic() { return titleMusic; }
-Music& AudioManager::GetGameMusic() { return gameMusic; }
+Music& AudioManager::GetIntroMusic()      { return introMusic; }
+Music& AudioManager::GetTitleMusic()      { return titleMusic; }
+Music& AudioManager::GetGameMusic()       { return gameMusic; }
+Music& AudioManager::GetHowtoplayMusic()  { return howtoplayMusic; }
 Sound& AudioManager::GetGameSound() { return gameSound; }
 
 void AudioManager::PlayMusic(Music music)   { PlayMusicStream(music); }
@@ -42,6 +45,7 @@ AudioManager::~AudioManager()
 {
     UnloadSound(gameSound);
     UnloadMusicStream(introMusic);
+    UnloadMusicStream(howtoplayMusic);
     UnloadMusicStream(titleMusic);
     UnloadMusicStream(gameMusic);
     UnloadSound(deathSound);

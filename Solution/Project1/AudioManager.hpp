@@ -17,6 +17,7 @@ public:
     Music& GetIntroMusic();
     Music& GetTitleMusic();
     Music& GetGameMusic();
+    Music& GetHowtoplayMusic();
     Sound& GetGameSound();
     Sound& GetDeathSound();
     Sound& GetShootSound();
@@ -28,6 +29,7 @@ private:
     Music introMusic;
     Music titleMusic;
     Music gameMusic;
+    Music howtoplayMusic;
     Sound gameSound;
     Sound deathSound;
     Sound shootSound;

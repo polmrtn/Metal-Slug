@@ -131,8 +131,8 @@ void UiManager::DrawCreditsOnly()
     DrawScoreText(label,  { x, y }, scale);
     DrawScoreText(number, { x + labelW + 40.0f, y }, scale);
 
-    // LEVEL napis na dole srodek
-    char lvlText[16]; std::snprintf(lvlText, sizeof(lvlText), "LEVEL-%d", level);
+    // LEVEL napis na dole srodek (TITLE zawsze pokazuje LEVEL 4)
+    char lvlText[16]; std::snprintf(lvlText, sizeof(lvlText), "LEVEL-%d", 4);
     float lSc = 2.0f;
     float lW  = MeasureScoreText(lvlText, lSc);
     float lX  = (float)SW * 0.5f - lW * 0.5f;
