@@ -9,6 +9,7 @@ public:
     void PlayMusic(Music music);
     void StopMusic(Music music);
     void UpdateMusic(Music music);
+    void StopIntroMusic();
     void PlaySound(Sound sound);
     void StopSound(Sound sound);
     void Init();

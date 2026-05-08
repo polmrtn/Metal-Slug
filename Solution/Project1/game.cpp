@@ -29,6 +29,7 @@ void Game::Reset()
     if (!player.IsAlive()) player.Respawn();
     camera.Reset();
     musicStarted = false;
+    introSkipped  = false;
 }
 
 // ─────────────────────────────────────────
@@ -72,6 +73,16 @@ void Game::Update()
         audioManager.UpdateMusic(audioManager.GetIntroMusic());
         BeginDrawing();
         ClearBackground(BLACK);
+
+        // Jezeli Enter/Space wcisniety — skipnij intro i zatrzymaj muzyke
+        if (IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_SPACE)) {
+            audioManager.StopIntroMusic();     // działa bezpośrednio na składowej
+            musicStarted = true;
+            introSkipped  = true;
+            sceneManager.SetGameState(SceneManager::TITLE);
+            return;
+        }
+
         sceneManager.DrawTexts();
         return;
     }
@@ -79,12 +90,13 @@ void Game::Update()
     // ── TITLE ──────────────────────────────
     if (sceneManager.GetGamestate() == SceneManager::TITLE)
     {
-        // Intro music kontynuuje bez przerwy przez title
-        if (!musicStarted) {
-            audioManager.PlayMusic(audioManager.GetIntroMusic());
-            musicStarted = true;
+        if (!introSkipped) {
+            if (!musicStarted) {
+                audioManager.PlayMusic(audioManager.GetIntroMusic());
+                musicStarted = true;
+            }
+            audioManager.UpdateMusic(audioManager.GetIntroMusic());
         }
-        audioManager.UpdateMusic(audioManager.GetIntroMusic());
 
         BeginDrawing();
         ClearBackground(BLACK);
