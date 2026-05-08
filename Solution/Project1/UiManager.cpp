@@ -116,11 +116,11 @@ void UiManager::DrawCreditsOnly()
     char cText[16];
     std::snprintf(cText, sizeof(cText), "CREDIT %02d", credits);
 
-    float scale = 1.5f;
+    float scale = 2.0f;
     float w = MeasureScoreText(cText, scale);
 
     float x = (float)SW - w - 40.0f;
-    float y = (float)SH - HSF_CHAR_H * scale - 10.0f;
+    float y = (float)SH - HSF_CHAR_H * scale - 2.0f;
 
     DrawScoreText(cText, { x, y }, scale);
 }
@@ -386,17 +386,17 @@ void UiManager::DrawHUD(Camera2D /*camera*/)
 
     // --- DOLNY HUD ---
     char lvlText[16]; std::snprintf(lvlText, sizeof(lvlText), "LEVEL-%d", level);
-    float lSc = 1.5f;
+    float lSc = 2.0f;
     float lW = MeasureScoreText(lvlText, lSc);
     float lX = (float)SW * 0.5f - lW * 0.5f;
-    float lY = (float)SH - HSF_CHAR_H * lSc - 10.0f;
+    float lY = (float)SH - HSF_CHAR_H * lSc - 2.0f;
     DrawScoreText(lvlText, { lX, lY }, lSc);
 
     char cText[16]; std::snprintf(cText, sizeof(cText), "CREDIT %02d", credits);
-    float cSc = 1.5f;
+    float cSc = 2.0f;
     float cW = MeasureScoreText(cText, cSc);
     float cX = (float)SW - cW - 40.0f;
-    float cY = (float)SH - HSF_CHAR_H * cSc - 10.0f;
+    float cY = (float)SH - HSF_CHAR_H * cSc - 2.0f;
     DrawScoreText(cText, { cX, cY }, cSc);
 
     if (goVisible && goBlinkOn)
