@@ -114,6 +114,16 @@ void Game::Update()
         return;
     }
 
+    // ── HOWTOPLAY ─────────────────────────
+    if (sceneManager.GetGamestate() == SceneManager::HOWTOPLAY)
+    {
+        musicStarted = false; // reset zeby GAME odpalil muzyke i dzwiek od nowa
+        BeginDrawing();
+        ClearBackground(BLACK);
+        sceneManager.DrawTexts();
+        return;
+    }
+
     // ── CONTINUE SCREEN ───────────────────
     if (sceneManager.GetGamestate() == SceneManager::CONTINUE_SCREEN)
     {
@@ -322,6 +332,7 @@ void Game::Update()
         // Zatrzymaj intro muzykę i puść game muzykę
         audioManager.StopMusic(audioManager.GetIntroMusic());
         audioManager.PlayMusic(audioManager.GetGameMusic());
+        audioManager.PlaySound(audioManager.GetGameSound());
         musicStarted = true;
     }
     audioManager.UpdateMusic(audioManager.GetGameMusic());

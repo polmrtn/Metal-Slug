@@ -7,7 +7,7 @@
 
 class SceneManager {
 public:
-    enum Gamestates { INTRO, TITLE, GAME, CONTINUE_SCREEN, GAME_OVER };
+    enum Gamestates { INTRO, TITLE, HOWTOPLAY, GAME, CONTINUE_SCREEN, GAME_OVER };
 
     SceneManager();
     ~SceneManager();
@@ -17,6 +17,7 @@ public:
     void       UpdateIntro();
     Gamestates GetGamestate();
     void       SetGameState(Gamestates gamestate);
+    int        GetHtpTotalFrames() const { return htpTotalFrames; }
 
     Gamestates currentState;
     UiManager* ui = nullptr;
@@ -57,6 +58,7 @@ private:
     // On advance N→N+1: get [0], rotate [1]→[0] [2]→[1], start new [2]=N+4
     static constexpr int   PRELOAD_AHEAD      = 3;
     static constexpr float INTRO_PLAYBACK_FPS = 55.0f;
+    static constexpr float HTP_PLAYBACK_FPS   = 55.0f;
 
     std::future<Image> preloadFutures[PRELOAD_AHEAD];
 
@@ -64,4 +66,20 @@ private:
     void DrawIntro() const;
     void IntroStartPreload(int slot, int frameIdx);
     void IntroAdvanceFrame();
+
+    // ── HOWTOPLAY: sliding-window player ─────────────────────
+    int       htpTotalFrames = 0;
+    int       htpFrameIdx    = 0;
+    float     htpTimer       = 0.0f;
+
+    Image     htpImgCur  = {};
+    Texture2D htpTex     = {};
+
+    std::future<Image> htpFutures[PRELOAD_AHEAD];
+
+    void ResetHowtoplay();
+    void DrawHowtoplay() const;
+    void HtpStartPreload(int slot, int frameIdx);
+    void HtpAdvanceFrame();
+    void UpdateHowtoplay();
 };

@@ -41,8 +41,7 @@ void InputManager::InputChangeScene()
 			if (uiManager.GetCredits() > 0) {
 				uiManager.SetCredits(-1);  // Gasta 1 crédito
 				audioManager.StopMusic(audioManager.GetTitleMusic());
-				audioManager.PlaySound(audioManager.GetGameSound());
-				sceneManager.SetGameState(SceneManager::GAME);
+				sceneManager.SetGameState(SceneManager::HOWTOPLAY);
 			}
 		}
 		// INTRO -> TITLE obsługiwane w Game::Update() żeby można było zatrzymać muzykę

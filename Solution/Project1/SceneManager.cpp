@@ -42,6 +42,18 @@ void SceneManager::Init()
     }
 
     ResetIntro();
+
+    // Count total howtoplay frames
+    htpTotalFrames = 0;
+    for (;;)
+    {
+        char htpPath[512];
+        snprintf(htpPath, sizeof(htpPath),
+            "Graphics/howtoplay_png/frame_%06d.png", htpTotalFrames + 1);
+        if (!FileExists(htpPath)) break;
+        htpTotalFrames++;
+        if (htpTotalFrames > 99999) break;
+    }
 }
 
 SceneManager::~SceneManager()
@@ -55,6 +67,11 @@ SceneManager::~SceneManager()
         if (preloadFutures[i].valid()) preloadFutures[i].wait();
     if (introTex.id)  UnloadTexture(introTex);
     if (imgCur.data)  UnloadImage(imgCur);
+
+    for (int i = 0; i < PRELOAD_AHEAD; i++)
+        if (htpFutures[i].valid()) htpFutures[i].wait();
+    if (htpTex.id)    UnloadTexture(htpTex);
+    if (htpImgCur.data) UnloadImage(htpImgCur);
 }
 
 void SceneManager::SetUiManager(UiManager* u) { ui = u; }
@@ -65,7 +82,8 @@ SceneManager::Gamestates SceneManager::GetGamestate() { return currentState; }
 void SceneManager::SetGameState(Gamestates gs)
 {
     currentState = gs;
-    if (gs == INTRO) ResetIntro();
+    if (gs == INTRO)     ResetIntro();
+    if (gs == HOWTOPLAY) ResetHowtoplay();
 }
 
 // ============================================================
@@ -264,8 +282,128 @@ void SceneManager::DrawTexts()
 
     if (currentState == GAME) { ClearBackground(BLACK); return; }
 
-    // INTRO — nie rysujemy HUD credits, bo klatki mają własny tekst
+    if (currentState == HOWTOPLAY)
+    {
+        ClearBackground(BLACK);
+        UpdateHowtoplay();
+        DrawHowtoplay();
+        return;
+    }
+
+    // INTRO
     ClearBackground(BLACK);
     UpdateIntro();
     DrawIntro();
+}
+
+// ============================================================
+//  HOWTOPLAY — frame player (identyczny mechanizm co INTRO)
+// ============================================================
+void SceneManager::ResetHowtoplay()
+{
+    htpTimer     = 0.0f;
+    htpFrameIdx  = 0;
+
+    for (int i = 0; i < PRELOAD_AHEAD; i++)
+        if (htpFutures[i].valid()) htpFutures[i].wait();
+
+    if (htpTex.id)      { UnloadTexture(htpTex);   memset(&htpTex,    0, sizeof(htpTex));    }
+    if (htpImgCur.data) { UnloadImage(htpImgCur);  memset(&htpImgCur, 0, sizeof(htpImgCur)); }
+
+    if (htpTotalFrames == 0) return;
+
+    char path[512];
+    snprintf(path, sizeof(path), "Graphics/howtoplay_png/frame_%06d.png", 1);
+    htpImgCur = LoadImage(path);
+    htpTex    = LoadTextureFromImage(htpImgCur);
+    SetTextureFilter(htpTex, TEXTURE_FILTER_BILINEAR);
+
+    for (int i = 0; i < PRELOAD_AHEAD; i++)
+        HtpStartPreload(i, i + 1);
+}
+
+void SceneManager::HtpStartPreload(int slot, int frameIdx)
+{
+    if (frameIdx >= htpTotalFrames) return;
+    char path[512];
+    snprintf(path, sizeof(path), "Graphics/howtoplay_png/frame_%06d.png", frameIdx + 1);
+    std::string pathStr(path);
+    htpFutures[slot] = std::async(std::launch::async,
+        [pathStr]() -> Image { return LoadImage(pathStr.c_str()); });
+}
+
+void SceneManager::HtpAdvanceFrame()
+{
+    htpFrameIdx++;
+    if (htpFrameIdx >= htpTotalFrames)
+    {
+        SetGameState(GAME);
+        return;
+    }
+
+    if (htpImgCur.data) { UnloadImage(htpImgCur); memset(&htpImgCur, 0, sizeof(htpImgCur)); }
+
+    if (htpFutures[0].valid())
+        htpImgCur = htpFutures[0].get();
+    else
+    {
+        char path[512];
+        snprintf(path, sizeof(path), "Graphics/howtoplay_png/frame_%06d.png", htpFrameIdx + 1);
+        htpImgCur = LoadImage(path);
+    }
+
+    for (int i = 0; i < PRELOAD_AHEAD - 1; i++)
+        htpFutures[i] = std::move(htpFutures[i + 1]);
+
+    HtpStartPreload(PRELOAD_AHEAD - 1, htpFrameIdx + PRELOAD_AHEAD);
+
+    if (htpTex.id) { UnloadTexture(htpTex); memset(&htpTex, 0, sizeof(htpTex)); }
+    htpTex = LoadTextureFromImage(htpImgCur);
+    SetTextureFilter(htpTex, TEXTURE_FILTER_BILINEAR);
+}
+
+void SceneManager::UpdateHowtoplay()
+{
+    if (htpTotalFrames == 0) { SetGameState(GAME); return; }
+
+    htpTimer += GetFrameTime();
+
+    int targetFrame = (int)(htpTimer * HTP_PLAYBACK_FPS);
+    if (targetFrame >= htpTotalFrames)
+    {
+        SetGameState(GAME);
+        return;
+    }
+
+    while (htpFrameIdx < targetFrame)
+    {
+        HtpAdvanceFrame();
+        if (currentState != HOWTOPLAY) return;
+    }
+
+    // Czekaj co najmniej 0.3s zanim Enter/Space bedzie dzialac
+    // (zapobiega natychmiastowemu skipowi przez Enter z TITLE)
+    if (htpTimer > 0.3f && (IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_SPACE)))
+        SetGameState(GAME);
+}
+
+void SceneManager::DrawHowtoplay() const
+{
+    if (!htpTex.id || htpTex.width == 0) return;
+
+    int   SW = GetScreenWidth();
+    int   SH = GetScreenHeight();
+    float scaleX = (float)SW / (float)htpTex.width;
+    float scaleY = (float)SH / (float)htpTex.height;
+    float scale  = std::max(scaleX, scaleY);
+
+    float drawW = htpTex.width  * scale;
+    float drawH = htpTex.height * scale;
+    float drawX = ((float)SW - drawW) * 0.5f;
+    float drawY = ((float)SH - drawH) * 0.5f;
+
+    DrawTexturePro(htpTex,
+        { 0.0f, 0.0f, (float)htpTex.width, (float)htpTex.height },
+        { drawX, drawY, drawW, drawH },
+        { 0.0f, 0.0f }, 0.0f, WHITE);
 }
