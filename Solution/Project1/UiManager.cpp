@@ -117,12 +117,19 @@ void UiManager::DrawCreditsOnly()
     std::snprintf(cText, sizeof(cText), "CREDIT %02d", credits);
 
     float scale = 2.0f;
-    float w = MeasureScoreText(cText, scale);
+    char label[16] = "CREDIT ";
+    char number[8];
+    std::snprintf(number, sizeof(number), "%02d", credits);
 
-    float x = (float)SW - w - 110.0f;
+    float labelW = MeasureScoreText(label, scale);
+    float numW   = MeasureScoreText(number, scale);
+    float totalW = labelW + numW;
+
+    float x = (float)SW - totalW - 110.0f;
     float y = (float)SH - HSF_CHAR_H * scale - 2.0f;
 
-    DrawScoreText(cText, { x, y }, scale);
+    DrawScoreText(label,  { x, y }, scale);
+    DrawScoreText(number, { x + labelW + 40.0f, y }, scale);
 }
 
 void UiManager::UpdateGoTimer(float dt)
@@ -392,12 +399,20 @@ void UiManager::DrawHUD(Camera2D /*camera*/)
     float lY = (float)SH - HSF_CHAR_H * lSc - 2.0f;
     DrawScoreText(lvlText, { lX, lY }, lSc);
 
-    char cText[16]; std::snprintf(cText, sizeof(cText), "CREDIT %02d", credits);
     float cSc = 2.0f;
-    float cW = MeasureScoreText(cText, cSc);
-    float cX = (float)SW - cW - 110.0f;
+    char cLabel[16] = "CREDIT ";
+    char cNumber[8];
+    std::snprintf(cNumber, sizeof(cNumber), "%02d", credits);
+
+    float cLabelW = MeasureScoreText(cLabel, cSc);
+    float cNumW   = MeasureScoreText(cNumber, cSc);
+    float cTotalW = cLabelW + cNumW;
+
+    float cX = (float)SW - cTotalW - 110.0f;
     float cY = (float)SH - HSF_CHAR_H * cSc - 2.0f;
-    DrawScoreText(cText, { cX, cY }, cSc);
+
+    DrawScoreText(cLabel,  { cX, cY }, cSc);
+    DrawScoreText(cNumber, { cX + cLabelW + 40.0f, cY }, cSc);
 
     if (goVisible && goBlinkOn)
     {
