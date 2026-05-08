@@ -119,7 +119,7 @@ void UiManager::DrawCreditsOnly()
     float scale = 2.0f;
     float w = MeasureScoreText(cText, scale);
 
-    float x = (float)SW - w - 40.0f;
+    float x = (float)SW - w - 110.0f;
     float y = (float)SH - HSF_CHAR_H * scale - 2.0f;
 
     DrawScoreText(cText, { x, y }, scale);
@@ -395,7 +395,7 @@ void UiManager::DrawHUD(Camera2D /*camera*/)
     char cText[16]; std::snprintf(cText, sizeof(cText), "CREDIT %02d", credits);
     float cSc = 2.0f;
     float cW = MeasureScoreText(cText, cSc);
-    float cX = (float)SW - cW - 40.0f;
+    float cX = (float)SW - cW - 110.0f;
     float cY = (float)SH - HSF_CHAR_H * cSc - 2.0f;
     DrawScoreText(cText, { cX, cY }, cSc);
 
