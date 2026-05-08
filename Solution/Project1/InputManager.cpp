@@ -45,9 +45,7 @@ void InputManager::InputChangeScene()
 				sceneManager.SetGameState(SceneManager::GAME);
 			}
 		}
-		else if (sceneManager.currentState == SceneManager::INTRO) {
-			sceneManager.SetGameState(SceneManager::TITLE);
-		}
+		// INTRO -> TITLE obsługiwane w Game::Update() żeby można było zatrzymać muzykę
 	}
 }
 

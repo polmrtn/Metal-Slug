@@ -90,7 +90,9 @@ void Game::Update()
     // ── TITLE ──────────────────────────────
     if (sceneManager.GetGamestate() == SceneManager::TITLE)
     {
-        if (!introSkipped) {
+        if (introSkipped) {
+            audioManager.StopIntroMusic();
+        } else {
             if (!musicStarted) {
                 audioManager.PlayMusic(audioManager.GetIntroMusic());
                 musicStarted = true;

@@ -34,7 +34,7 @@ Sound& AudioManager::GetGameSound() { return gameSound; }
 void AudioManager::PlayMusic(Music music)   { PlayMusicStream(music); }
 void AudioManager::UpdateMusic(Music music)  { UpdateMusicStream(music); }
 void AudioManager::StopMusic(Music music)    { StopMusicStream(music); }
-void AudioManager::StopIntroMusic()          { StopMusicStream(introMusic); }
+void AudioManager::StopIntroMusic()          { SetMusicVolume(introMusic, 0.0f); StopMusicStream(introMusic); }
 void AudioManager::PlaySound(Sound sound) { ::PlaySound(sound); }
 void AudioManager::StopSound(Sound sound) { ::StopSound(sound); }
 
