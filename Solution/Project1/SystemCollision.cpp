@@ -42,20 +42,35 @@ void SystemCollision::PlayerBlockCollision()
             float feetY = pr.y + pr.height;
             float prevFeetY = player.GetPreviousY() + player.GetHeight();
             // ← más permisivo si viene de rampa
-            bool  wasAbove = prevFeetY <= br.y + 8.0f;
+            bool wasAbove = player.IsDyingInAir()
+                ? prevFeetY <= br.y + 200.0f   // más tolerante cuando cae muerto
+                : prevFeetY <= br.y + 8.0f;
             bool  overlapX = (pr.x + pr.width > br.x + 2.0f) &&
                 (pr.x < br.x + br.width - 2.0f);
             float penetration = feetY - br.y;
 
-            if (overlapX && wasAbove && player.GetVelocityY() >= 0 &&
-                penetration >= 0.0f && penetration <= 45.0f)
-            {
-                player.SetY(br.y - player.GetHeight());
-                player.SetVelocityY(0.0f);
-                onGround = true;
-                pr = player.GetHitBox();
-            }
+            float maxPen = player.IsDyingInAir() ? 200.0f : 45.0f;
 
+            if (overlapX && wasAbove &&
+                (player.GetVelocityY() >= 0 || player.IsDyingInAir()) &&
+                penetration >= 0.0f && penetration <= maxPen)
+            {
+                if (player.IsDyingInAir()) {
+                    player.SetY(br.y - player.GetHeight());
+                    Vector2 spawnPos = { player.GetPosition().x, br.y - player.GetNormalHeight() };
+                    player.SetDeathPosition(spawnPos);
+                    player.SetDyingInAir(false);
+                    player.SetVelocityY(0.0f);
+                    // ← Sin SetY: el sprite se queda donde está visualmente
+                }
+                else {
+                    // Comportamiento normal para jugador vivo
+                    player.SetY(br.y - player.GetHeight());
+                    player.SetVelocityY(0.0f);
+                    onGround = true;
+                    pr = player.GetHitBox();
+                }
+            }
             // -- Cabeza --
             float headY = pr.y;
             float prevHeadY = player.GetPreviousY();
@@ -74,29 +89,30 @@ void SystemCollision::PlayerBlockCollision()
 
             // -- Laterales --
             {
-                bool vertOverlap = (pr.y + pr.height > br.y + 4.0f) &&
-                    (pr.y < br.y + br.height - 4.0f);
-                if (vertOverlap)
-                {
-                    Rectangle leftBox = player.GetLeftHitBox();
-                    if (CheckCollisionRecs(leftBox, br))
+                if (player.IsAlive() || !player.IsDyingInAir()) {  // ← solo laterales si está vivo o no cayendo muerto
+                    bool vertOverlap = (pr.y + pr.height > br.y + 4.0f) &&
+                        (pr.y < br.y + br.height - 4.0f);
+                    if (vertOverlap)
                     {
-                        float ov = (br.x + br.width) - leftBox.x;
-                        player.SetX(player.GetX() + ov);
-                        player.SetLeftCollision(true);
-                        pr = player.GetHitBox();
-                    }
-                    Rectangle rightBox = player.GetRightHitBox();
-                    if (CheckCollisionRecs(rightBox, br))
-                    {
-                        float ov = (rightBox.x + rightBox.width) - br.x;
-                        player.SetX(player.GetX() - ov);
-                        player.SetRightCollision(true);
-                        pr = player.GetHitBox();
+                        Rectangle leftBox = player.GetLeftHitBox();
+                        if (CheckCollisionRecs(leftBox, br))
+                        {
+                            float ov = (br.x + br.width) - leftBox.x;
+                            player.SetX(player.GetX() + ov);
+                            player.SetLeftCollision(true);
+                            pr = player.GetHitBox();
+                        }
+                        Rectangle rightBox = player.GetRightHitBox();
+                        if (CheckCollisionRecs(rightBox, br))
+                        {
+                            float ov = (rightBox.x + rightBox.width) - br.x;
+                            player.SetX(player.GetX() - ov);
+                            player.SetRightCollision(true);
+                            pr = player.GetHitBox();
+                        }
                     }
                 }
             }
-            break;
         }
 
         case TileType::PLATFORM:
@@ -108,7 +124,21 @@ void SystemCollision::PlayerBlockCollision()
                 (pr.x < br.x + br.width - 2.0f);
             float penetration = feetY - br.y;
 
-            if (overlapX && wasAbove && player.GetVelocityY() >= 0 &&
+            if (player.IsDyingInAir())
+            {
+                // Mismo tratamiento que SOLID para muerte en el aire
+                bool wasAboveDying = prevFeetY <= br.y + 200.0f;
+                float penetrationDying = feetY - br.y;
+                if (overlapX && wasAboveDying && penetrationDying >= 0.0f && penetrationDying <= 99999.0f)
+                {
+                    player.SetY(br.y - player.GetHeight());
+                    Vector2 spawnPos = { player.GetPosition().x, br.y - player.GetNormalHeight() };
+                    player.SetDeathPosition(spawnPos);
+                    player.SetDyingInAir(false);
+                    player.SetVelocityY(0.0f);
+                }
+            }
+            else if (overlapX && wasAbove && player.GetVelocityY() >= 0 &&
                 penetration >= -1.0f && penetration <= 45.0f)
             {
                 player.SetY(br.y - player.GetHeight());
@@ -157,13 +187,15 @@ void SystemCollision::PlayerBlockCollision()
         }
         }
     }
-
-    if (onGround)
+    if (onGround) {
         player.SetGrounded(true);
-    else if (player.GetRampGroundedFrames() > 0)
-        player.SetGrounded(true);  // los frames de gracia los decrementa Player::Update
-    else
-        player.SetGrounded(false);
+    }
+    else if (player.GetRampGroundedFrames() > 0) {
+        player.SetGrounded(true);
+    }
+    else if (!player.IsDyingInAir()) {
+        player.SetGrounded(false);  // ← solo resetea si NO está muriendo en el aire
+    }
 }
 
 // ═════════════════════════════════════════════════════════════
@@ -479,22 +511,4 @@ void SystemCollision::BossAttackPlayerCollision()
             return;
         }
     }
-    //// Laser abajo (beam)
-    //if (boss.IsLaserBeamActive()) {
-    //    Rectangle beamBox = boss.GetLaserBeamHitBox();
-    //    if (CheckCollisionRecs(playerBox, beamBox)) {
-    //        player.TakeDamage();
-    //        return;
-    //    }
-    //}
-
-
-    //// Laser arriba (beam continuo)
-    //if (boss.IsBeamUpActive()) {
-    //    Rectangle beamBox = boss.GetBeamUpHitBox();
-    //    if (CheckCollisionRecs(playerBox, beamBox)) {
-    //        player.TakeDamage();
-    //        return;
-    //    }
-    //}
 }

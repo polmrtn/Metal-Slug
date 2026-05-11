@@ -74,6 +74,17 @@ void Player::Update(float CameraLeftLimit) {
                 specialTimer = specialDuration;
             }
         }
+
+        // ── CAÍDA EN MUERTE EN EL AIRE ──────────────────────────────
+        if (dyingInAir) {
+            previousY = pos.y;          // necesario para que PlayerBlockCollision use prevFeetY correcto
+            vel.y += deathFallGravity;
+            pos.y += vel.y;
+
+            if (grounded) {             // grounded lo setea SystemCollision justo antes de Update
+                vel.y = 0.0f;
+            }
+        }
         return;
     }
 
@@ -357,7 +368,6 @@ void Player::TakeDamage() {
     if (IsInvincible()) return;
 
     isAlive = false;
-    deathPosition = pos;
     deathTimer = 0.0f;
     isDisappeared = false;
 
@@ -366,11 +376,23 @@ void Player::TakeDamage() {
     specialTimer = 0.0f;
     specialDuration = 1.0f;
 
-    vel = { 0.0f, 0.0f };
     inputVelX = 0;
+    vel.x = 0.0f;
+
+    if (grounded) {
+        vel.y = 0.0f;
+        dyingInAir = false;
+        deathPosition = pos;
+    }
+    else {
+        dyingInAir = true;
+        // vel.y mantiene la velocidad actual
+    }
 }
 
 void Player::Respawn() {
+    TraceLog(LOG_INFO, "Respawn en deathPosition: x=%.1f y=%.1f", deathPosition.x, deathPosition.y);
+    pos = deathPosition;
     isAlive = true;
     isDisappeared = false;
     deathTimer = 0.0f;
@@ -380,7 +402,6 @@ void Player::Respawn() {
     specialTimer = 0.0f;
     specialDuration = 0.6f;
 
-    pos = deathPosition;
     vel = { 0.0f, 0.0f };
     invincibilityTimer = invincibilityDuration;
 }
@@ -517,9 +538,9 @@ void Player::Draw() {
 }
 
 void Player::DrawHitBox() {
-//    DrawRectangleLinesEx(GetHitBox(), 2, WHITE);
-//    DrawRectangleLinesEx(GetLeftHitBox(), 2, RED);
-//    DrawRectangleLinesEx(GetRightHitBox(), 2, BLUE);
+    DrawRectangleLinesEx(GetHitBox(), 2, WHITE);
+    DrawRectangleLinesEx(GetLeftHitBox(), 2, RED);
+    DrawRectangleLinesEx(GetRightHitBox(), 2, BLUE);
 }
 
 // ========== DIBUJO AGACHADO ==========

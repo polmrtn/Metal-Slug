@@ -99,6 +99,11 @@ public:
     void SetRampGroundedFrames(int f) { rampGroundedFrames = f; }
     int GetRampGroundedFrames() const { return rampGroundedFrames; }
 
+    void SetDeathPosition(Vector2 pos) { deathPosition = pos; }
+    void SetDyingInAir(bool val) { dyingInAir = val; }
+    bool IsDyingInAir() const { return dyingInAir; }
+    float GetNormalHeight() const { return 40.0f * SCALE; }
+
 private:
     // ========== ANIMACIÓN ==========
     PlayerAnim anim;
@@ -170,4 +175,7 @@ private:
     bool blinkVisible = true;
     bool wasOnRamp = false;
     int rampGroundedFrames = 0;
+
+    bool dyingInAir = false;
+    float deathFallGravity = 2.5f;
 };
