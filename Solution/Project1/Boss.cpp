@@ -67,6 +67,11 @@ void Boss::Init()
     UnloadImage(imgExplo2);
     SetTextureFilter(explo2Sheet, TEXTURE_FILTER_POINT);
 
+    Image imgDebris = LoadImage("Graphics/boss/debri32x32.png");
+    debrisSheet = LoadTextureFromImage(imgDebris);
+    UnloadImage(imgDebris);
+    SetTextureFilter(debrisSheet, TEXTURE_FILTER_POINT);
+
     cannonFrame = 9;
     cannonGoingUp = true;
     cannonFrameTimer = 0.0f;
@@ -84,7 +89,6 @@ void Boss::Update(float playerX)
 
     if (introState != IntroState::DONE) {
         UpdateIntro(playerX, dt);
-        // Hit flash funciona aunque esté en intro
         if (isFlashing) {
             hitFlashTimer += dt;
             if (hitFlashTimer >= HIT_FLASH_DURATION) {
@@ -99,7 +103,6 @@ void Boss::Update(float playerX)
         return;
     }
 
-    // Hit flash
     if (isFlashing) {
         hitFlashTimer += dt;
         if (hitFlashTimer >= HIT_FLASH_DURATION) {
@@ -143,7 +146,6 @@ void Boss::Update(float playerX)
     }
 
     if (destroyed) {
-        // Avanzar destroyFrame cada 0.5 segundos
         static float dfTimer = 0.0f;
         dfTimer += dt;
         if (dfTimer >= 0.5f && destroyFrame < 4) {
@@ -159,40 +161,65 @@ void Boss::Update(float playerX)
         cannonDestroyedTimer += dt;
         destroyedTimer += dt;
 
-        // Spawn explosiones durante 8 segundos
+        // Spawn explosiones Y debris durante 8 segundos
         if (destroyedTimer < DESTROY_EXPLOSION_DURATION) {
             explosionSpawnTimer += dt;
             if (explosionSpawnTimer >= explosionSpawnDelay) {
                 explosionSpawnTimer = 0.0f;
+
+                int leftLimit = 0;
+                if (destroyFrame >= 3) leftLimit = 56;
+                if (destroyFrame >= 4) leftLimit = 161;
+
+                // Spawn explosión
                 for (int i = 0; i < MAX_BOSS_EXPLOSIONS; i++) {
                     if (!bossExplosions[i].active) {
                         bossExplosions[i].active = true;
                         bossExplosions[i].frame = 0;
                         bossExplosions[i].timer = 0.0f;
                         bossExplosions[i].type = GetRandomValue(0, 1);
-
-                        // Calcular límite izquierdo según frame de destrucción
-                        int leftLimit = 0;
-                        if (destroyFrame >= 3) leftLimit = 56;
-                        if (destroyFrame >= 4) leftLimit = 161;
-
                         int zone = GetRandomValue(0, 1);
-                        Vector2 spawnPos;
                         if (zone == 0) {
-                            // Parte horizontal arriba — reducida por la izquierda
-                            spawnPos = {
+                            bossExplosions[i].pos = {
                                 TETSU_X + (float)GetRandomValue(leftLimit, 384) * CANNON_SCALE,
                                 TETSU_Y + (float)GetRandomValue(0, 144) * CANNON_SCALE
                             };
                         }
                         else {
-                            // Parte vertical derecha
-                            spawnPos = {
+                            bossExplosions[i].pos = {
                                 TETSU_X + (float)GetRandomValue(254, 384) * CANNON_SCALE,
                                 TETSU_Y + (float)GetRandomValue(144, 288) * CANNON_SCALE
                             };
                         }
-                        bossExplosions[i].pos = spawnPos;
+                        break;
+                    }
+                }
+
+                // Spawn debris
+                for (int i = 0; i < MAX_BOSS_DEBRIS; i++) {
+                    if (!bossDebris[i].active) {
+                        bossDebris[i].active = true;
+                        bossDebris[i].frame = 0;
+                        bossDebris[i].timer = 0.0f;
+                        bossDebris[i].spriteRow = GetRandomValue(0, 8);
+                        bossDebris[i].frameDelay = 0.05f + GetRandomValue(0, 3) * 0.01f;
+                        int zone2 = GetRandomValue(0, 1);
+                        if (zone2 == 0) {
+                            bossDebris[i].pos = {
+                                TETSU_X + (float)GetRandomValue(leftLimit, 384) * CANNON_SCALE,
+                                TETSU_Y + (float)GetRandomValue(0, 144) * CANNON_SCALE
+                            };
+                        }
+                        else {
+                            bossDebris[i].pos = {
+                                TETSU_X + (float)GetRandomValue(254, 384) * CANNON_SCALE,
+                                TETSU_Y + (float)GetRandomValue(144, 288) * CANNON_SCALE
+                            };
+                        }
+                        float angle = (float)GetRandomValue(-150, -30);
+                        float speed = (float)GetRandomValue(200, 600);
+                        float rad = angle * 3.14159f / 180.0f;
+                        bossDebris[i].vel = { cosf(rad) * speed, sinf(rad) * speed };
                         break;
                     }
                 }
@@ -206,10 +233,30 @@ void Boss::Update(float playerX)
             if (bossExplosions[i].timer >= EXPLO_FRAME_DURATION) {
                 bossExplosions[i].timer = 0.0f;
                 bossExplosions[i].frame++;
-                if (bossExplosions[i].frame >= EXPLO_FRAMES) {
+                if (bossExplosions[i].frame >= EXPLO_FRAMES)
                     bossExplosions[i].active = false;
-                }
             }
+        }
+
+        // Actualizar debris
+        float screenLeft = player.GetPosition().x - (GetScreenWidth() / 2.0f) - 100.0f;
+        float screenRight = player.GetPosition().x + (GetScreenWidth() / 2.0f) + 100.0f;
+        float screenBot = player.GetPosition().y + (GetScreenHeight() / 2.0f) + 100.0f;
+
+        for (int i = 0; i < MAX_BOSS_DEBRIS; i++) {
+            if (!bossDebris[i].active) continue;
+            bossDebris[i].vel.y += bossDebris[i].gravity * dt;
+            bossDebris[i].pos.x += bossDebris[i].vel.x * dt;
+            bossDebris[i].pos.y += bossDebris[i].vel.y * dt;
+            bossDebris[i].timer += dt;
+            if (bossDebris[i].timer >= bossDebris[i].frameDelay) {
+                bossDebris[i].timer = 0.0f;
+                int maxFrames = (bossDebris[i].spriteRow < 4) ? 8 : 10;
+                bossDebris[i].frame = (bossDebris[i].frame + 1) % maxFrames;
+            }
+            if (bossDebris[i].pos.x < screenLeft || bossDebris[i].pos.x > screenRight ||
+                bossDebris[i].pos.y > screenBot)
+                bossDebris[i].active = false;
         }
 
         return;
@@ -236,7 +283,6 @@ void Boss::Update(float playerX)
             laserBeamActive = false;
         }
     }
-
 }
 
 void Boss::UpdateIntro(float playerX, float dt)
@@ -693,6 +739,21 @@ void Boss::Draw()
                                   EXPLO2_W * CANNON_SCALE, EXPLO2_H * CANNON_SCALE };
                 DrawTexturePro(explo2Sheet, src, dst, { 0,0 }, 0.0f, WHITE);
             }
+        }
+        // Dibujar debris
+        for (int i = 0; i < MAX_BOSS_DEBRIS; i++) {
+            if (!bossDebris[i].active) continue;
+            int maxFrames = (bossDebris[i].spriteRow < 4) ? 8 : 10;
+            Rectangle src = {
+                bossDebris[i].frame * DEBRIS_W,
+                bossDebris[i].spriteRow * DEBRIS_H,
+                DEBRIS_W, DEBRIS_H
+            };
+            Rectangle dst = {
+                bossDebris[i].pos.x, bossDebris[i].pos.y,
+                DEBRIS_W * CANNON_SCALE, DEBRIS_H * CANNON_SCALE
+            };
+            DrawTexturePro(debrisSheet, src, dst, { 0,0 }, 0.0f, WHITE);
         }
 
         DrawPlasma();

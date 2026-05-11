@@ -367,4 +367,23 @@ private:
 
     mutable float lastCannonDrawX = 0.0f;
     mutable float lastCannonDrawY = 0.0f;
+
+    // ── Debris destrucción ────────────────────────────────────
+    struct BossDebris {
+        Vector2 pos;
+        Vector2 vel;
+        bool    active = false;
+        int     spriteRow = 0;  // 0-3 (8 frames) o 4-8 (10 frames)
+        int     frame = 0;
+        float   timer = 0.0f;
+        float   frameDelay = 0.05f;
+        float   gravity = 400.0f;
+    };
+
+    static constexpr int MAX_BOSS_DEBRIS = 20;
+    BossDebris bossDebris[MAX_BOSS_DEBRIS];
+
+    Texture2D debrisSheet = { 0 };
+    static constexpr float DEBRIS_W = 32.0f;
+    static constexpr float DEBRIS_H = 32.0f;
 };

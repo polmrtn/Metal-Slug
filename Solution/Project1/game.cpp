@@ -219,6 +219,7 @@ void Game::Update()
 // ─────────────────────────────────────────
 void Game::HandleInput()
 {
+    if (boss.IsDestroyed()) return;
     debug.EditorModeInput(camera.GetCamera());
 
     if (debug.GetEditorMode()) return; 
