@@ -72,7 +72,7 @@ void InputManager::InputPlayer()
 	if (IsKeyPressed(KEY_SPACE)) player.Jump();
 
 	// SHOOTING: use TimerManager methods instead of assigning to GetTimer(...) result
-	if (IsKeyPressed(KEY_D) && timerManager.IsReady(TimerType::SHOOT_TIMER)) {
+	if (IsKeyPressed(KEY_D) && timerManager.IsReady(TimerType::SHOOT_TIMER) && player.IsAlive()) {
 		if (player.GetCurrentWeapon() == WeaponType::MACHINEGUN) {
 			if (player.GetAmmo() > 0) {
 				player.Shoot();

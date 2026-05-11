@@ -240,7 +240,7 @@ void Boss::UpdateCannon(float dt)
         // ── ABAJO ────────────────────────────────────────────────
     case CannonState::OPENING_DOWN:
         flashActive = false;
-        if (cannonFrameTimer < cannonFrameDelay) return;
+        if (cannonFrameTimer < openFrameDelay) return;
         cannonFrameTimer = 0.0f;
         openFrame++;
         if (openFrame >= OPEN_DOWN_FRAMES - 1) {
@@ -251,7 +251,7 @@ void Boss::UpdateCannon(float dt)
         break;
 
     case CannonState::SHOOTING_DOWN:
-        if (cannonFrameTimer < cannonFrameDelay) return;
+        if (cannonFrameTimer < shootFrameDelay) return;
         cannonFrameTimer = 0.0f;
         openFrame++;
 
@@ -281,7 +281,7 @@ void Boss::UpdateCannon(float dt)
 
     case CannonState::CLOSING_DOWN:
         flashActive = false;
-        if (cannonFrameTimer < cannonFrameDelay) return;
+        if (cannonFrameTimer < openFrameDelay) return;
         cannonFrameTimer = 0.0f;
         openFrame--;
         if (openFrame <= 0) {
@@ -296,7 +296,7 @@ void Boss::UpdateCannon(float dt)
         // ── ARRIBA ───────────────────────────────────────────────
     case CannonState::OPENING_UP:
         flashActive = false;
-        if (cannonFrameTimer < cannonFrameDelay) return;
+        if (cannonFrameTimer < openFrameDelay) return;
         cannonFrameTimer = 0.0f;
         openFrame++;
         if (openFrame >= OPEN_UP_FRAMES - 1) {
@@ -307,7 +307,7 @@ void Boss::UpdateCannon(float dt)
         break;
 
     case CannonState::SHOOTING_UP:
-        if (cannonFrameTimer < cannonFrameDelay) return;
+        if (cannonFrameTimer < shootFrameDelay) return;
         cannonFrameTimer = 0.0f;
         openFrame++;
 
@@ -337,7 +337,7 @@ void Boss::UpdateCannon(float dt)
 
     case CannonState::CLOSING_UP:
         flashActive = false;
-        if (cannonFrameTimer < cannonFrameDelay) return;
+        if (cannonFrameTimer < openFrameDelay) return;
         cannonFrameTimer = 0.0f;
         openFrame--;
         if (openFrame <= 0) {
@@ -417,17 +417,12 @@ void Boss::UpdateLaser(float dt)
                 laserBeamX = posX + laserOffsetX;
                 laserBeamActive = true;
                 flashLoopTimer = 0.0f;
-
-                float screenLeft = player.GetPosition().x - (GetScreenWidth() / 2.0f);
-                float distanceToTravel = laserBeamX - screenLeft;
-                float timeToExit = distanceToTravel / laserBeamSpeed;
-                laserFrameDelay = timeToExit / (float)FIRE_FRAMES;
             }
         }
         break;
 
     case LaserState::CHARGING2:
-        if (laserFrameTimer >= laserFrameDelay) {
+        if (laserFrameTimer >= charging2FrameDelay) {
             laserFrameTimer = 0.0f;
             laserFrame++;
             if (laserFrame >= CHARGE2_FRAMES) {
@@ -441,12 +436,14 @@ void Boss::UpdateLaser(float dt)
                 laserBeamX = posX + laserOffsetX;
                 laserBeamActive = true;
                 flashLoopTimer = 0.0f;
+
             }
         }
         break;
 
     case LaserState::FIRING:
         laserTimer += dt;
+        beamUpVisible = true;
 
         if (cannonGoingUp) {
             // Fase disparo: durante LASER_DURATION, cañón congelado en frame 5
@@ -505,6 +502,7 @@ void Boss::UpdateLaser(float dt)
                         laserFrameTimer = 0.0f;
                         beamFrame = 0;
                         beamRetracting = false;
+                        beamUpVisible = false;
                     }
                 }
             }
@@ -627,7 +625,7 @@ void Boss::FirePlasma()
     for (int i = 0; i < MAX_PLASMA; i++) {
         if (plasma[i].active) continue;
 
-        float spawnX = posX + (CANNON_FRAME_W * CANNON_SCALE) * 0.3f;
+        float spawnX = posX + (CANNON_FRAME_W * CANNON_SCALE) * 0.3f +30.0f;
         float spawnY = (cannonState == CannonState::SHOOTING_DOWN ||
             cannonState == CannonState::OPENING_DOWN ||
             cannonState == CannonState::CLOSING_DOWN)
@@ -651,7 +649,7 @@ void Boss::FirePlasma()
         }
 
         float dy = groundY - spawnY;
-        float timeToLand = 1.5f;
+        float timeToLand = 2.0f;
         float g = plasma[i].gravity;
 
         plasma[i].vel.x = (targetX - spawnX) / timeToLand;
@@ -778,6 +776,10 @@ void Boss::DrawLaser() const
             DrawTexturePro(beamSheet, beamSrc, beamDst, { 0,0 }, 0.0f, WHITE);
         }
     }
+    if (laserState == LaserState::FIRING && cannonGoingUp && !beamRetracting) {
+        Rectangle beamBox = GetBeamUpHitBox();
+        DrawRectangleLinesEx(beamBox, 2, RED);
+    }
 
     // 2. Beam abajo — detrás de todo
     if (laserState == LaserState::FIRING && !cannonGoingUp && laserBeamActive) {
@@ -787,6 +789,11 @@ void Boss::DrawLaser() const
         Rectangle beamDst = { laserBeamX, beamY, LASER_BEAM_W * CANNON_SCALE, LASER_BEAM_H * CANNON_SCALE };
         DrawTexturePro(laserBeamSheet, beamSrc, beamDst, { 0,0 }, 0.0f, WHITE);
     }
+
+    if (laserState == LaserState::FIRING && !cannonGoingUp && laserBeamActive) {
+    Rectangle beamBox = GetLaserBeamHitBox();
+    DrawRectangleLinesEx(beamBox, 2, RED);
+}
 
     // 3. sprite 15 — detrás del cañón
     if (laserState == LaserState::FIRING && cannonGoingUp && laserFlashFrame == 15)

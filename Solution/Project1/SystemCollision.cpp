@@ -14,6 +14,7 @@ void SystemCollision::CollisionUpdate()
     GrenadesCollision();
     ItemBlockCollision();
     ItemPlayerCollision();
+    BossAttackPlayerCollision();
 }
 
 // ═════════════════════════════════════════════════════════════
@@ -433,6 +434,46 @@ void SystemCollision::ItemPlayerCollision()
             Item newItem(spawnPos, ItemType::SHOTGUN);
             newItem.SetGravity(true);
             items.push_back(newItem);
+        }
+    }
+}
+
+void SystemCollision::BossAttackPlayerCollision()
+{
+    if (!boss.IsActive() && !boss.IsInIntro()) return;
+    if (player.IsInvincible() || !player.IsAlive()) return;
+
+    Rectangle playerBox = player.GetHitBox();
+
+    // Bolas de plasma fase 1
+    for (int i = 0; i < 3; i++) {
+        if (!boss.GetPlasmaActive(i)) continue;
+        Rectangle plasmaBox = {
+            boss.GetPlasmaPos(i).x - 8.0f,
+            boss.GetPlasmaPos(i).y - 8.0f,
+            16.0f, 16.0f
+        };
+        if (CheckCollisionRecs(playerBox, plasmaBox)) {
+            player.TakeDamage();
+            return;
+        }
+    }
+
+    // Laser abajo (beam)
+    if (boss.IsLaserBeamActive()) {
+        Rectangle beamBox = boss.GetLaserBeamHitBox();
+        if (CheckCollisionRecs(playerBox, beamBox)) {
+            player.TakeDamage();
+            return;
+        }
+    }
+
+    // Laser arriba (beam continuo)
+    if (boss.IsBeamUpActive()) {
+        Rectangle beamBox = boss.GetBeamUpHitBox();
+        if (CheckCollisionRecs(playerBox, beamBox)) {
+            player.TakeDamage();
+            return;
         }
     }
 }

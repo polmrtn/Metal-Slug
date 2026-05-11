@@ -41,6 +41,33 @@ public:
         }
     }
 
+    // Plasma
+    bool    GetPlasmaActive(int i) const { return i >= 0 && i < MAX_PLASMA ? plasma[i].active : false; }
+    Vector2 GetPlasmaPos(int i)    const { return i >= 0 && i < MAX_PLASMA ? plasma[i].pos : Vector2{ 0,0 }; }
+
+    // Laser abajo
+    bool      IsLaserBeamActive()    const { return laserBeamActive; }
+    Rectangle GetLaserBeamHitBox() const {
+        float beamH = LASER_BEAM_H * CANNON_SCALE * 0.5f;  // mitad de alto
+        float beamY = posY + laserOffsetDownY + (LASER_FRAME_H * CANNON_SCALE) / 2.0f
+            - (LASER_BEAM_H * CANNON_SCALE) / 2.0f
+            + (LASER_BEAM_H * CANNON_SCALE - beamH);  // ← sube desde abajo, baja desde arriba
+        float w = LASER_BEAM_W * CANNON_SCALE * 0.6f;
+        float x = laserBeamX + LASER_BEAM_W * CANNON_SCALE - 300.0f;
+        return { x, beamY, w, beamH };
+    }
+
+    // Laser arriba (cubre desde el cañón hasta la izquierda)
+    bool IsBeamUpActive() const { return beamUpVisible; }
+    Rectangle GetBeamUpHitBox() const {
+        float beamY = posY + laserOffsetUpY + (LASER_FRAME_H * CANNON_SCALE) / 2.0f
+            - (BEAM_H * CANNON_SCALE) / 2.0f + 20.0f;
+        float startX = posX + laserOffsetX + 200.0f;
+        float h = BEAM_H * CANNON_SCALE * 0.4f;  // ← ajusta este valor
+        float offsetY = (BEAM_H * CANNON_SCALE - h + 20.0f) / 2.0f;  // centra verticalmente
+        return { -500.0f, beamY + offsetY, startX + 500.0f, h };
+    }
+
 private:
     // ── Estado general ────────────────────────────────────────
     bool active = false;
@@ -71,7 +98,7 @@ private:
     int   closeFrame = 0;
 
     float cannonFrameTimer = 0.0f;
-    float cannonFrameDelay = 0.04f;
+    float cannonFrameDelay = 0.02f;
 
     Texture2D cannonSheet = { 0 };
 
@@ -123,7 +150,7 @@ private:
     int        shootRepeatCount = 0;
     int        plasmaFired = 0;
     float      plasmaRadius = 8.0f;
-    float      plasmaSpread = 50.0f;
+    float      plasmaSpread = 150.0f;
     float      capturedPlayerX = 0.0f;
 
     Texture2D plasmaSheet = { 0 };
@@ -160,7 +187,7 @@ private:
     LaserState    laserState = LaserState::MOVING;
     int           laserFrame = 0;
     float         laserFrameTimer = 0.0f;
-    float         laserFrameDelay = 0.05f;
+    float         laserFrameDelay = 0.025f;
     float         laserTimer = 0.0f;
     static constexpr float LASER_DURATION = 0.5f;
 
@@ -175,7 +202,7 @@ private:
     static constexpr float CHARGE_UP_ROW_Y = 0 * 96.0f;  
     static constexpr float FIRE_UP_ROW_Y = 1 * 96.0f; 
 
-    static constexpr float CHARGE_DURATION = 1.0f;  // segundos cargando
+    static constexpr float CHARGE_DURATION = 0.7f;  // segundos cargando
     float chargeTimer = 0.0f;
 
     void UpdateLaser(float dt);
@@ -226,7 +253,7 @@ private:
     float      introTimer = 0.0f;
     int        tentFrame = 0;
     float      tentFrameTimer = 0.0f;
-    float      tentFrameDelay = 0.10f;
+    float      tentFrameDelay = 0.1f;
     float tentOffsetX = 0.0f;
 
     Texture2D  tentSheet = { 0 };
@@ -248,19 +275,19 @@ private:
     Texture2D laserBeamSheet = { 0 };
     int       laserBeamFrame = 0;
     float     laserBeamTimer = 0.0f;
-    float     laserBeamDelay = 0.06f;
+    float     laserBeamDelay = 0.03f;
     static constexpr float LASER_BEAM_W = 80.0f;
     static constexpr float LASER_BEAM_H = 26.0f;
     static constexpr int   LASER_BEAM_FRAMES = 4;
     float laserBeamX = 0.0f;
-    float laserBeamSpeed = 800.0f;  // píxeles/segundo — ajusta
+    float laserBeamSpeed = 500.0f;  // píxeles/segundo — ajusta
     bool  laserBeamActive = false;
 
     // ── Beam laser arriba ─────────────────────────────────────
     Texture2D beamSheet = { 0 };
     int       beamFrame = 0;
     float     beamTimer = 0.0f;
-    float     beamDelay = 0.05f;
+    float     beamDelay = 0.025f;
     bool      beamRetracting = false;  // false=disparando, true=recogiendo
     float flashLoopTimer = 0.0f;
 
@@ -282,4 +309,9 @@ private:
     static constexpr float SPLATTER_H = 48.0f;
     static constexpr int   SPLATTER_FRAMES = 6;
     bool splatterDone = false;
+
+    float openFrameDelay = 0.04f;  // apertura y cierre — más lento que el movimiento
+    float shootFrameDelay = 0.04f;  // disparo fase 1
+    float charging2FrameDelay = 0.04f;
+    bool beamUpVisible = false;
 };
