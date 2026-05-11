@@ -78,6 +78,7 @@ public:
     // ========== MUERTE Y RESPAWN ==========
     void TakeDamage();
     bool IsAlive() const { return isAlive; }
+    bool IsDisappeared() const { return isDisappeared; }
     void Respawn();
     Vector2 GetDeathPosition() const { return deathPosition; }
     bool IsInvincible() const { return invincibilityTimer > 0.0f; }

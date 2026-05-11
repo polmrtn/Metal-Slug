@@ -48,5 +48,8 @@ private:
     // Estado de sonido machinegun
     bool machinegunSoundActive = false;
 
-    bool shouldRestart = false;
+    bool  shouldRestart          = false;
+    bool  introSkipped           = false;
+    bool  howtoplayMusicStarted  = false;
+    float gameOverTimer  = 0.0f;
 };

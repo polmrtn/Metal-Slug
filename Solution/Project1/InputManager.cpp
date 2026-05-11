@@ -41,13 +41,10 @@ void InputManager::InputChangeScene()
 			if (uiManager.GetCredits() > 0) {
 				uiManager.SetCredits(-1);  // Gasta 1 crédito
 				audioManager.StopMusic(audioManager.GetTitleMusic());
-				audioManager.PlaySound(audioManager.GetGameSound());
-				sceneManager.SetGameState(SceneManager::GAME);
+				sceneManager.SetGameState(SceneManager::HOWTOPLAY);
 			}
 		}
-		else if (sceneManager.currentState == SceneManager::INTRO) {
-			sceneManager.SetGameState(SceneManager::TITLE);
-		}
+		// INTRO -> TITLE obsługiwane w Game::Update() żeby można było zatrzymać muzykę
 	}
 }
 
@@ -102,34 +99,7 @@ void InputManager::InputPlayer()
 
 void InputManager::InputUi()
 {
-	if (!player.IsAlive()) {
-		BeginDrawing();
-		Vector2 deathPos = player.GetDeathPosition();
-		DrawText(TextFormat("YOU DIED at (%.0f, %.0f)", deathPos.x, deathPos.y),
-			GetScreenWidth() / 2 - 200, GetScreenHeight() / 2 - 50, 20, RED);
-
-		if (uiManager.GetCredits() > 0) {
-			DrawText("Press R to respawn (costs 1 credit)",
-				GetScreenWidth() / 2 - 200, GetScreenHeight() / 2, 20, WHITE);
-		}
-		else {
-			DrawText("NO CREDITS! Press C to insert coin",
-				GetScreenWidth() / 2 - 200, GetScreenHeight() / 2, 20, RED);
-		}
-
-		if (IsKeyPressed(KEY_R) && uiManager.GetCredits() > 0) {
-			uiManager.SetCredits(-1);  // Gasta 1 crédito
-			player.Respawn();
-			TraceLog(LOG_INFO, "Respawn. Créditos restantes: %d", uiManager.GetCredits());
-		}
-		if (IsKeyPressed(KEY_C) && timerManager.GetTimer(TimerType::CREDIT_COOLDOWN) <= 0.0f) {
-			if (uiManager.GetCredits() < 99) {
-				uiManager.SetCredits(1);
-				timerManager.SetTimerValue(TimerType::CREDIT_COOLDOWN, timerManager.GetTimer(TimerType::CREDIT_DELAY));
-				TraceLog(LOG_INFO, "Crédito insertado mientras muerto. Total: %d", uiManager.GetCredits());
-			}
-		}
-	}
+    // Obslugiwane przez CONTINUE_SCREEN state w game.cpp
 }
 
 void InputManager::InputMachinegunBurst()

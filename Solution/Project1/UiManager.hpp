@@ -74,6 +74,8 @@ private:
     Texture2D texHpBarLeft, texHpBarRight, texHpBarParts;
     Texture2D texGo;
     Texture2D texTimeNum;
+    Texture2D texMetalBigNum;
+    Texture2D texGameOver;
 
     // Metody pomocnicze
     void  DrawHudDigit(char c, Vector2 pos, float scale, Color tint) const;
@@ -90,9 +92,33 @@ private:
     void  DrawTimeDigit(char c, Vector2 pos, float scale) const;
     void  DrawTimeNumber(int value, Vector2 pos, float scale) const;
 
+    void  DrawInnerChar(char c, Vector2 pos, float scale) const;
+    void  DrawInnerText(const char* str, Vector2 pos, float scale) const;
+    float MeasureInnerText(const char* str, float scale) const;
+
     // POPRAWIONA DEKLARACJA (3 argumenty, zgodna z .cpp)
     void  DrawHpBar(Vector2 pos, int segs, float scale) const;
 
     void  UpdateGoTimer(float dt);
     void  DrawMissionIntroInternal();
+
+    // Continue screen
+    float continueElapsed    = 0.0f;
+    float continueBlinkAccum = 0.0f;
+    bool  continueBlinkOn    = true;
+    float continueLabelX     = 10.0f;
+    float continueLabelY     = 10.0f;
+    bool  continueScreenActive = false;
+
+public:
+    void StartContinue();
+    void StopContinue();
+    void UpdateContinue(float dt);
+    void DrawContinueScreen();
+    bool IsContinueOver() const;
+
+    void DrawGameOverOverlay(float t);   // czerwony filtr + fade to black
+    void DrawGameOverSprite(float t);    // sprite game over (t=czas od wejscia w faze 3)
+
+private:
 };
