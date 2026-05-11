@@ -14,9 +14,13 @@ public:
     int  GetHealth() const { return health; }
     bool IsInIntro() const { return introState != IntroState::DONE; }
 
-    void TakeDamage() {
+    void TakeDamage(int amount = 1) {
         if (active || introState != IntroState::DONE) {
-            health--;
+            health -= amount;
+            if (health <= 0) {
+                health = 0;
+                destroyed = true;
+            }
             StartFlash();
         }
     }
@@ -40,13 +44,14 @@ public:
             preIntroTimer = 0.0f;
         }
     }
+    bool IsDestroyed() const { return destroyed; }
 
     // Plasma
     bool    GetPlasmaActive(int i) const { return i >= 0 && i < MAX_PLASMA ? plasma[i].active : false; }
     Vector2 GetPlasmaPos(int i)    const { return i >= 0 && i < MAX_PLASMA ? plasma[i].pos : Vector2{ 0,0 }; }
 
     // Laser abajo
-    bool      IsLaserBeamActive()    const { return laserBeamActive; }
+    bool IsLaserBeamActive() const { return laserBeamVisible; }
     Rectangle GetLaserBeamHitBox() const {
         float beamH = LASER_BEAM_H * CANNON_SCALE * 0.5f;  // mitad de alto
         float beamY = posY + laserOffsetDownY + (LASER_FRAME_H * CANNON_SCALE) / 2.0f
@@ -314,4 +319,6 @@ private:
     float shootFrameDelay = 0.04f;  // disparo fase 1
     float charging2FrameDelay = 0.04f;
     bool beamUpVisible = false;
+    bool laserBeamVisible = false;
+    bool destroyed = false;
 };

@@ -458,22 +458,43 @@ void SystemCollision::BossAttackPlayerCollision()
             return;
         }
     }
-
-    // Laser abajo (beam)
     if (boss.IsLaserBeamActive()) {
         Rectangle beamBox = boss.GetLaserBeamHitBox();
+        TraceLog(LOG_INFO, "BEAM ABAJO active beamBox x=%.0f y=%.0f w=%.0f h=%.0f playerX=%.0f playerY=%.0f",
+            beamBox.x, beamBox.y, beamBox.width, beamBox.height, playerBox.x, playerBox.y);
         if (CheckCollisionRecs(playerBox, beamBox)) {
+            TraceLog(LOG_INFO, "BEAM ABAJO MATA");
             player.TakeDamage();
             return;
         }
     }
 
-    // Laser arriba (beam continuo)
     if (boss.IsBeamUpActive()) {
         Rectangle beamBox = boss.GetBeamUpHitBox();
+        TraceLog(LOG_INFO, "BEAM ARRIBA active beamBox x=%.0f y=%.0f w=%.0f h=%.0f playerX=%.0f playerY=%.0f",
+            beamBox.x, beamBox.y, beamBox.width, beamBox.height, playerBox.x, playerBox.y);
         if (CheckCollisionRecs(playerBox, beamBox)) {
+            TraceLog(LOG_INFO, "BEAM ARRIBA MATA");
             player.TakeDamage();
             return;
         }
     }
+    //// Laser abajo (beam)
+    //if (boss.IsLaserBeamActive()) {
+    //    Rectangle beamBox = boss.GetLaserBeamHitBox();
+    //    if (CheckCollisionRecs(playerBox, beamBox)) {
+    //        player.TakeDamage();
+    //        return;
+    //    }
+    //}
+
+
+    //// Laser arriba (beam continuo)
+    //if (boss.IsBeamUpActive()) {
+    //    Rectangle beamBox = boss.GetBeamUpHitBox();
+    //    if (CheckCollisionRecs(playerBox, beamBox)) {
+    //        player.TakeDamage();
+    //        return;
+    //    }
+    //}
 }

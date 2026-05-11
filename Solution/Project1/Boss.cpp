@@ -113,6 +113,8 @@ void Boss::Update(float playerX)
     if (!phase2 && !phase2Pending && health <= 5)
         phase2Pending = true;
 
+    if (destroyed) return;  
+
     if (phase2)
         UpdateLaser(dt);
     else
@@ -121,7 +123,7 @@ void Boss::Update(float playerX)
     UpdatePlasma(dt);
     UpdateLaserFlash(dt);
 
-    if (phase2 && laserState == LaserState::FIRING && !cannonGoingUp && laserBeamActive) {
+    if (phase2 && laserBeamVisible) {
         laserBeamX -= laserBeamSpeed * dt;
         laserBeamTimer += dt;
         if (laserBeamTimer >= laserBeamDelay) {
@@ -129,7 +131,10 @@ void Boss::Update(float playerX)
             laserBeamFrame = (laserBeamFrame + 1) % LASER_BEAM_FRAMES;
         }
         float screenLeft = player.GetPosition().x - (GetScreenWidth() / 2.0f) - LASER_BEAM_W * CANNON_SCALE;
-        if (laserBeamX < screenLeft) laserBeamActive = false;
+        if (laserBeamX < screenLeft) {
+            laserBeamVisible = false;
+            laserBeamActive = false;
+        }
     }
 
 }
@@ -405,6 +410,7 @@ void Boss::UpdateLaser(float dt)
                 laserState = LaserState::CHARGING2;
                 laserFrame = 0;
                 laserFrameTimer = 0.0f;
+                laserBeamActive = false;
             }
             else {
                 laserState = LaserState::FIRING;
@@ -415,8 +421,10 @@ void Boss::UpdateLaser(float dt)
                 laserFlashTimer = 0.0f;
                 laserFlashDelay = LASER_DURATION / (float)LASER_FIRE_FRAMES;
                 laserBeamX = posX + laserOffsetX;
-                laserBeamActive = true;
                 flashLoopTimer = 0.0f;
+                laserBeamActive = true;
+                laserBeamVisible = true;
+                beamUpVisible = false;
             }
         }
         break;
@@ -434,18 +442,18 @@ void Boss::UpdateLaser(float dt)
                 laserFlashTimer = 0.0f;
                 laserFlashDelay = LASER_DURATION / (float)LASER_FIRE_FRAMES;
                 laserBeamX = posX + laserOffsetX;
-                laserBeamActive = true;
+                laserBeamActive = false;
                 flashLoopTimer = 0.0f;
-
+                laserBeamVisible = false;
             }
         }
         break;
 
     case LaserState::FIRING:
         laserTimer += dt;
-        beamUpVisible = true;
 
         if (cannonGoingUp) {
+            beamUpVisible = true;
             // Fase disparo: durante LASER_DURATION, cañón congelado en frame 5
             if (laserTimer <= LASER_DURATION) {
                 laserFrame = 4;  // congelado
@@ -503,6 +511,8 @@ void Boss::UpdateLaser(float dt)
                         beamFrame = 0;
                         beamRetracting = false;
                         beamUpVisible = false;
+                        laserBeamActive = false;
+                        laserBeamVisible = false;
                     }
                 }
             }
@@ -520,6 +530,8 @@ void Boss::UpdateLaser(float dt)
                 laserState = LaserState::MOVING;
                 laserFrame = 0;
                 laserFrameTimer = 0.0f;
+                laserBeamVisible = false;
+                beamUpVisible = false;
             }
         }
         break;
@@ -782,7 +794,7 @@ void Boss::DrawLaser() const
     }
 
     // 2. Beam abajo — detrás de todo
-    if (laserState == LaserState::FIRING && !cannonGoingUp && laserBeamActive) {
+    if (laserBeamVisible) {
         float beamY = posY + laserOffsetDownY + (LASER_FRAME_H * CANNON_SCALE) / 2.0f
             - (LASER_BEAM_H * CANNON_SCALE) / 2.0f;
         Rectangle beamSrc = { laserBeamFrame * LASER_BEAM_W, 0.0f, LASER_BEAM_W, LASER_BEAM_H };
@@ -790,7 +802,7 @@ void Boss::DrawLaser() const
         DrawTexturePro(laserBeamSheet, beamSrc, beamDst, { 0,0 }, 0.0f, WHITE);
     }
 
-    if (laserState == LaserState::FIRING && !cannonGoingUp && laserBeamActive) {
+    if (laserBeamVisible) {
     Rectangle beamBox = GetLaserBeamHitBox();
     DrawRectangleLinesEx(beamBox, 2, RED);
 }
