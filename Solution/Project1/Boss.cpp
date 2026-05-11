@@ -52,6 +52,21 @@ void Boss::Init()
     UnloadImage(imgSplatter);
     SetTextureFilter(splatterSheet, TEXTURE_FILTER_POINT);
 
+    Image imgCannonDestroyed = LoadImage("Graphics/boss/cannondestoyed1file.png");
+    cannonDestroyedSheet = LoadTextureFromImage(imgCannonDestroyed);
+    UnloadImage(imgCannonDestroyed);
+    SetTextureFilter(cannonDestroyedSheet, TEXTURE_FILTER_POINT);
+
+    Image imgExplo1 = LoadImage("Graphics/boss/explo1boss40x45.png");
+    explo1Sheet = LoadTextureFromImage(imgExplo1);
+    UnloadImage(imgExplo1);
+    SetTextureFilter(explo1Sheet, TEXTURE_FILTER_POINT);
+
+    Image imgExplo2 = LoadImage("Graphics/boss/explo2boss52x70.png");
+    explo2Sheet = LoadTextureFromImage(imgExplo2);
+    UnloadImage(imgExplo2);
+    SetTextureFilter(explo2Sheet, TEXTURE_FILTER_POINT);
+
     cannonFrame = 9;
     cannonGoingUp = true;
     cannonFrameTimer = 0.0f;
@@ -113,7 +128,92 @@ void Boss::Update(float playerX)
     if (!phase2 && !phase2Pending && health <= 5)
         phase2Pending = true;
 
-    if (destroyed) return;  
+    // Guardar posición del cañón
+    if (phase2) {
+        bool isDown = !cannonGoingUp;
+        lastCannonDrawX = posX + laserOffsetX;
+        lastCannonDrawY = posY + (isDown ? laserOffsetDownY : laserOffsetUpY);
+    }
+    else {
+        lastCannonDrawX = posX;
+        bool up = (cannonState == CannonState::OPENING_UP ||
+            cannonState == CannonState::SHOOTING_UP ||
+            cannonState == CannonState::CLOSING_UP);
+        lastCannonDrawY = up ? posY - 150.0f : posY;
+    }
+
+    if (destroyed) {
+        // Avanzar destroyFrame cada 0.5 segundos
+        static float dfTimer = 0.0f;
+        dfTimer += dt;
+        if (dfTimer >= 0.5f && destroyFrame < 4) {
+            dfTimer = 0.0f;
+            destroyFrame++;
+        }
+        if (!cannonDestroyedVisible) {
+            cannonDestroyedVisible = true;
+            cannonDestroyedTimer = 0.0f;
+            isFlashing = false;
+            flashActive = false;
+        }
+        cannonDestroyedTimer += dt;
+        destroyedTimer += dt;
+
+        // Spawn explosiones durante 8 segundos
+        if (destroyedTimer < DESTROY_EXPLOSION_DURATION) {
+            explosionSpawnTimer += dt;
+            if (explosionSpawnTimer >= explosionSpawnDelay) {
+                explosionSpawnTimer = 0.0f;
+                for (int i = 0; i < MAX_BOSS_EXPLOSIONS; i++) {
+                    if (!bossExplosions[i].active) {
+                        bossExplosions[i].active = true;
+                        bossExplosions[i].frame = 0;
+                        bossExplosions[i].timer = 0.0f;
+                        bossExplosions[i].type = GetRandomValue(0, 1);
+
+                        // Calcular límite izquierdo según frame de destrucción
+                        int leftLimit = 0;
+                        if (destroyFrame >= 3) leftLimit = 56;
+                        if (destroyFrame >= 4) leftLimit = 161;
+
+                        int zone = GetRandomValue(0, 1);
+                        Vector2 spawnPos;
+                        if (zone == 0) {
+                            // Parte horizontal arriba — reducida por la izquierda
+                            spawnPos = {
+                                TETSU_X + (float)GetRandomValue(leftLimit, 384) * CANNON_SCALE,
+                                TETSU_Y + (float)GetRandomValue(0, 144) * CANNON_SCALE
+                            };
+                        }
+                        else {
+                            // Parte vertical derecha
+                            spawnPos = {
+                                TETSU_X + (float)GetRandomValue(254, 384) * CANNON_SCALE,
+                                TETSU_Y + (float)GetRandomValue(144, 288) * CANNON_SCALE
+                            };
+                        }
+                        bossExplosions[i].pos = spawnPos;
+                        break;
+                    }
+                }
+            }
+        }
+
+        // Actualizar explosiones
+        for (int i = 0; i < MAX_BOSS_EXPLOSIONS; i++) {
+            if (!bossExplosions[i].active) continue;
+            bossExplosions[i].timer += dt;
+            if (bossExplosions[i].timer >= EXPLO_FRAME_DURATION) {
+                bossExplosions[i].timer = 0.0f;
+                bossExplosions[i].frame++;
+                if (bossExplosions[i].frame >= EXPLO_FRAMES) {
+                    bossExplosions[i].active = false;
+                }
+            }
+        }
+
+        return;
+    }
 
     if (phase2)
         UpdateLaser(dt);
@@ -568,6 +668,37 @@ void Boss::Draw()
         DrawTent();
         return;
     }
+
+    if (destroyed) {
+        if (cannonDestroyedVisible && cannonDestroyedTimer < CANNON_DESTROYED_DURATION) {
+            Rectangle src = { 0, 0, CANNON_DESTROYED_W, CANNON_DESTROYED_H };
+            float centerOffsetX = (CANNON_FRAME_W * CANNON_SCALE - CANNON_DESTROYED_W * CANNON_SCALE) / 2.0f;
+            float centerOffsetY = (CANNON_FRAME_H * CANNON_SCALE - CANNON_DESTROYED_H * CANNON_SCALE) / 2.0f;
+            Rectangle dst = { 16160.0f, 220.0f, CANNON_DESTROYED_W * CANNON_SCALE, CANNON_DESTROYED_H * CANNON_SCALE };
+            DrawTexturePro(cannonDestroyedSheet, src, dst, { 0,0 }, 0.0f, WHITE);
+        }
+
+        // Dibujar explosiones
+        for (int i = 0; i < MAX_BOSS_EXPLOSIONS; i++) {
+            if (!bossExplosions[i].active) continue;
+            if (bossExplosions[i].type == 0) {
+                Rectangle src = { bossExplosions[i].frame * EXPLO1_W, 0, EXPLO1_W, EXPLO1_H };
+                Rectangle dst = { bossExplosions[i].pos.x, bossExplosions[i].pos.y,
+                                  EXPLO1_W * CANNON_SCALE, EXPLO1_H * CANNON_SCALE };
+                DrawTexturePro(explo1Sheet, src, dst, { 0,0 }, 0.0f, WHITE);
+            }
+            else {
+                Rectangle src = { bossExplosions[i].frame * EXPLO2_W, 0, EXPLO2_W, EXPLO2_H };
+                Rectangle dst = { bossExplosions[i].pos.x, bossExplosions[i].pos.y,
+                                  EXPLO2_W * CANNON_SCALE, EXPLO2_H * CANNON_SCALE };
+                DrawTexturePro(explo2Sheet, src, dst, { 0,0 }, 0.0f, WHITE);
+            }
+        }
+
+        DrawPlasma();
+        return;
+    }
+
     if (phase2) {
         DrawLaser();
     }
@@ -600,6 +731,8 @@ void Boss::Draw()
             drawY = posY - 150.0f;
         Rectangle dst = { posX, drawY, CANNON_FRAME_W * CANNON_SCALE, CANNON_FRAME_H * CANNON_SCALE };
         Color tint = (isFlashing && hitFlashCount % 2 == 0) ? Color{ 255, 220, 100, 255 } : WHITE;
+        lastCannonDrawX = posX;
+        lastCannonDrawY = drawY;
         DrawTexturePro(cannonSheet, src, dst, { 0, 0 }, 0.0f, tint);
         if (flashActive) {
             Rectangle flashSrc = {
@@ -616,7 +749,6 @@ void Boss::Draw()
         }
     }
 
-    // Splatter — siempre visible si está activo
     if (splatterActive) {
         float beamY = posY + laserOffsetUpY + (LASER_FRAME_H * CANNON_SCALE) / 2.0f
             - (SPLATTER_H * CANNON_SCALE) / 2.0f + 30.0f;
@@ -758,6 +890,8 @@ void Boss::DrawPlasma() const
 
 void Boss::DrawLaser() const
 {
+    if (destroyed) return;
+
     if (laserState == LaserState::MOVING) {
         Rectangle src = { cannonFrame * CANNON_FRAME_W, 0.0f, CANNON_FRAME_W, CANNON_FRAME_H };
         Rectangle dst = { posX, posY, CANNON_FRAME_W * CANNON_SCALE, CANNON_FRAME_H * CANNON_SCALE };

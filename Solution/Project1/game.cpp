@@ -191,8 +191,18 @@ void Game::Update()
     Draw();
 
     // Flash del sprite del boss en background
-    Color bossTint = boss.IsFlashing() ? ORANGE : WHITE;
-    backgroundManager.SetEventSpriteTint(4, bossTint);  // índice 4 = boss1.png
+    Color bossTint = WHITE;
+    if (!boss.IsDestroyed()) {
+        bossTint = boss.IsFlashing() ? ORANGE : WHITE;
+        backgroundManager.SetEventSpriteTint(5, bossTint);
+    }
+    else
+        bossTint = { 255, 255, 255, 0 }; 
+    backgroundManager.SetEventSpriteTint(4, bossTint);
+
+    if (boss.IsDestroyed()) {
+        backgroundManager.SetEventSpriteFrame(5, boss.GetDestroyFrame());
+    }
 
     backgroundManager.FollowPlayer(camera.GetCamera().target);
     backgroundManager.Update(GetFrameTime());

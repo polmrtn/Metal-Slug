@@ -15,6 +15,7 @@ public:
     bool IsInIntro() const { return introState != IntroState::DONE; }
 
     void TakeDamage(int amount = 1) {
+        if (destroyed) return;  // ← añade esto primero
         if (active || introState != IntroState::DONE) {
             health -= amount;
             if (health <= 0) {
@@ -72,6 +73,8 @@ public:
         float offsetY = (BEAM_H * CANNON_SCALE - h + 20.0f) / 2.0f;  // centra verticalmente
         return { -500.0f, beamY + offsetY, startX + 500.0f, h };
     }
+
+    int GetDestroyFrame() const { return destroyFrame; }
 
 private:
     // ── Estado general ────────────────────────────────────────
@@ -321,4 +324,47 @@ private:
     bool beamUpVisible = false;
     bool laserBeamVisible = false;
     bool destroyed = false;
+
+    Texture2D cannonDestroyedSheet = { 0 };
+    float     cannonDestroyedTimer = 0.0f;
+    bool      cannonDestroyedVisible = false;
+    static constexpr float CANNON_DESTROYED_DURATION = 1.5f;
+    static constexpr float CANNON_DESTROYED_W = 39.0f;
+    static constexpr float CANNON_DESTROYED_H = 41.0f;
+
+    // ── Explosiones destrucción ───────────────────────────────
+    struct BossExplosion {
+        Vector2 pos;
+        int     frame = 0;
+        float   timer = 0.0f;
+        bool    active = false;
+        int     type = 0;  // 0 = explo1, 1 = explo2
+    };
+
+    static constexpr int   MAX_BOSS_EXPLOSIONS = 20;
+    BossExplosion bossExplosions[MAX_BOSS_EXPLOSIONS];
+    float         explosionSpawnTimer = 0.0f;
+    float         explosionSpawnDelay = 0.1f;  // cada cuanto aparece una nueva
+    float         destroyedTimer = 0.0f;
+    static constexpr float DESTROY_EXPLOSION_DURATION = 8.0f;
+    static constexpr float EXPLO_FRAME_DURATION = 0.33f / 28.0f;
+
+    Texture2D explo1Sheet = { 0 };
+    Texture2D explo2Sheet = { 0 };
+    static constexpr float EXPLO1_W = 40.0f;
+    static constexpr float EXPLO1_H = 45.0f;
+    static constexpr float EXPLO2_W = 52.0f;
+    static constexpr float EXPLO2_H = 70.0f;
+    static constexpr int   EXPLO_FRAMES = 28;
+
+    // Área del sprite TETSU (ajusta según posición real)
+    static constexpr float TETSU_X = 15100.0f;
+    static constexpr float TETSU_Y = -400.0f;
+    static constexpr float TETSU_W = 384.0f * 4.0f;
+    static constexpr float TETSU_H = 288.0f * 4.0f;
+
+    int destroyFrame = 0;
+
+    mutable float lastCannonDrawX = 0.0f;
+    mutable float lastCannonDrawY = 0.0f;
 };
