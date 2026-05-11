@@ -1,5 +1,6 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include "CreationManager.hpp"
+#include "GlobalManagers.hpp"
 #include <cstdio>
 
 CreationManager::CreationManager() {}
@@ -15,6 +16,7 @@ void CreationManager::LoadFromFile(const char* filename)
     tileMap.Clear();
     soldiers.clear();
     items.clear();
+	Globals::cameraManager.Reset();
 
     FILE* f = fopen(filename, "r");
     if (!f) {
@@ -52,8 +54,21 @@ void CreationManager::LoadFromFile(const char* filename)
                 items.emplace_back(Vector2{ x, y }, itemType);
             }
         }
-        
+        else if (line[0] == 'Z') {
+            float triggerX, minY, maxY;
+            char id[64];
+            if (sscanf(line + 2, "%f %f %f %s", &triggerX, &minY, &maxY, id) == 4)
+                // CameraManager::AddZone signature requires 8 args now:
+                // AddZone(const std::string& id, float triggerX,
+                //        float minY, float maxY,
+                //        float minX, float maxX,
+                //        bool clampX, bool clampY);
+                // Preserve old behaviour: do not override X-limits for legacy 4-field lines
+                cameraManager.AddZone(id, triggerX, minY, maxY, 0.0f, 0.0f, false, true);
+        }
     }
+        
+    
 
     fclose(f);
 

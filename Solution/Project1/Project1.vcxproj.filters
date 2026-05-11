@@ -152,6 +152,9 @@
     <ClInclude Include="GlobalManagers.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="CameraManager.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="LevelMap.hpp">

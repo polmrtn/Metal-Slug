@@ -6,6 +6,7 @@
 #include "Grenade.hpp"
 #include "item.hpp"
 #include "LevelMap.hpp"
+#include "GlobalManagers.hpp"
 
 class CreationManager
 {

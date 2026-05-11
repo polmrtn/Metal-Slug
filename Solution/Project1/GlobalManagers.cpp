@@ -1,8 +1,6 @@
 #include "GlobalManagers.hpp"
 
-// Definición de las instancias globales
-namespace Globals
-{
+namespace Globals {
     Player player;
     UiManager uiManager;
     SceneManager sceneManager;
@@ -13,7 +11,6 @@ namespace Globals
     CreationManager creationManager;
 }
 
-// Definición de los aliases (referencias) vinculados a las instancias en Globals
 Player& player = Globals::player;
 UiManager& uiManager = Globals::uiManager;
 SceneManager& sceneManager = Globals::sceneManager;
@@ -21,4 +18,4 @@ AudioManager& audioManager = Globals::audioManager;
 TimerManager& timerManager = Globals::timerManager;
 CameraManager& cameraManager = Globals::cameraManager;
 BackgroundManager& backgroundManager = Globals::backgroundManager;
-CreationManager& creationManager = Globals::creationManager;
+CreationManager& creationManager= Globals::creationManager;
