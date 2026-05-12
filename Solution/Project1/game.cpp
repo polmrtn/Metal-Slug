@@ -14,10 +14,6 @@ Game::Game() : camera({ 1200.0f / 2.0f, 896.0f / 2.0f })
     creationManager.LoadFromFile("level.txt");
     debug.SetGridOffset(creationManager.GetTileMap().GetGridOffset());
 
-    player.SetGrounded(true);
-    player.SetX(15000.0f);
-    player.SetY(100.0f);
-
     boss.Init();
 }
 

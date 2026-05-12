@@ -23,6 +23,9 @@ public:
     bool HasPlayedSound() const { return soundPlayed; }
     void SetSoundPlayed(bool val) { soundPlayed = val; }
 
+    bool HasHitBoss() const { return hasHitBoss; }
+    void SetHitBoss(bool val) { hasHitBoss = val; }
+
 private:
     Vector2 position;
     Vector2 velocity;
@@ -54,5 +57,6 @@ private:
     bool isExploding = false;
     Vector2 explosionPosition = { 0.0f, 0.0f };
     bool explosionFacingRight = true;
+    bool hasHitBoss = false;
 
 };

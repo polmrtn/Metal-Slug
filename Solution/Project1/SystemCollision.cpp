@@ -56,7 +56,6 @@ void SystemCollision::PlayerBlockCollision()
                 penetration >= 0.0f && penetration <= maxPen)
             {
                 if (player.IsDyingInAir()) {
-                    player.SetY(br.y - player.GetHeight());
                     Vector2 spawnPos = { player.GetPosition().x, br.y - player.GetNormalHeight() };
                     player.SetDeathPosition(spawnPos);
                     player.SetDyingInAir(false);
@@ -131,7 +130,6 @@ void SystemCollision::PlayerBlockCollision()
                 float penetrationDying = feetY - br.y;
                 if (overlapX && wasAboveDying && penetrationDying >= 0.0f && penetrationDying <= 99999.0f)
                 {
-                    player.SetY(br.y - player.GetHeight());
                     Vector2 spawnPos = { player.GetPosition().x, br.y - player.GetNormalHeight() };
                     player.SetDeathPosition(spawnPos);
                     player.SetDyingInAir(false);
@@ -403,6 +401,14 @@ void SystemCollision::GrenadesCollision()
                 soldier.TriggerDeath(audioManager);
                 uiManager.AddScore(100);
             }
+        }
+        // Boss
+        if (!grenade.HasHitBoss() &&
+            !boss.IsDestroyed() &&
+            CheckCollisionRecs(boss.GetHitBox(), explosionBox))
+        {
+            boss.TakeDamage(5);
+            grenade.SetHitBoss(true);  // ← solo una vez
         }
     }
 }
