@@ -104,6 +104,10 @@ public:
     void SetDyingInAir(bool val) { dyingInAir = val; }
     bool IsDyingInAir() const { return dyingInAir; }
     float GetNormalHeight() const { return 40.0f * SCALE; }
+    // ========== MELEE ==========
+    void StartMelee();
+    bool IsMeleeAttacking() const { return meleeAttacking; }
+    Rectangle GetMeleeHitBox() const;
 
 private:
     // ========== ANIMACIÓN ==========
@@ -179,4 +183,9 @@ private:
 
     bool dyingInAir = false;
     float deathFallGravity = 2.5f;
+
+    // ========== MELEE ==========
+    bool  meleeAttacking = false;
+    float meleeTimer = 0.0f;
+    static constexpr float MELEE_DURATION = 0.3f;
 };

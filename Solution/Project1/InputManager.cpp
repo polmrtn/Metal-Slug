@@ -69,21 +69,54 @@ void InputManager::InputPlayer()
 	if (IsKeyPressed(KEY_SPACE)) player.Jump();
 
 	// SHOOTING: use TimerManager methods instead of assigning to GetTimer(...) result
-	if (IsKeyPressed(KEY_D) && timerManager.IsReady(TimerType::SHOOT_TIMER) && player.IsAlive()) {
-		if (player.GetCurrentWeapon() == WeaponType::MACHINEGUN) {
-			if (player.GetAmmo() > 0) {
-				player.Shoot();
-				game->StartMachinegunBurst();  // ← método nuevo en Game
-				timerManager.ResetTimer(TimerType::MACHINEGUN_BURST_TIMER);
-				timerManager.StartTimer(TimerType::DELAY_MACHINEGUN);
-				audioManager.PlaySound(audioManager.GetMachinegunShootSound());
+		if (IsKeyPressed(KEY_D) && timerManager.IsReady(TimerType::SHOOT_TIMER) && player.IsAlive()) {
+
+		bool meleeTriggered = false;
+		//Comprobar soldados
+		for (auto& soldier : creationManager.GetSoldiers()) {
+			if (soldier.GetisAlive() &&
+				CheckCollisionRecs(player.GetMeleeHitBox(), soldier.GetHurtBox())) {
+				player.StartMelee();
+				soldier.TriggerDeath(audioManager);
+				uiManager.AddScore(200);
+				timerManager.StartTimer(TimerType::DELAY_PISTOL);
+				meleeTriggered = true;
+				break;
 			}
 		}
-		else {
-			player.Shoot();
-			game->Shoot(1, {}, false);
-			timerManager.StartTimer(TimerType::DELAY_PISTOL);
-			audioManager.PlaySound(audioManager.GetShootSound());
+
+		// Comprobar cajas
+		if (!meleeTriggered) {
+			for (auto& item : creationManager.GetItems()) {
+				if (item.IsActive() && item.GetType() == ItemType::BOX &&
+					!item.IsDestroyed() &&
+					CheckCollisionRecs(player.GetMeleeHitBox(), item.GetHitBox())) {
+					player.StartMelee();
+					item.Destroy();
+					timerManager.StartTimer(TimerType::DELAY_PISTOL);
+					meleeTriggered = true;
+					break;
+				}
+			}
+		}
+
+		// Disparo normal
+		if (!meleeTriggered) {
+			if (player.GetCurrentWeapon() == WeaponType::MACHINEGUN) {
+				if (player.GetAmmo() > 0) {
+					player.Shoot();
+					game->StartMachinegunBurst();
+					timerManager.ResetTimer(TimerType::MACHINEGUN_BURST_TIMER);
+					timerManager.StartTimer(TimerType::DELAY_MACHINEGUN);
+					audioManager.PlaySound(audioManager.GetMachinegunShootSound());
+				}
+			}
+			else {
+				player.Shoot();
+				game->Shoot(1, {}, false);
+				timerManager.StartTimer(TimerType::DELAY_PISTOL);
+				audioManager.PlaySound(audioManager.GetShootSound());
+			}
 		}
 	}
 

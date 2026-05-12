@@ -175,7 +175,18 @@ public:
     bool IsParachuteLanding() const { return parachuteLanding; }
     bool IsParachuteLandingFinished() const { return parachuteLandingFrame >= parachuteLandingFrameCount - 1; }
 
-
+    // Melee
+    void StartMelee();
+    bool IsMeleeAttacking() const { return meleeAttacking; }
+    int  GetMeleeFrame() const { return meleeFrame; }
+    // pistola pie: fila 58-59, machinegun pie: 62-63
+    // pistola agachado: 60-61, machinegun agachado: 64-65
+    float GetMeleeRowY(bool machinegun, bool crouching) const {
+        if (!machinegun && !crouching) return 58 * 34.0f;  // fila 58, cubre 58+59
+        if (!machinegun && crouching) return 60 * 34.0f;  // fila 60, cubre 60+61
+        if (machinegun && !crouching) return 62 * 34.0f;  // fila 62, cubre 62+63
+        return 64 * 34.0f;                                  // fila 64, cubre 64+65
+    }
 
 
 private:
@@ -354,4 +365,11 @@ private:
     VisualOffsets walkOffset = { -1.0f, 15.0f, 3.0f, 0.0f };
     VisualOffsets jumpOffset = { 0.0f, 20.0f, 0.0f, 0.0f };
     VisualOffsets jumpShootOffset = { -6.0f, 20.0f, 0.0f, 0.0f };
+
+    // Melee
+    bool  meleeAttacking = false;
+    int   meleeFrame = 0;
+    float meleeTimer = 0.0f;
+    float meleeFrameDelay = 0.05f;
+    static constexpr int MELEE_FRAMES = 6;
 };
