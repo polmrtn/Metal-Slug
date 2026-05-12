@@ -204,7 +204,8 @@ void Game::Update()
         BeginDrawing();
         ClearBackground(BGCOLOR);
         Draw();
-        uiManager.DrawContinueScreen();
+        if (!uiManager.IsDelayActive())
+            uiManager.DrawContinueScreen();
         backgroundManager.FollowPlayer(camera.GetCamera().target);
         backgroundManager.Update(dt);
         audioManager.UpdateMusic(audioManager.GetGameMusic());

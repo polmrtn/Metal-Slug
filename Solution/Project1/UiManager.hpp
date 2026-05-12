@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "raylib.h"
 
 class UiManager {
@@ -45,6 +45,11 @@ public:
     bool GetJetpackActive() const { return jetpackActive; }
     void SetJetpackFuel(float ratio) { jetpackFuelRatio = ratio; }
 
+    bool IsDelayActive() const { return continueDelayActive; }
+
+    void DrawInsertCoin(float y, float scale) const;
+    void DrawFooter(float y, float scale) const;
+
 private:
     int credits;
     int score;
@@ -73,7 +78,7 @@ private:
 
     // Tekstury
     Texture2D texArms, texBomb, texCannon, texTimeLevel;
-    Texture2D texHudFont2Big, texHudFont2Num, texHudFont2Small, texHudFont3Num;
+    Texture2D texHudFont2Big, texHudFont2Num, texHudFont2Small, texHudFont3Num; 
     Texture2D texHighScore, texHighScoreSmall;
     Texture2D texHpBarLeft, texHpBarRight, texHpBarParts;
     Texture2D texGo;
@@ -116,6 +121,10 @@ private:
 
     bool  jetpackActive = false;
     float jetpackFuelRatio = 0.0f;
+
+    float continueDelay = 0.0f;
+    static constexpr float CONTINUE_DELAY = 2.0f;  // ← ajusta este valor
+    bool continueDelayActive = false;
 
 
 public:

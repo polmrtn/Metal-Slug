@@ -247,7 +247,7 @@ private:
     // Aiming up
     int aimingFrame = 0;
     float aimingTimer = 0.0f;
-    float aimingDelay = 0.025f;
+    float aimingDelay = 0.05f;
     bool aimingUp = false;
     bool aimingTransition = true;
 
@@ -293,7 +293,7 @@ private:
     bool machinegunAimingTransition = true;
     int machinegunAimingFrame = 0;
     float machinegunAimingTimer = 0.0f;
-    float machinegunAimingDelay = 0.025f;
+    float machinegunAimingDelay = 0.05f;
 
     // Machinegun Shooting Up
     int machinegunShootUpFrame = 0;

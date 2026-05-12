@@ -263,18 +263,9 @@ void SceneManager::DrawTexts()
               startY + texMetalBig.height * scaleM + 10.0f },
             0.0f, scaleS, WHITE);
 
-        const char* txt = "INSERT COINT!";
-        if ((int)(GetTime() * 2.5f) % 2 == 0)
-        {
-            int fs = 28, tw = MeasureText(txt, fs);
-            DrawText(txt, SW / 2 - tw / 2 + 2, (int)(SH * 0.82f) + 2, fs, BLACK);
-            DrawText(txt, SW / 2 - tw / 2,     (int)(SH * 0.82f),     fs, YELLOW);
-        }
+        if (ui) ui->DrawInsertCoin(SH * 0.82f, 3.0f);
 
-        const char* footer = "2026 KURVVA PRODUCTIONS";
-        int fSize = 20, fw = MeasureText(footer, fSize);
-        DrawText(footer, SW / 2 - fw / 2 + 2, (int)(SH * 0.92f) + 2, fSize, BLACK);
-        DrawText(footer, SW / 2 - fw / 2,     (int)(SH * 0.92f),     fSize, WHITE);
+        if (ui) ui->DrawFooter(SH * 0.90f, 1.5f);
 
         if (ui) ui->DrawCreditsOnly();
         return;

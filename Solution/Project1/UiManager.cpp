@@ -28,6 +28,7 @@ static const char* PATH_METAL_BIGNUM  = "Graphics/letters/metal_numbers.png";
 static const char* PATH_GAMEOVER      = "Graphics/gameover1.png";
 static const char* PATH_FONTBOMB = "Graphics/new fonts and HUDs/numbers01.png";
 
+
 static constexpr float NUM_CHAR_W = 12.0f;
 static constexpr float NUM_CHAR_H = 14.0f;
 static constexpr float HSF_CHAR_W = 16.0f;
@@ -615,17 +616,32 @@ void UiManager::StartContinue()
     continueElapsed      = 0.0f;
     continueBlinkAccum   = 0.0f;
     continueBlinkOn      = true;
-    continueScreenActive = true;
+    continueScreenActive = false;
+    continueDelayActive = true;
+    continueDelay = 0.0f;
 }
 
 void UiManager::StopContinue()
 {
     continueScreenActive = false;
+    timeLeft = 60;
+    timeAccum = 0.0f;
 }
 
 void UiManager::UpdateContinue(float dt)
 {
-    continueElapsed    += dt;
+    if (continueDelayActive)
+    {
+        continueDelay += dt;
+        if (continueDelay >= CONTINUE_DELAY)
+        {
+            continueDelayActive = false;
+            continueScreenActive = true;  // ← ahora sí activa
+        }
+        return;
+    }
+
+    continueElapsed += dt;
     continueBlinkAccum += dt;
     if (continueBlinkAccum >= 0.25f) {
         continueBlinkAccum -= 0.25f;
@@ -635,7 +651,7 @@ void UiManager::UpdateContinue(float dt)
 
 bool UiManager::IsContinueOver() const
 {
-    return continueElapsed >= 10.0f;
+    return continueElapsed >= 20.0f;
 }
 
 void UiManager::DrawContinueScreen()
@@ -644,12 +660,12 @@ void UiManager::DrawContinueScreen()
     int SH = GetScreenHeight();
 
     // Aktualnie wyswietlana cyfra (9 -> 0)
-    int currentDigit = 9 - (int)continueElapsed;
+    int currentDigit = 9 - (int)(continueElapsed / 2.0f);
     if (currentDigit < 0) currentDigit = 0;
 
     // Animacja "obrotu" — skalowanie w osi X
     // sprite: "1234567890" => index cyfry d: d==0 -> 9, else d-1
-    float flipPhase = std::fmod(continueElapsed, 1.0f);
+    float flipPhase = std::fmod(continueElapsed / 2.0f, 1.0f);
     float xScale;
     if (flipPhase < 0.2f)
         xScale = flipPhase / 0.2f;
@@ -749,4 +765,34 @@ void UiManager::DrawGameOverSprite(float t)
     Rectangle src = { 0.0f, 0.0f, (float)texGameOver.width, (float)texGameOver.height };
     Rectangle dst = { 0.0f, 0.0f, (float)SW, (float)SH };
     DrawTexturePro(texGameOver, src, dst, { 0.0f, 0.0f }, 0.0f, { 255, 255, 255, alpha });
+}
+
+void UiManager::DrawInsertCoin(float y, float scale) const
+{
+    if ((int)(GetTime() * 2.5f) % 2 != 0) return;
+
+    const char* txt = "INSERT COINT!";
+    int SW = GetScreenWidth();
+
+    // medir ancho total
+    float totalW = 0;
+    for (int i = 0; txt[i]; ++i)
+        if (txt[i] != '!') totalW += BIG_CHAR_W * scale;
+
+    float x = SW * 0.5f - totalW * 0.5f;
+    for (int i = 0; txt[i]; ++i)
+    {
+        if (txt[i] == ' ') { x += BIG_CHAR_W * scale * 0.5f; continue; }
+        if (txt[i] == '!') { x += BIG_CHAR_W * scale; continue; }
+        DrawBigLetter(txt[i], { x, y }, scale);
+        x += BIG_CHAR_W * scale;
+    }
+}
+
+void UiManager::DrawFooter(float y, float scale) const
+{
+    int SW = GetScreenWidth();
+    const char* txt = "2026 KURVVA PRODUCTIONS";
+    float w = MeasureScoreText(txt, scale);
+    DrawScoreText(txt, { SW * 0.5f - w * 0.5f, y }, scale);
 }
