@@ -320,7 +320,6 @@ void Game::Update()
     if (!player.IsAlive() && player.IsDisappeared()) {
         if (uiManager.GetCredits() > 0) {
             uiManager.SetCredits(-1);
-            player.Respawn();
         } else {
             uiManager.StartContinue();
             sceneManager.SetGameState(SceneManager::CONTINUE_SCREEN);
