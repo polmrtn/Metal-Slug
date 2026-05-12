@@ -6,6 +6,7 @@
 #include "Grenade.hpp"
 #include "InputManager.hpp"
 #include "Debug.hpp"
+#include "Boss.hpp"
 
 
 class Game {

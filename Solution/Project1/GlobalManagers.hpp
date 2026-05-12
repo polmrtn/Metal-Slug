@@ -8,6 +8,7 @@
 #include "CameraManager.hpp"
 #include "BackgroundManager.hpp"
 #include "CreationManager.hpp"
+#include "Boss.hpp"
 
 // Contenedor de instancias globales. Usar como: Globals::player, Globals::timerManager, ...
 namespace Globals
@@ -20,6 +21,7 @@ namespace Globals
     extern CameraManager cameraManager;
     extern BackgroundManager backgroundManager;
     extern CreationManager creationManager;
+    extern Boss boss;
 }
 
 // Aliases en el espacio global para no tener que escribir Globals::
@@ -32,3 +34,4 @@ extern TimerManager& timerManager;
 extern CameraManager& cameraManager;
 extern BackgroundManager& backgroundManager;
 extern CreationManager& creationManager;
+extern Boss& boss;

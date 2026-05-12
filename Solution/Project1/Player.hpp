@@ -100,6 +100,11 @@ public:
     void SetRampGroundedFrames(int f) { rampGroundedFrames = f; }
     int GetRampGroundedFrames() const { return rampGroundedFrames; }
 
+    void SetDeathPosition(Vector2 pos) { deathPosition = pos; }
+    void SetDyingInAir(bool val) { dyingInAir = val; }
+    bool IsDyingInAir() const { return dyingInAir; }
+    float GetNormalHeight() const { return 40.0f * SCALE; }
+
 private:
     // ========== ANIMACIÓN ==========
     PlayerAnim anim;
@@ -124,8 +129,8 @@ private:
     static constexpr float SCALE = 4.0f;
     static constexpr float GRAVITY = 2.5f;
     static constexpr float JUMP_FORCE = -34.0f;
-    static constexpr float MOVE_SPEED = 10.0f;
-    static constexpr float CROUCH_SPEED = 4.0f;
+    static constexpr float MOVE_SPEED = 15.0f;
+    static constexpr float CROUCH_SPEED = 6.0f;
 
     // ========== HITBOX ==========
     float hitboxWidth;
@@ -171,4 +176,7 @@ private:
     bool blinkVisible = true;
     bool wasOnRamp = false;
     int rampGroundedFrames = 0;
+
+    bool dyingInAir = false;
+    float deathFallGravity = 2.5f;
 };

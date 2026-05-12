@@ -69,7 +69,7 @@ void InputManager::InputPlayer()
 	if (IsKeyPressed(KEY_SPACE)) player.Jump();
 
 	// SHOOTING: use TimerManager methods instead of assigning to GetTimer(...) result
-	if (IsKeyPressed(KEY_D) && timerManager.IsReady(TimerType::SHOOT_TIMER)) {
+	if (IsKeyPressed(KEY_D) && timerManager.IsReady(TimerType::SHOOT_TIMER) && player.IsAlive()) {
 		if (player.GetCurrentWeapon() == WeaponType::MACHINEGUN) {
 			if (player.GetAmmo() > 0) {
 				player.Shoot();
@@ -99,7 +99,19 @@ void InputManager::InputPlayer()
 
 void InputManager::InputUi()
 {
-    // Obslugiwane przez CONTINUE_SCREEN state w game.cpp
+	//quizas toque borrar
+	if (!player.IsAlive()) {
+		if (IsKeyPressed(KEY_R) && uiManager.GetCredits() > 0) {
+			uiManager.SetCredits(-1);
+			player.Respawn();
+		}
+		if (IsKeyPressed(KEY_C) && timerManager.GetTimer(TimerType::CREDIT_COOLDOWN) <= 0.0f) {
+			if (uiManager.GetCredits() < 99) {
+				uiManager.SetCredits(1);
+				timerManager.SetTimerValue(TimerType::CREDIT_COOLDOWN, timerManager.GetTimer(TimerType::CREDIT_DELAY));
+			}
+		}
+	}
 }
 
 void InputManager::InputMachinegunBurst()

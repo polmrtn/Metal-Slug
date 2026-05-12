@@ -16,6 +16,8 @@ Game::Game() : camera({ 1200.0f / 2.0f, 896.0f / 2.0f })
     player.ResetToStart();
     uiManager.SetAmmo(0);
     uiManager.SetWeaponDisplay(UiManager::WeaponDisplay::PISTOL);
+
+    boss.Init();
 }
 
 Game::~Game() {}
@@ -52,6 +54,7 @@ void Game::Draw()
     creationManager.GetTileMap().DrawTiles();
     creationManager.GetTileMap().DrawColliders();
     debug.DrawEditorGrid(camera.GetCamera());
+    boss.Draw();
 
     camera.End();
 
@@ -243,6 +246,7 @@ void Game::Update()
 
     uiManager.Update();
     timerManager.Update(GetFrameTime());
+    boss.Update(player.GetPosition().x);
 
     player.SavePreviousPosition();
     HandleInput();
@@ -250,16 +254,6 @@ void Game::Update()
 
     // Colisiones (todos los sistemas)
     systemCollision.CollisionUpdate();
-
-    // Zona de victoria
-    Rectangle winZone = { 16190.0f, -9999.0f, 200.0f, 99999.0f };
-    if (CheckCollisionRecs(player.GetHitBox(), winZone))
-    {
-        audioManager.StopMusic(audioManager.GetGameMusic());
-        musicStarted = false;
-        shouldRestart = true;
-        sceneManager.SetGameState(SceneManager::TITLE);
-    }
 
     // Limpiar items inactivos
     for (auto& item : creationManager.GetItems()) item.Update();
@@ -337,6 +331,20 @@ void Game::Update()
     ClearBackground(BGCOLOR);
     Draw();
 
+    // Flash del sprite del boss en background
+    Color bossTint = WHITE;
+    if (!boss.IsDestroyed()) {
+        bossTint = boss.IsFlashing() ? ORANGE : WHITE;
+        backgroundManager.SetEventSpriteTint(5, bossTint);
+    }
+    else
+        bossTint = { 255, 255, 255, 0 }; 
+    backgroundManager.SetEventSpriteTint(4, bossTint);
+
+    if (boss.IsDestroyed()) {
+        backgroundManager.SetEventSpriteFrame(5, boss.GetDestroyFrame());
+    }
+
     backgroundManager.FollowPlayer(camera.GetCamera().target);
     backgroundManager.Update(GetFrameTime());
 
@@ -355,6 +363,7 @@ void Game::Update()
 // ─────────────────────────────────────────
 void Game::HandleInput()
 {
+    if (boss.IsDestroyed()) return;
     debug.EditorModeInput(camera.GetCamera());
 
     if (debug.GetEditorMode()) return; 
