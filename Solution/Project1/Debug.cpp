@@ -11,13 +11,20 @@ void Debug::SetEditorMode(Camera2D cam)
 {
     if (!editorMode) return;
 
-    DrawText("EDITOR  F1:Salir | LClick:Solid | RClick:Platform | C:Ceiling | R:Ramp | Del:Borrar | Flechas:MoverGrid | F5:Guardar",
-        8, 8, 11, RED);
+    // Sombra para efecto negrita
+    DrawText("EDITOR | F1:Salir | Click:Solid | RClick:Platform | C:Ceiling | R:Ramp | Del:Borrar | S:Soldier1 | D:Soldier2 | B:Box | J:Jetpack | F5:Guardar",
+        9, 9, 13, BLACK);
+    DrawText("EDITOR | F1:Salir | Click:Solid | RClick:Platform | C:Ceiling | R:Ramp | Del:Borrar | S:Soldier1 | D:Soldier2 | B:Box | J:Jetpack | F5:Guardar",
+        8, 8, 13, RED);
 
     Vector2 worldPos = GetScreenToWorld2D(GetMousePosition(), cam);
+
     DrawText(TextFormat("World (%.0f, %.0f)  GridOffset (%.0f, %.0f)",
         worldPos.x, worldPos.y, gridOffset.x, gridOffset.y),
-        8, 24, 12, YELLOW);
+        9, 25, 13, BLACK);
+    DrawText(TextFormat("World (%.0f, %.0f)  GridOffset (%.0f, %.0f)",
+        worldPos.x, worldPos.y, gridOffset.x, gridOffset.y),
+        8, 24, 13, YELLOW);
 
     const char* typeName = "";
     switch (activeTileType) {
@@ -26,7 +33,8 @@ void Debug::SetEditorMode(Camera2D cam)
     case TileType::CEILING:  typeName = "CEILING";  break;
     case TileType::RAMP_UP:  typeName = "RAMP_UP";  break;
     }
-    DrawText(TextFormat("Tipo activo: %s", typeName), 8, 40, 12, WHITE);
+    DrawText(TextFormat("Tipo activo: %s", typeName), 9, 41, 13, BLACK);
+    DrawText(TextFormat("Tipo activo: %s", typeName), 8, 40, 13, WHITE);
 }
 
 void Debug::EditorModeInput(Camera2D cam)
@@ -96,6 +104,10 @@ void Debug::EditorModeInput(Camera2D cam)
         creationManager.GetItems().emplace_back(worldPos, ItemType::BOX);
         spawnCooldown = 0.3f;
     }
+    if (IsKeyPressed(KEY_J) && spawnCooldown <= 0.0f) {
+        creationManager.GetItems().emplace_back(worldPos, ItemType::JETPACK);
+        spawnCooldown = 0.3f;
+    }
 
     if (IsKeyPressed(KEY_F5)) {
         SaveToFile("level.txt");
@@ -111,18 +123,8 @@ void Debug::SaveToFile(const char* filename) const
     FILE* f = fopen(filename, "w");
     if (!f) return;
 
-    // El TileMap guarda sus propios tiles internamente
-    // Aquí guardamos soldados e items además
-    // Primero guardamos el tilemap en el mismo archivo
-    // Tiles: "col row type"
-    // Soldados: "S x y type"
-    // Items: "I x y type"
+    creationManager.GetTileMap().SaveToFile(filename);  
 
-    // Necesitamos acceso a los tiles — los guardamos via TileMap::SaveToFile
-    // pero como queremos un solo archivo, reescribimos aquí:
-    creationManager.GetTileMap().SaveToFile(filename);  // guarda tiles
-
-    // Ahora añadimos soldados e items al mismo archivo (append)
     f = fopen(filename, "a");
     if (!f) return;
 
@@ -131,6 +133,13 @@ void Debug::SaveToFile(const char* filename) const
 
     for (const auto& item : creationManager.GetItems()) {
         int t = (item.GetType() == ItemType::BOX) ? 1 : 0;
+        fprintf(f, "I %.0f %.0f %d\n", item.GetPosition().x, item.GetPosition().y, t);
+    }
+
+    for (const auto& item : creationManager.GetItems()) {
+        int t = 0;
+        if (item.GetType() == ItemType::BOX)     t = 1;
+        if (item.GetType() == ItemType::JETPACK) t = 2;
         fprintf(f, "I %.0f %.0f %d\n", item.GetPosition().x, item.GetPosition().y, t);
     }
 

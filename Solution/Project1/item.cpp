@@ -1,4 +1,4 @@
-#include "Item.hpp"
+﻿#include "Item.hpp"
 
 Texture2D Item::texture = { 0 };
 bool Item::textureLoaded = false;
@@ -34,7 +34,7 @@ void Item::Destroy() {
 }
 
 void Item::Update() {
-    // F�sica de ca�da para items con gravedad
+    // Física de caída para items con gravedad
     if (hasGravity && !grounded) {
         velY += GRAVITY * GetFrameTime();
         position.y += velY * GetFrameTime();
@@ -59,7 +59,14 @@ void Item::Draw() {
     if (type == ItemType::BOX) {
         if (!boxTextureLoaded) return;
 
-        // Frame 0 = caja intacta, frames 1-4 = destrucci�n
+        // JETPACK — cuadrado verde temporal
+        if (type == ItemType::JETPACK) {
+            DrawRectangleRec(GetHitBox(), GREEN);
+            DrawRectangleLinesEx(GetHitBox(), 2.0f, DARKGREEN);
+            return;
+        }
+
+        // Frame 0 = caja intacta, frames 1-4 = destrucción
         int frame = isDestroyed ? (destroyFrame + 1) : 0;
 
         Rectangle src = {
@@ -98,7 +105,12 @@ void Item::Draw() {
 
 Rectangle Item::GetHitBox() const {
     if (type == ItemType::BOX) {
-        return Rectangle{ position.x, position.y, BOX_W * BOX_SCALE, BOX_H * BOX_SCALE };
+        float hbH = 23.0f * BOX_SCALE;
+        float hbY = position.y + BOX_H * BOX_SCALE - hbH;  // ← empieza desde abajo
+        return Rectangle{ position.x, hbY, BOX_W * BOX_SCALE, hbH };
+    }
+    if (type == ItemType::JETPACK) {
+        return Rectangle{ position.x, position.y, 40.0f, 40.0f };
     }
     float width = 22.0f * 3.0f;
     float height = 22.0f * 3.0f;

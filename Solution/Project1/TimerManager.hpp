@@ -57,7 +57,7 @@ private:
 
     // configured delays / constants
     float shootDelayPistol = 0.2f;
-    float shootDelayMachinegun = 0.1f;
+    float shootDelayMachinegun = 0.5f;
     float grenadeDelay = 0.15f;
     float machinegunBurstDelay = 0.03f;
     float creditDelay = 0.3f;

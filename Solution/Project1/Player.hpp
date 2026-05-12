@@ -109,6 +109,13 @@ public:
     bool IsMeleeAttacking() const { return meleeAttacking; }
     Rectangle GetMeleeHitBox() const;
 
+    // ========== JETPACK ==========
+    void EquipJetpack();
+    bool HasJetpack() const { return hasJetpack; }
+    void JetpackThrust();
+    float GetJetpackFuel() const { return jetpackFuel; }
+    float GetJetpackMaxFuel() const { return JETPACK_MAX_FUEL; }
+
 private:
     // ========== ANIMACIÓN ==========
     PlayerAnim anim;
@@ -188,4 +195,13 @@ private:
     bool  meleeAttacking = false;
     float meleeTimer = 0.0f;
     static constexpr float MELEE_DURATION = 0.3f;
+
+    // ========== JETPACK ==========
+    bool  hasJetpack = false;
+    float jetpackFuel = 0.0f;
+    static constexpr float JETPACK_MAX_FUEL = 100.0f;
+    static constexpr float JETPACK_FUEL_DRAIN = 25.0f;  // por segundo
+    static constexpr float JETPACK_FORCE = -3.5f;
+    static constexpr float JETPACK_MAX_VEL = -18.0f;
+
 };

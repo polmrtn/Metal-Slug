@@ -68,6 +68,10 @@ void InputManager::InputPlayer()
 
 	if (IsKeyPressed(KEY_SPACE)) player.Jump();
 
+	if (IsKeyDown(KEY_SPACE) && !player.GetIsGrounded() && player.HasJetpack()) {
+		player.JetpackThrust();
+	}
+
 	// SHOOTING: use TimerManager methods instead of assigning to GetTimer(...) result
 		if (IsKeyPressed(KEY_D) && timerManager.IsReady(TimerType::SHOOT_TIMER) && player.IsAlive()) {
 

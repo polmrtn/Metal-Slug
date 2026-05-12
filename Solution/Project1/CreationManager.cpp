@@ -43,6 +43,15 @@ void CreationManager::LoadFromFile(const char* filename)
                 items.emplace_back(Vector2{ x, y },
                     type == 1 ? ItemType::BOX : ItemType::SHOTGUN);
         }
+        else if (line[0] == 'I') {
+            float x, y; int type;
+            if (sscanf(line + 2, "%f %f %d", &x, &y, &type) == 3) {
+                ItemType t = ItemType::SHOTGUN;
+                if (type == 1) t = ItemType::BOX;
+                if (type == 2) t = ItemType::JETPACK;
+                items.emplace_back(Vector2{ x, y }, t);
+            }
+        }
     }
 
     fclose(f);

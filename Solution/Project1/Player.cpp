@@ -1,4 +1,5 @@
 #include "Player.hpp"
+#include "GlobalManagers.hpp"
 
 // ========== CONSTRUCTOR / DESTRUCTOR ==========
 Player::Player() {
@@ -154,6 +155,12 @@ void Player::Update(float CameraLeftLimit) {
     if (!grounded) {
         vel.y += GRAVITY;
         pos.y += vel.y;
+
+        float camTop = cameraManager.GetCamera().target.y - cameraManager.GetCamera().offset.y;
+        if (pos.y < camTop) {
+            pos.y = camTop;
+            vel.y = 0.0f;
+        }
     }
     else {
         vel.y = 0;
@@ -1046,4 +1053,20 @@ Rectangle Player::GetMeleeHitBox() const {
         return { hb.x + hb.width, hbY, hbW, hbH };
     else
         return { hb.x - hbW, hbY, hbW, hbH };
+}
+
+void Player::EquipJetpack() {
+    hasJetpack = true;
+    jetpackFuel = JETPACK_MAX_FUEL;
+}
+
+void Player::JetpackThrust() {
+    if (!hasJetpack || grounded || jetpackFuel <= 0.0f) return;
+    vel.y += JETPACK_FORCE;
+    if (vel.y < JETPACK_MAX_VEL) vel.y = JETPACK_MAX_VEL;
+    jetpackFuel -= JETPACK_FUEL_DRAIN * GetFrameTime();
+    if (jetpackFuel <= 0.0f) {
+        jetpackFuel = 0.0f;
+        hasJetpack = false;  // vuelve al salto normal
+    }
 }

@@ -4,6 +4,7 @@
 enum class ItemType {
     SHOTGUN,
     BOX,
+    JETPACK,
 };
 
 class Item {
@@ -28,6 +29,8 @@ public:
     bool IsGrounded() const { return grounded; }
     Vector2 GetPosition() const { return position; }
     void SetPositionY(float y) { position.y = y; }
+    void Activate() { activated = true; }
+    bool IsActivated() const { return activated; }
 
 private:
     Vector2 position;
@@ -55,5 +58,6 @@ private:
     float velY = 0.0f;
     bool grounded = false;
     static constexpr float GRAVITY = 800.0f;
+    bool activated = false;
 
 };

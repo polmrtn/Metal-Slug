@@ -173,6 +173,7 @@ void Game::Update()
         player.Update(camera.GetLeftLimit());
         systemCollision.CollisionUpdate();
 
+
         for (auto& item : creationManager.GetItems()) item.Update();
         creationManager.GetItems().erase(
             std::remove_if(creationManager.GetItems().begin(), creationManager.GetItems().end(),
@@ -254,6 +255,14 @@ void Game::Update()
 
     // Colisiones (todos los sistemas)
     systemCollision.CollisionUpdate();
+
+    if (player.HasJetpack())
+        uiManager.SetJetpackFuel(player.GetJetpackFuel() / player.GetJetpackMaxFuel());
+    else if (uiManager.GetJetpackActive())
+    {
+        uiManager.SetJetpackFuel(0.0f);
+        uiManager.SetJetpackActive(false);
+    }
 
     // Limpiar items inactivos
     for (auto& item : creationManager.GetItems()) item.Update();
@@ -478,14 +487,13 @@ void Game::ThrowGrenade()
 void Game::CheckBulletsOutOfCamera()
 {
     Camera2D cam = camera.GetCamera();
-    float hw = GetScreenWidth() / 2.0f;
-    float hh = GetScreenHeight() / 2.0f;
-    const float margin = 200.0f;
+    float hw = cam.offset.x;
+    float hh = cam.offset.y;
 
-    float left = cam.target.x - hw - margin;
-    float right = cam.target.x + hw + margin;
-    float top = cam.target.y - hh - margin;
-    float bottom = cam.target.y + hh + margin;
+    float left = cam.target.x - hw + 1.0f;  
+    float right = cam.target.x + hw - 1.0f;  
+    float top = cam.target.y - hh + 1.0f;
+    float bottom = cam.target.y + hh - 1.0f;
 
     auto& bullets = creationManager.GetBullets();
     bullets.erase(std::remove_if(bullets.begin(), bullets.end(),

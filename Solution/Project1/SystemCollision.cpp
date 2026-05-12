@@ -300,7 +300,9 @@ void SystemCollision::BulletCollision()
         {
             for (auto& item : items)
             {
-                if (item.IsActive() && item.GetType() == ItemType::BOX &&
+                if (item.IsActive() &&
+                    item.GetType() == ItemType::BOX &&
+                    !item.IsDestroyed() &&
                     (bIt->GetType() == 1 || bIt->GetType() == 3) &&
                     CheckCollisionRecs(bIt->GetHitbox(), item.GetHitBox()))
                 {
@@ -321,7 +323,11 @@ void SystemCollision::BulletCollision()
                 hit = true;
             }
         }
-        if (hit) bIt = bullets.erase(bIt);
+        if (hit) {
+            TraceLog(LOG_INFO, "BULLET hit block at x=%.1f y=%.1f", bIt->GetPosition().x, bIt->GetPosition().y);
+            bIt = bullets.erase(bIt);
+        }
+
         else     ++bIt;
     }
 
@@ -463,6 +469,14 @@ void SystemCollision::ItemPlayerCollision()
             audioManager.PlaySound(audioManager.GetMachinegunEquipSound());
             uiManager.SetAmmo(player.GetAmmo());
             uiManager.SetWeaponDisplay(UiManager::WeaponDisplay::MACHINEGUN);
+        }
+
+        if (item.GetType() == ItemType::JETPACK &&
+            CheckCollisionRecs(item.GetHitBox(), player.GetHitBox()))
+        {
+            player.EquipJetpack();
+            uiManager.SetJetpackActive(true);
+            item.Collect();
         }
 
         if (item.ShouldSpawnMachinegun())

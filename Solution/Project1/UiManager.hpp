@@ -41,6 +41,10 @@ public:
     void NotifyPlayerMoved();
     void DrawCreditsOnly();
 
+    void SetJetpackActive(bool val) { jetpackActive = val; }
+    bool GetJetpackActive() const { return jetpackActive; }
+    void SetJetpackFuel(float ratio) { jetpackFuelRatio = ratio; }
+
 private:
     int credits;
     int score;
@@ -109,6 +113,10 @@ private:
     float continueLabelX     = 10.0f;
     float continueLabelY     = 10.0f;
     bool  continueScreenActive = false;
+
+    bool  jetpackActive = false;
+    float jetpackFuelRatio = 0.0f;
+
 
 public:
     void StartContinue();

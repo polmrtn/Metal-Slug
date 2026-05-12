@@ -289,15 +289,49 @@ float UiManager::MeasureScoreText(const char* str, float scale) const
 
 void UiManager::DrawHpBar(Vector2 pos, int segs, float scale) const
 {
-    DrawTextureEx(texHpBarLeft, pos, 0.0f, scale, WHITE);
-    float offsetX = (float)texHpBarLeft.width * scale;
-    float pW = (float)texHpBarParts.width * scale;
+    static constexpr float PART_W = 8.0f;
+    static constexpr float PART_H = 8.0f;
+    static constexpr float CAP_L_W = 2.0f;  // left es 2px
+    static constexpr float CAP_R_W = 3.0f;  // right es 3px
+    static constexpr float CAP_H = 8.0f;
+
+    // Left cap (2x8)
+    Rectangle srcL = { 0, 0, CAP_L_W, CAP_H };
+    Rectangle dstL = { pos.x, pos.y, CAP_L_W * scale, CAP_H * scale };
+    DrawTexturePro(texHpBarLeft, srcL, dstL, { 0,0 }, 0, WHITE);
+
+    float offsetX = CAP_L_W * scale;
+
+    // Segmentos (8x8 cada uno)
     for (int i = 0; i < segs; ++i)
     {
-        DrawTextureEx(texHpBarParts, { pos.x + offsetX, pos.y }, 0.0f, scale, WHITE);
-        offsetX += pW;
+        int frame = 0;
+        if (jetpackActive)
+        {
+            float segMin = (float)i / (float)segs;
+            float segMax = (float)(i + 1) / (float)segs;
+
+            if (jetpackFuelRatio >= segMax)
+                frame = 8;
+            else if (jetpackFuelRatio <= segMin)
+                frame = 0;
+            else
+            {
+                float t = (jetpackFuelRatio - segMin) / (segMax - segMin);
+                frame = (int)(t * 8.0f);
+            }
+        }
+
+        Rectangle srcP = { frame * PART_W, 0, PART_W, PART_H };
+        Rectangle dstP = { pos.x + offsetX, pos.y, PART_W * scale, PART_H * scale };
+        DrawTexturePro(texHpBarParts, srcP, dstP, { 0,0 }, 0, WHITE);
+        offsetX += PART_W * scale;
     }
-    DrawTextureEx(texHpBarRight, { pos.x + offsetX, pos.y }, 0.0f, scale, WHITE);
+
+    // Right cap (3x8)
+    Rectangle srcR = { 0, 0, CAP_R_W, CAP_H };
+    Rectangle dstR = { pos.x + offsetX, pos.y, CAP_R_W * scale, CAP_H * scale };
+    DrawTexturePro(texHpBarRight, srcR, dstR, { 0,0 }, 0, WHITE);
 }
 
 void UiManager::DrawHUD(Camera2D /*camera*/)
@@ -394,6 +428,13 @@ void UiManager::DrawHUD(Camera2D /*camera*/)
         DrawInnerText(bombBuf, { bombCenterX - bombW * 0.5f, innerNumY }, innerSc);
 
         DrawScoreText(sBuf, { scoreX, hudY }, scoreSc);
+
+        float barScale = 4.0f;
+        float barY = hudY + HSF_CHAR_H * scoreSc + 4.0f;
+        float barTotalW = (2.0f + 6.0f * 8.0f + 2.0f) * barScale;
+        float barX = scoreX + scoreW - barTotalW;  
+
+        DrawHpBar({ barX, barY }, 6, barScale);
 
         continueLabelX = scoreX;
         continueLabelY = hudY;
