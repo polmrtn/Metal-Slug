@@ -73,7 +73,7 @@ private:
 
     // Tekstury
     Texture2D texArms, texBomb, texCannon, texTimeLevel;
-    Texture2D texHudFont2Big, texHudFont2Num, texHudFont2Small;
+    Texture2D texHudFont2Big, texHudFont2Num, texHudFont2Small, texHudFont3Num;
     Texture2D texHighScore, texHighScoreSmall;
     Texture2D texHpBarLeft, texHpBarRight, texHpBarParts;
     Texture2D texGo;

@@ -26,6 +26,7 @@ static const char* PATH_GO = "Graphics/new fonts and HUDs/GO.png";
 static const char* PATH_TIME_NUM      = "Graphics/letters/time_numbers.png";
 static const char* PATH_METAL_BIGNUM  = "Graphics/letters/metal_numbers.png";
 static const char* PATH_GAMEOVER      = "Graphics/gameover1.png";
+static const char* PATH_FONTBOMB = "Graphics/new fonts and HUDs/numbers01.png";
 
 static constexpr float NUM_CHAR_W = 12.0f;
 static constexpr float NUM_CHAR_H = 14.0f;
@@ -58,8 +59,9 @@ void UiManager::Init() {
     texTimeNum     = LoadTexture(PATH_TIME_NUM);
     texMetalBigNum = LoadTexture(PATH_METAL_BIGNUM);
     texGameOver    = LoadTexture(PATH_GAMEOVER);
-    SetTextureFilter(texGameOver, TEXTURE_FILTER_POINT);
+    texHudFont3Num = LoadTexture(PATH_FONTBOMB);
 
+    SetTextureFilter(texGameOver, TEXTURE_FILTER_POINT);
     SetTextureFilter(texHudFont2Num, TEXTURE_FILTER_POINT);
     SetTextureFilter(texHighScore, TEXTURE_FILTER_POINT);
     SetTextureFilter(texHudFont2Big, TEXTURE_FILTER_POINT);
@@ -74,6 +76,7 @@ void UiManager::Init() {
     SetTextureFilter(texHpBarParts,  TEXTURE_FILTER_POINT);
     SetTextureFilter(texHpBarLeft, TEXTURE_FILTER_POINT);
     SetTextureFilter(texHpBarRight, TEXTURE_FILTER_POINT);
+    SetTextureFilter(texHudFont3Num, TEXTURE_FILTER_POINT);
 
 }
 
@@ -81,10 +84,10 @@ UiManager::~UiManager()
 {
     UnloadTexture(texArms);   UnloadTexture(texBomb);
     UnloadTexture(texCannon); UnloadTexture(texTimeLevel);
-    UnloadTexture(texHudFont2Big); UnloadTexture(texHudFont2Num);
-    UnloadTexture(texHudFont2Small); UnloadTexture(texHighScore);
+    UnloadTexture(texHudFont2Big); UnloadTexture(texHudFont2Num); UnloadTexture(texHudFont3Num);
+    UnloadTexture(texHudFont2Small); UnloadTexture(texHighScore); 
     UnloadTexture(texHighScoreSmall);
-    UnloadTexture(texHpBarLeft); UnloadTexture(texHpBarRight); UnloadTexture(texHpBarParts);
+    UnloadTexture(texHpBarLeft); UnloadTexture(texHpBarRight); UnloadTexture(texHpBarParts); 
     UnloadTexture(texGo);
     UnloadTexture(texTimeNum);
     UnloadTexture(texMetalBigNum);
@@ -412,20 +415,44 @@ void UiManager::DrawHUD(Camera2D /*camera*/)
         {
             char ammoBuf[8];
             std::snprintf(ammoBuf, sizeof(ammoBuf), "%03d", ammo);
-            float ammoW = MeasureInnerText(ammoBuf, innerSc);
-            DrawInnerText(ammoBuf, { armsCenterX - ammoW * 0.5f, innerNumY }, innerSc);
+            float num01Sc = 3.0f;
+            float ax = armsCenterX - (3 * 8.0f * num01Sc) / 2.0f;
+            for (int i = 0; ammoBuf[i]; ++i)
+            {
+                if (ammoBuf[i] < '0' || ammoBuf[i] > '9') { ax += 8.0f * num01Sc; continue; }
+                int d = ammoBuf[i] - '0';
+                Rectangle src = { d * 8.0f, 0, 8.0f, 8.0f };
+                Rectangle dst = { ax, innerNumY, 8.0f * num01Sc, 8.0f * num01Sc };
+                DrawTexturePro(texHudFont3Num, src, dst, { 0,0 }, 0, WHITE);
+                ax += 8.0f * num01Sc;
+            }
         }
         else
         {
-            const char* infPlaceholder = "...";
-            float infW = MeasureInnerText(infPlaceholder, innerSc);
-            DrawInnerText(infPlaceholder, { armsCenterX - infW * 0.5f, innerNumY }, innerSc);
+            float num01Sc = 3.0f;
+            float ax = armsCenterX - (3 * 8.0f * num01Sc) / 2.0f;
+            for (int col : {10, 11, 12})
+            {
+                Rectangle src = { col * 8.0f, 0, 8.0f, 8.0f };
+                Rectangle dst = { ax, innerNumY, 8.0f * num01Sc, 8.0f * num01Sc };
+                DrawTexturePro(texHudFont3Num, src, dst, { 0,0 }, 0, WHITE);
+                ax += 8.0f * num01Sc;
+            }
         }
 
         char bombBuf[8];
         std::snprintf(bombBuf, sizeof(bombBuf), "%02d", bombs);
-        float bombW = MeasureInnerText(bombBuf, innerSc);
-        DrawInnerText(bombBuf, { bombCenterX - bombW * 0.5f, innerNumY }, innerSc);
+        float num01Sc = 3.0f;
+        float bx = bombCenterX - (2 * 8.0f * num01Sc) / 2.0f - 10.0f; 
+        for (int i = 0; bombBuf[i]; ++i)
+        {
+            if (bombBuf[i] < '0' || bombBuf[i] > '9') { bx += 8.0f * num01Sc; continue; }
+            int d = bombBuf[i] - '0';
+            Rectangle src = { d * 8.0f, 0, 8.0f, 8.0f };
+            Rectangle dst = { bx, innerNumY, 8.0f * num01Sc, 8.0f * num01Sc };
+            DrawTexturePro(texHudFont3Num, src, dst, { 0,0 }, 0, WHITE);
+            bx += 8.0f * num01Sc;
+        }
 
         DrawScoreText(sBuf, { scoreX, hudY }, scoreSc);
 
