@@ -8,6 +8,7 @@ SystemCollision::~SystemCollision() {}
 void SystemCollision::CollisionUpdate()
 {
     PlayerBlockCollision();
+    PlayerBoxCollision();
     SoldierBlockCollision();
     BulletCollision();
     BulletBlockCollision();
@@ -529,6 +530,53 @@ void SystemCollision::BossAttackPlayerCollision()
             TraceLog(LOG_INFO, "BEAM ARRIBA MATA");
             player.TakeDamage();
             return;
+        }
+    }
+}
+
+void SystemCollision::PlayerBoxCollision()
+{
+    if (!player.IsAlive()) return;
+
+    Rectangle pr = player.GetHitBox();
+    float prevFeetY = player.GetPreviousY() + player.GetHeight();
+
+    for (auto& item : creationManager.GetItems())
+    {
+        if (!item.IsActive() || item.IsDestroyed()) continue;
+        if (item.GetType() != ItemType::BOX) continue;
+
+        Rectangle br = item.GetHitBox();  // hitbox amarilla
+
+        // ── COLISIÓN VERTICAL (encima) ──────────────────
+        float feetY = pr.y + pr.height;
+        bool  overlapX = (pr.x + pr.width > br.x) && (pr.x < br.x + br.width);
+        float penetration = feetY - br.y;
+        bool  wasAbove = prevFeetY <= br.y + 2.0f;
+
+        if (overlapX && wasAbove && player.GetVelocityY() >= 0 &&
+            penetration >= 0.0f && penetration <= 45.0f)
+        {
+            player.SetY(br.y - player.GetHeight());
+            player.SetVelocityY(0.0f);
+            player.SetGrounded(true);
+            continue;
+        }
+
+        // ── COLISIÓN LATERAL ────────────────────────────
+        if (!CheckCollisionRecs(pr, br)) continue;
+
+        // Viene por la izquierda
+        if (pr.x + pr.width > br.x && pr.x < br.x)
+        {
+            player.SetX(br.x - pr.width - player.GetHitBox().x + player.GetX());
+            player.SetVelocityX(0.0f);
+        }
+        // Viene por la derecha
+        else if (pr.x < br.x + br.width && pr.x + pr.width > br.x + br.width)
+        {
+            player.SetX(br.x + br.width - player.GetHitBox().x + player.GetX());
+            player.SetVelocityX(0.0f);
         }
     }
 }

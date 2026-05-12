@@ -248,6 +248,8 @@ void Game::Update()
 
     uiManager.Update();
     timerManager.Update(GetFrameTime());
+    if (uiManager.IsTimeUp() && player.IsAlive())
+        player.TakeDamage();
     boss.Update(player.GetPosition().x);
 
     player.SavePreviousPosition();

@@ -31,6 +31,8 @@ public:
     void SetPositionY(float y) { position.y = y; }
     void Activate() { activated = true; }
     bool IsActivated() const { return activated; }
+    float GetBoxTop() const { return position.y; }
+    float GetBoxWidth() const { return BOX_W * BOX_SCALE; }
 
 private:
     Vector2 position;

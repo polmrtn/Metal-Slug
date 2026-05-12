@@ -558,13 +558,16 @@ void UiManager::DrawTimeDigit(char c, Vector2 pos, float scale) const
 
 void UiManager::DrawTimeNumber(int value, Vector2 pos, float scale) const
 {
+    if (value <= 10)
+    {
+        float blinkRate = 0.5f;  
+        if ((int)(GetTime() / blinkRate) % 2 == 0) return;
+    }
+
     char buf[8];
     std::snprintf(buf, sizeof(buf), "%02d", value);
-
     float x = pos.x;
-
     const int CHAR_W = 16;
-
     for (int i = 0; buf[i]; ++i)
     {
         DrawTimeDigit(buf[i], { x, pos.y }, scale);
