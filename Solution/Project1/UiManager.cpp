@@ -1,4 +1,5 @@
 ﻿#include "UiManager.hpp"
+#include "GlobalManagers.hpp"
 #include <cstdio>
 #include <cstring>
 #include <cmath>
@@ -32,6 +33,7 @@ static const char* PATH_YELLOW_LETTERS = "Graphics/letters/yellow_numbers_and_le
 static const char* PATH_ENDING = "Graphics/ending/ending.png";
 static const char* PATH_ENDING_STARS = "Graphics/ending/stars.png";
 static const char* PATH_HIGHSCORE_YELLOW = "Graphics/new fonts and HUDs/highscorefontyellow.png";
+static const char* PATH_GO_ANIM = "Graphics/new fonts and HUDs/goanimation32x31.png";
 
 
 static constexpr float NUM_CHAR_W = 12.0f;
@@ -88,7 +90,9 @@ void UiManager::Init() {
     texEnding = LoadTexture(PATH_ENDING);
     texStars = LoadTexture(PATH_ENDING_STARS);
     texHighScoreYellow = LoadTexture(PATH_HIGHSCORE_YELLOW);
+    texGoAnim = LoadTexture(PATH_GO_ANIM);
 
+    SetTextureFilter(texGoAnim, TEXTURE_FILTER_POINT);
     SetTextureFilter(texGameOver, TEXTURE_FILTER_POINT);
     SetTextureFilter(texHudFont2Num, TEXTURE_FILTER_POINT);
     SetTextureFilter(texHighScore, TEXTURE_FILTER_POINT);
@@ -129,6 +133,7 @@ UiManager::~UiManager()
     UnloadTexture(texEnding);
     UnloadTexture(texStars);
     UnloadTexture(texHighScoreYellow);
+    UnloadTexture(texGoAnim);
 }
 
 void UiManager::Update()
@@ -185,24 +190,72 @@ void UiManager::DrawCreditsOnly()
 void UiManager::UpdateGoTimer(float dt)
 {
     idleTimer += dt;
-    if (idleTimer >= IDLE_THRESHOLD)
-    {
-        goVisible = true;
-        goBlinkAccum += dt;
-        if (goBlinkAccum >= GO_BLINK_RATE) { goBlinkAccum -= GO_BLINK_RATE; goBlinkOn = !goBlinkOn; }
+    if (idleTimer < IDLE_THRESHOLD) {
+        goAnimActive = false;
+        goAnimFrame = 0;
+        goAnimCycle = 0;
+        goAnimPausing = false;
+        goIdleTimer = 0.0f;
+        return;
     }
-    else { goVisible = false; goBlinkOn = false; goBlinkAccum = 0.0f; }
+
+    // Ciclo de 5 segundos entre pares
+    goIdleTimer += dt;
+    if (!goAnimActive && goIdleTimer >= GO_IDLE_INTERVAL) {
+        goIdleTimer = 0.0f;
+        goAnimActive = true;
+        goAnimFrame = 0;
+        goAnimCycle = 0;
+        goAnimTimer = 0.0f;
+        goAnimPausing = false;
+    }
+
+    if (!goAnimActive) return;
+
+    if (goAnimPausing) {
+        goAnimPauseTimer += dt;
+        if (goAnimPauseTimer >= GO_PAUSE) {
+            goAnimPausing = false;
+            goAnimPauseTimer = 0.0f;
+            goAnimFrame = 0;
+            goAnimCycle++;
+            if (goAnimCycle >= 2) {
+                goAnimActive = false;
+                goAnimCycle = 0;
+            }
+        }
+        return;
+    }
+
+    goAnimTimer += dt;
+    if (goAnimTimer >= goAnimDelay) {
+        goAnimTimer = 0.0f;
+        goAnimFrame++;
+        if (goAnimFrame >= GO_ANIM_FRAMES) {
+            goAnimFrame = GO_ANIM_FRAMES - 1;
+            goAnimPausing = true;
+            goAnimPauseTimer = 0.0f;
+        }
+    }
 }
 
-void UiManager::NotifyPlayerMoved()
-{
-    idleTimer = 0.0f; goVisible = false; goBlinkOn = false; goBlinkAccum = 0.0f;
+void UiManager::NotifyPlayerMoved() {
+    idleTimer = 0.0f;
+    goVisible = false;
+    goBlinkOn = false;
+    goBlinkAccum = 0.0f;
+    goAnimActive = false;   // ← añade
+    goAnimFrame = 0;        // ← añade
+    goAnimCycle = 0;        // ← añade
+    goIdleTimer = 0.0f;     // ← añade
 }
 
 bool UiManager::IsMissionIntroOver() const { return introTimer >= INTRO_DURATION; }
 
 void UiManager::UseGrenade() { if (bombs > 0) bombs--; }
+
 void UiManager::SetAmmo(int amount) { ammo = amount; }
+
 void UiManager::UseAmmo() { if (ammo > 0) ammo--; }
 
 void UiManager::DrawHudDigit(char c, Vector2 pos, float scale, Color tint) const
@@ -529,19 +582,17 @@ void UiManager::DrawHUD(Camera2D /*camera*/)
     DrawScoreText(cLabel,  { cX, cY }, cSc);
     DrawScoreText(cNumber, { cX + cLabelW + 40.0f, cY }, cSc);
 
-    if (goVisible && goBlinkOn)
-    {
-        const float goSc = 4.5f; 
-
-        float goW = texGo.width * goSc;
-
-        
-        float goX = (float)SW * 0.80f - goW * 0.5f;
-
-        
-        float goY = hudY + 40.0f;
-
-        DrawTextureEx(texGo, { goX, goY }, 0.0f, goSc, WHITE);
+    if (goAnimActive && !goAnimPausing) {
+        // No mostrar cerca del boss
+        if (player.GetX() < 14000.0f) {
+            const float goSc = 4.5f;
+            float goW = GO_ANIM_W * goSc;
+            float goX = (float)SW * 0.80f - goW * 0.5f;
+            float goY = hudY + 40.0f;
+            Rectangle src = { goAnimFrame * GO_ANIM_W, 0, GO_ANIM_W, GO_ANIM_H - 1.0f};
+            Rectangle dst = { goX, goY, GO_ANIM_W * goSc, GO_ANIM_H * goSc };
+            DrawTexturePro(texGoAnim, src, dst, { 0,0 }, 0, WHITE);
+        }
     }
 
     DrawMissionIntroInternal();
@@ -993,7 +1044,7 @@ void UiManager::UpdateMissionIntro(float dt) {
     }
 
     // Fase entrada: spawna letras una a una
-    float spawnInterval = 0.2f;
+    float spawnInterval = 0.08f;
     letterSpawnTimer += dt;
     while (missionLettersSpawned < missionLetterCount &&
         letterSpawnTimer >= spawnInterval) {
@@ -1005,7 +1056,7 @@ void UiManager::UpdateMissionIntro(float dt) {
     for (int i = 0; i < missionLettersSpawned; ++i) {
         auto& l = missionLetters[i];
         if (!l.arrived) {
-            float speed = 900.0f * dt;
+            float speed = 1500.0f * dt;
             float dx = l.targetX - l.currentX;
             float dy = l.targetY - l.currentY;
             float len = sqrtf(dx * dx + dy * dy);

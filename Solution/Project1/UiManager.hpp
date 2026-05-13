@@ -104,7 +104,7 @@ private:
     float goBlinkAccum = 0.0f;
     bool  goVisible = false;
     bool  goBlinkOn = false;
-    static constexpr float IDLE_THRESHOLD = 5.0f;
+    static constexpr float IDLE_THRESHOLD = 2.0f;
     static constexpr float GO_BLINK_RATE = 0.25f;
 
     // Tekstury
@@ -200,6 +200,22 @@ private:
     bool  endingFadeOut = false;
     float endingFadeAlpha = 0.0f;
     bool  endingFinished = false;
+
+    // GO animation
+    Texture2D texGoAnim;
+    int   goAnimFrame = 0;
+    float goAnimTimer = 0.0f;
+    float goAnimDelay = 0.035f;
+    int   goAnimCycle = 0;      // 0 o 1 (dos animaciones consecutivas)
+    float goAnimPauseTimer = 0.0f;
+    bool  goAnimPausing = false;
+    float goIdleTimer = 0.0f;   // timer de 5 segundos entre pares
+    bool  goAnimActive = false;
+    static constexpr int   GO_ANIM_FRAMES = 15;
+    static constexpr float GO_ANIM_W = 32.0f;
+    static constexpr float GO_ANIM_H = 31.0f;
+    static constexpr float GO_PAUSE = 0.5f;
+    static constexpr float GO_IDLE_INTERVAL = 5.0f;
 
 public:
     void StartContinue();
