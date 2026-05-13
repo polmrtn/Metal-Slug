@@ -9,6 +9,7 @@ std::vector<Bullet>& CreationManager::GetBullets() { return bullets; }
 std::vector<Soldier>& CreationManager::GetSoldiers() { return soldiers; }
 std::vector<Grenade>& CreationManager::GetGrenades() { return grenades; }
 std::vector<Item>& CreationManager::GetItems() { return items; }
+std::vector<BloodEffect>& CreationManager::GetBloodEffects() { return bloodEffects; }
 
 void CreationManager::LoadFromFile(const char* filename)
 {

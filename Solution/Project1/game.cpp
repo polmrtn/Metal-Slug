@@ -56,6 +56,7 @@ void Game::Draw()
     for (auto& bullet : creationManager.GetBullets())  bullet.Draw();
     for (auto& grenade : creationManager.GetGrenades()) grenade.Draw();
     for (auto& item : creationManager.GetItems())    item.Draw();
+    for (auto& blood : creationManager.GetBloodEffects()) blood.Draw();
 
     // Tiles en coordenadas de mundo
     creationManager.GetTileMap().DrawTiles();
@@ -298,6 +299,13 @@ void Game::Update()
             soldier.ResetShootWants();
         }
     }
+
+    //Blood
+    for (auto& blood : creationManager.GetBloodEffects()) blood.Update();
+    creationManager.GetBloodEffects().erase(
+        std::remove_if(creationManager.GetBloodEffects().begin(), creationManager.GetBloodEffects().end(),
+            [](const BloodEffect& b) { return !b.IsActive(); }),
+        creationManager.GetBloodEffects().end());
 
     // Actualizar balas
     for (auto& bullet : creationManager.GetBullets()) bullet.Update();

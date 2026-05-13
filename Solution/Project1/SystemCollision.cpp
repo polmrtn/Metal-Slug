@@ -284,6 +284,9 @@ void SystemCollision::BulletCollision()
                 if (s.GetisAlive() && CheckCollisionRecs(s.GetHurtBox(), bIt->GetHitbox()))
                 {
                     s.TriggerDeath(audioManager);
+                    Rectangle hurtBox = s.GetHurtBox();
+                    Vector2 bloodPos = { hurtBox.x + hurtBox.width / 2.0f, hurtBox.y + hurtBox.height / 2.0f };
+                    creationManager.GetBloodEffects().emplace_back(bloodPos);
                     uiManager.AddScore(100);
                     hit = true;
                     break;
@@ -407,6 +410,9 @@ void SystemCollision::GrenadesCollision()
                 CheckCollisionRecs(soldier.GetHurtBox(), explosionBox))
             {
                 soldier.TriggerDeath(audioManager);
+                Rectangle hurtBox = soldier.GetHurtBox();
+                Vector2 bloodPos = { hurtBox.x + hurtBox.width / 2.0f, hurtBox.y + hurtBox.height / 2.0f };
+                creationManager.GetBloodEffects().emplace_back(bloodPos);
                 uiManager.AddScore(100);
             }
         }

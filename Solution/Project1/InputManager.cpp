@@ -73,6 +73,9 @@ void InputManager::InputPlayer()
 				CheckCollisionRecs(player.GetMeleeHitBox(), soldier.GetHurtBox())) {
 				player.StartMelee();
 				soldier.TriggerDeath(audioManager);
+				Rectangle hurtBox = soldier.GetHurtBox();
+				Vector2 bloodPos = { hurtBox.x + hurtBox.width / 2.0f, hurtBox.y + hurtBox.height / 2.0f };
+				creationManager.GetBloodEffects().emplace_back(bloodPos);
 				uiManager.AddScore(200);
 				timerManager.StartTimer(TimerType::DELAY_PISTOL);
 				meleeTriggered = true;
