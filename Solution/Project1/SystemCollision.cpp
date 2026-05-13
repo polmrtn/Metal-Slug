@@ -414,7 +414,7 @@ void SystemCollision::GrenadesCollision()
             !boss.IsDestroyed() &&
             CheckCollisionRecs(boss.GetHitBox(), explosionBox))
         {
-            boss.TakeDamage(5);
+            boss.TakeDamage(20);
             grenade.SetHitBoss(true);  // ← solo una vez
         }
     }
