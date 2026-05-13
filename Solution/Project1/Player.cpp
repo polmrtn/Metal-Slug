@@ -455,16 +455,16 @@ Rectangle Player::GetHitBox() {
 
 Rectangle Player::GetLeftHitBox() {
     Rectangle mainHitBox = GetHitBox();
-    float reducedHeight = mainHitBox.height * 0.6f;
-    float offsetY = (mainHitBox.height - reducedHeight) / 2.0f;
+    float reducedHeight = mainHitBox.height * 0.4f;
+    float offsetY = (mainHitBox.height - reducedHeight) / 2.0f - 25.0f;
     float hitboxX = mainHitBox.x - (mainHitBox.width * 0.3f);
     return Rectangle{ hitboxX, mainHitBox.y + offsetY, mainHitBox.width * 0.4f, reducedHeight };
 }
 
 Rectangle Player::GetRightHitBox() {
     Rectangle mainHitBox = GetHitBox();
-    float reducedHeight = mainHitBox.height * 0.6f;
-    float offsetY = (mainHitBox.height - reducedHeight) / 2.0f;
+    float reducedHeight = mainHitBox.height * 0.4f;
+    float offsetY = (mainHitBox.height - reducedHeight) / 2.0f -25.0f;
     float hitboxX = mainHitBox.x + mainHitBox.width - (mainHitBox.width * 0.1f);
     return Rectangle{ hitboxX, mainHitBox.y + offsetY, mainHitBox.width * 0.4f, reducedHeight };
 }
