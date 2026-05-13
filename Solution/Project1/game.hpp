@@ -55,4 +55,6 @@ private:
     bool  howtoplayMusicStarted  = false;
     float gameOverTimer  = 0.0f;
     bool continueStarted = false;
+
+    bool missionCompleteTriggered = false;
 };

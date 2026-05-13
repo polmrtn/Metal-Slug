@@ -165,8 +165,8 @@ void Player::Update(float CameraLeftLimit, float CameraTop) {
         pos.y += vel.y;
 
         float camTop = CameraTop;
-        if (pos.y < camTop) {
-            pos.y = camTop;
+        if (pos.y + hitboxHeight * 0.8f < camTop) {  // ← solo el 20% superior (casi los pies)
+            pos.y = camTop - hitboxHeight * 0.8f;
             vel.y = 0.0f;
         }
     }

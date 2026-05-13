@@ -46,6 +46,9 @@ public:
         }
     }
     bool IsDestroyed() const { return destroyed; }
+    bool IsDestroyAnimFinished() const {
+        return destroyed && destroyedTimer >= DESTROY_EXPLOSION_DURATION;
+    }
 
     // Plasma
     bool    GetPlasmaActive(int i) const { return i >= 0 && i < MAX_PLASMA ? plasma[i].active : false; }
@@ -79,7 +82,7 @@ public:
 private:
     // ── Estado general ────────────────────────────────────────
     bool active = false;
-    int  health = 300; //cambiar luego a 200
+    int  health = 10; //cambiar luego a 300
 
     // ── Posición ──────────────────────────────────────────────
     float posX = 16090.0f;

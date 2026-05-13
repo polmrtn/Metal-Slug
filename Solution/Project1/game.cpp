@@ -18,6 +18,7 @@ Game::Game() : camera({ 1200.0f / 2.0f, 896.0f / 2.0f })
     uiManager.SetWeaponDisplay(UiManager::WeaponDisplay::PISTOL);
 
     boss.Init();
+    uiManager.StartMissionIntro();
 }
 
 Game::~Game() {}
@@ -37,6 +38,8 @@ void Game::Reset()
     introSkipped = false;
     howtoplayMusicStarted = false;
     continueStarted = false;
+    uiManager.StartMissionIntro();
+    missionCompleteTriggered = false;
 }
 
 // ─────────────────────────────────────────
@@ -249,6 +252,10 @@ void Game::Update()
     if (uiManager.IsTimeUp() && player.IsAlive())
         player.TakeDamage();
     boss.Update(player.GetPosition().x);
+    if (boss.IsDestroyed() && boss.IsDestroyAnimFinished() && !missionCompleteTriggered) {
+        missionCompleteTriggered = true;
+        uiManager.StartMissionComplete();
+    }
 
     player.SavePreviousPosition();
     HandleInput();

@@ -27,6 +27,8 @@ static const char* PATH_TIME_NUM      = "Graphics/letters/time_numbers.png";
 static const char* PATH_METAL_BIGNUM  = "Graphics/letters/metal_numbers.png";
 static const char* PATH_GAMEOVER      = "Graphics/gameover1.png";
 static const char* PATH_FONTBOMB = "Graphics/new fonts and HUDs/numbers01.png";
+static const char* PATH_BLUE_LETTERS = "Graphics/letters/blue_numbers_and_letters.png";
+static const char* PATH_YELLOW_LETTERS = "Graphics/letters/yellow_numbers_and_letters.png";
 
 
 static constexpr float NUM_CHAR_W = 12.0f;
@@ -35,6 +37,23 @@ static constexpr float HSF_CHAR_W = 16.0f;
 static constexpr float HSF_CHAR_H = 16.0f;
 static constexpr float BIG_CHAR_W = 8.0f;
 static constexpr float BIG_CHAR_H = 16.0f;
+
+static int MissionCharFrame(char c) {
+    if (c >= 'A' && c <= 'Z') return c - 'A';
+    if (c >= 'a' && c <= 'z') return c - 'a';
+    if (c >= '1' && c <= '9') return 26 + (c - '1');
+    if (c == '!') return 35;
+    if (c == '?') return 36;
+    return -1;
+}
+
+static void DrawMissionChar(Texture2D tex, char c, float x, float y, float scale) {
+    int frame = MissionCharFrame(c);
+    if (frame < 0) return;
+    Rectangle src = { frame * 32.0f, 0, 32.0f, 32.0f };
+    Rectangle dst = { x, y, 32.0f * scale, 32.0f * scale };
+    DrawTexturePro(tex, src, dst, { 0,0 }, 0, WHITE);
+}
 
 UiManager::UiManager()
     : credits(0), score(0), level(1), timeLeft(60), bombs(10), ammo(0),
@@ -61,6 +80,8 @@ void UiManager::Init() {
     texMetalBigNum = LoadTexture(PATH_METAL_BIGNUM);
     texGameOver    = LoadTexture(PATH_GAMEOVER);
     texHudFont3Num = LoadTexture(PATH_FONTBOMB);
+    texBlueLetters = LoadTexture(PATH_BLUE_LETTERS);
+    texYellowLetters = LoadTexture(PATH_YELLOW_LETTERS);
 
     SetTextureFilter(texGameOver, TEXTURE_FILTER_POINT);
     SetTextureFilter(texHudFont2Num, TEXTURE_FILTER_POINT);
@@ -78,6 +99,8 @@ void UiManager::Init() {
     SetTextureFilter(texHpBarLeft, TEXTURE_FILTER_POINT);
     SetTextureFilter(texHpBarRight, TEXTURE_FILTER_POINT);
     SetTextureFilter(texHudFont3Num, TEXTURE_FILTER_POINT);
+    SetTextureFilter(texBlueLetters, TEXTURE_FILTER_POINT);
+    SetTextureFilter(texYellowLetters, TEXTURE_FILTER_POINT);
 
 }
 
@@ -93,11 +116,14 @@ UiManager::~UiManager()
     UnloadTexture(texTimeNum);
     UnloadTexture(texMetalBigNum);
     UnloadTexture(texGameOver);
+    UnloadTexture(texBlueLetters);
+    UnloadTexture(texYellowLetters);
 }
 
 void UiManager::Update()
 {
     float dt = GetFrameTime();
+    UpdateMissionIntro(dt);
     if (introTimer < INTRO_DURATION)
     {
         introTimer += dt; blinkAccum += dt;
@@ -511,14 +537,64 @@ void UiManager::DrawHUD(Camera2D /*camera*/)
 
 void UiManager::DrawMissionIntro() { DrawMissionIntroInternal(); }
 
-void UiManager::DrawMissionIntroInternal()
-{
-    if (IsMissionIntroOver() || !blinkVisible) return;
-    int SW = GetScreenWidth(); int SH = GetScreenHeight();
-    char text[32]; std::snprintf(text, sizeof(text), "MISSION %02d", level);
-    float sc = 3.0f;
-    float w = MeasureScoreText(text, sc);
-    DrawScoreText(text, { (float)SW * 0.5f - w * 0.5f, (float)SH * 0.5f }, sc);
+void UiManager::DrawMissionIntroInternal() {
+    if (!missionActive && exitFadeAlpha < 1.0f) return;
+
+    int SW = GetScreenWidth();
+    int SH = GetScreenHeight();
+
+    // Pantalla negra después del fadeout completo
+    if (!missionActive && exitFadeAlpha >= 1.0f) {
+        DrawRectangle(0, 0, SW, SH, BLACK);
+        return;
+    }
+
+    // Fade in solo para mission intro, no para complete
+    static constexpr float FADE_DURATION = 1.0f;
+    if (!missionCompleteActive && missionTimer < FADE_DURATION) {
+        float alpha = missionTimer / FADE_DURATION;
+        unsigned char a = (unsigned char)((1.0f - alpha) * 255.0f);
+        DrawRectangle(0, 0, SW, SH, { 0, 0, 0, a });
+    }
+
+    for (int i = 0; i < missionLettersSpawned; ++i) {
+        auto& l = missionLetters[i];
+
+        if (l.isStart && l.arrived && !exitPhase) {
+            bool allDone = (missionLettersSpawned == missionLetterCount);
+            if (allDone)
+                for (int j = 0; j < missionLetterCount; ++j)
+                    if (!missionLetters[j].isYellow) { allDone = false; break; }
+            if (allDone && !startBlinkVisible) continue;
+        }
+
+        Texture2D& tex = (l.flipProgress >= 0.5f) ? texYellowLetters : texBlueLetters;
+
+        float scaleX;
+        if (l.flipProgress < 0.5f)
+            scaleX = 1.0f - (l.flipProgress / 0.5f);
+        else
+            scaleX = (l.flipProgress - 0.5f) / 0.5f;
+
+        float charW = 32.0f * MISSION_SCALE * scaleX;
+        float charH = 32.0f * MISSION_SCALE;
+        float offsetX = 32.0f * MISSION_SCALE * (1.0f - scaleX) / 2.0f;
+
+        if (charW > 0.5f) {
+            int frame = MissionCharFrame(l.c);
+            if (frame >= 0) {
+                Rectangle src = { frame * 32.0f, 0, 32.0f, 32.0f };
+                Rectangle dst = { l.currentX + offsetX, l.currentY, charW, charH };
+                DrawTexturePro(tex, src, dst, { 0,0 }, 0, WHITE);
+            }
+        }
+    }
+
+    // Fade out durante la salida lenta
+    if (exitPhase && slowExit && exitFadeAlpha > 0.0f) {
+        unsigned char a = (unsigned char)(exitFadeAlpha * 255.0f);
+        DrawRectangle(0, 0, SW, SH, { 0, 0, 0, a });
+    }
 }
 
 void UiManager::SetCredits(int amount) { credits += amount; if (credits > 99) credits = 99; if (credits < 0) credits = 0; }
@@ -798,4 +874,235 @@ void UiManager::DrawFooter(float y, float scale) const
     const char* txt = "2026 KURVVA PRODUCTIONS";
     float w = MeasureScoreText(txt, scale);
     DrawScoreText(txt, { SW * 0.5f - w * 0.5f, y }, scale);
+}
+
+void UiManager::StartMissionIntro() {
+    missionTimer = 0.0f;
+    missionActive = true;
+    exitPhase = false;
+    exitTimer = 0.0f;
+    startBlinkTimer = 0.0f;
+    startBlinkCount = 0;
+    startBlinkVisible = true;
+    missionLettersSpawned = 0;
+    letterSpawnTimer = 0.0f;
+    missionLetterCount = 0;
+
+
+    int SW = GetScreenWidth();
+    int SH = GetScreenHeight();
+
+    // ── Fila 1: MISSION 1 ──────────────────────────────────
+    char text[16];
+    std::snprintf(text, sizeof(text), "MISSION %d", level);
+
+    float totalW = 0;
+    for (int i = 0; text[i]; ++i)
+        totalW += (text[i] == ' ') ? 32.0f * MISSION_SCALE * 0.5f : 25.0f * MISSION_SCALE;
+
+    float row1X = SW * 0.5f - totalW * 0.5f;
+    float row1Y = SH * 0.45f;
+    float x = row1X;
+
+    for (int i = 0; text[i] && missionLetterCount < MAX_MISSION_LETTERS; ++i) {
+        if (text[i] == ' ') { x += 25.0f * MISSION_SCALE * 0.5f; continue; }
+        auto& l = missionLetters[missionLetterCount++];
+        l.c = text[i];
+        l.targetX = x;
+        l.targetY = row1Y;
+        l.currentX = -300.0f;
+        l.currentY = -200.0f;
+        l.arrived = false;
+        l.isYellow = false;
+        l.flipTimer = 0.0f;
+        l.isStart = false;
+        x += 25.0f * MISSION_SCALE;
+        l.flipProgress = 0.0f;
+        l.isYellow = false;
+    }
+
+    // ── Fila 2: START! ─────────────────────────────────────
+    const char* startTxt = "START!";
+    float startTotalW = 6 * 25.0f * MISSION_SCALE;
+    float row2X = SW * 0.5f - startTotalW * 0.5f;
+    float row2Y = row1Y + 25.0f * MISSION_SCALE + 10.0f;
+    x = row2X;
+
+    for (int i = 0; startTxt[i] && missionLetterCount < MAX_MISSION_LETTERS; ++i) {
+        auto& l = missionLetters[missionLetterCount++];
+        l.c = startTxt[i];
+        l.targetX = x;
+        l.targetY = row2Y;
+        l.currentX = -300.0f;
+        l.currentY = -200.0f;
+        l.arrived = false;
+        l.isYellow = false;
+        l.flipTimer = 0.0f;
+        l.isStart = true;
+        x += 25.0f * MISSION_SCALE;
+        l.flipProgress = 0.0f;
+        l.isYellow = false;
+    }
+}
+
+void UiManager::UpdateMissionIntro(float dt) {
+    if (!missionActive) return;
+    missionTimer += dt;
+
+    int SW = GetScreenWidth();
+    int SH = GetScreenHeight();
+
+    if (exitPhase) {
+        exitTimer += dt;
+        float speed = slowExit ? 200.0f * dt : 2000.0f * dt;
+        for (int i = 0; i < missionLetterCount; ++i) {
+            auto& l = missionLetters[i];
+            float cx = SW * 0.5f, cy = SH * 0.5f;
+            float dx = l.targetX - cx, dy = l.targetY - cy;
+            float len = sqrtf(dx * dx + dy * dy);
+            if (len > 0) { dx /= len; dy /= len; }
+            l.currentX += dx * speed;
+            l.currentY += dy * speed;
+        }
+        if (slowExit) {
+            exitFadeAlpha = exitTimer / 2.0f;
+            if (exitFadeAlpha > 1.0f) exitFadeAlpha = 1.0f;
+            if (exitTimer >= 2.0f) {
+                missionActive = false;
+                missionCompleteActive = false;
+            }
+        }
+        else {
+            if (exitTimer >= 0.8f) missionActive = false;
+        }
+        return;
+    }
+
+    // Fase entrada: spawna letras una a una
+    float spawnInterval = 0.2f;
+    letterSpawnTimer += dt;
+    while (missionLettersSpawned < missionLetterCount &&
+        letterSpawnTimer >= spawnInterval) {
+        letterSpawnTimer -= spawnInterval;
+        missionLettersSpawned++;
+    }
+
+    // Mover letras hacia su posición
+    for (int i = 0; i < missionLettersSpawned; ++i) {
+        auto& l = missionLetters[i];
+        if (!l.arrived) {
+            float speed = 900.0f * dt;
+            float dx = l.targetX - l.currentX;
+            float dy = l.targetY - l.currentY;
+            float len = sqrtf(dx * dx + dy * dy);
+            if (len <= speed) {
+                l.currentX = l.targetX;
+                l.currentY = l.targetY;
+                l.arrived = true;
+            }
+            else {
+                l.currentX += (dx / len) * speed;
+                l.currentY += (dy / len) * speed;
+            }
+        }
+        // Flip a amarillo cuando llega
+        if (l.arrived && l.flipProgress < 1.0f) {
+            l.flipProgress += dt * 3.0f;
+            if (l.flipProgress >= 1.0f) {
+                l.flipProgress = 1.0f;
+                l.isYellow = true;
+            }
+        }
+    }
+
+    // Todas llegaron — fase reposo con parpadeo
+    bool allArrived = (missionLettersSpawned == missionLetterCount);
+    for (int i = 0; i < missionLetterCount && allArrived; ++i)
+        if (!missionLetters[i].isYellow) allArrived = false;
+
+    if (allArrived) {
+        startBlinkTimer += dt;
+        if (startBlinkTimer >= 0.25f) {
+            startBlinkTimer = 0.0f;
+            startBlinkVisible = !startBlinkVisible;
+            if (!startBlinkVisible) startBlinkCount++;
+        }
+        if (startBlinkCount >= 4 && !exitPhase) {
+            exitPhase = true;
+            exitTimer = 0.0f;
+        }
+    }
+}
+
+void UiManager::StartMissionComplete() {
+    missionTimer = 0.0f;
+    missionActive = true;
+    missionCompleteActive = true;
+    exitPhase = false;
+    exitTimer = 0.0f;
+    exitFadeAlpha = 0.0f;
+    slowExit = true;
+    startBlinkTimer = 0.0f;
+    startBlinkCount = 0;
+    startBlinkVisible = true;
+    missionLettersSpawned = 0;
+    letterSpawnTimer = 0.0f;
+    missionLetterCount = 0;
+
+    int SW = GetScreenWidth();
+    int SH = GetScreenHeight();
+
+    // ── Fila 1: MISSION 1 ──────────────────────────────────
+    char text[16];
+    std::snprintf(text, sizeof(text), "MISSION %d", level);
+
+    float totalW = 0;
+    for (int i = 0; text[i]; ++i)
+        totalW += (text[i] == ' ') ? 28.0f * MISSION_SCALE * 0.5f : 28.0f * MISSION_SCALE;
+
+    float row1X = SW * 0.5f - totalW * 0.5f;
+    float row1Y = SH * 0.45f;
+    float x = row1X;
+
+    for (int i = 0; text[i] && missionLetterCount < MAX_MISSION_LETTERS; ++i) {
+        if (text[i] == ' ') { x += 28.0f * MISSION_SCALE * 0.5f; continue; }
+        auto& l = missionLetters[missionLetterCount++];
+        l.c = text[i];
+        l.targetX = x;
+        l.targetY = row1Y;
+        l.currentX = -300.0f;
+        l.currentY = -200.0f;
+        l.arrived = false;
+        l.isYellow = false;
+        l.flipTimer = 0.0f;
+        l.flipProgress = 0.0f;
+        l.isStart = false;
+        x += 28.0f * MISSION_SCALE;
+    }
+
+    // ── Fila 2: COMPLETE! ──────────────────────────────────
+    const char* completeTxt = "COMPLETE!";
+    TraceLog(LOG_INFO, "Frame para !: %d", MissionCharFrame('!'));
+    int completeLen = 0;
+    for (int i = 0; completeTxt[i]; ++i) completeLen++;
+
+    float completeTotalW = completeLen * 28.0f * MISSION_SCALE;
+    float row2X = SW * 0.5f - completeTotalW * 0.5f;
+    float row2Y = row1Y + 28.0f * MISSION_SCALE + 10.0f;
+    x = row2X;
+
+    for (int i = 0; completeTxt[i] && missionLetterCount < MAX_MISSION_LETTERS; ++i) {
+        auto& l = missionLetters[missionLetterCount++];
+        l.c = completeTxt[i];
+        l.targetX = x;
+        l.targetY = row2Y;
+        l.currentX = -300.0f;
+        l.currentY = -200.0f;
+        l.arrived = false;
+        l.isYellow = false;
+        l.flipTimer = 0.0f;
+        l.flipProgress = 0.0f;
+        l.isStart = true;   // ← usa el mismo flag para parpadeo
+        x += 28.0f * MISSION_SCALE;
+    }
 }
