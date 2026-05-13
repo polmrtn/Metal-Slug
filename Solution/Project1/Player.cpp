@@ -162,11 +162,12 @@ void Player::Update(float CameraLeftLimit, float CameraTop) {
     }
     if (!grounded) {
         vel.y += GRAVITY;
+        if (vel.y > 40.0f) vel.y = 40.0f;
         pos.y += vel.y;
 
         float camTop = CameraTop;
-        if (pos.y < camTop) {
-            pos.y = camTop;
+        if (pos.y + hitboxHeight * 0.8f < camTop) {  // ← solo el 20% superior (casi los pies)
+            pos.y = camTop - hitboxHeight * 0.8f;
             vel.y = 0.0f;
         }
     }
@@ -443,6 +444,11 @@ void Player::Respawn() {
 
     vel = { 0.0f, 0.0f };
     invincibilityTimer = invincibilityDuration;
+
+    // Random machinegun al respawnear cerca del boss
+    if (GetRandomValue(0, 1) == 1) {
+        EquipMachinegun();
+    }
 }
 
 // ========== HITBOXES ==========
@@ -1078,4 +1084,43 @@ void Player::JetpackThrust() {
         jetpackFuel = 0.0f;
         hasJetpack = false;  // vuelve al salto normal
     }
+}
+
+void Player::FullReset() {
+    pos = { 300.0f, -50.0f };
+    vel = { 0.0f, 0.0f };
+    inputVelX = 0.0f;
+    grounded = false;
+    aimingUp = false;
+    crouching = false;
+    dir = PlayerDirection::RIGHT;
+    leftCollision = false;
+    rightCollision = false;
+    mode = Mode::SEPARATED;
+    special = SpecialAnim::NONE;
+    specialTimer = 0.0f;
+    specialDuration = 0.0f;
+    isAlive = true;
+    deathPosition = { 0.0f, 0.0f };
+    invincibilityTimer = 0.0f;
+    deathTimer = 0.0f;
+    isDisappeared = false;
+    currentWeapon = WeaponType::PISTOL;
+    machinegunAmmo = 0;
+    isFalling = true;
+    blinkTimer = 0.0f;
+    blinkVisible = true;
+    wasOnRamp = false;
+    rampGroundedFrames = 0;
+    dyingInAir = false;
+    meleeAttacking = false;
+    meleeTimer = 0.0f;
+    hasJetpack = false;
+    jetpackFuel = 0.0f;
+    SetNormalHitbox();
+    anim.StopMachinegun();
+    anim.StopMachinegunAiming();
+    anim.StopMachinegunCrouch();
+    anim.StopParachute();
+    anim.StartParachute();
 }

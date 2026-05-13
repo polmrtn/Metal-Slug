@@ -50,6 +50,37 @@ public:
     void DrawInsertCoin(float y, float scale) const;
     void DrawFooter(float y, float scale) const;
 
+    bool IsExitPhase() const { return exitPhase; }
+
+    void StartMissionComplete();
+    bool IsMissionCompleteActive() const { return missionCompleteActive; }
+
+    // Mission intro animation
+    struct MissionLetter {
+        char c;
+        float targetX, targetY;  // posición final
+        float currentX, currentY; // posición actual
+        bool arrived;             // ha llegado a su posición
+        bool isYellow;            // ya se flipó a amarillo
+        float flipTimer;          // timer para el flip
+        bool isStart;
+        float flipProgress = 0.0f;  // 0.0 = blue normal, 0.5 = estrecho, 1.0 = yellow normal
+    };
+
+    void StartMissionIntro();
+    void UpdateMissionIntro(float dt);
+
+    void StartEnding();
+    void UpdateEnding(float dt);
+    void DrawEnding() const;
+    bool IsEndingActive() const { return endingActive; }
+    void  TriggerEndingFadeOut() { endingFadeOut = true; }
+    bool  IsEndingFinished() const { return endingFinished; }
+
+    void FullReset();
+    void ResetScore() { score = 0; }
+
+
 private:
     int credits;
     int score;
@@ -85,6 +116,9 @@ private:
     Texture2D texTimeNum;
     Texture2D texMetalBigNum;
     Texture2D texGameOver;
+    Texture2D texBlueLetters;
+    Texture2D texYellowLetters; 
+    Texture2D texHighScoreYellow;
 
     // Metody pomocnicze
     void  DrawHudDigit(char c, Vector2 pos, float scale, Color tint) const;
@@ -126,6 +160,46 @@ private:
     static constexpr float CONTINUE_DELAY = 2.0f;  // ← ajusta este valor
     bool continueDelayActive = false;
 
+    static constexpr float MISSION_CHAR_W = 32.0f;
+    static constexpr float MISSION_CHAR_H = 32.0f;
+    static constexpr float MISSION_SCALE = 3.0f;
+    static constexpr float MISSION_TOTAL_DURATION = 5.0f;
+
+    float missionTimer = 0.0f;
+    bool  missionActive = false;
+    float startBlinkTimer = 0.0f;
+    int   startBlinkCount = 0;
+    bool  startBlinkVisible = true;
+    bool  exitPhase = false;
+    float exitTimer = 0.0f;
+
+    static constexpr int MAX_MISSION_LETTERS = 20; // "MISSION 1"
+    MissionLetter missionLetters[MAX_MISSION_LETTERS];
+    int   missionLetterCount = 0;
+    int   missionLettersSpawned = 0;
+    float letterSpawnTimer = 0.0f;
+    bool missionCompleteActive = false;
+    bool slowExit = false;  // false = salida rápida, true = salida lenta con fade
+    float exitFadeAlpha = 0.0f;
+
+    Texture2D texEnding;
+    Texture2D texStars;
+    bool endingActive = false;
+    float endingTimer = 0.0f;
+
+    struct EndingStar {
+        float x, y;
+        int   row;    // 0 = fila 1 (2 frames), 1 = fila 2 (10 frames)
+        int   frame;
+        float timer;
+        float delay;
+    };
+    static constexpr int MAX_ENDING_STARS = 30;
+    EndingStar endingStars[MAX_ENDING_STARS];
+    float endingTextScale = 4.0f;
+    bool  endingFadeOut = false;
+    float endingFadeAlpha = 0.0f;
+    bool  endingFinished = false;
 
 public:
     void StartContinue();

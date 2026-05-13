@@ -163,7 +163,25 @@ void InputManager::InputContinueScreen()
 		uiManager.SetCredits(-1);
 		uiManager.StopContinue();
 		player.Respawn();
+		// Random machinegun si estás cerca del boss (x > 14000)
+		if (player.GetX() > 14000.0f && GetRandomValue(0, 1) == 1) {
+			player.EquipMachinegun();
+			uiManager.SetAmmo(player.GetAmmo());
+			uiManager.SetWeaponDisplay(UiManager::WeaponDisplay::MACHINEGUN);
+		}
 		game->SetContinueStarted(false);
 		sceneManager.SetGameState(SceneManager::GAME);
+	}
+}
+void InputManager::InputEnding()
+{
+	if (!uiManager.IsEndingActive()) return;
+
+	if (IsKeyPressed(KEY_ENTER))
+		uiManager.TriggerEndingFadeOut();
+
+	if (uiManager.IsEndingFinished()) {
+		game->SetShouldRestart(true);
+		sceneManager.SetGameState(SceneManager::TITLE);
 	}
 }

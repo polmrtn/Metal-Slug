@@ -116,6 +116,8 @@ public:
     float GetJetpackFuel() const { return jetpackFuel; }
     float GetJetpackMaxFuel() const { return JETPACK_MAX_FUEL; }
 
+    void FullReset();
+
 private:
     // ========== ANIMACIÓN ==========
     PlayerAnim anim;

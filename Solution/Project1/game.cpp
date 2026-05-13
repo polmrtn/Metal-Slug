@@ -18,6 +18,7 @@ Game::Game() : camera({ 1200.0f / 2.0f, 896.0f / 2.0f })
     uiManager.SetWeaponDisplay(UiManager::WeaponDisplay::PISTOL);
 
     boss.Init();
+    uiManager.StartMissionIntro();
 }
 
 Game::~Game() {}
@@ -37,6 +38,8 @@ void Game::Reset()
     introSkipped = false;
     howtoplayMusicStarted = false;
     continueStarted = false;
+    uiManager.StartMissionIntro();
+    missionCompleteTriggered = false;
 }
 
 // ─────────────────────────────────────────
@@ -249,6 +252,14 @@ void Game::Update()
     if (uiManager.IsTimeUp() && player.IsAlive())
         player.TakeDamage();
     boss.Update(player.GetPosition().x);
+    if (boss.IsDestroyed() && boss.IsDestroyAnimFinished() && !missionCompleteTriggered) {
+        missionCompleteTriggered = true;
+        uiManager.StartMissionComplete();
+    }
+    if (boss.IsDestroyed()) {
+        player.StopMovingHorizontal();
+        if (player.IsCrouching()) player.StopCrouching();
+    }
 
     player.SavePreviousPosition();
     HandleInput();
@@ -330,7 +341,6 @@ void Game::Update()
     // Gracz zniknal po animacji smierci
     if (!player.IsAlive() && player.IsDisappeared()) {
         if (uiManager.GetCredits() > 0) {
-            uiManager.SetCredits(-1);
         } else {
             uiManager.StartContinue();
             sceneManager.SetGameState(SceneManager::CONTINUE_SCREEN);
@@ -380,6 +390,8 @@ void Game::Update()
 // ─────────────────────────────────────────
 void Game::HandleInput()
 {
+    inputManager.InputEnding();
+
     if (boss.IsDestroyed()) return;
     debug.EditorModeInput(camera.GetCamera());
 
@@ -397,6 +409,7 @@ void Game::HandleInput()
     }
 
     inputManager.InputPlayer();
+
 }
 
 // ─────────────────────────────────────────

@@ -45,12 +45,12 @@ void SystemCollision::PlayerBlockCollision()
             // ← más permisivo si viene de rampa
             bool wasAbove = player.IsDyingInAir()
                 ? prevFeetY <= br.y + 200.0f   // más tolerante cuando cae muerto
-                : prevFeetY <= br.y + 8.0f;
+                : prevFeetY <= br.y + 15.0f;
             bool  overlapX = (pr.x + pr.width > br.x + 2.0f) &&
                 (pr.x < br.x + br.width - 2.0f);
             float penetration = feetY - br.y;
 
-            float maxPen = player.IsDyingInAir() ? 200.0f : 45.0f;
+            float maxPen = player.IsDyingInAir() ? 200.0f : 60.0f;
 
             if (overlapX && wasAbove &&
                 (player.GetVelocityY() >= 0 || player.IsDyingInAir()) &&
@@ -114,6 +114,7 @@ void SystemCollision::PlayerBlockCollision()
                 }
             }
         }
+        break;
 
         case TileType::PLATFORM:
         {
@@ -179,7 +180,7 @@ void SystemCollision::PlayerBlockCollision()
                 player.SetY(surfaceY - player.GetHeight());
                 player.SetVelocityY(3.0f);
                 onGround = true;
-                player.SetRampGroundedFrames(3);  // ← 3 frames de gracia
+                player.SetRampGroundedFrames(6);  // ← 3 frames de gracia
                 pr = player.GetHitBox();
             }
             break;

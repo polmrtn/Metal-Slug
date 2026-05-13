@@ -22,6 +22,7 @@ public:
     Gamestates currentState;
     UiManager* ui = nullptr;
     void SetUiManager(UiManager* u);
+    void FullReset();
 
 private:
     // ── TITLE screen textures ─────────────────────────────────
@@ -82,4 +83,5 @@ private:
     void HtpStartPreload(int slot, int frameIdx);
     void HtpAdvanceFrame();
     void UpdateHowtoplay();
+    
 };

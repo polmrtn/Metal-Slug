@@ -46,6 +46,9 @@ public:
         }
     }
     bool IsDestroyed() const { return destroyed; }
+    bool IsDestroyAnimFinished() const {
+        return destroyed && destroyedTimer >= DESTROY_EXPLOSION_DURATION;
+    }
 
     // Plasma
     bool    GetPlasmaActive(int i) const { return i >= 0 && i < MAX_PLASMA ? plasma[i].active : false; }
@@ -76,10 +79,47 @@ public:
 
     int GetDestroyFrame() const { return destroyFrame; }
 
+    void FullReset() {
+        destroyed = false;
+        active = false;
+        health = 300;
+        introState = IntroState::IDLE;
+        phase2 = false;
+        phase2Pending = false;
+        playerInRange = false;
+        preIntroTimer = 0.0f;
+        introTimer = 0.0f;
+        tentFrame = 0;
+        tentFrameTimer = 0.0f;  // ← añade
+        tentOffsetX = 0.0f;   // ← añade
+        cannonState = CannonState::MOVING;
+        stateTimer = 0.0f;
+        cannonGoingUp = true;
+        cannonFrame = 9;
+        laserState = LaserState::MOVING;
+        laserFrame = 0;      // ← añade
+        laserTimer = 0.0f;   // ← añade
+        chargeTimer = 0.0f;   // ← añade
+        destroyedTimer = 0.0f;
+        explosionSpawnTimer = 0.0f;
+        destroyFrame = 0;      // ← añade
+        for (int i = 0; i < MAX_BOSS_EXPLOSIONS; ++i) bossExplosions[i].active = false;
+        for (int i = 0; i < MAX_BOSS_DEBRIS; ++i)      bossDebris[i].active = false;
+        for (int i = 0; i < MAX_PLASMA; ++i)            plasma[i].active = false;
+        beamUpVisible = false;
+        laserBeamVisible = false;
+        laserBeamActive = false;
+        splatterActive = false;
+        splatterDone = false;
+        isFlashing = false;
+        hitFlashTimer = 0.0f;
+        hitFlashCount = 0;
+    }
+
 private:
     // ── Estado general ────────────────────────────────────────
     bool active = false;
-    int  health = 300; //cambiar luego a 200
+    int  health = 10; //cambiar luego a 300
 
     // ── Posición ──────────────────────────────────────────────
     float posX = 16090.0f;

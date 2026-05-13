@@ -137,3 +137,13 @@ void TimerManager::SetTimerValue(TimerType type, float value)
         break;
     }
 }
+
+void TimerManager::FullReset() {
+    shootTimer = 0.0f;
+    grenadeCooldown = 0.0f;
+    machinegunBurstTimer = 0.0f;
+    machinegunSoundTimer = 0.0f;
+    creditCooldown = 0.0f;
+    machinegunSoundCount = 0;
+    machinegunBurstCount = 0;
+}
