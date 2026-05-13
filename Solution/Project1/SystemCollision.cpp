@@ -461,9 +461,9 @@ void SystemCollision::ItemPlayerCollision()
     for (auto& item : items)
     {
         if (!item.IsActive()) continue;
-
+        bool playerTouching = CheckCollisionRecs(item.GetHitBox(), player.GetHitBox());
         if (item.GetType() == ItemType::SHOTGUN &&
-            CheckCollisionRecs(item.GetHitBox(), player.GetHitBox()))
+            playerTouching)
         {
             player.EquipMachinegun();
             item.Collect();
@@ -471,7 +471,23 @@ void SystemCollision::ItemPlayerCollision()
             uiManager.SetAmmo(player.GetAmmo());
             uiManager.SetWeaponDisplay(UiManager::WeaponDisplay::MACHINEGUN);
         }
-
+        if (playerTouching && item.GetType() != ItemType::BOX)
+        {
+            switch (item.GetType()) {
+            case ItemType::PLUSHY:
+                uiManager.AddScore(200);
+                break;
+            case ItemType::FISH:
+                uiManager.AddScore(500);
+                break;
+            case ItemType::MEDAL:
+				uiManager.AddScore(1000);
+            default:
+                break;
+            }
+            item.Collect();
+            continue;
+        }
         if (item.GetType() == ItemType::JETPACK &&
             CheckCollisionRecs(item.GetHitBox(), player.GetHitBox()))
         {
@@ -488,6 +504,9 @@ void SystemCollision::ItemPlayerCollision()
             newItem.SetGravity(true);
             items.push_back(newItem);
         }
+
+        items.erase(std::remove_if(items.begin(), items.end(),
+            [](const Item& i) { return !i.IsActive(); }), items.end());
     }
 }
 
