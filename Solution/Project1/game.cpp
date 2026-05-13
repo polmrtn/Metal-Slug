@@ -256,6 +256,10 @@ void Game::Update()
         missionCompleteTriggered = true;
         uiManager.StartMissionComplete();
     }
+    if (boss.IsDestroyed()) {
+        player.StopMovingHorizontal();
+        if (player.IsCrouching()) player.StopCrouching();
+    }
 
     player.SavePreviousPosition();
     HandleInput();
@@ -337,7 +341,6 @@ void Game::Update()
     // Gracz zniknal po animacji smierci
     if (!player.IsAlive() && player.IsDisappeared()) {
         if (uiManager.GetCredits() > 0) {
-            uiManager.SetCredits(-1);
         } else {
             uiManager.StartContinue();
             sceneManager.SetGameState(SceneManager::CONTINUE_SCREEN);

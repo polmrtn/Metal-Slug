@@ -411,7 +411,7 @@ void UiManager::DrawHUD(Camera2D /*camera*/)
         if (continueBlinkOn)
         {
             // "CONTINUE X" — ta sama czcionka, cyfra bez animacji
-            int contDigit = 9 - (int)continueElapsed;
+            int contDigit = 9 - (int)(continueElapsed / 2.0f);
             if (contDigit < 0) contDigit = 0;
             char contLabel[16];
             std::snprintf(contLabel, sizeof(contLabel), "CONTINUE %d", contDigit);

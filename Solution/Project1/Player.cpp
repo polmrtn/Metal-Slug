@@ -162,6 +162,7 @@ void Player::Update(float CameraLeftLimit, float CameraTop) {
     }
     if (!grounded) {
         vel.y += GRAVITY;
+        if (vel.y > 40.0f) vel.y = 40.0f;
         pos.y += vel.y;
 
         float camTop = CameraTop;
@@ -443,6 +444,11 @@ void Player::Respawn() {
 
     vel = { 0.0f, 0.0f };
     invincibilityTimer = invincibilityDuration;
+
+    // Random machinegun al respawnear cerca del boss
+    if (GetRandomValue(0, 1) == 1) {
+        EquipMachinegun();
+    }
 }
 
 // ========== HITBOXES ==========

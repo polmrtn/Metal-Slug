@@ -18,9 +18,9 @@ int main()
     game->GetSceneManager().SetUiManager(&game->GetUiManager());
 
     //debug boss
-    player.SetX(15800.0f);
+    /*player.SetX(15800.0f);
     player.SetY(100.0f);
-    player.SetGrounded(true);
+    player.SetGrounded(true);*/
 
     while (WindowShouldClose() == false)
     {
@@ -36,6 +36,7 @@ int main()
             uiManager.FullReset();
             sceneManager.FullReset();
             timerManager.FullReset();
+            boss.FullReset();
             // creationManager se recarga en Game::Game() via LoadFromFile
             // backgroundManager, audioManager, boss no necesitan reset de estado
 
