@@ -588,7 +588,7 @@ void UiManager::DrawHUD(Camera2D /*camera*/)
             const float goSc = 4.5f;
             float goW = GO_ANIM_W * goSc;
             float goX = (float)SW * 0.80f - goW * 0.5f;
-            float goY = hudY + 40.0f;
+            float goY = hudY + 120.0f;
             Rectangle src = { goAnimFrame * GO_ANIM_W, 0, GO_ANIM_W, GO_ANIM_H - 1.0f};
             Rectangle dst = { goX, goY, GO_ANIM_W * goSc, GO_ANIM_H * goSc };
             DrawTexturePro(texGoAnim, src, dst, { 0,0 }, 0, WHITE);
