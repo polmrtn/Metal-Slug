@@ -41,13 +41,10 @@ void InputManager::InputChangeScene()
 			if (uiManager.GetCredits() > 0) {
 				uiManager.SetCredits(-1);  // Gasta 1 crédito
 				audioManager.StopMusic(audioManager.GetTitleMusic());
-				audioManager.PlaySound(audioManager.GetGameSound());
-				sceneManager.SetGameState(SceneManager::GAME);
+				sceneManager.SetGameState(SceneManager::HOWTOPLAY);
 			}
 		}
-		else if (sceneManager.currentState == SceneManager::INTRO) {
-			sceneManager.SetGameState(SceneManager::TITLE);
-		}
+		// INTRO -> TITLE obsługiwane w Game::Update() żeby można było zatrzymać muzykę
 	}
 }
 
@@ -71,22 +68,59 @@ void InputManager::InputPlayer()
 
 	if (IsKeyPressed(KEY_SPACE)) player.Jump();
 
+	if (IsKeyDown(KEY_SPACE) && !player.GetIsGrounded() && player.HasJetpack()) {
+		player.JetpackThrust();
+	}
+
 	// SHOOTING: use TimerManager methods instead of assigning to GetTimer(...) result
-	if (IsKeyPressed(KEY_D) && timerManager.IsReady(TimerType::SHOOT_TIMER)) {
-		if (player.GetCurrentWeapon() == WeaponType::MACHINEGUN) {
-			if (player.GetAmmo() > 0) {
-				player.Shoot();
-				game->StartMachinegunBurst();  // ← método nuevo en Game
-				timerManager.ResetTimer(TimerType::MACHINEGUN_BURST_TIMER);
-				timerManager.StartTimer(TimerType::DELAY_MACHINEGUN);
-				audioManager.PlaySound(audioManager.GetMachinegunShootSound());
+		if (IsKeyPressed(KEY_D) && timerManager.IsReady(TimerType::SHOOT_TIMER) && player.IsAlive()) {
+
+		bool meleeTriggered = false;
+		//Comprobar soldados
+		for (auto& soldier : creationManager.GetSoldiers()) {
+			if (soldier.GetisAlive() &&
+				CheckCollisionRecs(player.GetMeleeHitBox(), soldier.GetHurtBox())) {
+				player.StartMelee();
+				soldier.TriggerDeath(audioManager);
+				uiManager.AddScore(200);
+				timerManager.StartTimer(TimerType::DELAY_PISTOL);
+				meleeTriggered = true;
+				break;
 			}
 		}
-		else {
-			player.Shoot();
-			game->Shoot(1, {}, false);
-			timerManager.StartTimer(TimerType::DELAY_PISTOL);
-			audioManager.PlaySound(audioManager.GetShootSound());
+
+		// Comprobar cajas
+		if (!meleeTriggered) {
+			for (auto& item : creationManager.GetItems()) {
+				if (item.IsActive() && item.GetType() == ItemType::BOX &&
+					!item.IsDestroyed() &&
+					CheckCollisionRecs(player.GetMeleeHitBox(), item.GetHitBox())) {
+					player.StartMelee();
+					item.Destroy();
+					timerManager.StartTimer(TimerType::DELAY_PISTOL);
+					meleeTriggered = true;
+					break;
+				}
+			}
+		}
+
+		// Disparo normal
+		if (!meleeTriggered) {
+			if (player.GetCurrentWeapon() == WeaponType::MACHINEGUN) {
+				if (player.GetAmmo() > 0) {
+					player.Shoot();
+					game->StartMachinegunBurst();
+					timerManager.ResetTimer(TimerType::MACHINEGUN_BURST_TIMER);
+					timerManager.StartTimer(TimerType::DELAY_MACHINEGUN);
+					audioManager.PlaySound(audioManager.GetMachinegunShootSound());
+				}
+			}
+			else {
+				player.Shoot();
+				game->Shoot(1, {}, false);
+				timerManager.StartTimer(TimerType::DELAY_PISTOL);
+				audioManager.PlaySound(audioManager.GetShootSound());
+			}
 		}
 	}
 
@@ -102,7 +136,19 @@ void InputManager::InputPlayer()
 
 void InputManager::InputUi()
 {
-    // Obslugiwane przez CONTINUE_SCREEN state w game.cpp
+	//quizas toque borrar
+	if (!player.IsAlive()) {
+		if (IsKeyPressed(KEY_R) && uiManager.GetCredits() > 0) {
+			uiManager.SetCredits(-1);
+			player.Respawn();
+		}
+		if (IsKeyPressed(KEY_C) && timerManager.GetTimer(TimerType::CREDIT_COOLDOWN) <= 0.0f) {
+			if (uiManager.GetCredits() < 99) {
+				uiManager.SetCredits(1);
+				timerManager.SetTimerValue(TimerType::CREDIT_COOLDOWN, timerManager.GetTimer(TimerType::CREDIT_DELAY));
+			}
+		}
+	}
 }
 
 void InputManager::InputMachinegunBurst()

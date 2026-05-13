@@ -26,6 +26,8 @@ static const char* PATH_GO = "Graphics/new fonts and HUDs/GO.png";
 static const char* PATH_TIME_NUM      = "Graphics/letters/time_numbers.png";
 static const char* PATH_METAL_BIGNUM  = "Graphics/letters/metal_numbers.png";
 static const char* PATH_GAMEOVER      = "Graphics/gameover1.png";
+static const char* PATH_FONTBOMB = "Graphics/new fonts and HUDs/numbers01.png";
+
 
 static constexpr float NUM_CHAR_W = 12.0f;
 static constexpr float NUM_CHAR_H = 14.0f;
@@ -58,8 +60,9 @@ void UiManager::Init() {
     texTimeNum     = LoadTexture(PATH_TIME_NUM);
     texMetalBigNum = LoadTexture(PATH_METAL_BIGNUM);
     texGameOver    = LoadTexture(PATH_GAMEOVER);
-    SetTextureFilter(texGameOver, TEXTURE_FILTER_POINT);
+    texHudFont3Num = LoadTexture(PATH_FONTBOMB);
 
+    SetTextureFilter(texGameOver, TEXTURE_FILTER_POINT);
     SetTextureFilter(texHudFont2Num, TEXTURE_FILTER_POINT);
     SetTextureFilter(texHighScore, TEXTURE_FILTER_POINT);
     SetTextureFilter(texHudFont2Big, TEXTURE_FILTER_POINT);
@@ -74,6 +77,7 @@ void UiManager::Init() {
     SetTextureFilter(texHpBarParts,  TEXTURE_FILTER_POINT);
     SetTextureFilter(texHpBarLeft, TEXTURE_FILTER_POINT);
     SetTextureFilter(texHpBarRight, TEXTURE_FILTER_POINT);
+    SetTextureFilter(texHudFont3Num, TEXTURE_FILTER_POINT);
 
 }
 
@@ -81,10 +85,10 @@ UiManager::~UiManager()
 {
     UnloadTexture(texArms);   UnloadTexture(texBomb);
     UnloadTexture(texCannon); UnloadTexture(texTimeLevel);
-    UnloadTexture(texHudFont2Big); UnloadTexture(texHudFont2Num);
-    UnloadTexture(texHudFont2Small); UnloadTexture(texHighScore);
+    UnloadTexture(texHudFont2Big); UnloadTexture(texHudFont2Num); UnloadTexture(texHudFont3Num);
+    UnloadTexture(texHudFont2Small); UnloadTexture(texHighScore); 
     UnloadTexture(texHighScoreSmall);
-    UnloadTexture(texHpBarLeft); UnloadTexture(texHpBarRight); UnloadTexture(texHpBarParts);
+    UnloadTexture(texHpBarLeft); UnloadTexture(texHpBarRight); UnloadTexture(texHpBarParts); 
     UnloadTexture(texGo);
     UnloadTexture(texTimeNum);
     UnloadTexture(texMetalBigNum);
@@ -116,13 +120,28 @@ void UiManager::DrawCreditsOnly()
     char cText[16];
     std::snprintf(cText, sizeof(cText), "CREDIT %02d", credits);
 
-    float scale = 1.5f;
-    float w = MeasureScoreText(cText, scale);
+    float scale = 2.0f;
+    char label[16] = "CREDIT ";
+    char number[8];
+    std::snprintf(number, sizeof(number), "%02d", credits);
 
-    float x = (float)SW - w - 40.0f;
-    float y = (float)SH - HSF_CHAR_H * scale - 10.0f;
+    float labelW = MeasureScoreText(label, scale);
+    float numW   = MeasureScoreText(number, scale);
+    float totalW = labelW + numW;
 
-    DrawScoreText(cText, { x, y }, scale);
+    float x = (float)SW - totalW - 110.0f;
+    float y = (float)SH - HSF_CHAR_H * scale - 2.0f;
+
+    DrawScoreText(label,  { x, y }, scale);
+    DrawScoreText(number, { x + labelW + 40.0f, y }, scale);
+
+    // LEVEL napis na dole srodek (TITLE zawsze pokazuje LEVEL 4)
+    char lvlText[16]; std::snprintf(lvlText, sizeof(lvlText), "LEVEL-%d", 4);
+    float lSc = 2.0f;
+    float lW  = MeasureScoreText(lvlText, lSc);
+    float lX  = (float)SW * 0.5f - lW * 0.5f;
+    float lY  = (float)SH - HSF_CHAR_H * lSc - 2.0f;
+    DrawScoreText(lvlText, { lX, lY }, lSc);
 }
 
 void UiManager::UpdateGoTimer(float dt)
@@ -274,15 +293,49 @@ float UiManager::MeasureScoreText(const char* str, float scale) const
 
 void UiManager::DrawHpBar(Vector2 pos, int segs, float scale) const
 {
-    DrawTextureEx(texHpBarLeft, pos, 0.0f, scale, WHITE);
-    float offsetX = (float)texHpBarLeft.width * scale;
-    float pW = (float)texHpBarParts.width * scale;
+    static constexpr float PART_W = 8.0f;
+    static constexpr float PART_H = 8.0f;
+    static constexpr float CAP_L_W = 2.0f;  // left es 2px
+    static constexpr float CAP_R_W = 3.0f;  // right es 3px
+    static constexpr float CAP_H = 8.0f;
+
+    // Left cap (2x8)
+    Rectangle srcL = { 0, 0, CAP_L_W, CAP_H };
+    Rectangle dstL = { pos.x, pos.y, CAP_L_W * scale, CAP_H * scale };
+    DrawTexturePro(texHpBarLeft, srcL, dstL, { 0,0 }, 0, WHITE);
+
+    float offsetX = CAP_L_W * scale;
+
+    // Segmentos (8x8 cada uno)
     for (int i = 0; i < segs; ++i)
     {
-        DrawTextureEx(texHpBarParts, { pos.x + offsetX, pos.y }, 0.0f, scale, WHITE);
-        offsetX += pW;
+        int frame = 0;
+        if (jetpackActive)
+        {
+            float segMin = (float)i / (float)segs;
+            float segMax = (float)(i + 1) / (float)segs;
+
+            if (jetpackFuelRatio >= segMax)
+                frame = 8;
+            else if (jetpackFuelRatio <= segMin)
+                frame = 0;
+            else
+            {
+                float t = (jetpackFuelRatio - segMin) / (segMax - segMin);
+                frame = (int)(t * 8.0f);
+            }
+        }
+
+        Rectangle srcP = { frame * PART_W, 0, PART_W, PART_H };
+        Rectangle dstP = { pos.x + offsetX, pos.y, PART_W * scale, PART_H * scale };
+        DrawTexturePro(texHpBarParts, srcP, dstP, { 0,0 }, 0, WHITE);
+        offsetX += PART_W * scale;
     }
-    DrawTextureEx(texHpBarRight, { pos.x + offsetX, pos.y }, 0.0f, scale, WHITE);
+
+    // Right cap (3x8)
+    Rectangle srcR = { 0, 0, CAP_R_W, CAP_H };
+    Rectangle dstR = { pos.x + offsetX, pos.y, CAP_R_W * scale, CAP_H * scale };
+    DrawTexturePro(texHpBarRight, srcR, dstR, { 0,0 }, 0, WHITE);
 }
 
 void UiManager::DrawHUD(Camera2D /*camera*/)
@@ -363,22 +416,53 @@ void UiManager::DrawHUD(Camera2D /*camera*/)
         {
             char ammoBuf[8];
             std::snprintf(ammoBuf, sizeof(ammoBuf), "%03d", ammo);
-            float ammoW = MeasureInnerText(ammoBuf, innerSc);
-            DrawInnerText(ammoBuf, { armsCenterX - ammoW * 0.5f, innerNumY }, innerSc);
+            float num01Sc = 3.0f;
+            float ax = armsCenterX - (3 * 8.0f * num01Sc) / 2.0f;
+            for (int i = 0; ammoBuf[i]; ++i)
+            {
+                if (ammoBuf[i] < '0' || ammoBuf[i] > '9') { ax += 8.0f * num01Sc; continue; }
+                int d = ammoBuf[i] - '0';
+                Rectangle src = { d * 8.0f, 0, 8.0f, 8.0f };
+                Rectangle dst = { ax, innerNumY, 8.0f * num01Sc, 8.0f * num01Sc };
+                DrawTexturePro(texHudFont3Num, src, dst, { 0,0 }, 0, WHITE);
+                ax += 8.0f * num01Sc;
+            }
         }
         else
         {
-            const char* infPlaceholder = "...";
-            float infW = MeasureInnerText(infPlaceholder, innerSc);
-            DrawInnerText(infPlaceholder, { armsCenterX - infW * 0.5f, innerNumY }, innerSc);
+            float num01Sc = 3.0f;
+            float ax = armsCenterX - (3 * 8.0f * num01Sc) / 2.0f;
+            for (int col : {10, 11, 12})
+            {
+                Rectangle src = { col * 8.0f, 0, 8.0f, 8.0f };
+                Rectangle dst = { ax, innerNumY, 8.0f * num01Sc, 8.0f * num01Sc };
+                DrawTexturePro(texHudFont3Num, src, dst, { 0,0 }, 0, WHITE);
+                ax += 8.0f * num01Sc;
+            }
         }
 
         char bombBuf[8];
         std::snprintf(bombBuf, sizeof(bombBuf), "%02d", bombs);
-        float bombW = MeasureInnerText(bombBuf, innerSc);
-        DrawInnerText(bombBuf, { bombCenterX - bombW * 0.5f, innerNumY }, innerSc);
+        float num01Sc = 3.0f;
+        float bx = bombCenterX - (2 * 8.0f * num01Sc) / 2.0f - 10.0f; 
+        for (int i = 0; bombBuf[i]; ++i)
+        {
+            if (bombBuf[i] < '0' || bombBuf[i] > '9') { bx += 8.0f * num01Sc; continue; }
+            int d = bombBuf[i] - '0';
+            Rectangle src = { d * 8.0f, 0, 8.0f, 8.0f };
+            Rectangle dst = { bx, innerNumY, 8.0f * num01Sc, 8.0f * num01Sc };
+            DrawTexturePro(texHudFont3Num, src, dst, { 0,0 }, 0, WHITE);
+            bx += 8.0f * num01Sc;
+        }
 
         DrawScoreText(sBuf, { scoreX, hudY }, scoreSc);
+
+        float barScale = 4.0f;
+        float barY = hudY + HSF_CHAR_H * scoreSc + 4.0f;
+        float barTotalW = (2.0f + 6.0f * 8.0f + 2.0f) * barScale;
+        float barX = scoreX + scoreW - barTotalW;  
+
+        DrawHpBar({ barX, barY }, 6, barScale);
 
         continueLabelX = scoreX;
         continueLabelY = hudY;
@@ -386,18 +470,26 @@ void UiManager::DrawHUD(Camera2D /*camera*/)
 
     // --- DOLNY HUD ---
     char lvlText[16]; std::snprintf(lvlText, sizeof(lvlText), "LEVEL-%d", level);
-    float lSc = 1.5f;
+    float lSc = 2.0f;
     float lW = MeasureScoreText(lvlText, lSc);
     float lX = (float)SW * 0.5f - lW * 0.5f;
-    float lY = (float)SH - HSF_CHAR_H * lSc - 10.0f;
+    float lY = (float)SH - HSF_CHAR_H * lSc - 2.0f;
     DrawScoreText(lvlText, { lX, lY }, lSc);
 
-    char cText[16]; std::snprintf(cText, sizeof(cText), "CREDIT %02d", credits);
-    float cSc = 1.5f;
-    float cW = MeasureScoreText(cText, cSc);
-    float cX = (float)SW - cW - 40.0f;
-    float cY = (float)SH - HSF_CHAR_H * cSc - 10.0f;
-    DrawScoreText(cText, { cX, cY }, cSc);
+    float cSc = 2.0f;
+    char cLabel[16] = "CREDIT ";
+    char cNumber[8];
+    std::snprintf(cNumber, sizeof(cNumber), "%02d", credits);
+
+    float cLabelW = MeasureScoreText(cLabel, cSc);
+    float cNumW   = MeasureScoreText(cNumber, cSc);
+    float cTotalW = cLabelW + cNumW;
+
+    float cX = (float)SW - cTotalW - 110.0f;
+    float cY = (float)SH - HSF_CHAR_H * cSc - 2.0f;
+
+    DrawScoreText(cLabel,  { cX, cY }, cSc);
+    DrawScoreText(cNumber, { cX + cLabelW + 40.0f, cY }, cSc);
 
     if (goVisible && goBlinkOn)
     {
@@ -466,13 +558,16 @@ void UiManager::DrawTimeDigit(char c, Vector2 pos, float scale) const
 
 void UiManager::DrawTimeNumber(int value, Vector2 pos, float scale) const
 {
+    if (value <= 10)
+    {
+        float blinkRate = 0.5f;  
+        if ((int)(GetTime() / blinkRate) % 2 == 0) return;
+    }
+
     char buf[8];
     std::snprintf(buf, sizeof(buf), "%02d", value);
-
     float x = pos.x;
-
     const int CHAR_W = 16;
-
     for (int i = 0; buf[i]; ++i)
     {
         DrawTimeDigit(buf[i], { x, pos.y }, scale);
@@ -524,17 +619,32 @@ void UiManager::StartContinue()
     continueElapsed      = 0.0f;
     continueBlinkAccum   = 0.0f;
     continueBlinkOn      = true;
-    continueScreenActive = true;
+    continueScreenActive = false;
+    continueDelayActive = true;
+    continueDelay = 0.0f;
 }
 
 void UiManager::StopContinue()
 {
     continueScreenActive = false;
+    timeLeft = 60;
+    timeAccum = 0.0f;
 }
 
 void UiManager::UpdateContinue(float dt)
 {
-    continueElapsed    += dt;
+    if (continueDelayActive)
+    {
+        continueDelay += dt;
+        if (continueDelay >= CONTINUE_DELAY)
+        {
+            continueDelayActive = false;
+            continueScreenActive = true;  // ← ahora sí activa
+        }
+        return;
+    }
+
+    continueElapsed += dt;
     continueBlinkAccum += dt;
     if (continueBlinkAccum >= 0.25f) {
         continueBlinkAccum -= 0.25f;
@@ -544,7 +654,7 @@ void UiManager::UpdateContinue(float dt)
 
 bool UiManager::IsContinueOver() const
 {
-    return continueElapsed >= 10.0f;
+    return continueElapsed >= 20.0f;
 }
 
 void UiManager::DrawContinueScreen()
@@ -553,12 +663,12 @@ void UiManager::DrawContinueScreen()
     int SH = GetScreenHeight();
 
     // Aktualnie wyswietlana cyfra (9 -> 0)
-    int currentDigit = 9 - (int)continueElapsed;
+    int currentDigit = 9 - (int)(continueElapsed / 2.0f);
     if (currentDigit < 0) currentDigit = 0;
 
     // Animacja "obrotu" — skalowanie w osi X
     // sprite: "1234567890" => index cyfry d: d==0 -> 9, else d-1
-    float flipPhase = std::fmod(continueElapsed, 1.0f);
+    float flipPhase = std::fmod(continueElapsed / 2.0f, 1.0f);
     float xScale;
     if (flipPhase < 0.2f)
         xScale = flipPhase / 0.2f;
@@ -658,4 +768,34 @@ void UiManager::DrawGameOverSprite(float t)
     Rectangle src = { 0.0f, 0.0f, (float)texGameOver.width, (float)texGameOver.height };
     Rectangle dst = { 0.0f, 0.0f, (float)SW, (float)SH };
     DrawTexturePro(texGameOver, src, dst, { 0.0f, 0.0f }, 0.0f, { 255, 255, 255, alpha });
+}
+
+void UiManager::DrawInsertCoin(float y, float scale) const
+{
+    if ((int)(GetTime() * 2.5f) % 2 != 0) return;
+
+    const char* txt = "INSERT COINT!";
+    int SW = GetScreenWidth();
+
+    // medir ancho total
+    float totalW = 0;
+    for (int i = 0; txt[i]; ++i)
+        if (txt[i] != '!') totalW += BIG_CHAR_W * scale;
+
+    float x = SW * 0.5f - totalW * 0.5f;
+    for (int i = 0; txt[i]; ++i)
+    {
+        if (txt[i] == ' ') { x += BIG_CHAR_W * scale * 0.5f; continue; }
+        if (txt[i] == '!') { x += BIG_CHAR_W * scale; continue; }
+        DrawBigLetter(txt[i], { x, y }, scale);
+        x += BIG_CHAR_W * scale;
+    }
+}
+
+void UiManager::DrawFooter(float y, float scale) const
+{
+    int SW = GetScreenWidth();
+    const char* txt = "2026 KURVVA PRODUCTIONS";
+    float w = MeasureScoreText(txt, scale);
+    DrawScoreText(txt, { SW * 0.5f - w * 0.5f, y }, scale);
 }

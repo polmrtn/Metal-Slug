@@ -100,6 +100,22 @@ public:
     void SetRampGroundedFrames(int f) { rampGroundedFrames = f; }
     int GetRampGroundedFrames() const { return rampGroundedFrames; }
 
+    void SetDeathPosition(Vector2 pos) { deathPosition = pos; }
+    void SetDyingInAir(bool val) { dyingInAir = val; }
+    bool IsDyingInAir() const { return dyingInAir; }
+    float GetNormalHeight() const { return 40.0f * SCALE; }
+    // ========== MELEE ==========
+    void StartMelee();
+    bool IsMeleeAttacking() const { return meleeAttacking; }
+    Rectangle GetMeleeHitBox() const;
+
+    // ========== JETPACK ==========
+    void EquipJetpack();
+    bool HasJetpack() const { return hasJetpack; }
+    void JetpackThrust();
+    float GetJetpackFuel() const { return jetpackFuel; }
+    float GetJetpackMaxFuel() const { return JETPACK_MAX_FUEL; }
+
 private:
     // ========== ANIMACIÓN ==========
     PlayerAnim anim;
@@ -124,8 +140,13 @@ private:
     static constexpr float SCALE = 4.0f;
     static constexpr float GRAVITY = 2.5f;
     static constexpr float JUMP_FORCE = -34.0f;
+<<<<<<< HEAD
     static constexpr float MOVE_SPEED = 100.0f;
     static constexpr float CROUCH_SPEED = 4.0f;
+=======
+    static constexpr float MOVE_SPEED = 13.0f;
+    static constexpr float CROUCH_SPEED = 6.0f;
+>>>>>>> main
 
     // ========== HITBOX ==========
     float hitboxWidth;
@@ -171,4 +192,21 @@ private:
     bool blinkVisible = true;
     bool wasOnRamp = false;
     int rampGroundedFrames = 0;
+
+    bool dyingInAir = false;
+    float deathFallGravity = 2.5f;
+
+    // ========== MELEE ==========
+    bool  meleeAttacking = false;
+    float meleeTimer = 0.0f;
+    static constexpr float MELEE_DURATION = 0.3f;
+
+    // ========== JETPACK ==========
+    bool  hasJetpack = false;
+    float jetpackFuel = 0.0f;
+    static constexpr float JETPACK_MAX_FUEL = 100.0f;
+    static constexpr float JETPACK_FUEL_DRAIN = 25.0f;  // por segundo
+    static constexpr float JETPACK_FORCE = -3.5f;
+    static constexpr float JETPACK_MAX_VEL = -18.0f;
+
 };

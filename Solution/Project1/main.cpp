@@ -12,7 +12,7 @@ int main()
     uiManager.Init();
     sceneManager.Init();
     backgroundManager.Init();
-
+    boss.Init();
 
     Game* game = new Game();
     game->GetSceneManager().SetUiManager(&game->GetUiManager());

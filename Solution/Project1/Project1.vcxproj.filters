@@ -81,7 +81,11 @@
     <ClCompile Include="GlobalManagers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+<<<<<<< HEAD
     <ClCompile Include="CreationManager.cpp">
+=======
+    <ClCompile Include="Boss.cpp">
+>>>>>>> main
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -152,7 +156,11 @@
     <ClInclude Include="GlobalManagers.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+<<<<<<< HEAD
     <ClInclude Include="CameraManager.hpp">
+=======
+    <ClInclude Include="Boss.hpp">
+>>>>>>> main
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -16,7 +16,9 @@ public:
 	void ItemBlockCollision();
 	void BulletBlockCollision();
 	void ItemPlayerCollision();
-
+	void BossAttackPlayerCollision();
+	void PlayerBoxCollision();
+	
 private:
 	
 	

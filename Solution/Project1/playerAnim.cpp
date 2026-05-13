@@ -354,6 +354,17 @@ void PlayerAnim::Update(bool grounded, float velX, bool crouchingInput, bool aim
                 }
             }
         }
+        if (meleeAttacking) {
+            meleeTimer += dt;
+            if (meleeTimer >= meleeFrameDelay) {
+                meleeTimer = 0.0f;
+                meleeFrame++;
+                if (meleeFrame >= MELEE_FRAMES) {
+                    meleeFrame = MELEE_FRAMES - 1;
+                    meleeAttacking = false;
+                }
+            }
+        }
         return;
     }
 
@@ -419,6 +430,18 @@ void PlayerAnim::Update(bool grounded, float velX, bool crouchingInput, bool aim
             }
         }
     }
+    // Melee
+if (meleeAttacking) {
+    meleeTimer += dt;
+    if (meleeTimer >= meleeFrameDelay) {
+        meleeTimer = 0.0f;
+        meleeFrame++;
+        if (meleeFrame >= MELEE_FRAMES) {
+            meleeFrame = MELEE_FRAMES - 1;
+            meleeAttacking = false;
+        }
+    }
+}
 }
 
 VisualOffsets PlayerAnim::GetOffsets() const {
@@ -674,4 +697,10 @@ void PlayerAnim::StopParachuteLanding() {
     parachuteLanding = false;
     parachuteLandingFrame = 0;
     hasLandingPosition = false;  // ← Resetear
+}
+
+void PlayerAnim::StartMelee() {
+    meleeAttacking = true;
+    meleeFrame = 0;
+    meleeTimer = 0.0f;
 }

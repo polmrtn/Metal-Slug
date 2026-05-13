@@ -4,6 +4,7 @@
 enum class ItemType {
     SHOTGUN,
     BOX,
+<<<<<<< HEAD
     PLUSHY,
     FISH,
     MEDAL,
@@ -30,6 +31,9 @@ static const ItemConfig ITEM_CONFIGS[] = {
     { "Graphics/timmy.png",             20.f, 20.f, 3.0f, 5, 8,  true,  false, 0.f,  0.f, false, 0.f }, // PLUSHY
     { "Graphics/fish.png",              34.f, 34.f, 3.0f, 6, 8,  true,  false, 0.f,  0.f, false, 0.f }, // FISH
     { "Graphics/medal.png",              22.f, 22.f, 3.0f, 7, 8,  true,  false, 0.f,  0.f, false, 0.f }, // MEDAL
+=======
+    JETPACK,
+>>>>>>> main
 };
 
 class Item {
@@ -58,7 +62,14 @@ public:
     Vector2 GetPosition() const { return position; }
     void SetPosition(Vector2 pos) { position = pos; }
     void SetPositionY(float y) { position.y = y; }
+<<<<<<< HEAD
     bool IsGrounded() const { return isGrounded; }
+=======
+    void Activate() { activated = true; }
+    bool IsActivated() const { return activated; }
+    float GetBoxTop() const { return position.y; }
+    float GetBoxWidth() const { return BOX_W * BOX_SCALE; }
+>>>>>>> main
 
 private:
     Vector2 position;
@@ -76,6 +87,7 @@ private:
     static constexpr float DESTROY_DELAY = 0.1f;
     static constexpr int DESTROY_FRAMES = 4;
     static constexpr float GRAVITY = 800.0f;
+    bool activated = false;
 
     bool hasGravity = false;
     float velY = 0.0f;

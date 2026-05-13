@@ -6,6 +6,7 @@
 #include "Grenade.hpp"
 #include "InputManager.hpp"
 #include "Debug.hpp"
+#include "Boss.hpp"
 
 
 class Game {
@@ -47,6 +48,8 @@ private:
     // Estado de sonido machinegun
     bool machinegunSoundActive = false;
 
-    bool  shouldRestart = false;
-    float gameOverTimer = 0.0f;
+    bool  shouldRestart          = false;
+    bool  introSkipped           = false;
+    bool  howtoplayMusicStarted  = false;
+    float gameOverTimer  = 0.0f;
 };

@@ -1,4 +1,5 @@
 #include "Player.hpp"
+#include "GlobalManagers.hpp"
 
 // ========== CONSTRUCTOR / DESTRUCTOR ==========
 Player::Player() {
@@ -80,6 +81,17 @@ void Player::Update(float CameraLeftLimit) {
                 specialTimer = specialDuration;
             }
         }
+
+        // ── CAÍDA EN MUERTE EN EL AIRE ──────────────────────────────
+        if (dyingInAir) {
+            previousY = pos.y;          // necesario para que PlayerBlockCollision use prevFeetY correcto
+            vel.y += deathFallGravity;
+            pos.y += vel.y;
+
+            if (grounded) {             // grounded lo setea SystemCollision justo antes de Update
+                vel.y = 0.0f;
+            }
+        }
         return;
     }
 
@@ -128,6 +140,13 @@ void Player::Update(float CameraLeftLimit) {
         return;
     }
 
+    // Melee timer
+    if (meleeAttacking) {
+        meleeTimer += GetFrameTime();
+        if (meleeTimer >= MELEE_DURATION)
+            meleeAttacking = false;
+    }
+
     // Física y movimiento
     if (rampGroundedFrames > 0) {
         rampGroundedFrames--;
@@ -136,6 +155,12 @@ void Player::Update(float CameraLeftLimit) {
     if (!grounded) {
         vel.y += GRAVITY;
         pos.y += vel.y;
+
+        float camTop = cameraManager.GetCamera().target.y - cameraManager.GetCamera().offset.y;
+        if (pos.y < camTop) {
+            pos.y = camTop;
+            vel.y = 0.0f;
+        }
     }
     else {
         vel.y = 0;
@@ -162,6 +187,11 @@ void Player::MoveLeft() {
         dir = PlayerDirection::LEFT;
     }
     else if (crouching && !anim.IsCrouchShooting()) {
+            if (meleeAttacking) {
+        vel.x = 0;
+        inputVelX = 0;
+        return;
+    }
         if (currentWeapon == WeaponType::MACHINEGUN &&
             (anim.IsMachinegunCrouchShooting() || anim.IsMachinegunCrouchThrowing())) return;
         inputVelX = -CROUCH_SPEED;
@@ -181,6 +211,11 @@ void Player::MoveRight() {
         dir = PlayerDirection::RIGHT;
     }
     else if (crouching && !anim.IsCrouchShooting()) {
+        if (meleeAttacking) {
+            vel.x = 0;
+            inputVelX = 0;
+            return;
+        }
         if (currentWeapon == WeaponType::MACHINEGUN &&
             (anim.IsMachinegunCrouchShooting() || anim.IsMachinegunCrouchThrowing())) return;
         inputVelX = CROUCH_SPEED;
@@ -363,7 +398,6 @@ void Player::TakeDamage() {
     if (IsInvincible()) return;
 
     isAlive = false;
-    deathPosition = pos;
     deathTimer = 0.0f;
     isDisappeared = false;
 
@@ -372,11 +406,23 @@ void Player::TakeDamage() {
     specialTimer = 0.0f;
     specialDuration = 1.0f;
 
-    vel = { 0.0f, 0.0f };
     inputVelX = 0;
+    vel.x = 0.0f;
+
+    if (grounded) {
+        vel.y = 0.0f;
+        dyingInAir = false;
+        deathPosition = pos;
+    }
+    else {
+        dyingInAir = true;
+        // vel.y mantiene la velocidad actual
+    }
 }
 
 void Player::Respawn() {
+    TraceLog(LOG_INFO, "Respawn en deathPosition: x=%.1f y=%.1f", deathPosition.x, deathPosition.y);
+    pos = deathPosition;
     isAlive = true;
     isDisappeared = false;
     deathTimer = 0.0f;
@@ -386,7 +432,6 @@ void Player::Respawn() {
     specialTimer = 0.0f;
     specialDuration = 0.6f;
 
-    pos = deathPosition;
     vel = { 0.0f, 0.0f };
     invincibilityTimer = invincibilityDuration;
 }
@@ -474,6 +519,21 @@ void Player::Draw() {
         // Ajuste vertical para que los pies toquen el hitbox
         float offsetY = -68.0f * SCALE + GetHeight();
 
+        // Prioridad melee
+        if (anim.IsMeleeAttacking()) {
+            bool mg = (currentWeapon == WeaponType::MACHINEGUN);
+            float rowY = anim.GetMeleeRowY(mg, false);
+            float drawX = pos.x;
+            Rectangle sourceRect = { anim.GetMeleeFrame() * 64.0f, rowY, 64.0f, 64.0f };
+            if (dir == PlayerDirection::LEFT) {
+                sourceRect.width = -64.0f;
+                drawX = pos.x - (64.0f - 34.0f) * SCALE;
+            }
+            Rectangle destRect = { drawX, pos.y, 64.0f * SCALE, 64.0f * SCALE };
+            DrawTexturePro(anim.GetSheet(), sourceRect, destRect, { 0,0 }, 0, WHITE);
+            return;
+        }
+
         Rectangle destRect = {
             pos.x,
             pos.y + offsetY,
@@ -523,9 +583,10 @@ void Player::Draw() {
 }
 
 void Player::DrawHitBox() {
-//    DrawRectangleLinesEx(GetHitBox(), 2, WHITE);
-//    DrawRectangleLinesEx(GetLeftHitBox(), 2, RED);
-//    DrawRectangleLinesEx(GetRightHitBox(), 2, BLUE);
+    DrawRectangleLinesEx(GetHitBox(), 2, WHITE);
+    DrawRectangleLinesEx(GetLeftHitBox(), 2, RED);
+    DrawRectangleLinesEx(GetRightHitBox(), 2, BLUE);
+    DrawRectangleLinesEx(GetMeleeHitBox(), 2, YELLOW);
 }
 
 // ========== DIBUJO AGACHADO ==========
@@ -535,6 +596,18 @@ void Player::DrawCrouch() {
     float rowY;
     float yOffset;
     float drawX = pos.x;
+
+    if (anim.IsMeleeAttacking()) {
+        bool mg = (currentWeapon == WeaponType::MACHINEGUN);
+        float rowY = anim.GetMeleeRowY(mg, true);
+        float meleeDrawX = pos.x - (68.0f - 34.0f) / 2.0f * SCALE + (dir == PlayerDirection::RIGHT ? 30.0f : -30.0f);
+        Rectangle meleeSrc = { anim.GetMeleeFrame() * 68.0f, rowY, 68.0f, 68.0f };
+        if (dir == PlayerDirection::LEFT) meleeSrc.width = -68.0f;
+        float destY = pos.y + hitboxHeight - 68.0f * SCALE;  // ← nuevo
+        Rectangle destRect = { meleeDrawX, destY, 68.0f * SCALE, 68.0f * SCALE };  // ← nuevo
+        DrawTexturePro(anim.GetSheet(), meleeSrc, destRect, { 0,0 }, 0, WHITE);
+        return;
+    }
 
     if (anim.IsMachinegunCrouching()) {
 
@@ -732,6 +805,22 @@ void Player::DrawSeparated() {
     float torsoDrawY = baseY + off.torsoY * SCALE;
     Rectangle torsoSrc;
     Color tint = WHITE;
+
+    // Prioridad: Melee
+    if (anim.IsMeleeAttacking()) {
+        bool mg = (currentWeapon == WeaponType::MACHINEGUN);
+        float rowY = anim.GetMeleeRowY(mg, false);
+        // Centrar el 68px respecto a la hitbox de 34px
+        float meleeDrawX = pos.x - (68.0f - 34.0f) / 2.0f * SCALE + (dir == PlayerDirection::RIGHT ? 32.0f : -32.0f);
+        Rectangle meleeSrc = { anim.GetMeleeFrame() * 68.0f, rowY, 68.0f, 68.0f };
+        if (dir == PlayerDirection::LEFT) {
+            meleeSrc.width = -68.0f;
+        }
+        DrawTexturePro(anim.GetSheet(), meleeSrc,
+            { meleeDrawX, torsoDrawY - (30.0f * SCALE), 68.0f * SCALE, 68.0f * SCALE },
+            { 0,0 }, 0, WHITE);
+        return;
+    }
 
     // Prioridad: Lanzar granada
     if (anim.IsThrowing()) {
@@ -946,4 +1035,38 @@ void Player::DrawFullBody() {
     float currentHeight = GetFullBodyH();
     Rectangle destRect = { pos.x, pos.y + (34.0f - currentHeight) * SCALE, GetWidth(), currentHeight * SCALE };
     DrawTexturePro(anim.GetSheet(), sourceRect, destRect, { 0,0 }, 0, aimingUp ? YELLOW : WHITE);
+}
+
+void Player::StartMelee() {
+    if (meleeAttacking) return;
+    meleeAttacking = true;
+    meleeTimer = 0.0f;
+    anim.StartMelee();
+}
+
+Rectangle Player::GetMeleeHitBox() const {
+    Rectangle hb = const_cast<Player*>(this)->GetHitBox();
+    float hbW = 60.0f;
+    float hbH = 80.0f;
+    float hbY = hb.y + hb.height * 0.2f;
+    if (dir == PlayerDirection::RIGHT)
+        return { hb.x + hb.width, hbY, hbW, hbH };
+    else
+        return { hb.x - hbW, hbY, hbW, hbH };
+}
+
+void Player::EquipJetpack() {
+    hasJetpack = true;
+    jetpackFuel = JETPACK_MAX_FUEL;
+}
+
+void Player::JetpackThrust() {
+    if (!hasJetpack || grounded || jetpackFuel <= 0.0f) return;
+    vel.y += JETPACK_FORCE;
+    if (vel.y < JETPACK_MAX_VEL) vel.y = JETPACK_MAX_VEL;
+    jetpackFuel -= JETPACK_FUEL_DRAIN * GetFrameTime();
+    if (jetpackFuel <= 0.0f) {
+        jetpackFuel = 0.0f;
+        hasJetpack = false;  // vuelve al salto normal
+    }
 }
