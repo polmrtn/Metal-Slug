@@ -28,11 +28,15 @@ Game::~Game() {}
 void Game::Reset()
 {
     player.ResetToStart();
+    player.GetAnim().StopParachute();
+    player.GetAnim().StartParachute();
     if (!player.IsAlive()) player.Respawn();
+    uiManager.AddScore(-uiManager.GetScore());
     camera.Reset();
-    musicStarted           = false;
-    introSkipped           = false;
-    howtoplayMusicStarted  = false;
+    musicStarted = false;
+    introSkipped = false;
+    howtoplayMusicStarted = false;
+    continueStarted = false;
 }
 
 // ─────────────────────────────────────────
@@ -146,13 +150,8 @@ void Game::Update()
         uiManager.UpdateContinue(dt);
         timerManager.Update(dt);
 
-        // C -> dodaj credit i natychmiast kontynuuj
-        if (IsKeyPressed(KEY_C)) {
-            uiManager.SetCredits(1);
-            uiManager.SetCredits(-1);
-            uiManager.StopContinue();
-            player.Respawn();
-            sceneManager.SetGameState(SceneManager::GAME);
+        inputManager.InputContinueScreen();
+        if (sceneManager.GetGamestate() != SceneManager::CONTINUE_SCREEN) {
             BeginDrawing();
             ClearBackground(BGCOLOR);
             Draw();
@@ -169,10 +168,10 @@ void Game::Update()
             return;
         }
 
-        // Aktualizuj swiat gry (bez inputu gracza)
-        player.Update(camera.GetLeftLimit());
+        float camTop = camera.GetCamera().target.y - camera.GetCamera().offset.y;
+        player.Update(camera.GetLeftLimit(), camTop);
         systemCollision.CollisionUpdate();
-
+        boss.Update(player.GetPosition().x);
 
         for (auto& item : creationManager.GetItems()) item.Update();
         creationManager.GetItems().erase(
@@ -211,7 +210,6 @@ void Game::Update()
         audioManager.UpdateMusic(audioManager.GetGameMusic());
         return;
     }
-
     // ── GAME OVER SEQUENCE ────────────────
     if (sceneManager.GetGamestate() == SceneManager::GAME_OVER)
     {
@@ -254,7 +252,8 @@ void Game::Update()
 
     player.SavePreviousPosition();
     HandleInput();
-    player.Update(camera.GetLeftLimit());
+    float camTop = camera.GetCamera().target.y - camera.GetCamera().offset.y;
+    player.Update(camera.GetLeftLimit(), camTop);
 
     // Colisiones (todos los sistemas)
     systemCollision.CollisionUpdate();
@@ -336,6 +335,13 @@ void Game::Update()
             uiManager.StartContinue();
             sceneManager.SetGameState(SceneManager::CONTINUE_SCREEN);
         }
+    }
+
+    if (!player.IsAlive() && player.IsDisappeared() && !continueStarted)
+    {
+        continueStarted = true;
+        uiManager.StartContinue();
+        sceneManager.SetGameState(SceneManager::CONTINUE_SCREEN);
     }
 
     BeginDrawing();

@@ -15,6 +15,7 @@ public:
 	void InputPlayer();
 	void InputUi();
 	void InputMachinegunBurst();
+	void InputContinueScreen();
 
 private:
 	Game* game;	

@@ -128,7 +128,7 @@ void Boss::Update(float playerX)
         }
     }
 
-    if (!phase2 && !phase2Pending && health <= 5)
+    if (!phase2 && !phase2Pending && health <= 150)
         phase2Pending = true;
 
     // Guardar posición del cañón

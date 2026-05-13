@@ -15,8 +15,7 @@ Player::~Player() {
     anim.UnloadTextures();
 }
 
-void Player::ResetToStart()
-{
+void Player::ResetToStart() {
     pos = { 300.0f, -50.0f };
     vel = { 0.0f, 0.0f };
     isAlive = true;
@@ -25,9 +24,18 @@ void Player::ResetToStart()
     deathPosition = { 0.0f, 0.0f };
     currentWeapon = WeaponType::PISTOL;
     machinegunAmmo = 0;
+    isFalling = true;        
+    grounded = false;        
+    dyingInAir = false;
+    deathTimer = 0.0f;
+    meleeAttacking = false;
+    hasJetpack = false;
+    jetpackFuel = 0.0f;
     anim.StopMachinegun();
     anim.StopMachinegunAiming();
     anim.StopMachinegunCrouch();
+    anim.StopParachute();
+    anim.StartParachute();   
 }
 
 // ========== HITBOX ==========
@@ -46,7 +54,7 @@ void Player::SetCrouchHitbox() {
 }
 
 // ========== ACTUALIZACIÓN PRINCIPAL ==========
-void Player::Update(float CameraLeftLimit) {
+void Player::Update(float CameraLeftLimit, float CameraTop) {
     if (isFalling) {
         blinkTimer += GetFrameTime();
         if (blinkTimer >= blinkDelay) {
@@ -156,7 +164,7 @@ void Player::Update(float CameraLeftLimit) {
         vel.y += GRAVITY;
         pos.y += vel.y;
 
-        float camTop = cameraManager.GetCamera().target.y - cameraManager.GetCamera().offset.y;
+        float camTop = CameraTop;
         if (pos.y < camTop) {
             pos.y = camTop;
             vel.y = 0.0f;
@@ -388,6 +396,7 @@ void Player::UseAmmo() {
             currentWeapon = WeaponType::PISTOL;
             anim.StopMachinegun();
             anim.StopMachinegunAiming();
+            anim.StopMachinegunCrouch();
         }
     }
 }

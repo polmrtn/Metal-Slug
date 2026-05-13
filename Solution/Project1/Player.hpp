@@ -25,7 +25,7 @@ public:
     void Init();
 
     // ========== ACTUALIZACIÓN Y DIBUJO ==========
-    void Update(float CameraLeftLimit);
+    void Update(float CameraLeftLimit, float CameraTop = -99999.0f);
     void Draw();
     void DrawHitBox();
 

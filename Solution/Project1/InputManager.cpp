@@ -22,15 +22,6 @@ void InputManager::InputCreditsPlayer()
 			timerManager.StartTimer(TimerType::CREDIT_DELAY);
 		}
 	}
-
-	// Respawn
-	if (!player.IsAlive()) {
-		if (IsKeyPressed(KEY_R) && uiManager.GetCredits() > 0) {
-			uiManager.SetCredits(-1);
-			player.Respawn();
-		}
-		return;
-	}
 }
 
 void InputManager::InputChangeScene()
@@ -136,19 +127,7 @@ void InputManager::InputPlayer()
 
 void InputManager::InputUi()
 {
-	//quizas toque borrar
-	if (!player.IsAlive()) {
-		if (IsKeyPressed(KEY_R) && uiManager.GetCredits() > 0) {
-			uiManager.SetCredits(-1);
-			player.Respawn();
-		}
-		if (IsKeyPressed(KEY_C) && timerManager.GetTimer(TimerType::CREDIT_COOLDOWN) <= 0.0f) {
-			if (uiManager.GetCredits() < 99) {
-				uiManager.SetCredits(1);
-				timerManager.SetTimerValue(TimerType::CREDIT_COOLDOWN, timerManager.GetTimer(TimerType::CREDIT_DELAY));
-			}
-		}
-	}
+
 }
 
 void InputManager::InputMachinegunBurst()
@@ -167,4 +146,24 @@ void InputManager::InputMachinegunBurst()
 	if (IsKeyPressed(KEY_SPACE)) { player.Jump(); uiManager.NotifyPlayerMoved(); }
 	if (IsKeyDown(KEY_DOWN)) player.StartCrouching();
 	else player.StopCrouching();
+}
+
+void InputManager::InputContinueScreen()
+{
+	// C -> insertar crédito
+	if (IsKeyPressed(KEY_C) && timerManager.IsReady(TimerType::CREDIT_COOLDOWN)) {
+		if (uiManager.GetCredits() < 99) {
+			uiManager.SetCredits(1);
+			timerManager.StartTimer(TimerType::CREDIT_DELAY);
+		}
+	}
+
+	// R -> respawnear gastando 1 crédito
+	if (IsKeyPressed(KEY_R) && uiManager.GetCredits() > 0) {
+		uiManager.SetCredits(-1);
+		uiManager.StopContinue();
+		player.Respawn();
+		game->SetContinueStarted(false);
+		sceneManager.SetGameState(SceneManager::GAME);
+	}
 }
