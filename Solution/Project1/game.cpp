@@ -1,350 +1,513 @@
-﻿#include "game.hpp"
+#define _CRT_SECURE_NO_WARNINGS
+#include "game.hpp"
 #include <raymath.h>
-bool musicStarted = false;
+#include <algorithm>
 
-Game::Game() : camera({ 1280.0f/2 , 896/2  })
+static bool musicStarted = false;
+static Color BGCOLOR = { 195, 195, 170 };
+
+// ─────────────────────────────────────────
+//  Constructor / Destructor
+// ─────────────────────────────────────────
+Game::Game() : camera({ 1200.0f / 2.0f, 896.0f / 2.0f })
 {
-	soldiers = CreateSoldiers();
-	bullets = CreateBullets();
-	blocks = CreateBlocks();
-	
+    creationManager.LoadFromFile("level.txt");
+    debug.SetGridOffset(creationManager.GetTileMap().GetGridOffset());
+    player.ResetToStart();
+    uiManager.SetAmmo(0);
+    uiManager.SetWeaponDisplay(UiManager::WeaponDisplay::PISTOL);
+
+    boss.Init();
 }
 
-Game::~Game()
-{
+Game::~Game() {}
 
+// ─────────────────────────────────────────
+//  Reset
+// ─────────────────────────────────────────
+void Game::Reset()
+{
+    player.ResetToStart();
+    player.GetAnim().StopParachute();
+    player.GetAnim().StartParachute();
+    if (!player.IsAlive()) player.Respawn();
+    uiManager.AddScore(-uiManager.GetScore());
+    camera.Reset();
+    musicStarted = false;
+    introSkipped = false;
+    howtoplayMusicStarted = false;
+    continueStarted = false;
 }
 
+// ─────────────────────────────────────────
+//  Draw
+// ─────────────────────────────────────────
 void Game::Draw()
 {
-	camera.Begin();
-	
-	backgroundManager.Draw();
-	player.Draw();
+    camera.Begin();
 
-	for (auto& Soldier : soldiers) {
-		Soldier.Draw();
-	}
+    backgroundManager.Draw();
+    player.Draw();
+    for (auto& soldier : creationManager.GetSoldiers()) soldier.Draw();
+    backgroundManager.Drawfrontground();
+    for (auto& bullet : creationManager.GetBullets())  bullet.Draw();
+    for (auto& grenade : creationManager.GetGrenades()) grenade.Draw();
+    for (auto& item : creationManager.GetItems())    item.Draw();
 
-	for (auto& bullet : bullets) {
-		bullet.Draw();
-	}
-	for (auto& block : blocks) {
-		block.Draw();
-	}
-	camera.End();
+    // Tiles en coordenadas de mundo
+    creationManager.GetTileMap().DrawTiles();
+    creationManager.GetTileMap().DrawColliders();
+    debug.DrawEditorGrid(camera.GetCamera());
+    boss.Draw();
 
-	UiManager.DrawCredits(camera.GetCamera());
-	
+    camera.End();
+
+    debug.SetEditorMode(camera.GetCamera());  // ← solo HUD en pantalla
+    uiManager.DrawCredits(camera.GetCamera());
 }
 
-void Game::Timers()
-{
-	shootTimer += GetFrameTime();
-}
+// ─────────────────────────────────────────
+//  Update
+// ─────────────────────────────────────────
 void Game::Update()
 {
-	if (sceneManager.GetGamestate() == SceneManager::INTRO) {
-		BeginDrawing();
-		ClearBackground(BLACK);
-		sceneManager.DrawTexts();
-	}
-	else if (sceneManager.GetGamestate() == SceneManager::TITLE) {
-		BeginDrawing();
-		ClearBackground(BLACK);
-		sceneManager.DrawTexts();
-		if (!musicStarted)
-		{
-			audioManager.PlayMusic(audioManager.GetTitleMusic());
-			musicStarted = true;
-		}
-		audioManager.UpdateMusic(audioManager.GetTitleMusic());
-	}
-	else if (sceneManager.GetGamestate() == SceneManager::GAME) {
-		UiManager.Update();
+    // ── INTRO ──────────────────────────────
+    if (sceneManager.GetGamestate() == SceneManager::INTRO)
+    {
+        if (!musicStarted) {
+            audioManager.PlayMusic(audioManager.GetIntroMusic());
+            musicStarted = true;
+        }
+        audioManager.UpdateMusic(audioManager.GetIntroMusic());
+        BeginDrawing();
+        ClearBackground(BLACK);
 
-		// ========== 1. ACTUALIZAR JUGADOR ==========
-		player.Update(camera.GetLeftLimit());
+        // Jezeli Enter/Space wcisniety — skipnij intro i zatrzymaj muzyke
+        if (IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_SPACE)) {
+            audioManager.StopIntroMusic();     // działa bezpośrednio na składowej
+            musicStarted = true;
+            introSkipped  = true;
+            sceneManager.SetGameState(SceneManager::TITLE);
+            return;
+        }
 
-		// ========== 2. COLISIONES ==========
-		ResolveCollisions();
+        sceneManager.DrawTexts();
+        return;
+    }
 
-		// ========== 3. ACTUALIZAR CÁMARA ==========
-		camera.Update(player.GetPosition(), backgroundManager.GetWidth(), backgroundManager.GetHeight(), player.GetIsGrounded());
+    // ── TITLE ──────────────────────────────
+    if (sceneManager.GetGamestate() == SceneManager::TITLE)
+    {
+        if (introSkipped) {
+            audioManager.StopIntroMusic();
+        } else {
+            if (!musicStarted) {
+                audioManager.PlayMusic(audioManager.GetIntroMusic());
+                musicStarted = true;
+            }
+            audioManager.UpdateMusic(audioManager.GetIntroMusic());
+        }
 
-		// ========== 4. ACTUALIZAR SOLDADOS Y BALAS ==========
-		for (auto& soldier : soldiers) {
-			soldier.UpdateAI(player);
-			soldier.Update();
-		}
-		for (auto& bullet : bullets) {
-			bullet.Update();
-		}
+        BeginDrawing();
+        ClearBackground(BLACK);
+        sceneManager.DrawTexts();
 
-		// ========== 5. DIBUJAR ==========
-		BeginDrawing();
-		ClearBackground(BLACK);
-		Draw();
-		Timers();
+        if (IsKeyPressed(KEY_C) && timerManager.IsReady(TimerType::CREDIT_COOLDOWN)) {
+            if (uiManager.GetCredits() < 99) {
+                uiManager.SetCredits(1);
+                timerManager.StartTimer(TimerType::CREDIT_DELAY);
+            }
+        }
+        timerManager.Update(GetFrameTime());
+        return;
+    }
 
-		// ========== 6. AUDIO ==========
-		if (!musicStarted)
-		{
-			audioManager.PlayMusic(audioManager.GetGameMusic());
-			musicStarted = true;
-		}
-		audioManager.UpdateMusic(audioManager.GetGameMusic());
-	}
+    // ── HOWTOPLAY ─────────────────────────
+    if (sceneManager.GetGamestate() == SceneManager::HOWTOPLAY)
+    {
+        musicStarted = false; // reset zeby GAME odpalil muzyke i dzwiek od nowa
+        if (!howtoplayMusicStarted) {
+            audioManager.PlayMusic(audioManager.GetHowtoplayMusic());
+            howtoplayMusicStarted = true;
+        }
+        audioManager.UpdateMusic(audioManager.GetHowtoplayMusic());
+
+        BeginDrawing();
+        ClearBackground(BLACK);
+        sceneManager.DrawTexts();
+        // Jezeli HOWTOPLAY sie skonczylo naturalnie — zatrzymaj muzyke
+        if (sceneManager.GetGamestate() != SceneManager::HOWTOPLAY) {
+            StopMusicStream(audioManager.GetHowtoplayMusic());
+            howtoplayMusicStarted = false;
+        }
+        return;
+    }
+
+    // ── CONTINUE SCREEN ───────────────────
+    if (sceneManager.GetGamestate() == SceneManager::CONTINUE_SCREEN)
+    {
+        float dt = GetFrameTime();
+        uiManager.UpdateContinue(dt);
+        timerManager.Update(dt);
+
+        inputManager.InputContinueScreen();
+        if (sceneManager.GetGamestate() != SceneManager::CONTINUE_SCREEN) {
+            BeginDrawing();
+            ClearBackground(BGCOLOR);
+            Draw();
+            return;
+        }
+
+        // Countdown skonczony -> sekwencja GAME OVER
+        if (uiManager.IsContinueOver()) {
+            uiManager.StopContinue();
+            audioManager.StopMusic(audioManager.GetGameMusic());
+            musicStarted = false;
+            gameOverTimer = 0.0f;
+            sceneManager.SetGameState(SceneManager::GAME_OVER);
+            return;
+        }
+
+        float camTop = camera.GetCamera().target.y - camera.GetCamera().offset.y;
+        player.Update(camera.GetLeftLimit(), camTop);
+        systemCollision.CollisionUpdate();
+        boss.Update(player.GetPosition().x);
+
+        for (auto& item : creationManager.GetItems()) item.Update();
+        creationManager.GetItems().erase(
+            std::remove_if(creationManager.GetItems().begin(), creationManager.GetItems().end(),
+                [](const Item& i) { return !i.IsActive(); }),
+            creationManager.GetItems().end());
+
+        camera.Update(player.GetPosition(),
+            backgroundManager.GetWidth(),
+            backgroundManager.GetHeight(),
+            player.GetIsGrounded());
+
+        for (auto& soldier : creationManager.GetSoldiers()) {
+            soldier.UpdateAI(player);
+            soldier.Update();
+        }
+        for (auto& bullet : creationManager.GetBullets()) bullet.Update();
+        CheckBulletsOutOfCamera();
+
+        for (auto& grenade : creationManager.GetGrenades()) {
+            grenade.Update();
+            grenade.CheckCollisionWithBlocks(creationManager.GetTileMap().GetColliders());
+            grenade.CheckCollisionWithSoldiers(creationManager.GetSoldiers());
+        }
+        auto& grenades = creationManager.GetGrenades();
+        grenades.erase(std::remove_if(grenades.begin(), grenades.end(),
+            [](const Grenade& g) { return !g.IsActive(); }), grenades.end());
+
+        BeginDrawing();
+        ClearBackground(BGCOLOR);
+        Draw();
+        if (!uiManager.IsDelayActive())
+            uiManager.DrawContinueScreen();
+        backgroundManager.FollowPlayer(camera.GetCamera().target);
+        backgroundManager.Update(dt);
+        audioManager.UpdateMusic(audioManager.GetGameMusic());
+        return;
+    }
+    // ── GAME OVER SEQUENCE ────────────────
+    if (sceneManager.GetGamestate() == SceneManager::GAME_OVER)
+    {
+        float dt = GetFrameTime();
+        gameOverTimer += dt;
+
+        // Faza 1+2: czerwony filtr + zaciemnienie (0-4s) — swiat gry widoczny pod filtrem
+        if (gameOverTimer < 4.0f)
+        {
+            BeginDrawing();
+            ClearBackground(BGCOLOR);
+            Draw();
+            uiManager.DrawGameOverOverlay(gameOverTimer);
+            return;
+        }
+
+        // Faza 3: sprite game over (4-9s)
+        if (gameOverTimer < 9.0f)
+        {
+            BeginDrawing();
+            uiManager.DrawGameOverSprite(gameOverTimer - 4.0f);
+            return;
+        }
+
+        // Koniec -> INTRO
+        shouldRestart = true;
+        sceneManager.SetGameState(SceneManager::INTRO);
+        BeginDrawing();
+        ClearBackground(BLACK);
+        return;
+    }
+
+    // ── GAME ───────────────────────────────
+
+    uiManager.Update();
+    timerManager.Update(GetFrameTime());
+    if (uiManager.IsTimeUp() && player.IsAlive())
+        player.TakeDamage();
+    boss.Update(player.GetPosition().x);
+
+    player.SavePreviousPosition();
+    HandleInput();
+    float camTop = camera.GetCamera().target.y - camera.GetCamera().offset.y;
+    player.Update(camera.GetLeftLimit(), camTop);
+
+    // Colisiones (todos los sistemas)
+    systemCollision.CollisionUpdate();
+
+    if (player.HasJetpack())
+        uiManager.SetJetpackFuel(player.GetJetpackFuel() / player.GetJetpackMaxFuel());
+    else if (uiManager.GetJetpackActive())
+    {
+        uiManager.SetJetpackFuel(0.0f);
+        uiManager.SetJetpackActive(false);
+    }
+
+    // Limpiar items inactivos
+    for (auto& item : creationManager.GetItems()) item.Update();
+    creationManager.GetItems().erase(
+        std::remove_if(creationManager.GetItems().begin(), creationManager.GetItems().end(),
+            [](const Item& i) { return !i.IsActive(); }),
+        creationManager.GetItems().end());
+
+    camera.Update(player.GetPosition(),
+        backgroundManager.GetWidth(),
+        backgroundManager.GetHeight(),
+        player.GetIsGrounded());
+
+    // IA y disparo de soldados
+    for (auto& soldier : creationManager.GetSoldiers()) {
+        soldier.UpdateAI(player);
+        soldier.Update();
+        if (soldier.WantsToShoot()) {
+            Shoot(2, soldier.GetPosition(), soldier.IsFacingRight());
+            soldier.ResetShootWants();
+        }
+    }
+
+    // Actualizar balas
+    for (auto& bullet : creationManager.GetBullets()) bullet.Update();
+    CheckBulletsOutOfCamera();
+
+    // Actualizar granadas
+    for (auto& grenade : creationManager.GetGrenades()) {
+        grenade.Update();
+        grenade.CheckCollisionWithBlocks(creationManager.GetTileMap().GetColliders());
+        grenade.CheckCollisionWithSoldiers(creationManager.GetSoldiers());
+    }
+    auto& grenades = creationManager.GetGrenades();
+    grenades.erase(std::remove_if(grenades.begin(), grenades.end(),
+        [](const Grenade& g) { return !g.IsActive(); }), grenades.end());
+
+    // ── RÁFAGA MACHINEGUN ──────────────────
+    if (machinegunBurst)
+    {
+        if (timerManager.IsReady(TimerType::MACHINEGUN_BURST_TIMER))
+        {
+            timerManager.StartTimer(TimerType::MACHINEGUN_BURST_DELAY);
+            if (player.GetAmmo() > 0) {
+                ShootMachinegun(burstOffsets[machinegunBurstCount]);
+                player.UseAmmo();
+                uiManager.UseAmmo();
+            }
+            machinegunBurstCount++;
+            if (machinegunBurstCount >= MACHINEGUN_BURST_SIZE || player.GetAmmo() <= 0) {
+                machinegunBurst = false;
+                machinegunBurstCount = 0;
+                if (!IsKeyDown(KEY_UP)) player.StopAimingUp();
+                if (player.GetAmmo() <= 0) {
+                    uiManager.SetAmmo(0);
+                    uiManager.SetWeaponDisplay(UiManager::WeaponDisplay::PISTOL);
+                }
+            }
+        }
+    }
+
+
+    // Gracz zniknal po animacji smierci
+    if (!player.IsAlive() && player.IsDisappeared()) {
+        if (uiManager.GetCredits() > 0) {
+            uiManager.SetCredits(-1);
+        } else {
+            uiManager.StartContinue();
+            sceneManager.SetGameState(SceneManager::CONTINUE_SCREEN);
+        }
+    }
+
+    if (!player.IsAlive() && player.IsDisappeared() && !continueStarted)
+    {
+        continueStarted = true;
+        uiManager.StartContinue();
+        sceneManager.SetGameState(SceneManager::CONTINUE_SCREEN);
+    }
+
+    BeginDrawing();
+    ClearBackground(BGCOLOR);
+    Draw();
+
+    // Flash del sprite del boss en background
+    Color bossTint = WHITE;
+    if (!boss.IsDestroyed()) {
+        bossTint = boss.IsFlashing() ? ORANGE : WHITE;
+        backgroundManager.SetEventSpriteTint(5, bossTint);
+    }
+    else
+        bossTint = { 255, 255, 255, 0 }; 
+    backgroundManager.SetEventSpriteTint(4, bossTint);
+
+    if (boss.IsDestroyed()) {
+        backgroundManager.SetEventSpriteFrame(5, boss.GetDestroyFrame());
+    }
+
+    backgroundManager.FollowPlayer(camera.GetCamera().target);
+    backgroundManager.Update(GetFrameTime());
+
+    if (!musicStarted) {
+        // Zatrzymaj intro muzykę i puść game muzykę
+        audioManager.StopMusic(audioManager.GetIntroMusic());
+        audioManager.PlayMusic(audioManager.GetGameMusic());
+        audioManager.PlaySound(audioManager.GetGameSound());
+        musicStarted = true;
+    }
+    audioManager.UpdateMusic(audioManager.GetGameMusic());
 }
 
-
-void Game::Shoot()
-{
-	Vector2 playerPos = player.GetPosition();
-	float playerWidth = player.GetWidth();  // Siempre el mismo ancho
-	float playerHeight = player.GetHeight(); // Cambia si está agachado
-
-	Vector2 bulletPos;
-	PlayerDirection aimDir = player.GetAimDirection();
-	int bulletSpeed = 30;
-	int directionX = 0;
-	int directionY = 0;
-
-	// Detectar si está agachado y disparando
-	bool isCrouching = player.IsCrouching();
-
-	// Altura de disparo (ajusta estos valores)
-	float normalYOffset = -20.0f;   // Altura normal (desde el centro)
-	float crouchYOffset = -20.0f;   // Altura cuando está agachado
-	float upYOffset = -20.0f;      // Altura cuando dispara hacia arriba
-
-	switch (aimDir) {
-	case PlayerDirection::LEFT:
-		bulletPos = { playerPos.x, playerPos.y + playerHeight / 2 + (isCrouching ? crouchYOffset : normalYOffset) };
-		directionX = -1;
-		break;
-	case PlayerDirection::RIGHT:
-		bulletPos = { playerPos.x + playerWidth, playerPos.y + playerHeight / 2 + (isCrouching ? crouchYOffset : normalYOffset) };
-		directionX = 1;
-		break;
-	case PlayerDirection::UP:
-		bulletPos = { playerPos.x + playerWidth / 2, playerPos.y + upYOffset };
-		directionY = -1;
-		break;
-	case PlayerDirection::DOWN:
-		bulletPos = { playerPos.x + playerWidth / 2, playerPos.y + playerHeight };
-		directionY = 1;
-		break;
-	}
-	bullets.emplace_back(bulletPos, bulletSpeed, directionX, directionY);
-}
-
-
-
-
-
+// ─────────────────────────────────────────
+//  HandleInput
+// ─────────────────────────────────────────
 void Game::HandleInput()
 {
-	if (IsKeyPressed(KEY_L))
-	{
-		UiManager.NextLevel();
-	}
-	if (IsKeyPressed(KEY_J)) 
-	{
-		UiManager.AddScore(100);
-	}
-	if (IsKeyPressed(KEY_C))
-	{
-		if (UiManager.GetCredits() < 99) 
-		{
-			UiManager.SetCredits(1);
-		}
-			
-	}
-	if (IsKeyDown(KEY_LEFT))
-	{
-		player.MoveLeft();
-	}
-	else if (IsKeyDown(KEY_RIGHT))
-	{
-		player.MoveRight();
-	}
-	else
-	{
-		player.StopMovingHorizontal();
-	}
+    if (boss.IsDestroyed()) return;
+    debug.EditorModeInput(camera.GetCamera());
 
-	//AIMING UP
-	if (IsKeyDown(KEY_UP))
-	{
-		player.StartAimingUp();
-	}
-	else
-	{
-		player.StopAimingUp();
-	}
+    if (debug.GetEditorMode()) return; 
 
-	//CROUCHING
-	if (IsKeyDown(KEY_DOWN))
-	{
-		player.StartCrouching();
-	}
-	else
-	{
-		player.StopCrouching();
-	}
+    inputManager.InputChangeScene();
+    inputManager.InputCreditsPlayer();
+    inputManager.InputUi();
 
-	//JUMP
-	if (IsKeyPressed(KEY_SPACE))
-	{
-		player.Jump();
-	}
+    if (player.IsFalling()) return;
 
-	//CHANGE SCENE
-	if (IsKeyPressed(KEY_ENTER))
-	{
-		if (sceneManager.currentState == SceneManager::TITLE) {
-			audioManager.StopMusic(audioManager.GetTitleMusic());
-			audioManager.PlaySound(audioManager.GetGameSound());
-			sceneManager.SetGameState(SceneManager::GAME);
-			musicStarted = false;
-		}
-		else if (sceneManager.currentState == SceneManager::INTRO) {
-			sceneManager.SetGameState(SceneManager::TITLE);
-			musicStarted = false;
-		}
-	}
+    if (machinegunBurst) {
+        inputManager.InputMachinegunBurst();
+        return;
+    }
 
-	if (IsKeyPressed(KEY_D) || IsKeyDown(KEY_D) && shootTimer >= shootDelay)
-	{
-		player.Shoot();
-		Shoot();
-		shootTimer = 0;
-	}
-
+    inputManager.InputPlayer();
 }
-void Game::ResolveCollisions()
+
+// ─────────────────────────────────────────
+//  Shoot
+// ─────────────────────────────────────────
+void Game::Shoot(int bulletType, Vector2 startPos, bool faceRight)
 {
-	BlockCollisions();
-	BulletsCollision();
-}
-void Game::BulletsCollision() {
-	auto bIt = bullets.begin();
-	while (bIt != bullets.end()) {
-		bool bulletHit = false;
-		auto sIt = soldiers.begin();
-		while (sIt != soldiers.end()) {
-			if (sIt->GetisAlive() && CheckCollisionRecs(sIt->GetHurtBox(), bIt->GetHitbox())) {
-				sIt->TriggerDeath();       // ← activa animación de muerte
-				UiManager.AddScore(100);
-				bulletHit = true;
-				break;
-			}
-			++sIt;
-		}
-		if (bulletHit) bIt = bullets.erase(bIt);
-		else           ++bIt;
-	}
+    Vector2 bulletPos = {};
+    float dirX = 0.0f, dirY = 0.0f;
+    float bulletSpeed = 1000.0f;
 
-	// ── Borrar soldados muertos DESPUÉS del loop de balas ────────────────────
-	auto sIt = soldiers.begin();
-	while (sIt != soldiers.end()) {
-		if (!sIt->GetisAlive() && sIt->IsDeadAnimFinished()) {
-			sIt = soldiers.erase(sIt);
-		}
-		else {
-			++sIt;
-		}
-	}
+    if (bulletType == 1)
+    {
+        Vector2 pPos = player.GetPosition();
+        float   pW = player.GetWidth();
+        float   pH = player.GetHeight();
+        bool    crouch = player.IsCrouching();
+        float   yOff = crouch ? -40.0f : -50.0f;
+
+        switch (player.GetAimDirection()) {
+        case PlayerDirection::LEFT:
+            bulletPos = { pPos.x,          pPos.y + pH / 2.0f + yOff };
+            dirX = -1.0f; break;
+        case PlayerDirection::RIGHT:
+            bulletPos = { pPos.x + pW,     pPos.y + pH / 2.0f + yOff };
+            dirX = 1.0f; break;
+        case PlayerDirection::UP:
+            bulletPos = { pPos.x + pW / 2.0f, pPos.y - 20.0f };
+            dirY = -1.0f; break;
+        case PlayerDirection::DOWN:
+            bulletPos = { pPos.x + pW / 2.0f, pPos.y + pH };
+            dirY = 1.0f; break;
+        }
+    }
+    else if (bulletType == 2)
+    {
+        bulletPos = startPos;
+        bulletSpeed = 400.0f;
+        dirX = faceRight ? 1.0f : -1.0f;
+        dirY = -5.0f;
+    }
+
+    creationManager.GetBullets().emplace_back(
+        bulletPos, (int)bulletSpeed, (int)dirX, (int)dirY, bulletType);
 }
 
-void Game::BlockCollisions()
+// ─────────────────────────────────────────
+//  ShootMachinegun
+// ─────────────────────────────────────────
+void Game::ShootMachinegun(float yOffset)
 {
-	bool onGround = false;
-	const float GROUND_TOLERANCE = 5.0f;  // Tolerancia de 5 píxeles
-	auto It = soldiers.begin();
-	for (const auto& block : blocks) {
-		Rectangle playerRect = player.GetHitBox();
-		Rectangle blockRect = block.GetRect();
+    Vector2 pPos = player.GetPosition();
+    float   pW = player.GetWidth();
+    float   pH = player.GetHeight();
+    float   baseY = pPos.y + pH / 2.0f - 50.0f + yOffset;
 
-		float feetY = playerRect.y + playerRect.height;
-		float blockTopY = blockRect.y;
+    Vector2 bulletPos;
+    float dirX = 0.0f, dirY = 0.0f;
 
-		while (It != soldiers.end()) {
-			if (CheckCollisionRecs(It->GetHurtBox(), blockRect))
-			{
-				if (It->GetVelocityY() >= 0) {
-					It->SetY(blockRect.y - It->GetHeight());
-					It->SetVelocityY(0);
-					It->SetGrounded(true);
-					break;
-				}
-			}
-			else {
-				++It;
-			}
-			// Verificar si el jugador está sobre el bloque (con tolerancia)
-			
-		}
-		bool isOverBlock = (playerRect.x + playerRect.width > blockRect.x + GROUND_TOLERANCE &&
-			playerRect.x < blockRect.x + blockRect.width - GROUND_TOLERANCE);
+    switch (player.GetAimDirection()) {
+    case PlayerDirection::LEFT:
+        bulletPos = { pPos.x - 120.0f, baseY };
+        dirX = -1.0f; break;
+    case PlayerDirection::RIGHT:
+        bulletPos = { pPos.x + pW + 70.0f, baseY };
+        dirX = 1.0f; break;
+    case PlayerDirection::UP:
+        bulletPos = { pPos.x + pW / 2.0f + yOffset - 30.0f, pPos.y - 180.0f };
+        dirY = -1.0f; break;
+    default:
+        bulletPos = { pPos.x + pW, baseY };
+        dirX = 1.0f; break;
+    }
 
-		// Si los pies están cerca del bloque (dentro de 10 píxeles)
-		if (isOverBlock && feetY >= blockTopY - 10.0f && player.GetVelocityY() >= 0) {
-			float newY = blockTopY - playerRect.height;
-			player.SetY(newY);
-			player.SetVelocityY(0);
-			onGround = true;
-			break;  // Salir del bucle después de la primera colisión
-		}
-		
-
-		
-		
-	}
-	player.SetGrounded(onGround);
-	// Si está en el suelo, asegurar que la velocidad Y es 0
-	if (onGround) {
-		player.SetVelocityY(0);
-
-	}
+    creationManager.GetBullets().emplace_back(bulletPos, 1000, (int)dirX, (int)dirY, 3);
 }
 
-std::vector<Bullet> Game::CreateBullets()
+void Game::StartMachinegunBurst() {
+    machinegunBurst = true;
+    machinegunBurstCount = 0;
+    machinegunBurstDir = player.GetAimDirection();
+}
+
+// ─────────────────────────────────────────
+//  ThrowGrenade
+// ─────────────────────────────────────────
+void Game::ThrowGrenade()
 {
-	std::vector<Bullet> bullets;
-	for (int i = 0; i < bullets.size(); i++) {
-
-		if (bullets[i].GetX() < 0 || bullets[i].GetX() > GetScreenWidth()) {
-			bullets.erase(bullets.begin() + i);
-			i--;
-		}
-	}
-	return bullets;
+    GrenadeThrowData data = player.ThrowGrenade();
+    if (data.valid)
+        creationManager.GetGrenades().emplace_back(data.startPos, data.initialVelocity);
 }
 
-std::vector<Soldier>  Game::CreateSoldiers()
-	{
-		std::vector<Soldier> soldiers;
-		soldiers.reserve(2);
-		for (int i = 0; i < 2; ++i) {
-			float xpos, ypos;
-			ypos = (10 * i + 40) + 100;
-			xpos = (100 * i + 40) + 500;
-			soldiers.emplace_back(Soldier(1, { xpos,ypos }));
-		}
-
-		return soldiers;
-	}
-
-std::vector<Block> Game::CreateBlocks()
+// ─────────────────────────────────────────
+//  CheckBulletsOutOfCamera
+// ─────────────────────────────────────────
+void Game::CheckBulletsOutOfCamera()
 {
-	std::vector<Block> blocks;
+    Camera2D cam = camera.GetCamera();
+    float hw = cam.offset.x;
+    float hh = cam.offset.y;
 
-	// Bloque de suelo a y=800 (para que el jugador caiga desde y=100 hasta y=800)
-	blocks.emplace_back(Block(0, 850, 2700, 100));
-	blocks.emplace_back(Block(2700, 950, 2700, 100));
+    float left = cam.target.x - hw + 1.0f;  
+    float right = cam.target.x + hw - 1.0f;  
+    float top = cam.target.y - hh + 1.0f;
+    float bottom = cam.target.y + hh - 1.0f;
 
-	return blocks;
+    auto& bullets = creationManager.GetBullets();
+    bullets.erase(std::remove_if(bullets.begin(), bullets.end(),
+        [&](const Bullet& b) {
+            Vector2 p = b.GetPosition();
+            return p.x < left || p.x > right || p.y < top || p.y > bottom;
+        }), bullets.end());
 }
-

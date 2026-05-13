@@ -1,43 +1,58 @@
 #pragma once
-#include "Player.hpp"
-#include "Soldier.hpp"
-#include "AudioManager.hpp"
-#include "SceneManager.hpp"
-#include "Bullet.hpp"
-#include "BackgroundManager.hpp"
+#include "GlobalManagers.hpp"
 #include "CameraManager.hpp"
-#include "LevelMap.hpp"
-#include "UiManager.hpp"
-#include "SoldierAnim.hpp"
-#include <vector>
+#include "SystemCollision.hpp"
+#include "Bullet.hpp"
+#include "Grenade.hpp"
+#include "InputManager.hpp"
+#include "Debug.hpp"
+#include "Boss.hpp"
 
 
 class Game {
-	public:
-		Game();
-		~Game();
-		void Draw();
-		void Update();
-		void HandleInput();
-		void BlockCollisions();
-		void Shoot();
-		void Timers();
-		void BulletsCollision();
-		void ResolveCollisions();
-	private:
-		float shootTimer = 0.0f;
-		float shootDelay = 1.0f;
-		SoldierAnim soldierAnim;
-		CameraManager camera;
-		Player player;
-		UiManager UiManager;
-		AudioManager audioManager;
-		SceneManager sceneManager;
-		BackgroundManager backgroundManager;
-		std::vector<Bullet> bullets;
-		std::vector<Bullet> CreateBullets();
-		std::vector<Soldier> soldiers; 
-		std::vector<Soldier> CreateSoldiers();
-		std::vector<Block> blocks;
-		std::vector<Block> CreateBlocks();
+public:
+    Game();
+    ~Game();
+
+    void Update();
+    void Draw();
+    void HandleInput();
+    void Reset();
+
+    void Shoot(int bulletType, Vector2 startPos, bool faceRight);
+    void ShootMachinegun(float yOffset);
+    void ThrowGrenade();
+    void CheckBulletsOutOfCamera();
+    void StartMachinegunBurst();
+    bool IsMachinegunBurst() const { return machinegunBurst; }
+    PlayerDirection GetMachinegunBurstDir() const { return machinegunBurstDir; }
+
+    bool ShouldRestart() const { return shouldRestart; }
+    SceneManager& GetSceneManager() { return sceneManager; }
+    UiManager& GetUiManager() { return uiManager; }
+
+    void SetContinueStarted(bool val) { continueStarted = val; }
+
+private:
+    // CameraManager local porque necesita el offset de pantalla en el constructor
+    CameraManager camera;
+    SystemCollision systemCollision;
+    InputManager inputManager{this};
+    Debug debug;
+
+    // Estado de la ráfaga de machinegun
+    bool machinegunBurst = false;
+    static constexpr int MACHINEGUN_BURST_SIZE = 6;
+    const float burstOffsets[MACHINEGUN_BURST_SIZE] = { -10.0f, 0.0f, 10.0f, -10.0f, 0.0f, 10.0f };
+    int machinegunBurstCount = 0;
+    PlayerDirection machinegunBurstDir = PlayerDirection::RIGHT;
+
+    // Estado de sonido machinegun
+    bool machinegunSoundActive = false;
+
+    bool  shouldRestart          = false;
+    bool  introSkipped           = false;
+    bool  howtoplayMusicStarted  = false;
+    float gameOverTimer  = 0.0f;
+    bool continueStarted = false;
 };

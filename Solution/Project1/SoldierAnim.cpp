@@ -1,5 +1,6 @@
 ﻿#include "SoldierAnim.hpp"
 
+
 SoldierAnim::SoldierAnim()
 {
 	LoadTexture();
@@ -10,10 +11,11 @@ SoldierAnim::SoldierAnim()
     animForward = true;
     attackPeakReached = false;
     animCompleted = false;
+    shootTriggered = false;
 }
 		
 Rectangle SoldierAnim::GetSourceRect() {
-	const AnimClip& clip = CLIPS[(int)currentAnim];
+	const AnimClipSoldier& clip = CLIPS[(int)currentAnim];
 	return { frame * clip.cellW, clip.rowY, clip.cellW, clip.cellH };
 	
 }
@@ -35,15 +37,21 @@ void SoldierAnim::LoadTexture()
 void SoldierAnim::Update()
 {
     float dt = GetFrameTime();
-    const AnimClip& clip = CLIPS[(int)currentAnim];
+    const AnimClipSoldier& clip = CLIPS[(int)currentAnim];
     timer += dt;
 
     if (timer >= 1.f / clip.fps) {
         timer = 0.f;
         attackPeakReached = false;
-        if (currentAnim == SoldierState::ATTACKING) { // logica para que se devuelva la animacion ya que haya terminado
+        if (currentAnim == SoldierState::ATTACKING || currentAnim == SoldierState::BOMB) { // logica para que se devuelva la animacion ya que haya terminado
             if (animForward) {
                 frame++;
+                if (frame <= 3) {
+                    SetAttackAnimFps(6);
+                }
+                else if (frame >= 3) {
+                    SetAttackAnimFps(25);
+                }
                 if (frame >= clip.frames - 1) {
                     attackPeakReached = true;
                     animForward = false;
@@ -71,7 +79,13 @@ void SoldierAnim::Update()
         }
     }
 }
-
+bool CheckShootTrigger(bool shootTriggered) {
+    if ( shootTriggered) {
+        shootTriggered = false; // Se resetea al leerla (consumo)
+        return true;
+    }
+    return false;
+}
 void SoldierAnim::SetAnimation(SoldierState animation)
 {
     if (currentAnim == animation ) return;

@@ -3,6 +3,7 @@
 #include "SoldierAnim.hpp" 
 #include <raylib.h>
 
+class AudioManager;
 
 class Soldier {
 public:
@@ -20,6 +21,8 @@ public:
     Rectangle GetHitBox();
     void SetSoliderState(SoldierState newState);
     int GetType();
+    bool GetWantsToShoot() { return wantsToShoot; }
+    void ResetShootFlag() { wantsToShoot = false; }
 
 
     float GetWidth() { return 34.f * scale; }
@@ -29,8 +32,8 @@ public:
     float GetY() const { return position.y; }
     float GetX() const { return position.x; }
     Vector2 GetPosition() const { return position; }
-    bool GetisAlive() { return isAlive; }
-    void TriggerDeath();
+    bool GetisAlive() const { return isAlive; }
+    void TriggerDeath(AudioManager& audio);
    
     void SetY(float newY) { position.y = newY; }
     void SetVelocityY(float newVelY) { velocity.y = newVelY; }
@@ -38,7 +41,15 @@ public:
     void SetGrounded(bool grounded) { isGrounded = grounded; }
     void SetisAlive(bool isalive) { isAlive = isalive; }
     float GetVelocityY() const { return velocity.y; }
-
+    bool WantsToShoot() const { return wantsToShoot; }
+    void ResetShootWants() { wantsToShoot = false; }
+    bool IsFacingRight() const { return facingRight; }
+    Rectangle GetLeftHitBox();
+    Rectangle GetRightHitBox();
+    void SetLeftCollision(bool val) { leftCollision = val; }
+    void SetRightCollision(bool val) { rightCollision = val; }
+    bool GetLeftCollision() const { return leftCollision; }
+    bool GetRightCollision() const { return rightCollision; }
 private:
     //reference soldier animation
     SoldierAnim soldierAnim;
@@ -46,13 +57,15 @@ private:
     Vector2 position;
     Vector2 velocity;
     int type;
-
+    bool wantsToShoot = false;
     float scale;
     float gravity;
-    
+    bool leftCollision = false;
+    bool rightCollision = false;
     bool isGrounded;
     bool isAlive;
     bool facingRight ;
+    bool hasShot = false;
     
     
     // Variables de IA (cada soldado tiene las suyas)

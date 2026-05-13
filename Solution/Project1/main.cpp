@@ -1,31 +1,39 @@
 #include <raylib.h>
 #include "game.hpp"
 
-
-
-
-int main() 
+int main()
 {
-    InitWindow(1280, 896, "Metal Slug");
+    InitWindow(1200, 896, "Metal Slug");
     InitAudioDevice();
     SetTargetFPS(30);
-    
-    
-    Game game;
-    SceneManager sceneManager;
+
+    audioManager.Init();
+    player.Init();
+    uiManager.Init();
+    sceneManager.Init();
+    backgroundManager.Init();
+    boss.Init();
+
+    Game* game = new Game();
+    game->GetSceneManager().SetUiManager(&game->GetUiManager());
+
+
     while (WindowShouldClose() == false)
     {
-       
-       game.HandleInput();
-       game.Update();
-       //game draw() ist inside game.cpp update()
-        EndDrawing();
-       
-    }
-    
-    
-   
+        game->HandleInput();
+        game->Update();
 
+        if (game->ShouldRestart())
+        {
+            delete game;
+            game = new Game();
+            game->GetSceneManager().SetUiManager(&game->GetUiManager());
+        }
+
+        EndDrawing();
+    }
+
+    delete game;
     CloseWindow();
     return 0;
 }
