@@ -29,6 +29,9 @@ static const char* PATH_GAMEOVER      = "Graphics/gameover1.png";
 static const char* PATH_FONTBOMB = "Graphics/new fonts and HUDs/numbers01.png";
 static const char* PATH_BLUE_LETTERS = "Graphics/letters/blue_numbers_and_letters.png";
 static const char* PATH_YELLOW_LETTERS = "Graphics/letters/yellow_numbers_and_letters.png";
+static const char* PATH_ENDING = "Graphics/ending/ending.png";
+static const char* PATH_ENDING_STARS = "Graphics/ending/stars.png";
+static const char* PATH_HIGHSCORE_YELLOW = "Graphics/new fonts and HUDs/highscorefontyellow.png";
 
 
 static constexpr float NUM_CHAR_W = 12.0f;
@@ -82,6 +85,9 @@ void UiManager::Init() {
     texHudFont3Num = LoadTexture(PATH_FONTBOMB);
     texBlueLetters = LoadTexture(PATH_BLUE_LETTERS);
     texYellowLetters = LoadTexture(PATH_YELLOW_LETTERS);
+    texEnding = LoadTexture(PATH_ENDING);
+    texStars = LoadTexture(PATH_ENDING_STARS);
+    texHighScoreYellow = LoadTexture(PATH_HIGHSCORE_YELLOW);
 
     SetTextureFilter(texGameOver, TEXTURE_FILTER_POINT);
     SetTextureFilter(texHudFont2Num, TEXTURE_FILTER_POINT);
@@ -101,7 +107,9 @@ void UiManager::Init() {
     SetTextureFilter(texHudFont3Num, TEXTURE_FILTER_POINT);
     SetTextureFilter(texBlueLetters, TEXTURE_FILTER_POINT);
     SetTextureFilter(texYellowLetters, TEXTURE_FILTER_POINT);
-
+    SetTextureFilter(texEnding, TEXTURE_FILTER_POINT);
+    SetTextureFilter(texStars, TEXTURE_FILTER_POINT);
+    SetTextureFilter(texHighScoreYellow, TEXTURE_FILTER_POINT);
 }
 
 UiManager::~UiManager()
@@ -118,12 +126,16 @@ UiManager::~UiManager()
     UnloadTexture(texGameOver);
     UnloadTexture(texBlueLetters);
     UnloadTexture(texYellowLetters);
+    UnloadTexture(texEnding);
+    UnloadTexture(texStars);
+    UnloadTexture(texHighScoreYellow);
 }
 
 void UiManager::Update()
 {
     float dt = GetFrameTime();
     UpdateMissionIntro(dt);
+    UpdateEnding(dt);
     if (introTimer < INTRO_DURATION)
     {
         introTimer += dt; blinkAccum += dt;
@@ -533,6 +545,7 @@ void UiManager::DrawHUD(Camera2D /*camera*/)
     }
 
     DrawMissionIntroInternal();
+    DrawEnding();
 }
 
 void UiManager::DrawMissionIntro() { DrawMissionIntroInternal(); }
@@ -970,6 +983,7 @@ void UiManager::UpdateMissionIntro(float dt) {
             if (exitTimer >= 2.0f) {
                 missionActive = false;
                 missionCompleteActive = false;
+                StartEnding();
             }
         }
         else {
@@ -1105,4 +1119,174 @@ void UiManager::StartMissionComplete() {
         l.isStart = true;   // ← usa el mismo flag para parpadeo
         x += 28.0f * MISSION_SCALE;
     }
+}
+
+void UiManager::StartEnding() {
+    endingActive = true;
+    endingTimer = 0.0f;
+    endingFadeOut = false;
+    endingFadeAlpha = 0.0f;
+    endingFinished = false;
+
+    int SW = GetScreenWidth();
+    int SH = GetScreenHeight();
+
+    for (int i = 0; i < MAX_ENDING_STARS; ++i) {
+        auto& s = endingStars[i];
+        s.x = (float)(GetRandomValue(0, SW));
+        s.y = (float)(GetRandomValue(0, SH));
+        s.row = GetRandomValue(0, 1);
+        s.frame = 0;
+        s.timer = 0.0f;
+        s.delay = 0.05f + (float)GetRandomValue(0, 10) * 0.01f;
+    }
+}
+void UiManager::UpdateEnding(float dt) {
+    if (!endingActive) return;
+    endingTimer += dt;
+
+    int SW = GetScreenWidth();
+    int SH = GetScreenHeight();
+
+    for (int i = 0; i < MAX_ENDING_STARS; ++i) {
+        auto& s = endingStars[i];
+        int maxFrames = (s.row == 0) ? 2 : 10;
+        s.timer += dt;
+        if (s.timer >= s.delay) {
+            s.timer = 0.0f;
+            s.frame++;
+            if (s.frame >= maxFrames) {
+                s.frame = 0;
+                // ← randomiza posición al completar la animación
+                s.x = (float)GetRandomValue(0, SW);
+                s.y = (float)GetRandomValue(0, SH);
+                s.row = GetRandomValue(0, 1);  // también randomiza fila si quieres
+            }
+        }
+    }
+    if (endingFadeOut) {
+        endingFadeAlpha += dt * 0.5f;
+        if (endingFadeAlpha >= 1.0f) {
+            endingFadeAlpha = 1.0f;
+            endingFinished = true;
+        }
+    }
+}
+
+void UiManager::DrawEnding() const {
+    if (!endingActive && !endingFadeOut) return;
+
+    int SW = GetScreenWidth();
+    int SH = GetScreenHeight();
+
+    // Fondo
+    Rectangle src = { 0, 0, (float)texEnding.width, (float)texEnding.height };
+    Rectangle dst = { 0, 0, (float)SW, (float)SH };
+    DrawTexturePro(texEnding, src, dst, { 0,0 }, 0, WHITE);
+
+    // Estrellas
+    float starW = 11.0f, starH = 11.0f;
+    float starScale = 3.0f;
+    for (int i = 0; i < MAX_ENDING_STARS; ++i) {
+        auto& s = endingStars[i];
+        float rowY = s.row * starH;
+        Rectangle starSrc = { s.frame * starW, rowY, starW, starH };
+        Rectangle starDst = { s.x, s.y, starW * starScale, starH * starScale };
+        DrawTexturePro(texStars, starSrc, starDst, { 0,0 }, 0, WHITE);
+    }
+
+    // Fade in: primero 1.5s desde negro
+    static constexpr float ENDING_FADE_IN = 1.5f;
+    if (endingTimer < ENDING_FADE_IN) {
+        float alpha = endingTimer / ENDING_FADE_IN;
+        unsigned char a = (unsigned char)((1.0f - alpha) * 255.0f);
+        DrawRectangle(0, 0, SW, SH, { 0, 0, 0, a });
+    }
+
+
+    // THE END — centrado un poco arriba del centro
+    const char* theEnd = "THE END";
+    float theEndScale = endingTextScale;
+    float theEndW = MeasureScoreText(theEnd, theEndScale);
+    float theEndX = SW * 0.5f - theEndW * 0.5f;
+    float theEndY = SH * 0.38f;
+    float px = theEndX;
+    for (int i = 0; theEnd[i]; ++i) {
+        if (theEnd[i] == ' ') { px += HSF_CHAR_W * theEndScale * 0.5f; continue; }
+        int col = -1;
+        if (theEnd[i] >= 'A' && theEnd[i] <= 'Z') col = theEnd[i] - 'A';
+        else if (theEnd[i] >= 'a' && theEnd[i] <= 'z') col = theEnd[i] - 'a';
+        if (col < 0) { px += HSF_CHAR_W * theEndScale; continue; }
+        Rectangle src = { (float)col * HSF_CHAR_W, 0.0f, HSF_CHAR_W, HSF_CHAR_H };
+        Rectangle dst = { px, theEndY, HSF_CHAR_W * theEndScale, HSF_CHAR_H * theEndScale };
+        DrawTexturePro(texHighScoreYellow, src, dst, { 0,0 }, 0, WHITE);
+        px += HSF_CHAR_W * theEndScale;
+    }
+
+    // PRESS ENTER TO CONTINUE — centro bajo
+    if ((int)(endingTimer * 2.0f) % 2 == 0) {  // parpadeo
+        const char* pressEnter = "PRESS ENTER TO CONTINUE";
+        float peScale = 2.0f;
+        float peW = 0;
+        for (int i = 0; pressEnter[i]; ++i)
+            peW += (pressEnter[i] == ' ') ? BIG_CHAR_W * peScale * 0.5f : BIG_CHAR_W * peScale;
+        float peX = SW * 0.5f - peW * 0.5f;
+        float peY = SH * 0.75f;
+        float x = peX;
+        for (int i = 0; pressEnter[i]; ++i) {
+            if (pressEnter[i] == ' ') { x += BIG_CHAR_W * peScale * 0.5f; continue; }
+            DrawBigLetter(pressEnter[i], { x, peY }, peScale);
+            x += BIG_CHAR_W * peScale;
+        }
+    }
+
+    // Fade out al pulsar ENTER
+    if (endingFadeOut) {
+        unsigned char a = (unsigned char)(endingFadeAlpha * 255.0f);  // ← solo lee, no modifica
+        DrawRectangle(0, 0, SW, SH, { 0, 0, 0, a });
+    }
+}
+
+void UiManager::FullReset() {
+    credits = 0;
+    score = 0;
+    level = 1;
+    timeLeft = 60;
+    bombs = 10;
+    ammo = 0;
+    timeAccum = 0.0f;
+    introTimer = 0.0f;
+    blinkAccum = 0.0f;
+    blinkVisible = true;
+    idleTimer = 0.0f;
+    goVisible = false;
+    goBlinkOn = false;
+    goBlinkAccum = 0.0f;
+    weaponDisplay = WeaponDisplay::PISTOL;
+    jetpackActive = false;
+    jetpackFuelRatio = 0.0f;
+    continueElapsed = 0.0f;
+    continueBlinkAccum = 0.0f;
+    continueBlinkOn = true;
+    continueScreenActive = false;
+    continueDelayActive = false;
+    continueDelay = 0.0f;
+    missionActive = false;
+    missionCompleteActive = false;
+    missionTimer = 0.0f;
+    missionLetterCount = 0;
+    missionLettersSpawned = 0;
+    letterSpawnTimer = 0.0f;
+    exitPhase = false;
+    exitTimer = 0.0f;
+    exitFadeAlpha = 0.0f;
+    slowExit = false;
+    startBlinkTimer = 0.0f;
+    startBlinkCount = 0;
+    startBlinkVisible = true;
+    endingActive = false;
+    endingTimer = 0.0f;
+    endingFadeOut = false;
+    endingFadeAlpha = 0.0f;
+    endingFinished = false;
 }

@@ -30,6 +30,15 @@ int main()
         if (game->ShouldRestart())
         {
             delete game;
+
+            // Reset completo de todos los globals sin recargar texturas
+            player.FullReset();
+            uiManager.FullReset();
+            sceneManager.FullReset();
+            timerManager.FullReset();
+            // creationManager se recarga en Game::Game() via LoadFromFile
+            // backgroundManager, audioManager, boss no necesitan reset de estado
+
             game = new Game();
             game->GetSceneManager().SetUiManager(&game->GetUiManager());
         }

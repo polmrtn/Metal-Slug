@@ -32,7 +32,7 @@ public:
     UiManager& GetUiManager() { return uiManager; }
 
     void SetContinueStarted(bool val) { continueStarted = val; }
-
+    void SetShouldRestart(bool val) { shouldRestart = val; }
 private:
     // CameraManager local porque necesita el offset de pantalla en el constructor
     CameraManager camera;

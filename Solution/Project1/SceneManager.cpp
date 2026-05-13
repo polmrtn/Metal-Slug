@@ -398,3 +398,9 @@ void SceneManager::DrawHowtoplay() const
         { drawX, drawY, drawW, drawH },
         { 0.0f, 0.0f }, 0.0f, WHITE);
 }
+
+void SceneManager::FullReset() {
+    currentState = INTRO;
+    ui = nullptr;
+    ResetIntro();
+}

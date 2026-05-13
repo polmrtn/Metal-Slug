@@ -1079,3 +1079,42 @@ void Player::JetpackThrust() {
         hasJetpack = false;  // vuelve al salto normal
     }
 }
+
+void Player::FullReset() {
+    pos = { 300.0f, -50.0f };
+    vel = { 0.0f, 0.0f };
+    inputVelX = 0.0f;
+    grounded = false;
+    aimingUp = false;
+    crouching = false;
+    dir = PlayerDirection::RIGHT;
+    leftCollision = false;
+    rightCollision = false;
+    mode = Mode::SEPARATED;
+    special = SpecialAnim::NONE;
+    specialTimer = 0.0f;
+    specialDuration = 0.0f;
+    isAlive = true;
+    deathPosition = { 0.0f, 0.0f };
+    invincibilityTimer = 0.0f;
+    deathTimer = 0.0f;
+    isDisappeared = false;
+    currentWeapon = WeaponType::PISTOL;
+    machinegunAmmo = 0;
+    isFalling = true;
+    blinkTimer = 0.0f;
+    blinkVisible = true;
+    wasOnRamp = false;
+    rampGroundedFrames = 0;
+    dyingInAir = false;
+    meleeAttacking = false;
+    meleeTimer = 0.0f;
+    hasJetpack = false;
+    jetpackFuel = 0.0f;
+    SetNormalHitbox();
+    anim.StopMachinegun();
+    anim.StopMachinegunAiming();
+    anim.StopMachinegunCrouch();
+    anim.StopParachute();
+    anim.StartParachute();
+}

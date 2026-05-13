@@ -47,6 +47,8 @@ public:
     // Explicit setter for a runtime timer or counter (use sparingly).
     void SetTimerValue(TimerType type, float value);
 
+    void FullReset();
+
 private:
     // runtime timers / counters
     float shootTimer = 0.0f;

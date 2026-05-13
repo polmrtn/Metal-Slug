@@ -167,3 +167,15 @@ void InputManager::InputContinueScreen()
 		sceneManager.SetGameState(SceneManager::GAME);
 	}
 }
+void InputManager::InputEnding()
+{
+	if (!uiManager.IsEndingActive()) return;
+
+	if (IsKeyPressed(KEY_ENTER))
+		uiManager.TriggerEndingFadeOut();
+
+	if (uiManager.IsEndingFinished()) {
+		game->SetShouldRestart(true);
+		sceneManager.SetGameState(SceneManager::TITLE);
+	}
+}

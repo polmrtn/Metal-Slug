@@ -387,6 +387,8 @@ void Game::Update()
 // ─────────────────────────────────────────
 void Game::HandleInput()
 {
+    inputManager.InputEnding();
+
     if (boss.IsDestroyed()) return;
     debug.EditorModeInput(camera.GetCamera());
 
@@ -404,6 +406,7 @@ void Game::HandleInput()
     }
 
     inputManager.InputPlayer();
+
 }
 
 // ─────────────────────────────────────────
