@@ -29,7 +29,8 @@ void BackgroundManager::Init() {
     AddEventSprite("Graphics/background sprites/more shit and huts/hutss3big.png", { 11800, 150 }, 3, 4.0f, 0.0f, 0.0f, false, 1);
     AddEventSprite("Graphics/background sprites/more shit and huts/woodboss1.png", { 8080, 800 }, 1, 4.0f, 0.0f, 0.0f, false, 1);
     /* AddEventSprite("Graphics/background sprites/more shit and huts/somehutsandwood.png", { 10200, 150 }, 1, 4.0f, 0.0f, 0.0f, false, 2);*/
-    AddEventSprite("Graphics/boss1.png", { 15100, -400 }, 5, 4.0f, 0.0f, 0.0f, false, 2);
+    AddEventSprite("Graphics/boss/TETSU.png", { 15100, -400 }, 1, 4.0f, 0.0f, 0.0f, false, 2);
+    AddEventSprite("Graphics/boss/bossdestroyed384x288.png", { 15100, -400 }, 5, 4.0f, 0.0f, 0.0f, false, 2);
     scale = 4.0f;
     origin = { 0, 0 };
 }
@@ -170,7 +171,7 @@ void BackgroundManager::Draw() {
             if (sprite.isFrontground || sprite.layer != currentLayer) continue;
             Rectangle dest = sprite.dest;
             dest.x = sprite.dest.x - (this->camX * sprite.parallaxFactor);
-            DrawTexturePro(sprite.texture, sprite.source, dest, origin, 0, WHITE);
+            DrawTexturePro(sprite.texture, sprite.source, dest, origin, 0, sprite.tint);
         }
     }
 }
@@ -198,7 +199,7 @@ void BackgroundManager::Drawfrontground()
         if (!sprite.isFrontground) continue;
         Rectangle dest = sprite.dest;
         dest.x = sprite.dest.x - (this->camX * sprite.parallaxFactor);
-        DrawTexturePro(sprite.texture, sprite.source, dest, origin, 0, WHITE);
+        DrawTexturePro(sprite.texture, sprite.source, dest, origin, 0, sprite.tint);
     }
 }
 

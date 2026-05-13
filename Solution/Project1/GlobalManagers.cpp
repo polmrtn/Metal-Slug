@@ -9,6 +9,7 @@ namespace Globals {
     CameraManager cameraManager;
     BackgroundManager backgroundManager;
     CreationManager creationManager;
+    Boss boss;
 }
 
 Player& player = Globals::player;
@@ -18,4 +19,9 @@ AudioManager& audioManager = Globals::audioManager;
 TimerManager& timerManager = Globals::timerManager;
 CameraManager& cameraManager = Globals::cameraManager;
 BackgroundManager& backgroundManager = Globals::backgroundManager;
+<<<<<<< HEAD
 CreationManager& creationManager= Globals::creationManager;
+=======
+CreationManager& creationManager = Globals::creationManager;
+Boss& boss = Globals::boss;
+>>>>>>> main

@@ -66,6 +66,15 @@ void CreationManager::LoadFromFile(const char* filename)
                 // Preserve old behaviour: do not override X-limits for legacy 4-field lines
                 cameraManager.AddZone(id, triggerX, minY, maxY, 0.0f, 0.0f, false, true);
         }
+        else if (line[0] == 'I') {
+            float x, y; int type;
+            if (sscanf(line + 2, "%f %f %d", &x, &y, &type) == 3) {
+                ItemType t = ItemType::SHOTGUN;
+                if (type == 1) t = ItemType::BOX;
+                if (type == 2) t = ItemType::JETPACK;
+                items.emplace_back(Vector2{ x, y }, t);
+            }
+        }
     }
         
     

@@ -8,6 +8,7 @@ void Debug::SetEditorMode(Camera2D cam)
 {
     if (!editorMode) return;
 
+<<<<<<< HEAD
     DrawText("EDITOR  F1:Salir | 1:Solid | 2:Platform | C:Ceiling | R:Ramp | Del:Borrar | F5:Guardar",
         8, 8, 11, RED);
     DrawText("ITEMS  B:Box | M:Machinegun | P:Plushy | K:Fish",
@@ -31,6 +32,22 @@ void Debug::SetEditorMode(Camera2D cam)
     DrawText(TextFormat("World (%.0f, %.0f)  GridOffset (%.0f, %.0f)",
         mouseWorld.x, mouseWorld.y, gridOffset.x, gridOffset.y),
         8, 80, 12, YELLOW);
+=======
+    // Sombra para efecto negrita
+    DrawText("EDITOR | F1:Salir | Click:Solid | RClick:Platform | C:Ceiling | R:Ramp | Del:Borrar | S:Soldier1 | D:Soldier2 | B:Box | J:Jetpack | F5:Guardar",
+        9, 9, 13, BLACK);
+    DrawText("EDITOR | F1:Salir | Click:Solid | RClick:Platform | C:Ceiling | R:Ramp | Del:Borrar | S:Soldier1 | D:Soldier2 | B:Box | J:Jetpack | F5:Guardar",
+        8, 8, 13, RED);
+
+    Vector2 worldPos = GetScreenToWorld2D(GetMousePosition(), cam);
+
+    DrawText(TextFormat("World (%.0f, %.0f)  GridOffset (%.0f, %.0f)",
+        worldPos.x, worldPos.y, gridOffset.x, gridOffset.y),
+        9, 25, 13, BLACK);
+    DrawText(TextFormat("World (%.0f, %.0f)  GridOffset (%.0f, %.0f)",
+        worldPos.x, worldPos.y, gridOffset.x, gridOffset.y),
+        8, 24, 13, YELLOW);
+>>>>>>> main
 
     const char* typeName = "";
     switch (activeTileType) {
@@ -39,6 +56,7 @@ void Debug::SetEditorMode(Camera2D cam)
     case TileType::CEILING:  typeName = "CEILING";  break;
     case TileType::RAMP_UP:  typeName = "RAMP_UP";  break;
     }
+<<<<<<< HEAD
     DrawText(TextFormat("Tipo activo: %s", typeName), 8, 94, 12, WHITE);
 
     // Visualizar zonas existentes: trigger line, label y rectángulo de la zona (usa minX/maxX como ABSOLUTAS)
@@ -92,6 +110,10 @@ void Debug::SetEditorMode(Camera2D cam)
         DrawText(TextFormat("Xmin=%.0f Xmax=%.0f", absMinX, absMaxX),
             (int)(preview.x + 4), (int)(preview.y - 14), 10, xColor);
     }
+=======
+    DrawText(TextFormat("Tipo activo: %s", typeName), 9, 41, 13, BLACK);
+    DrawText(TextFormat("Tipo activo: %s", typeName), 8, 40, 13, WHITE);
+>>>>>>> main
 }
 
 void Debug::EditorModeInput(Camera2D cam)
@@ -278,6 +300,10 @@ void Debug::EditorModeInput(Camera2D cam)
         TraceLog(LOG_INFO, "Zona '%s' en X=%.0f absXrange=%.0f..%.0f clampX=%d clampY=%d",
             id, worldPos.x, absMinX, absMaxX, pendingClampX, pendingClampY);
     }
+    if (IsKeyPressed(KEY_J) && spawnCooldown <= 0.0f) {
+        creationManager.GetItems().emplace_back(worldPos, ItemType::JETPACK);
+        spawnCooldown = 0.3f;
+    }
 
     if (IsKeyPressed(KEY_F5)) {
         SaveToFile("level.txt");
@@ -289,7 +315,13 @@ void Debug::SaveToFile(const char* filename) const
 {
     creationManager.GetTileMap().SaveToFile(filename);
 
+<<<<<<< HEAD
     FILE* f = fopen(filename, "a");
+=======
+    creationManager.GetTileMap().SaveToFile(filename);  
+
+    f = fopen(filename, "a");
+>>>>>>> main
     if (!f) return;
 
     for (const auto& s : creationManager.GetSoldiers())
@@ -307,6 +339,7 @@ void Debug::SaveToFile(const char* filename) const
         fprintf(f, "I %.0f %.0f %d\n", item.GetPosition().x, item.GetPosition().y, t);
     }
 
+<<<<<<< HEAD
     for (const auto& zone : cameraManager.GetZones()) {
         fprintf(f, "Z %.0f %.0f %.0f %.0f %.0f %s %d %d\n",
             zone.triggerX,
@@ -314,6 +347,13 @@ void Debug::SaveToFile(const char* filename) const
             zone.minX, zone.maxX,
             zone.id.c_str(),
             (int)zone.clampX, (int)zone.clampY);
+=======
+    for (const auto& item : creationManager.GetItems()) {
+        int t = 0;
+        if (item.GetType() == ItemType::BOX)     t = 1;
+        if (item.GetType() == ItemType::JETPACK) t = 2;
+        fprintf(f, "I %.0f %.0f %d\n", item.GetPosition().x, item.GetPosition().y, t);
+>>>>>>> main
     }
 
     fclose(f);
