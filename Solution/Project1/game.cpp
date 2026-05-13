@@ -260,7 +260,11 @@ void Game::Update()
     systemCollision.CollisionUpdate();
 
     if (player.HasJetpack())
+    {
         uiManager.SetJetpackFuel(player.GetJetpackFuel() / player.GetJetpackMaxFuel());
+        // Ensure UI shows the jetpack bar when player picked the item
+        if (!uiManager.GetJetpackActive()) uiManager.SetJetpackActive(true);
+    }
     else if (uiManager.GetJetpackActive())
     {
         uiManager.SetJetpackFuel(0.0f);

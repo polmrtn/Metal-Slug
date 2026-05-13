@@ -125,7 +125,11 @@ void Debug::EditorModeInput(Camera2D cam)
         spawnCooldown = 0.3f;
         TraceLog(LOG_INFO, "Medal en (%.0f, %.0f)", worldPos.x, worldPos.y);
     }
-
+    if (IsKeyPressed(KEY_V) && spawnCooldown <= 0.0f) {
+        creationManager.GetItems().emplace_back(worldPos, ItemType::BOMBS);
+        spawnCooldown = 0.3f;
+        TraceLog(LOG_INFO, "Bombs en (%.0f, %.0f)", worldPos.x, worldPos.y);
+    }
     if (IsKeyPressed(KEY_F5)) {
         SaveToFile("level.txt");
         TraceLog(LOG_INFO, "Nivel guardado");

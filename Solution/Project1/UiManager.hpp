@@ -29,6 +29,7 @@ public:
 
     int  GetBombs() const { return bombs; }
     bool HasBombs() const { return bombs > 0; }
+	void  SetBombs(int amount) { bombs += amount; }
     void UseGrenade();
 
     void SetAmmo(int amount);
@@ -125,6 +126,8 @@ private:
     float continueDelay = 0.0f;
     static constexpr float CONTINUE_DELAY = 2.0f;  // ← ajusta este valor
     bool continueDelayActive = false;
+
+    bool initialized = false;
 
 
 public:

@@ -9,6 +9,8 @@ enum class ItemType {
     FISH,
     MEDAL,
     JETPACK,
+    PIG,
+    BOMBS,
 };
 
 struct ItemConfig {
@@ -33,7 +35,10 @@ static const ItemConfig ITEM_CONFIGS[] = {
     { "Graphics/timmy.png",             20.f, 20.f, 3.0f, 5, 8,  true,  false, 0.f,  0.f, false, 0.f }, // PLUSHY
     { "Graphics/fish.png",              34.f, 34.f, 3.0f, 6, 8,  true,  false, 0.f,  0.f, false, 0.f }, // FISH
     { "Graphics/medal.png",             22.f, 22.f, 3.0f, 7, 8,  true,  false, 0.f,  0.f, false, 0.f }, // MEDAL
-    { "Graphics/jetpack.png",           40.f, 40.f, 3.0f, 1, 0,  true,  false, 0.f,  0.f, false, 0.f }, // JETPACK
+    { "Graphics/items.png",             32.f, 32.f, 3.0f, 1, 0,  true,  false, 32.f,  0.f, false, 0.f }, // JETPACK
+	{ "Graphics/pig.png",               32.f, 32.f, 3.0f, 4, 8,  true,  false, 0.f,  0.f, false, 0.f }, // PIG
+	{ "Graphics/items.png",             32.f, 32.f, 3.0f, 7, 0,  true,  false, 0.f,  0.f, false, 0.f }, // BOMBS
+
 };
 
 class Item {
@@ -100,8 +105,8 @@ private:
     static constexpr float BOX_SCALE = 3.0f;
 
     // Shared textures (one per config)
-    static Texture2D textures[6];
-    static bool loaded[6];
+    static Texture2D textures[8];
+    static bool loaded[8];
 
     // Physics (for spawned items)
     bool hasGravity = false;

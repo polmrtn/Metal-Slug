@@ -481,22 +481,29 @@ void SystemCollision::ItemPlayerCollision()
                 uiManager.AddScore(500);
                 break;
             case ItemType::MEDAL:
-				uiManager.AddScore(1000);
+                uiManager.AddScore(1000);
+                break;
+            case ItemType::PIG:
+                uiManager.AddScore(300);
+                break;
+            case ItemType::BOMBS:
+                uiManager.SetBombs(10);
+                break;
+            case ItemType::JETPACK:
+                // Equipar jetpack al jugador y actualizar UI inmediatamente
+                player.EquipJetpack();
+                uiManager.SetJetpackActive(true);
+                uiManager.SetJetpackFuel(player.GetJetpackFuel() / player.GetJetpackMaxFuel());
+                break;
             default:
                 break;
             }
             item.Collect();
             continue;
         }
-        if (item.GetType() == ItemType::JETPACK &&
-            CheckCollisionRecs(item.GetHitBox(), player.GetHitBox()))
-        {
-            player.EquipJetpack();
-            uiManager.SetJetpackActive(true);
-            item.Collect();
-        }
 
-        if (item.ShouldSpawnMachinegun())
+        // (El resto del código permanece igual: spawn items, erase inactivos, etc.)
+        if (item.ShouldSpawnItem())
         {
             item.ConsumeSpawn();
             Vector2 spawnPos = { item.GetHitBox().x + 60.0f, item.GetHitBox().y - 20.0f };

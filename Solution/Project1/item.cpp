@@ -1,7 +1,7 @@
 ﻿#include "item.hpp"
 
-Texture2D Item::textures[6] = {};
-bool Item::loaded[6] = { false, false, false, false, false, false };   
+Texture2D Item::textures[8] = {};
+bool Item::loaded[8] = { false, false, false, false, false, false, false, false };   
 
 Item::Item(Vector2 position, ItemType type) {
     this->position = position;
