@@ -188,6 +188,10 @@ public:
         return 64 * 34.0f;                                  // fila 64, cubre 64+65
     }
 
+    void StartP1Anim(int loops = 8);
+    void UpdateP1Anim(float dt);
+    void DrawP1Anim(Vector2 playerPos, float scale, bool facingLeft) const;
+    bool IsP1AnimActive() const { return p1AnimActive; }
 
 private:
     Texture2D spriteSheet;
@@ -372,4 +376,15 @@ private:
     float meleeTimer = 0.0f;
     float meleeFrameDelay = 0.05f;
     static constexpr int MELEE_FRAMES = 6;
+
+    Texture2D texP1Anim;
+    int   p1AnimFrame = 0;
+    float p1AnimTimer = 0.0f;
+    float p1AnimDelay = 0.08f;
+    static constexpr int   P1_ANIM_FRAMES = 7;
+    static constexpr float P1_ANIM_W = 30.0f;
+    static constexpr float P1_ANIM_H = 31.0f;
+    int   p1AnimLoopCount = 0;
+    bool  p1AnimActive = false;
+    int p1AnimMaxLoops = 5;
 };

@@ -30,6 +30,7 @@ void SystemCollision::PlayerBlockCollision()
     Rectangle pr = player.GetHitBox();
     const auto& colliders = creationManager.GetTileMap().GetColliders();
 
+
     for (const auto& col : colliders)
     {
         const Rectangle& br = col.rect;
@@ -187,6 +188,51 @@ void SystemCollision::PlayerBlockCollision()
         }
         }
     }
+    // ── LOOKAHEAD DE RAMPA ──────────────────────────────────────
+// Solo si está en el suelo y moviéndose a la izquierda
+    if ((onGround || player.GetRampGroundedFrames() > 0) && player.GetVelocityX() < 0)
+    {
+        float nextCenterX = pr.x + pr.width / 2.0f + player.GetVelocityX();
+        bool rampFound = false;
+
+        for (const auto& rampCol : colliders)
+        {
+            if (rampCol.type != TileType::RAMP_UP) continue;
+            const Rectangle& rbr = rampCol.rect;
+            if (nextCenterX < rbr.x || nextCenterX > rbr.x + rbr.width) continue;
+            float nextSurfaceY = rampCol.GetRampSurfaceY(nextCenterX);
+            float feetY = pr.y + pr.height;
+            if (fabsf(feetY - nextSurfaceY) <= 60.0f)
+            {
+                player.SetY(nextSurfaceY - player.GetHeight());
+                player.SetVelocityY(3.0f);
+                player.SetRampGroundedFrames(15);
+                rampFound = true;
+                break;
+            }
+        }
+
+        // Si salió de la rampa, busca el SOLID más cercano debajo
+        if (!rampFound && player.GetRampGroundedFrames() > 0)
+        {
+            for (const auto& solidCol : colliders)
+            {
+                if (solidCol.type != TileType::SOLID) continue;
+                const Rectangle& sbr = solidCol.rect;
+                float feetY = pr.y + pr.height;
+                bool overlapX = (pr.x + pr.width > sbr.x) && (pr.x < sbr.x + sbr.width);
+                if (overlapX && feetY <= sbr.y + 20.0f && feetY >= sbr.y - 20.0f)
+                {
+                    player.SetY(sbr.y - player.GetHeight());
+                    player.SetVelocityY(0.0f);
+                    onGround = true;
+                    pr = player.GetHitBox();
+                    break;
+                }
+            }
+        }
+    }
+    // ───────────────────────────────────────────────────────────
     if (onGround) {
         player.SetGrounded(true);
     }

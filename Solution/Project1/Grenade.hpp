@@ -31,7 +31,7 @@ private:
     Vector2 velocity;
 
 
-    float gravity = 1000.0f;
+    float gravity = 1400.0f;
     bool isActive = true;
     bool hasExploded = false;
     float explosionTimer = 0.0f;

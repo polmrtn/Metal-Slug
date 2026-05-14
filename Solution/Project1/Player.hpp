@@ -142,7 +142,7 @@ private:
     static constexpr float SCALE = 4.0f;
     static constexpr float GRAVITY = 2.5f;
     static constexpr float JUMP_FORCE = -34.0f;
-    static constexpr float MOVE_SPEED = 13.0f;
+    static constexpr float MOVE_SPEED = 12.0f;
     static constexpr float CROUCH_SPEED = 6.0f;
 
     // ========== HITBOX ==========

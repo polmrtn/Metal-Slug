@@ -119,7 +119,7 @@ public:
 private:
     // ── Estado general ────────────────────────────────────────
     bool active = false;
-    int  health = 10; //cambiar luego a 300
+    int  health = 300; 
 
     // ── Posición ──────────────────────────────────────────────
     float posX = 16090.0f;

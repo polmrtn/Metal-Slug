@@ -11,12 +11,18 @@ void PlayerAnim::LoadTextures() {
     SetTextureFilter(spriteSheet, TEXTURE_FILTER_POINT);
     LoadParachute();
     LoadParachute2();
+
+    Image imgP1 = LoadImage("Graphics/new fonts and HUDs/p1anim31x30.png");
+    texP1Anim = LoadTextureFromImage(imgP1);
+    UnloadImage(imgP1);
+    SetTextureFilter(texP1Anim, TEXTURE_FILTER_POINT);
 }
 
 void PlayerAnim::UnloadTextures() {
     UnloadTexture(spriteSheet);
     UnloadParachute();
     UnloadParachute2();
+    UnloadTexture(texP1Anim);
 }
 
 void PlayerAnim::Update(bool grounded, float velX, bool crouchingInput, bool aimingUpInput, bool hasMachinegun, float dt) {
@@ -703,4 +709,40 @@ void PlayerAnim::StartMelee() {
     meleeAttacking = true;
     meleeFrame = 0;
     meleeTimer = 0.0f;
+}
+
+void PlayerAnim::StartP1Anim(int loops) {
+    p1AnimActive = true;
+    p1AnimFrame = 0;
+    p1AnimTimer = 0.0f;
+    p1AnimLoopCount = 0;
+    p1AnimMaxLoops = loops;  // ← guarda el valor
+}
+
+void PlayerAnim::UpdateP1Anim(float dt) {
+    if (!p1AnimActive) return;
+    p1AnimTimer += dt;
+
+    float currentDelay = (p1AnimFrame == 3) ? p1AnimDelay * 4.0f : p1AnimDelay;  // ← frame 3 va más lento
+
+    if (p1AnimTimer >= currentDelay) {
+        p1AnimTimer = 0.0f;
+        p1AnimFrame++;
+        if (p1AnimFrame >= P1_ANIM_FRAMES) {
+            p1AnimFrame = 0;
+            p1AnimLoopCount++;
+            if (p1AnimLoopCount >= p1AnimMaxLoops)
+                p1AnimActive = false;
+        }
+    }
+}
+
+void PlayerAnim::DrawP1Anim(Vector2 playerPos, float scale, bool facingLeft) const {
+    if (!p1AnimActive) return;
+    Rectangle src = { p1AnimFrame * P1_ANIM_W, 0, P1_ANIM_W, P1_ANIM_H - 1.0f }; 
+    float destX = playerPos.x + (17.0f * scale) - (P1_ANIM_W * scale / 2.0f);
+    float destY = playerPos.y - P1_ANIM_H * scale - 2.0f * scale;  // ← encima de la cabeza
+    DrawTexturePro(texP1Anim, src,
+        { destX, destY, P1_ANIM_W * scale, P1_ANIM_H * scale },
+        { 0,0 }, 0, WHITE);
 }

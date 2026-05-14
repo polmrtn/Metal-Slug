@@ -1092,7 +1092,7 @@ void UiManager::UpdateMissionIntro(float dt) {
             startBlinkVisible = !startBlinkVisible;
             if (!startBlinkVisible) startBlinkCount++;
         }
-        if (startBlinkCount >= 4 && !exitPhase) {
+        if (startBlinkCount >= 3 && !exitPhase) {
             exitPhase = true;
             exitTimer = 0.0f;
         }

@@ -63,6 +63,11 @@ void Player::Update(float CameraLeftLimit, float CameraTop) {
         }
         pos.y += fallSpeed;
         anim.UpdateParachute(GetFrameTime());
+        anim.UpdateP1Anim(GetFrameTime());
+
+        if (anim.IsParachuteActive() && !anim.IsP1AnimActive())
+            anim.StartP1Anim();
+
         if (grounded) {
             isFalling = false;
             blinkVisible = true;
@@ -72,6 +77,8 @@ void Player::Update(float CameraLeftLimit, float CameraTop) {
         return;
     }
     anim.UpdateParachuteLanding(GetFrameTime());
+    anim.UpdateP1Anim(GetFrameTime());
+
     if (invincibilityTimer > 0.0f) {
         invincibilityTimer -= GetFrameTime();
     }
@@ -422,6 +429,11 @@ void Player::TakeDamage() {
     if (grounded) {
         vel.y = 0.0f;
         dyingInAir = false;
+        // Si estaba agachado, ajusta pos.y para que los pies queden en el mismo sitio
+        if (crouching) {
+            float feetY = pos.y + hitboxHeight;  // pies actuales (agachado)
+            pos.y = feetY - GetNormalHeight();    // reposiciona como si estuviera de pie
+        }
         deathPosition = pos;
     }
     else {
@@ -431,7 +443,6 @@ void Player::TakeDamage() {
 }
 
 void Player::Respawn() {
-    TraceLog(LOG_INFO, "Respawn en deathPosition: x=%.1f y=%.1f", deathPosition.x, deathPosition.y);
     pos = deathPosition;
     isAlive = true;
     isDisappeared = false;
@@ -449,6 +460,7 @@ void Player::Respawn() {
     if (GetRandomValue(0, 1) == 1) {
         EquipMachinegun();
     }
+    anim.StartP1Anim(3);
 }
 
 // ========== HITBOXES ==========
@@ -519,10 +531,11 @@ Rectangle Player::GetFullBodyRect() {
 void Player::Draw() {
     // ========== NUEVO: Animación de caída inicial (fila 30) ==========
     if (isFalling) {
-        if (!blinkVisible) return;
-
         // Dibujar paracaídas
         anim.DrawParachute(pos, SCALE, dir == PlayerDirection::LEFT);
+        anim.DrawP1Anim(pos, SCALE, dir == PlayerDirection::LEFT);
+
+        if (!blinkVisible) return;
 
         // Sprite de la fila 30 (30 * 34 = 1020), ancho 34, alto 68
         Rectangle sourceRect = { 0, 29 * 34.0f, 34.0f, 68.0f };
@@ -563,6 +576,9 @@ void Player::Draw() {
 
     // Resto del código original de Draw()...
     if (!isAlive && isDisappeared) return;
+
+    if (anim.IsP1AnimActive())
+        anim.DrawP1Anim(pos, SCALE, dir == PlayerDirection::LEFT);
 
     bool shouldDraw = true;
 
@@ -962,13 +978,23 @@ void Player::DrawSeparated() {
 
     // Aiming up
     if (aimingUp) {
+        float aimOffsetX = 0.0f;
+        if (anim.GetLegsAnim() == LegsAnim::JUMPING)
+            aimOffsetX = (dir == PlayerDirection::RIGHT) ? 20.0f : -20.0f;  // ← ajusta el valor
+
         if (anim.IsAimingTransition()) {
             torsoSrc = { (float)(anim.GetAimingFrame() * w), anim.GetAimingTransitionRowY(), w, h };
         }
         else {
             torsoSrc = { (float)(anim.GetAimingFrame() * w), anim.GetAimingIdleRowY(), w, h };
         }
+        if (dir == PlayerDirection::LEFT) torsoSrc.width = -w;
+        DrawTexturePro(anim.GetSheet(), torsoSrc,
+            { torsoDrawX + aimOffsetX, torsoDrawY, w * SCALE, h * SCALE },
+            { 0,0 }, 0, tint);
+        return;
     }
+
     // Torso normal
     else {
         switch (anim.GetTorsoAnim()) {
