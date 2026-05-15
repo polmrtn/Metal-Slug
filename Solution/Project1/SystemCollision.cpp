@@ -16,6 +16,7 @@ void SystemCollision::CollisionUpdate()
     ItemBlockCollision();
     ItemPlayerCollision();
     BossAttackPlayerCollision();
+    PrisonerBlockCollision();
 }
 
 // ═════════════════════════════════════════════════════════════
@@ -340,6 +341,20 @@ void SystemCollision::BulletCollision()
             }
         }
 
+        // Prisioneros
+        if (!hit)
+        {
+            for (auto& p : creationManager.GetPrisoners())
+            {
+                if (!p.IsFreed() && CheckCollisionRecs(bIt->GetHitbox(), p.GetHitBox()))
+                {
+                    p.TakeDamage();
+                    hit = true;
+                    break;
+                }
+            }
+        }
+
         if (!hit && bIt->GetType() == 2 && bIt->IsExploding())
         {
             if (player.IsAlive() && !player.IsInvincible() &&
@@ -630,6 +645,32 @@ void SystemCollision::PlayerBoxCollision()
         {
             player.SetX(br.x + br.width - player.GetHitBox().x + player.GetX());
             player.SetVelocityX(0.0f);
+        }
+    }
+}
+
+void SystemCollision::PrisonerBlockCollision()
+{
+    const auto& colliders = creationManager.GetTileMap().GetColliders();
+    for (auto& p : creationManager.GetPrisoners())
+    {
+        if (!p.IsActive()) continue;
+        Rectangle pr = p.GetHitBox();
+
+        for (const auto& col : colliders)
+        {
+            if (col.type != TileType::SOLID && col.type != TileType::PLATFORM) continue;
+            const Rectangle& br = col.rect;
+            float feetY = pr.y + pr.height;
+            bool overlapX = (pr.x + pr.width > br.x) && (pr.x < br.x + br.width);
+            float penetration = feetY - br.y;
+
+            if (overlapX && penetration >= 0.0f && penetration <= 30.0f)
+            {
+                p.SetPositionY(br.y - pr.height);
+                p.SetGrounded(true);
+                pr = p.GetHitBox();
+            }
         }
     }
 }

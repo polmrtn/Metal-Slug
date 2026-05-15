@@ -165,6 +165,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="playerAnim.cpp" />
+    <ClCompile Include="Prisoner.cpp" />
     <ClCompile Include="SceneManager.cpp" />
     <ClCompile Include="Soldier.cpp" />
     <ClCompile Include="SoldierAnim.cpp" />
@@ -186,6 +187,7 @@
     <ClInclude Include="InputManager.hpp" />
     <ClInclude Include="item.hpp" />
     <ClInclude Include="playerAnim.hpp" />
+    <ClInclude Include="Prisoner.hpp" />
     <ClInclude Include="SceneManager.hpp" />
     <ClInclude Include="Soldier.hpp" />
     <ClInclude Include="game.hpp" />

@@ -14,7 +14,7 @@ void Debug::SetEditorMode(Camera2D cam)
     // Sombra para efecto negrita
     DrawText("EDITOR | F1:Salir | Click:Solid | RClick:Platform | C:Ceiling | R:Ramp | Del:Borrar | S:Soldier1 | D:Soldier2 | B:Box | J:Jetpack | F5:Guardar",
         9, 9, 13, BLACK);
-    DrawText("EDITOR | F1:Salir | Click:Solid | RClick:Platform | C:Ceiling | R:Ramp | Del:Borrar | S:Soldier1 | D:Soldier2 | B:Box | J:Jetpack | F5:Guardar",
+    DrawText("EDITOR | F1:Salir | Click:Solid | RClick:Platform | C:Ceiling | R:Ramp | Del:Borrar | S:Soldier1 | D:Soldier2 | P:Prisoner Ground | O:Prisoner Pole | | B:Box | J:Jetpack | F5:Guardar",
         8, 8, 13, RED);
 
     Vector2 worldPos = GetScreenToWorld2D(GetMousePosition(), cam);
@@ -106,6 +106,14 @@ void Debug::EditorModeInput(Camera2D cam)
     }
     if (IsKeyPressed(KEY_J) && spawnCooldown <= 0.0f) {
         creationManager.GetItems().emplace_back(worldPos, ItemType::JETPACK);
+        spawnCooldown = 0.3f;
+    }
+    if (IsKeyPressed(KEY_P) && spawnCooldown <= 0.0f) {
+        creationManager.GetPrisoners().emplace_back(worldPos, PrisonerType::GROUND);
+        spawnCooldown = 0.3f;
+    }
+    if (IsKeyPressed(KEY_O) && spawnCooldown <= 0.0f) {
+        creationManager.GetPrisoners().emplace_back(worldPos, PrisonerType::POLE);
         spawnCooldown = 0.3f;
     }
 

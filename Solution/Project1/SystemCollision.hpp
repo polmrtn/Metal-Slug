@@ -18,6 +18,7 @@ public:
 	void ItemPlayerCollision();
 	void BossAttackPlayerCollision();
 	void PlayerBoxCollision();
+	void PrisonerBlockCollision();
 	
 private:
 	

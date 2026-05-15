@@ -7,6 +7,7 @@
 #include "item.hpp"
 #include "LevelMap.hpp"
 #include "BloodEffect.hpp"
+#include "Prisoner.hpp"
 
 
 class CreationManager
@@ -24,7 +25,7 @@ public:
     std::vector<Grenade>& GetGrenades();
     std::vector<Item>& GetItems();
     std::vector<BloodEffect>& GetBloodEffects();
-
+    std::vector<Prisoner>& GetPrisoners();
     // ── Carga del nivel ───────────────────────────────────────
     // Formato nuevo: tiles  (col row type por línea)
     // Soldados:  S x y type
@@ -38,4 +39,6 @@ private:
     std::vector<Grenade> grenades;
     std::vector<Item>    items;
     std::vector<BloodEffect> bloodEffects;
+    std::vector<Prisoner> prisoners; 
+
 };

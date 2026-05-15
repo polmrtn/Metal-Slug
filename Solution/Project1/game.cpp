@@ -57,6 +57,7 @@ void Game::Draw()
     for (auto& grenade : creationManager.GetGrenades()) grenade.Draw();
     for (auto& item : creationManager.GetItems())    item.Draw();
     for (auto& blood : creationManager.GetBloodEffects()) blood.Draw();
+    for (auto& p : creationManager.GetPrisoners()) p.Draw();
 
     // Tiles en coordenadas de mundo
     creationManager.GetTileMap().DrawTiles();
@@ -277,6 +278,17 @@ void Game::Update()
         uiManager.SetJetpackFuel(0.0f);
         uiManager.SetJetpackActive(false);
     }
+
+    //Prisoners
+    Camera2D cam = camera.GetCamera();
+    float camLeft = cam.target.x - cam.offset.x;
+    float camRight = cam.target.x + cam.offset.x;
+    for (auto& p : creationManager.GetPrisoners())
+        p.Update(player.GetPosition().x, camLeft, camRight);
+    creationManager.GetPrisoners().erase(
+        std::remove_if(creationManager.GetPrisoners().begin(), creationManager.GetPrisoners().end(),
+            [](const Prisoner& p) { return !p.IsActive(); }),
+        creationManager.GetPrisoners().end());
 
     // Limpiar items inactivos
     for (auto& item : creationManager.GetItems()) item.Update();
