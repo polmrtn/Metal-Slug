@@ -85,6 +85,13 @@ void Debug::EditorModeInput(Camera2D cam)
             [&worldPos](const Item& i) {
                 return CheckCollisionPointRec(worldPos, i.GetHitBox());
             }), items.end());
+
+        auto& prisoners = creationManager.GetPrisoners();
+        prisoners.erase(std::remove_if(prisoners.begin(), prisoners.end(),
+            [&worldPos](const Prisoner& p) {
+                return CheckCollisionPointRec(worldPos, p.GetHitBox());
+            }), prisoners.end());
+
     }
 
 
@@ -108,12 +115,16 @@ void Debug::EditorModeInput(Camera2D cam)
         creationManager.GetItems().emplace_back(worldPos, ItemType::JETPACK);
         spawnCooldown = 0.3f;
     }
+    // P = normal, O = pole normal
+    // Shift+P = ground flipped, Shift+O = pole flipped
     if (IsKeyPressed(KEY_P) && spawnCooldown <= 0.0f) {
-        creationManager.GetPrisoners().emplace_back(worldPos, PrisonerType::GROUND);
+        bool flipped = IsKeyDown(KEY_LEFT_SHIFT);
+        creationManager.GetPrisoners().emplace_back(worldPos, PrisonerType::GROUND, flipped);
         spawnCooldown = 0.3f;
     }
     if (IsKeyPressed(KEY_O) && spawnCooldown <= 0.0f) {
-        creationManager.GetPrisoners().emplace_back(worldPos, PrisonerType::POLE);
+        bool flipped = IsKeyDown(KEY_LEFT_SHIFT);
+        creationManager.GetPrisoners().emplace_back(worldPos, PrisonerType::POLE, flipped);
         spawnCooldown = 0.3f;
     }
 
@@ -149,6 +160,12 @@ void Debug::SaveToFile(const char* filename) const
         if (item.GetType() == ItemType::BOX)     t = 1;
         if (item.GetType() == ItemType::JETPACK) t = 2;
         fprintf(f, "I %.0f %.0f %d\n", item.GetPosition().x, item.GetPosition().y, t);
+    }
+
+    for (const auto& p : creationManager.GetPrisoners()) {
+        int t = (p.GetType() == PrisonerType::GROUND) ? 0 : 1;
+        int flipped = p.IsFlippedDefault() ? 1 : 0;
+        fprintf(f, "PR %.0f %.0f %d %d\n", p.GetPosition().x, p.GetPosition().y, t, flipped);
     }
 
     fclose(f);

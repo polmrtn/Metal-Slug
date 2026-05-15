@@ -5,9 +5,11 @@
 Texture2D Prisoner::texture = { 0 };
 bool      Prisoner::textureLoaded = false;
 
-Prisoner::Prisoner(Vector2 position, PrisonerType type)
-    : position(position), type(type)
+Prisoner::Prisoner(Vector2 position, PrisonerType type, bool flipped)
+    : position(position), type(type), flippedDefault(flipped)
 {
+    facingRight = !flipped;
+
     if (!textureLoaded) {
         texture = LoadTexture("Graphics/prisoner.png");
         SetTextureFilter(texture, TEXTURE_FILTER_POINT);
@@ -84,7 +86,7 @@ void Prisoner::SpawnRewardItem() {
 
 void Prisoner::UpdateIdle(float dt) {
     timer += dt;
-    if (timer < FRAME_DELAY) return;
+    if (timer < IDLE_FRAME_DELAY) return;
     timer = 0.0f;
 
     int maxFrames = (type == PrisonerType::GROUND) ? 5 : 9;
@@ -128,7 +130,7 @@ void Prisoner::UpdateFreeing(float dt) {
 void Prisoner::UpdateWalking(float playerX, float dt) {
     // Inicializar targets la primera vez
     if (!walkInitialized) {
-        walkTarget = position.x + WALK_RANGE;
+        walkTarget = flippedDefault ? position.x - WALK_RANGE : position.x + WALK_RANGE;
         walkInitialized = true;
     }
 
@@ -142,7 +144,7 @@ void Prisoner::UpdateWalking(float playerX, float dt) {
     }
 
     timer += dt;
-    if (timer >= FRAME_DELAY) {
+    if (timer >= WALK_FRAME_DELAY) {
         timer = 0.0f;
         frame = (frame + 1) % 12;
     }

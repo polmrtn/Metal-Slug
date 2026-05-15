@@ -15,7 +15,7 @@ enum class PrisonerState {
 
 class Prisoner {
 public:
-    Prisoner(Vector2 position, PrisonerType type);
+    Prisoner(Vector2 position, PrisonerType type, bool flipped = false);
     ~Prisoner();
 
     void Update(float playerX, float cameraLeft, float cameraRight);
@@ -31,6 +31,9 @@ public:
     bool IsGrounded() const { return grounded; }
     Rectangle GetCollisionHitBox() const;  // para bloques y gravedad
     Rectangle GetSpriteSize() const;
+    PrisonerType GetType() const { return type; }
+    Vector2 GetPosition() const { return position; }
+    bool IsFlippedDefault() const { return flippedDefault; }
 
 private:
     Vector2     position;
@@ -46,8 +49,11 @@ private:
     // Reward pingpong
     bool  rewardGiven = false;
 
-    static constexpr float WALK_SPEED = 60.0f;
-    static constexpr float RUN_SPEED = 300.0f;
+
+    static constexpr float IDLE_FRAME_DELAY = 0.12f;  // idle más lento
+    static constexpr float WALK_FRAME_DELAY = 0.06f;  // walk más rápido
+    static constexpr float WALK_SPEED = 80.0f;
+    static constexpr float RUN_SPEED = 350.0f;
     static constexpr float FRAME_DELAY = 0.08f;
     float scale = 4.0f;
 
@@ -76,7 +82,7 @@ private:
 
     float walkTarget = 0.0f;
     bool walkInitialized = false;
-    static constexpr float WALK_RANGE = 80.0f;  // ajusta
+    static constexpr float WALK_RANGE = 150.0f;  // ajusta
 
     float velY = 0.0f;
     bool grounded = false;
@@ -86,4 +92,5 @@ private:
     int   poleBreakFrame = 3;  // empieza desde el frame 3
     float poleBreakTimer = 0.0f;
     Vector2 poleBreakPos = { 0.0f, 0.0f };  // posición fija donde estaba el poste
+    bool flippedDefault = false;
 };

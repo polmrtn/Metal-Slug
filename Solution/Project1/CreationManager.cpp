@@ -54,6 +54,13 @@ void CreationManager::LoadFromFile(const char* filename)
                 items.emplace_back(Vector2{ x, y }, t);
             }
         }
+        else if (line[0] == 'P' && line[1] == 'R') {
+            float x, y; int t, flipped;
+            if (sscanf(line + 3, "%f %f %d %d", &x, &y, &t, &flipped) == 4)
+                prisoners.emplace_back(Vector2{ x, y },
+                    t == 0 ? PrisonerType::GROUND : PrisonerType::POLE,
+                    flipped == 1);
+        }
     }
 
     fclose(f);
