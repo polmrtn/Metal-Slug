@@ -357,7 +357,7 @@ private:
     bool parachuteLanding = false;
     int  parachuteLandingFrame = 0;
     float parachuteLandingTimer = 0.0f;
-    const float parachuteLandingDelay = 0.08f;
+    const float parachuteLandingDelay = 0.05f;
     const int   parachuteLandingFrameCount = 17;
     const float PARACHUTE2_W = 62.0f;
     const float PARACHUTE2_H = 59.0f;
