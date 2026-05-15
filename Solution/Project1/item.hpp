@@ -33,6 +33,13 @@ public:
     bool IsActivated() const { return activated; }
     float GetBoxTop() const { return position.y; }
     float GetBoxWidth() const { return BOX_W * BOX_SCALE; }
+    bool HasGravity() const { return hasGravity; }
+    float GetVisualHeight() const {
+        if (type == ItemType::BOX) return BOX_H * BOX_SCALE;
+        return 22.0f * 3.0f;  // machinegun y jetpack
+    }
+
+
 
 private:
     Vector2 position;

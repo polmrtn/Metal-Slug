@@ -1,4 +1,5 @@
 ﻿#include "SystemCollision.hpp"
+#include "item.hpp"
 #include <cmath>
 #include <algorithm>
 
@@ -497,7 +498,8 @@ void SystemCollision::ItemBlockCollision()
 
     for (auto& item : creationManager.GetItems())
     {
-        if (item.IsGrounded() || item.GetType() != ItemType::SHOTGUN) continue;
+        if (item.IsGrounded() || !item.HasGravity()) continue;
+        if (!item.HasGravity()) continue;
 
         Rectangle ir = item.GetHitBox();
         for (const auto& col : colliders)
@@ -510,8 +512,12 @@ void SystemCollision::ItemBlockCollision()
 
             if (overlapX && penetration >= 0.0f && penetration <= 35.0f)
             {
-                float offsetY = item.GetPosition().y - ir.y;
-                item.SetPositionY(br.y - ir.height + offsetY);
+                if (item.GetType() == ItemType::BOX) {
+                    item.SetPositionY(br.y - item.GetVisualHeight()); 
+                }
+                else {
+                    item.SetPositionY(br.y - item.GetVisualHeight());
+                }
                 item.SetGrounded(true);
                 item.SetGravity(false);
                 break;
@@ -655,7 +661,7 @@ void SystemCollision::PrisonerBlockCollision()
     for (auto& p : creationManager.GetPrisoners())
     {
         if (!p.IsActive()) continue;
-        Rectangle pr = p.GetHitBox();
+        Rectangle pr = p.GetCollisionHitBox();
 
         for (const auto& col : colliders)
         {
@@ -669,7 +675,7 @@ void SystemCollision::PrisonerBlockCollision()
             {
                 p.SetPositionY(br.y - pr.height);
                 p.SetGrounded(true);
-                pr = p.GetHitBox();
+                pr = p.GetCollisionHitBox();
             }
         }
     }

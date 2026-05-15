@@ -29,6 +29,8 @@ public:
     void SetPositionY(float y) { position.y = y; }
     float GetFeetY() const { return position.y + GetHitBox().height; }
     bool IsGrounded() const { return grounded; }
+    Rectangle GetCollisionHitBox() const;  // para bloques y gravedad
+    Rectangle GetSpriteSize() const;
 
 private:
     Vector2     position;
@@ -79,4 +81,9 @@ private:
     float velY = 0.0f;
     bool grounded = false;
     static constexpr float GRAVITY = 800.0f;
+
+    bool  poleBreaking = false;
+    int   poleBreakFrame = 3;  // empieza desde el frame 3
+    float poleBreakTimer = 0.0f;
+    Vector2 poleBreakPos = { 0.0f, 0.0f };  // posición fija donde estaba el poste
 };
