@@ -11,6 +11,7 @@ std::vector<Grenade>& CreationManager::GetGrenades() { return grenades; }
 std::vector<Item>& CreationManager::GetItems() { return items; }
 std::vector<BloodEffect>& CreationManager::GetBloodEffects() { return bloodEffects; }
 std::vector<Prisoner>& CreationManager::GetPrisoners() { return prisoners; }
+std::vector<FloatingText>& CreationManager::GetFloatingTexts() { return floatingTexts; }
 
 void CreationManager::LoadFromFile(const char* filename)
 {

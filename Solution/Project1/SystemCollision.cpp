@@ -544,6 +544,8 @@ void SystemCollision::ItemPlayerCollision()
             audioManager.PlaySound(audioManager.GetMachinegunEquipSound());
             uiManager.SetAmmo(player.GetAmmo());
             uiManager.SetWeaponDisplay(UiManager::WeaponDisplay::MACHINEGUN);
+            Vector2 popupPos = { item.GetPosition().x, item.GetPosition().y - 30.0f };
+            creationManager.GetFloatingTexts().emplace_back(popupPos, "HEAVY MACHINE GUN");
         }
 
         if (item.GetType() == ItemType::JETPACK &&
@@ -552,6 +554,8 @@ void SystemCollision::ItemPlayerCollision()
             player.EquipJetpack();
             uiManager.SetJetpackActive(true);
             item.Collect();
+            Vector2 popupPos = { item.GetPosition().x, item.GetPosition().y - 30.0f };
+            creationManager.GetFloatingTexts().emplace_back(popupPos, "JETPACK");
         }
 
         if (item.ShouldSpawnMachinegun())

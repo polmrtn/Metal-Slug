@@ -156,6 +156,8 @@ void Prisoner::UpdateWalking(float playerX, float dt) {
         pingpongForward = true;
         timer = 0.0f;
         uiManager.AddScore(500);
+        Vector2 popupPos = { position.x, position.y - 40.0f };
+        creationManager.GetFloatingTexts().emplace_back(popupPos, "500");
     }
 }
 
