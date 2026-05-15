@@ -672,22 +672,16 @@ void PlayerAnim::UpdateParachuteLanding(float dt) {
 void PlayerAnim::DrawParachuteLanding(Vector2 playerPos, float scale, bool facingLeft) {
     if (!parachuteLanding) return;
 
-    // Guardar la posición LA PRIMERA VEZ que se dibuja (justo al aterrizar)
-    if (!hasLandingPosition) {
-        landingPosition = playerPos;
-        hasLandingPosition = true;
-    }
+    // ← usa playerPos directamente, no landingPosition
+    float destX = playerPos.x + (15.0f * scale) - (PARACHUTE2_W * scale / 2.0f) - 150.0f;  // ← más a la derecha
+    float destY = playerPos.y - PARACHUTE2_H * scale / 2.0f + 70.0f;  // ← más abajo
 
     Rectangle src = {
         parachuteLandingFrame * PARACHUTE2_W,
         0.0f,
-        facingLeft ? -PARACHUTE2_W : PARACHUTE2_W,
+        !facingLeft ? -PARACHUTE2_W : PARACHUTE2_W,  // ← invertido
         PARACHUTE2_H
     };
-
-    float destX = landingPosition.x + (10.0f * scale) - (PARACHUTE2_W * scale / 2.0f);
-    float destY = landingPosition.y - PARACHUTE2_H * scale + 200.0f;
-
     DrawTexturePro(parachuteSheet2, src,
         { destX, destY, PARACHUTE2_W * scale, PARACHUTE2_H * scale },
         { 0, 0 }, 0, WHITE);

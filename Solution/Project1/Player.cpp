@@ -467,8 +467,8 @@ void Player::Respawn() {
 Rectangle Player::GetHitBox() {
     float spriteTotalWidth = 34.0f * SCALE;
     float hitboxX = pos.x + (spriteTotalWidth - hitboxWidth) / 2.0f;
-    float hitboxY = pos.y + hitboxOffsetY;
-    return Rectangle{ hitboxX, hitboxY, hitboxWidth, hitboxHeight };
+    float hitboxY = pos.y + hitboxOffsetY + 15.0f;  // ← sube el inicio
+    return Rectangle{ hitboxX, hitboxY, hitboxWidth, hitboxHeight - 15.0f };  // ← reduce altura
 }
 
 Rectangle Player::GetLeftHitBox() {
@@ -608,8 +608,8 @@ void Player::Draw() {
         return;
     }
     anim.DrawParachute(pos, SCALE, dir == PlayerDirection::LEFT);
-    anim.DrawParachuteLanding(pos, SCALE, dir == PlayerDirection::LEFT);
     DrawSeparated();
+    anim.DrawParachuteLanding(pos, SCALE, dir == PlayerDirection::LEFT);
     DrawHitBox();
 }
 

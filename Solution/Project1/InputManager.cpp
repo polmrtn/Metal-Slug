@@ -98,6 +98,19 @@ void InputManager::InputPlayer()
 			}
 		}
 
+		// Melee con prisioneros
+		if (!meleeTriggered) {
+			for (auto& p : creationManager.GetPrisoners()) {
+				if (!p.IsFreed() && CheckCollisionRecs(player.GetMeleeHitBox(), p.GetHitBox())) {
+					p.TakeDamage();
+					meleeTriggered = true;
+					player.StartMelee();
+					timerManager.StartTimer(TimerType::DELAY_PISTOL);
+					break;
+				}
+			}
+		}
+
 		// Disparo normal
 		if (!meleeTriggered) {
 			if (player.GetCurrentWeapon() == WeaponType::MACHINEGUN) {
@@ -116,6 +129,7 @@ void InputManager::InputPlayer()
 				audioManager.PlaySound(audioManager.GetShootSound());
 			}
 		}
+		
 	}
 
 	// GRENADE: use TimerManager to check/set cooldown

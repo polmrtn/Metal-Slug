@@ -9,6 +9,10 @@ Item::Item(Vector2 position, ItemType type) {
     this->position = position;
     this->type = type;
 
+    if (type == ItemType::BOX || type == ItemType::JETPACK) {
+        hasGravity = true;
+    }
+
     if (!textureLoaded) {
         texture = LoadTexture("Graphics/items.png");
         SetTextureFilter(texture, TEXTURE_FILTER_POINT);
@@ -61,7 +65,14 @@ void Item::Draw() {
 
         // JETPACK — cuadrado verde temporal
         if (type == ItemType::JETPACK) {
-            DrawRectangleRec(GetHitBox(), GREEN);
+            float size = 22.0f * 3.0f;
+            Rectangle dst = {
+                position.x - size / 2,
+                position.y - size + size,
+                size,
+                size
+            };
+            DrawRectangleRec(dst, GREEN);
             DrawRectangleLinesEx(GetHitBox(), 2.0f, DARKGREEN);
             return;
         }
@@ -82,6 +93,7 @@ void Item::Draw() {
             BOX_H * BOX_SCALE
         };
         DrawTexturePro(boxTexture, src, dst, { 0, 0 }, 0, WHITE);
+        DrawRectangleLinesEx(GetHitBox(), 2.0f, RED);
         return;
     }
 
@@ -94,30 +106,40 @@ void Item::Draw() {
 
     Rectangle sourceRect = { column * frameWidth, 0, frameWidth, frameHeight };
     float scale = 3.0f;
+    float height = 22.0f * 3.0f;
     Rectangle destRect = {
         position.x - (frameWidth * scale) / 2,
-        position.y - (frameHeight * scale) / 2,
+        position.y - (frameHeight * scale) + height,  
         frameWidth * scale,
         frameHeight * scale
     };
     DrawTexturePro(texture, sourceRect, destRect, { 0, 0 }, 0, WHITE);
+    DrawRectangleLinesEx(GetHitBox(), 2.0f, YELLOW);
 }
 
 Rectangle Item::GetHitBox() const {
     if (type == ItemType::BOX) {
         float hbH = 23.0f * BOX_SCALE;
         float hbY = position.y + BOX_H * BOX_SCALE - hbH;  // ← empieza desde abajo
+
         return Rectangle{ position.x, hbY, BOX_W * BOX_SCALE, hbH };
     }
     if (type == ItemType::JETPACK) {
-        return Rectangle{ position.x, position.y, 40.0f, 40.0f };
+        float width = 22.0f * 3.0f;
+        float height = 22.0f * 3.0f;
+        return Rectangle{
+            position.x - width / 2,
+            position.y,
+            width,
+            height
+        };
     }
     float width = 22.0f * 3.0f;
     float height = 22.0f * 3.0f;
     return Rectangle{
         position.x - width / 2,
-        position.y - height / 2,
-        width, 
+        position.y,  
+        width,
         height
     };
 }

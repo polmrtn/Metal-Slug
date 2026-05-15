@@ -14,7 +14,7 @@ void Debug::SetEditorMode(Camera2D cam)
     // Sombra para efecto negrita
     DrawText("EDITOR | F1:Salir | Click:Solid | RClick:Platform | C:Ceiling | R:Ramp | Del:Borrar | S:Soldier1 | D:Soldier2 | B:Box | J:Jetpack | F5:Guardar",
         9, 9, 13, BLACK);
-    DrawText("EDITOR | F1:Salir | Click:Solid | RClick:Platform | C:Ceiling | R:Ramp | Del:Borrar | S:Soldier1 | D:Soldier2 | B:Box | J:Jetpack | F5:Guardar",
+    DrawText("EDITOR | F1:Salir | Click:Solid | RClick:Platform | C:Ceiling | R:Ramp | Del:Borrar | S:Soldier1 | D:Soldier2 | P:Prisoner Ground | O:Prisoner Pole | | B:Box | J:Jetpack | F5:Guardar",
         8, 8, 13, RED);
 
     Vector2 worldPos = GetScreenToWorld2D(GetMousePosition(), cam);
@@ -85,6 +85,13 @@ void Debug::EditorModeInput(Camera2D cam)
             [&worldPos](const Item& i) {
                 return CheckCollisionPointRec(worldPos, i.GetHitBox());
             }), items.end());
+
+        auto& prisoners = creationManager.GetPrisoners();
+        prisoners.erase(std::remove_if(prisoners.begin(), prisoners.end(),
+            [&worldPos](const Prisoner& p) {
+                return CheckCollisionPointRec(worldPos, p.GetHitBox());
+            }), prisoners.end());
+
     }
 
 
@@ -106,6 +113,18 @@ void Debug::EditorModeInput(Camera2D cam)
     }
     if (IsKeyPressed(KEY_J) && spawnCooldown <= 0.0f) {
         creationManager.GetItems().emplace_back(worldPos, ItemType::JETPACK);
+        spawnCooldown = 0.3f;
+    }
+    // P = normal, O = pole normal
+    // Shift+P = ground flipped, Shift+O = pole flipped
+    if (IsKeyPressed(KEY_P) && spawnCooldown <= 0.0f) {
+        bool flipped = IsKeyDown(KEY_LEFT_SHIFT);
+        creationManager.GetPrisoners().emplace_back(worldPos, PrisonerType::GROUND, flipped);
+        spawnCooldown = 0.3f;
+    }
+    if (IsKeyPressed(KEY_O) && spawnCooldown <= 0.0f) {
+        bool flipped = IsKeyDown(KEY_LEFT_SHIFT);
+        creationManager.GetPrisoners().emplace_back(worldPos, PrisonerType::POLE, flipped);
         spawnCooldown = 0.3f;
     }
 
@@ -141,6 +160,12 @@ void Debug::SaveToFile(const char* filename) const
         if (item.GetType() == ItemType::BOX)     t = 1;
         if (item.GetType() == ItemType::JETPACK) t = 2;
         fprintf(f, "I %.0f %.0f %d\n", item.GetPosition().x, item.GetPosition().y, t);
+    }
+
+    for (const auto& p : creationManager.GetPrisoners()) {
+        int t = (p.GetType() == PrisonerType::GROUND) ? 0 : 1;
+        int flipped = p.IsFlippedDefault() ? 1 : 0;
+        fprintf(f, "PR %.0f %.0f %d %d\n", p.GetPosition().x, p.GetPosition().y, t, flipped);
     }
 
     fclose(f);
