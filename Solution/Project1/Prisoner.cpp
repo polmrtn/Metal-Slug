@@ -155,6 +155,7 @@ void Prisoner::UpdateWalking(float playerX, float dt) {
         frame = 0;
         pingpongForward = true;
         timer = 0.0f;
+        uiManager.AddScore(500);
     }
 }
 

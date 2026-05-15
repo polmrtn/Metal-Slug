@@ -18,6 +18,7 @@ Player::~Player() {
 void Player::ResetToStart() {
     pos = { 300.0f, -50.0f };
     vel = { 0.0f, 0.0f };
+    fallingTimer = 0.0f;
     isAlive = true;
     isDisappeared = false;
     invincibilityTimer = 0.0f;
@@ -61,7 +62,25 @@ void Player::Update(float CameraLeftLimit, float CameraTop) {
             blinkTimer = 0.0f;
             blinkVisible = !blinkVisible;
         }
-        pos.y += fallSpeed;
+
+        fallingTimer += GetFrameTime();
+
+        if (fallingTimer >= PARACHUTE_RELEASE_TIME && anim.IsParachuteActive()) {
+            // Soltar paracaídas y caer con gravedad
+            anim.StopParachute();
+            anim.StartParachuteLanding();
+            vel.y = 0.0f;  // empieza desde 0 la gravedad
+        }
+
+        if (anim.IsParachuteActive()) {
+            pos.y += fallSpeed;  // cae lento con paracaídas
+        }
+        else {
+            // Cae con gravedad normal
+            vel.y += PARACHUTE_FALL_GRAVITY;
+            pos.y += vel.y;
+        }
+
         anim.UpdateParachute(GetFrameTime());
         anim.UpdateP1Anim(GetFrameTime());
 
@@ -71,8 +90,11 @@ void Player::Update(float CameraLeftLimit, float CameraTop) {
         if (grounded) {
             isFalling = false;
             blinkVisible = true;
+            fallingTimer = 0.0f;
+            vel.y = 0.0f;
             anim.StopParachute();
-            anim.StartParachuteLanding();
+            if (!anim.IsParachuteLanding())
+                anim.StartParachuteLanding();
         }
         return;
     }
@@ -1116,6 +1138,7 @@ void Player::FullReset() {
     pos = { 300.0f, -50.0f };
     vel = { 0.0f, 0.0f };
     inputVelX = 0.0f;
+    fallingTimer = 0.0f;
     grounded = false;
     aimingUp = false;
     crouching = false;
