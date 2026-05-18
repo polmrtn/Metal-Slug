@@ -543,9 +543,9 @@ void SystemCollision::ItemPlayerCollision()
     for (auto& item : items)
     {
         if (!item.IsActive()) continue;
-
+        bool playerTouching = CheckCollisionRecs(item.GetHitBox(), player.GetHitBox());
         if (item.GetType() == ItemType::SHOTGUN &&
-            CheckCollisionRecs(item.GetHitBox(), player.GetHitBox()))
+            playerTouching)
         {
             player.EquipMachinegun();
             item.Collect();
@@ -555,18 +555,41 @@ void SystemCollision::ItemPlayerCollision()
             Vector2 popupPos = { item.GetPosition().x, item.GetPosition().y - 30.0f };
             creationManager.GetFloatingTexts().emplace_back(popupPos, "HEAVY MACHINE GUN");
         }
-
-        if (item.GetType() == ItemType::JETPACK &&
-            CheckCollisionRecs(item.GetHitBox(), player.GetHitBox()))
+        if (playerTouching && item.GetType() != ItemType::BOX)
         {
-            player.EquipJetpack();
-            uiManager.SetJetpackActive(true);
+            switch (item.GetType()) {
+            case ItemType::PLUSHY:
+                uiManager.AddScore(200);
+                break;
+            case ItemType::FISH:
+                uiManager.AddScore(500);
+                break;
+            case ItemType::MEDAL:
+                uiManager.AddScore(1000);
+                break;
+            case ItemType::PIG:
+                uiManager.AddScore(300);
+                break;
+            case ItemType::BOMBS:
+                uiManager.SetBombs(10);
+                break;
+            case ItemType::JETPACK:
+                // Equipar jetpack al jugador y actualizar UI inmediatamente
+                player.EquipJetpack();
+                uiManager.SetJetpackActive(true);
+                uiManager.SetJetpackFuel(player.GetJetpackFuel() / player.GetJetpackMaxFuel());
+                break;
+            default:
+                break;
+            }
             item.Collect();
             Vector2 popupPos = { item.GetPosition().x, item.GetPosition().y - 30.0f };
             creationManager.GetFloatingTexts().emplace_back(popupPos, "JETPACK");
+            continue;
         }
 
-        if (item.ShouldSpawnMachinegun())
+        // (El resto del código permanece igual: spawn items, erase inactivos, etc.)
+        if (item.ShouldSpawnItem())
         {
             item.ConsumeSpawn();
             Vector2 spawnPos = { item.GetHitBox().x + 60.0f, item.GetHitBox().y - 20.0f };
@@ -574,6 +597,9 @@ void SystemCollision::ItemPlayerCollision()
             newItem.SetGravity(true);
             items.push_back(newItem);
         }
+
+        items.erase(std::remove_if(items.begin(), items.end(),
+            [](const Item& i) { return !i.IsActive(); }), items.end());
     }
 }
 
