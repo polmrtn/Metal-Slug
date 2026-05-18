@@ -199,7 +199,7 @@ Rectangle Item::GetHitBox() const {
 
     // Default centered hitbox for other items
     float w = cfg.frameW * cfg.scale;
-    float h = cfg.frameH * cfg.scale;
+    float h = cfg.frameH * cfg.scale;S
     return Rectangle{
         position.x - w / 2.0f,
         position.y - h / 2.0f,
