@@ -180,12 +180,21 @@ void InputManager::InputContinueScreen()
 		uiManager.SetCredits(-1);
 		uiManager.StopContinue();
 		player.Respawn();
-		// Random machinegun si estás cerca del boss (x > 14000)
+
+		// Resetea a pistola primero
+		player.ResetWeapon();
+
+		// Random machinegun si estás cerca del boss
 		if (player.GetX() > 14000.0f && GetRandomValue(0, 1) == 1) {
-			player.EquipMachinegun();
+			player.EquipMachinegunFresh();  // ← siempre 200 balas fijas
 			uiManager.SetAmmo(player.GetAmmo());
 			uiManager.SetWeaponDisplay(UiManager::WeaponDisplay::MACHINEGUN);
 		}
+		else {
+			uiManager.SetAmmo(0);
+			uiManager.SetWeaponDisplay(UiManager::WeaponDisplay::PISTOL);
+		}
+
 		game->SetContinueStarted(false);
 		sceneManager.SetGameState(SceneManager::GAME);
 	}

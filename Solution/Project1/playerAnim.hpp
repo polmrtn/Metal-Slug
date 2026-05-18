@@ -381,7 +381,7 @@ private:
     int   p1AnimFrame = 0;
     float p1AnimTimer = 0.0f;
     float p1AnimDelay = 0.08f;
-    static constexpr int   P1_ANIM_FRAMES = 5;
+    static constexpr int   P1_ANIM_FRAMES = 4;
     static constexpr float P1_ANIM_W = 30.0f;
     static constexpr float P1_ANIM_H = 31.0f;
     int   p1AnimLoopCount = 0;

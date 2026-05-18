@@ -82,6 +82,7 @@ void Player::Update(float CameraLeftLimit, float CameraTop) {
         }
 
         anim.UpdateParachute(GetFrameTime());
+        anim.UpdateParachuteLanding(GetFrameTime());
         anim.UpdateP1Anim(GetFrameTime());
 
         if (anim.IsParachuteActive() && !anim.IsP1AnimActive())
@@ -93,8 +94,6 @@ void Player::Update(float CameraLeftLimit, float CameraTop) {
             fallingTimer = 0.0f;
             vel.y = 0.0f;
             anim.StopParachute();
-            if (!anim.IsParachuteLanding())
-                anim.StartParachuteLanding();
         }
         return;
     }
@@ -415,7 +414,7 @@ GrenadeThrowData Player::ThrowGrenade() {
 // ========== ARMAS ==========
 void Player::EquipMachinegun() {
     currentWeapon = WeaponType::MACHINEGUN;
-    machinegunAmmo = MACHINEGUN_MAX_AMMO;
+    machinegunAmmo += MACHINEGUN_MAX_AMMO;
     anim.StartMachinegunIdle();
 }
 
@@ -555,6 +554,7 @@ void Player::Draw() {
     if (isFalling) {
         // Dibujar paracaídas
         anim.DrawParachute(pos, SCALE, dir == PlayerDirection::LEFT);
+        anim.DrawParachuteLanding(pos, SCALE, dir == PlayerDirection::LEFT);
         anim.DrawP1Anim(pos, SCALE, dir == PlayerDirection::LEFT);
 
         if (!blinkVisible) return;
@@ -1172,4 +1172,18 @@ void Player::FullReset() {
     anim.StopMachinegunCrouch();
     anim.StopParachute();
     anim.StartParachute();
+}
+
+void Player::ResetWeapon() {
+    currentWeapon = WeaponType::PISTOL;
+    machinegunAmmo = 0;
+    anim.StopMachinegun();
+    anim.StopMachinegunAiming();
+    anim.StopMachinegunCrouch();
+}
+
+void Player::EquipMachinegunFresh() {
+    currentWeapon = WeaponType::MACHINEGUN;
+    machinegunAmmo = MACHINEGUN_MAX_AMMO;  // siempre 200 fijos
+    anim.StartMachinegunIdle();
 }
