@@ -66,6 +66,10 @@ public:
         if (type == ItemType::BOX) return BOX_H * BOX_SCALE;
         return Cfg().frameH * Cfg().scale;
     }
+    float GetVisualBottom() const {
+        if (type == ItemType::BOX) return position.y + BOX_H * BOX_SCALE;
+        return position.y;  // para el resto position.y es la base
+    }
     bool ShouldSpawnItem() const { return spawnMachinegun; }
 
 private:

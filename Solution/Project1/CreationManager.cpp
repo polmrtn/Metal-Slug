@@ -18,6 +18,7 @@ void CreationManager::LoadFromFile(const char* filename)
     tileMap.Clear();
     soldiers.clear();
     items.clear();
+    prisoners.clear();
 
     FILE* f = fopen(filename, "r");
     if (!f) {
@@ -28,39 +29,27 @@ void CreationManager::LoadFromFile(const char* filename)
     char line[256];
     while (fgets(line, sizeof(line), f))
     {
-        if (line[0] == 'O') {
-            // el TileMap lo lee internamente en LoadFromFile
-            // pero aqu� lo ignoramos � CreationManager delega al TileMap
-        }
-        else if (line[0] == 'T') {
-            // tiles � los maneja TileMap::LoadFromFile
-        }
-        else if (line[0] == 'S') {
+        if (line[0] == 'S') {
             float x, y; int type;
             if (sscanf(line + 2, "%f %f %d", &x, &y, &type) == 3)
                 soldiers.emplace_back(type, Vector2{ x, y });
         }
         else if (line[0] == 'I') {
             float x, y; int type;
-            if (sscanf(line + 2, "%f %f %d", &x, &y, &type) == 3)
-                items.emplace_back(Vector2{ x, y },
-                    type == 1 ? ItemType::BOX : ItemType::SHOTGUN);
-        }
-        else if (line[0] == 'I') {
-            float x, y; int type;
             if (sscanf(line + 2, "%f %f %d", &x, &y, &type) == 3) {
-
                 ItemType itemType;
                 switch (type) {
-                case 0: itemType = ItemType::SHOTGUN; break;
-                case 1: itemType = ItemType::BOX;     break;
-                case 2: itemType = ItemType::JETPACK; break;
-                case 3: itemType = ItemType::PLUSHY;  break;
-                case 4: itemType = ItemType::FISH;    break;
-                case 5: itemType = ItemType::MEDAL;   break;
-                default: itemType = ItemType::BOX;    break;
-                    items.emplace_back(Vector2{ x, y }, itemType);
+                case 0:  itemType = ItemType::SHOTGUN; break;
+                case 1:  itemType = ItemType::BOX;     break;
+                case 2:  itemType = ItemType::JETPACK; break;
+                case 3:  itemType = ItemType::PLUSHY;  break;
+                case 4:  itemType = ItemType::FISH;    break;
+                case 5:  itemType = ItemType::MEDAL;   break;
+                case 6:  itemType = ItemType::PIG;     break;
+                case 7:  itemType = ItemType::BOMBS;   break;
+                default: itemType = ItemType::BOX;     break;
                 }
+                items.emplace_back(Vector2{ x, y }, itemType);
             }
         }
         else if (line[0] == 'P' && line[1] == 'R') {
@@ -70,13 +59,10 @@ void CreationManager::LoadFromFile(const char* filename)
                     t == 0 ? PrisonerType::GROUND : PrisonerType::POLE,
                     flipped == 1);
         }
-
-        fclose(f);
-
-        // El TileMap carga sus propios tiles (O y T) por separado
-        tileMap.LoadFromFile(filename);
-
-        TraceLog(LOG_INFO, "Nivel cargado: %d soldados, %d items",
-            (int)soldiers.size(), (int)items.size());
     }
+
+    fclose(f);
+    tileMap.LoadFromFile(filename);
+    TraceLog(LOG_INFO, "Nivel cargado: %d soldados, %d items, %d prisoners",
+        (int)soldiers.size(), (int)items.size(), (int)prisoners.size());
 }

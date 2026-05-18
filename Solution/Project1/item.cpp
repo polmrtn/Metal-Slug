@@ -7,9 +7,11 @@ Item::Item(Vector2 position, ItemType type) {
     this->position = position;
     this->type = type;
 
-    if (type == ItemType::BOX || type == ItemType::JETPACK) {
-        hasGravity = true;
-    }
+if (type == ItemType::BOX || type == ItemType::JETPACK||
+    type == ItemType::PLUSHY ||
+    type == ItemType::MEDAL || type == ItemType::BOMBS) {
+    hasGravity = true;
+}
 
     int idx = (int)type;
     if (!loaded[idx]) {
@@ -80,14 +82,6 @@ void Item::Draw() {
         Rectangle dst = { position.x, position.y, cfg.frameW * cfg.scale, cfg.frameH * cfg.scale };
         DrawTexturePro(tex, src, dst, { 0, 0 }, 0, WHITE);
         DrawRectangleLinesEx(GetHitBox(), 2.0f, RED);
-        return;
-    }
-
-    if (type == ItemType::JETPACK) {
-        float size = 22.0f * 3.0f;
-        Rectangle dst = { position.x - size / 2, position.y, size, size };
-        DrawRectangleRec(dst, GREEN);
-        DrawRectangleLinesEx(GetHitBox(), 2.0f, DARKGREEN);
         return;
     }
 
