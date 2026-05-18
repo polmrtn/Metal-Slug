@@ -415,7 +415,7 @@ GrenadeThrowData Player::ThrowGrenade() {
 // ========== ARMAS ==========
 void Player::EquipMachinegun() {
     currentWeapon = WeaponType::MACHINEGUN;
-    machinegunAmmo = MACHINEGUN_MAX_AMMO;
+    machinegunAmmo += MACHINEGUN_MAX_AMMO;
     anim.StartMachinegunIdle();
 }
 
@@ -1172,4 +1172,18 @@ void Player::FullReset() {
     anim.StopMachinegunCrouch();
     anim.StopParachute();
     anim.StartParachute();
+}
+
+void Player::ResetWeapon() {
+    currentWeapon = WeaponType::PISTOL;
+    machinegunAmmo = 0;
+    anim.StopMachinegun();
+    anim.StopMachinegunAiming();
+    anim.StopMachinegunCrouch();
+}
+
+void Player::EquipMachinegunFresh() {
+    currentWeapon = WeaponType::MACHINEGUN;
+    machinegunAmmo = MACHINEGUN_MAX_AMMO;  // siempre 200 fijos
+    anim.StartMachinegunIdle();
 }

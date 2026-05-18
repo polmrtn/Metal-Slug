@@ -117,6 +117,8 @@ public:
     float GetJetpackMaxFuel() const { return JETPACK_MAX_FUEL; }
 
     void FullReset();
+    void ResetWeapon();
+    void EquipMachinegunFresh();
 
 private:
     // ========== ANIMACIÓN ==========
