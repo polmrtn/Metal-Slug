@@ -1,17 +1,14 @@
 #include "CameraManager.hpp"
-
 #include <raymath.h>
-#include <algorithm>
 
 CameraManager::CameraManager() {
-
 }
+
 CameraManager::CameraManager(Vector2 screenCenter) {
     camera.target = { 0, 0 };
     camera.offset = screenCenter;
     camera.rotation = 0.0f;
     camera.zoom = 1.00f;
-
     yLocked = false;
     lockedYValue = 0.0f;
 }
@@ -37,71 +34,51 @@ void CameraManager::Update(Vector2 playerPos, float bgWidth, float bgHeight, boo
     float halfScreenWidth = camera.offset.x;
     float halfScreenHeight = camera.offset.y;
 
-    // --- INICIALIZACIÓN INSTANTÁNEA (Evita el Lerp al empezar) ---
     if (isFirstFrame) {
         maxScrollX = playerPos.x;
         camera.target.x = Clamp(maxScrollX, halfScreenWidth, bgWidth - halfScreenWidth);
-
-        // Calculamos un minY/maxY inicial para el primer frame
         float startMinY = halfScreenHeight + 100.0f;
         float startMaxY = bgHeight - halfScreenHeight - 165.0f;
         lockedYValue = Clamp(playerPos.y, startMinY, startMaxY);
-
-        camera.target.y = lockedYValue; // Asignación directa, sin Lerp
+        camera.target.y = lockedYValue;
         isFirstFrame = false;
         return;
     }
-    // -------------------------------------------------------------
 
-    // Boss zone parameters (hard limit en 15000, allowance atrás 100px)
-    const float BOSS_ZONE_HARD_LIMIT = 15000.0f;
-    const float BACK_ALLOWANCE = 100.0f; // permite mover la cámara 100px hacia atrás
-    const float LEFT_ALLOW = BOSS_ZONE_HARD_LIMIT - BACK_ALLOWANCE;
-    const float SLACK_END = BOSS_ZONE_HARD_LIMIT + 1000.0f; // franja intermedia para Y si es necesario
+    // ?? Seguimiento horizontal ????????????????????????????????
+    // Detectar entrada en zona boss
+    if (playerPos.x >= 15520.0f && !transitionZone) {
+        transitionZone = true;
+        transitionTimer = 0.0f;
+    }
 
-    // 1. Seguimiento horizontal con limitación doble (verifica dos veces)
-    if (playerPos.x >= LEFT_ALLOW) {
-        if (playerPos.x > maxScrollX) {
-            // Si avanza, no permitimos superar el hard limit
-            maxScrollX = std::min(playerPos.x, BOSS_ZONE_HARD_LIMIT);
-        }
-        else {
-            // Permitir retroceso limitado dentro del allowance
-            if (playerPos.x >= LEFT_ALLOW && playerPos.x < maxScrollX) {
-                maxScrollX = playerPos.x;
-            }
-            // si retrocede más allá del allowance, no reducimos maxScrollX
-        }
+    if (!transitionZone) {
+        if (playerPos.x > maxScrollX) maxScrollX = playerPos.x;
+        camera.target.x = Lerp(camera.target.x, maxScrollX, 0.1f);
+        camera.target.x = Clamp(camera.target.x, halfScreenWidth, bgWidth - halfScreenWidth);
     }
     else {
-        // Comportamiento normal fuera de la zona del boss: solo crecer
-        if (playerPos.x > maxScrollX) maxScrollX = playerPos.x;
+        transitionTimer += 0.016f;  // ~1 frame
+        // Espera 0.5s antes de cambiar la lógica para que la cámara esté quieta
+        float blend = Clamp(transitionTimer / 0.5f, 0.0f, 1.0f);
+        float targetNormal = maxScrollX;
+        float targetBoss = Clamp(playerPos.x, 15520.0f, bgWidth - halfScreenWidth);
+        float targetX = targetNormal + (targetBoss - targetNormal) * blend;
+        camera.target.x = Lerp(camera.target.x, targetX, 0.05f);
+        camera.target.x = Clamp(camera.target.x, 15520.0f - (1.0f - blend) * 600.0f, bgWidth - halfScreenWidth);
     }
 
-    camera.target.x = Lerp(camera.target.x, maxScrollX, 0.1f);
-
-    // Primera verificación/clamp: límites generales del fondo
-    camera.target.x = Clamp(camera.target.x, halfScreenWidth, bgWidth - halfScreenWidth);
-
-    // Segunda verificación: aplicar hard limit y permitir retroceso hasta LEFT_ALLOW
-    if (playerPos.x >= LEFT_ALLOW) {
-        if (camera.target.x > BOSS_ZONE_HARD_LIMIT) camera.target.x = BOSS_ZONE_HARD_LIMIT;
-        if (camera.target.x < LEFT_ALLOW) camera.target.x = LEFT_ALLOW;
-        camera.target.x = Clamp(camera.target.x, std::max(halfScreenWidth, LEFT_ALLOW), bgWidth - halfScreenWidth);
-    }
-
-    // 2. Límites de seguridad (Clamps del fondo) para Y
+    // ?? Límites verticales ????????????????????????????????????
     float minY = halfScreenHeight + 100.0f;
     float maxY = bgHeight - halfScreenHeight - 165.0f;
-
-    if (playerPos.x > BOSS_ZONE_HARD_LIMIT) {
+    if (playerPos.x > 14000.0f) {
         minY -= 400.0f;
         maxY -= 400.0f;
     }
     if (minY > maxY) maxY = minY;
 
-    // 3. Lógica de zonas (comportamiento Y) usando el umbral en 14000
-    if (playerPos.x < BOSS_ZONE_HARD_LIMIT) {
+    // ?? Lógica de zonas Y ?????????????????????????????????????
+    if (playerPos.x < 14000.0f) {
         if (playerPos.y > 600) {
             float targetY = Clamp(playerPos.y, minY, maxY);
             if (abs(targetY - lockedYValue) > 50.0f) {
@@ -109,25 +86,18 @@ void CameraManager::Update(Vector2 playerPos, float bgWidth, float bgHeight, boo
             }
         }
     }
-    else if (playerPos.x >= BOSS_ZONE_HARD_LIMIT && playerPos.x < SLACK_END) {
-        // Libertad vertical en la franja intermedia
+    else if (playerPos.x >= 14000.0f && playerPos.x < 15000.0f) {
         lockedYValue = Clamp(playerPos.y, minY, maxY);
     }
-    else {
+    else if (playerPos.x >= 15000.0f) {
         if (!bossZoneLocked) {
             lockedYValue = Clamp(playerPos.y, minY, maxY);
             bossZoneLocked = true;
         }
     }
 
-    // 4. Aplicación suave vertical con transición más lenta al subir
-    // En raylib Y aumenta hacia abajo, por lo que "subir" corresponde a lockedYValue < camera.target.y
-    const float LERP_UP = 0.02f;   // más lento al subir
-    const float LERP_DOWN = 0.06f; // más rápido al bajar
-    float lerpFactor = (lockedYValue < camera.target.y) ? LERP_UP : LERP_DOWN;
-
     if (playerPos.y > 100) {
-        camera.target.y = Lerp(camera.target.y, lockedYValue, lerpFactor);
+        camera.target.y = Lerp(camera.target.y, lockedYValue, 0.06f);
     }
 }
 
