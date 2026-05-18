@@ -18,9 +18,9 @@ int main()
     game->GetSceneManager().SetUiManager(&game->GetUiManager());
 
     //debug boss
-    /*player.SetX(15800.0f);
+    player.SetX(12000.0f);
     player.SetY(100.0f);
-    player.SetGrounded(true);*/
+    player.SetGrounded(true);
 
     while (WindowShouldClose() == false)
     {
