@@ -562,63 +562,66 @@ void SystemCollision::ItemPlayerCollision()
     {
         if (!item.IsActive()) continue;
         bool playerTouching = CheckCollisionRecs(item.GetHitBox(), player.GetHitBox());
-        if (item.GetType() == ItemType::SHOTGUN &&
-            playerTouching)
+
+        if (item.GetType() == ItemType::SHOTGUN && playerTouching)
         {
             player.EquipMachinegun();
             item.Collect();
             audioManager.PlaySound(audioManager.GetMachinegunEquipSound());
             uiManager.SetAmmo(player.GetAmmo());
             uiManager.SetWeaponDisplay(UiManager::WeaponDisplay::MACHINEGUN);
-            Vector2 popupPos = { item.GetPosition().x, item.GetPosition().y - 30.0f };
-            creationManager.GetFloatingTexts().emplace_back(popupPos, "HEAVY MACHINE GUN");
         }
-        if (playerTouching && item.GetType() != ItemType::BOX)
+
+        if (playerTouching && item.GetType() != ItemType::BOX && item.GetType() != ItemType::SHOTGUN)
         {
+            Vector2 popupPos = { item.GetPosition().x, item.GetPosition().y - 30.0f };
+
             switch (item.GetType()) {
             case ItemType::PLUSHY:
                 uiManager.AddScore(200);
+                creationManager.GetFloatingTexts().emplace_back(popupPos, "200");
                 break;
             case ItemType::FISH:
                 uiManager.AddScore(500);
+                creationManager.GetFloatingTexts().emplace_back(popupPos, "500");
                 break;
             case ItemType::MEDAL:
                 uiManager.AddScore(1000);
+                creationManager.GetFloatingTexts().emplace_back(popupPos, "1000");
                 break;
             case ItemType::PIG:
                 uiManager.AddScore(300);
+                creationManager.GetFloatingTexts().emplace_back(popupPos, "300");
                 break;
             case ItemType::BOMBS:
                 uiManager.SetBombs(10);
+                creationManager.GetFloatingTexts().emplace_back(popupPos, "BOMBS");
                 break;
             case ItemType::JETPACK:
-                // Equipar jetpack al jugador y actualizar UI inmediatamente
                 player.EquipJetpack();
                 uiManager.SetJetpackActive(true);
                 uiManager.SetJetpackFuel(player.GetJetpackFuel() / player.GetJetpackMaxFuel());
+                creationManager.GetFloatingTexts().emplace_back(popupPos, "JETPACK");
                 break;
             default:
                 break;
             }
             item.Collect();
-            Vector2 popupPos = { item.GetPosition().x, item.GetPosition().y - 30.0f };
-            creationManager.GetFloatingTexts().emplace_back(popupPos, "JETPACK");
-            continue;
         }
 
-        // (El resto del código permanece igual: spawn items, erase inactivos, etc.)
         if (item.ShouldSpawnItem())
         {
             item.ConsumeSpawn();
             Vector2 spawnPos = { item.GetHitBox().x + 60.0f, item.GetHitBox().y - 20.0f };
-            Item newItem(spawnPos, ItemType::SHOTGUN);
+            ItemType spawnType = (GetRandomValue(0, 1) == 0) ? ItemType::SHOTGUN : ItemType::JETPACK;
+            Item newItem(spawnPos, spawnType);
             newItem.SetGravity(true);
             items.push_back(newItem);
         }
-
-        items.erase(std::remove_if(items.begin(), items.end(),
-            [](const Item& i) { return !i.IsActive(); }), items.end());
     }
+
+    items.erase(std::remove_if(items.begin(), items.end(),
+        [](const Item& i) { return !i.IsActive(); }), items.end());
 }
 
 void SystemCollision::BossAttackPlayerCollision()
