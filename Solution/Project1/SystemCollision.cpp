@@ -92,7 +92,7 @@ void SystemCollision::PlayerBlockCollision()
 
             // -- Laterales --
             {
-                if (player.IsAlive() || !player.IsDyingInAir()) {  // ← solo laterales si está vivo o no cayendo muerto
+                if (player.IsAlive() || !player.IsDyingInAir()) {
                     bool vertOverlap = (pr.y + pr.height > br.y + 4.0f) &&
                         (pr.y < br.y + br.height - 4.0f);
                     if (vertOverlap)
@@ -112,6 +112,24 @@ void SystemCollision::PlayerBlockCollision()
                             player.SetX(player.GetX() - ov);
                             player.SetRightCollision(true);
                             pr = player.GetHitBox();
+                        }
+
+                        // ← check adicional con hitbox completa para bloques en L
+                        // solo cuando no está en rampa y está en el suelo
+                        if (player.GetRampGroundedFrames() == 0 && player.GetIsGrounded()) {
+                            if (CheckCollisionRecs(pr, br)) {
+                                float overlapLeft = (br.x + br.width) - pr.x;
+                                float overlapRight = (pr.x + pr.width) - br.x;
+                                if (overlapLeft < overlapRight) {
+                                    player.SetX(player.GetX() + overlapLeft);
+                                    player.SetLeftCollision(true);
+                                }
+                                else {
+                                    player.SetX(player.GetX() - overlapRight);
+                                    player.SetRightCollision(true);
+                                }
+                                pr = player.GetHitBox();
+                            }
                         }
                     }
                 }

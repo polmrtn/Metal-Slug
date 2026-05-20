@@ -61,8 +61,8 @@ void Game::Draw()
     for (auto& ft : creationManager.GetFloatingTexts()) ft.Draw();
 
     // Tiles en coordenadas de mundo
-    /*creationManager.GetTileMap().DrawTiles();*/
-    /*creationManager.GetTileMap().DrawColliders();*/
+    creationManager.GetTileMap().DrawTiles();
+    creationManager.GetTileMap().DrawColliders();
     debug.DrawEditorGrid(camera.GetCamera());
     boss.Draw();
 
@@ -377,14 +377,14 @@ void Game::Update()
     Color bossTint = WHITE;
     if (!boss.IsDestroyed()) {
         bossTint = boss.IsFlashing() ? ORANGE : WHITE;
-        backgroundManager.SetEventSpriteTint(5, bossTint);
+        backgroundManager.SetEventSpriteTint(2, bossTint);
     }
     else
         bossTint = { 255, 255, 255, 0 };
-    backgroundManager.SetEventSpriteTint(4, bossTint);
+    backgroundManager.SetEventSpriteTint(3, bossTint);
 
     if (boss.IsDestroyed()) {
-        backgroundManager.SetEventSpriteFrame(5, boss.GetDestroyFrame());
+        backgroundManager.SetEventSpriteFrame(3, boss.GetDestroyFrame());
     }
 
     backgroundManager.FollowPlayer(camera.GetCamera().target);
