@@ -199,6 +199,7 @@ void InputManager::InputContinueScreen()
 		sceneManager.SetGameState(SceneManager::GAME);
 	}
 }
+
 void InputManager::InputEnding()
 {
 	if (!uiManager.IsEndingActive()) return;

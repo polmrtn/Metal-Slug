@@ -1,36 +1,40 @@
-﻿#include "Item.hpp"
+﻿#include "item.hpp"
 
-Texture2D Item::texture = { 0 };
-bool Item::textureLoaded = false;
-Texture2D Item::boxTexture = { 0 };
-bool Item::boxTextureLoaded = false;
+Texture2D Item::textures[8] = {};
+bool Item::loaded[8] = { false, false, false, false, false, false, false, false };
 
 Item::Item(Vector2 position, ItemType type) {
     this->position = position;
     this->type = type;
 
-    if (type == ItemType::BOX || type == ItemType::JETPACK) {
-        hasGravity = true;
+if (type == ItemType::BOX || type == ItemType::JETPACK||
+    type == ItemType::PLUSHY ||
+    type == ItemType::MEDAL || type == ItemType::BOMBS) {
+    hasGravity = true;
+}
+
+    int idx = (int)type;
+    if (!loaded[idx]) {
+        textures[idx] = LoadTexture(Cfg().texturePath);
+        SetTextureFilter(textures[idx], TEXTURE_FILTER_POINT);
+        loaded[idx] = true;
     }
 
-    if (!textureLoaded) {
-        texture = LoadTexture("Graphics/items.png");
-        SetTextureFilter(texture, TEXTURE_FILTER_POINT);
-        textureLoaded = true;
-    }
-
-    if (!boxTextureLoaded && type == ItemType::BOX) {
-        boxTexture = LoadTexture("Graphics/ammocratedestoyed.png");
-        SetTextureFilter(boxTexture, TEXTURE_FILTER_POINT);
-        boxTextureLoaded = true;
-    }
+    currentFrame = 0;
+    animTimer = 0.0f;
+    isDestroyed = false;
+    spawnMachinegun = false;
+    destroyFrame = 0;
+    destroyTimer = 0.0f;
+    velY = 0.0f;
+    grounded = false;
+    isActive = true;
 }
 
 Item::~Item() {}
 
 void Item::Destroy() {
     if (type != ItemType::BOX || isDestroyed) return;
-
     isDestroyed = true;
     destroyFrame = 0;
     destroyTimer = 0.0f;
@@ -38,109 +42,84 @@ void Item::Destroy() {
 }
 
 void Item::Update() {
-    // Física de caída para items con gravedad
+    if (!isActive) return;
+
     if (hasGravity && !grounded) {
         velY += GRAVITY * GetFrameTime();
         position.y += velY * GetFrameTime();
     }
 
-    if (type != ItemType::BOX || !isDestroyed) return;
-    if (destroyFrame >= DESTROY_FRAMES - 1) return;
+    const ItemConfig& cfg = Cfg();
 
-    destroyTimer += GetFrameTime();
-    if (destroyTimer >= DESTROY_DELAY) {
-        destroyTimer = 0.0f;
-        destroyFrame++;
+    if (cfg.animFps > 0 && !isDestroyed) {
+        animTimer += GetFrameTime();
+        if (animTimer >= 1.0f / cfg.animFps) {
+            animTimer = 0.0f;
+            currentFrame = (currentFrame + 1) % cfg.totalFrames;
+        }
     }
-    if (destroyFrame >= DESTROY_FRAMES - 1) {
-        isActive = false;
+
+    if (type == ItemType::BOX && isDestroyed) {
+        destroyTimer += GetFrameTime();
+        if (destroyTimer >= DESTROY_DELAY) {
+            destroyTimer = 0.0f;
+            destroyFrame++;
+            if (destroyFrame >= DESTROY_FRAMES)
+                isActive = false;
+        }
     }
 }
 
 void Item::Draw() {
     if (!isActive) return;
 
+    const ItemConfig& cfg = Cfg();
+    Texture2D& tex = textures[(int)type];
+
     if (type == ItemType::BOX) {
-        if (!boxTextureLoaded) return;
-
-        // JETPACK — cuadrado verde temporal
-        if (type == ItemType::JETPACK) {
-            float size = 22.0f * 3.0f;
-            Rectangle dst = {
-                position.x - size / 2,
-                position.y - size + size,
-                size,
-                size
-            };
-            DrawRectangleRec(dst, GREEN);
-            DrawRectangleLinesEx(GetHitBox(), 2.0f, DARKGREEN);
-            return;
-        }
-
-        // Frame 0 = caja intacta, frames 1-4 = destrucción
         int frame = isDestroyed ? (destroyFrame + 1) : 0;
-
-        Rectangle src = {
-            frame * BOX_W,
-            0.0f,
-            BOX_W,
-            BOX_H
-        };
-        Rectangle dst = {
-            position.x,
-            position.y,
-            BOX_W * BOX_SCALE,
-            BOX_H * BOX_SCALE
-        };
-        DrawTexturePro(boxTexture, src, dst, { 0, 0 }, 0, WHITE);
+        Rectangle src = { cfg.startX + frame * cfg.frameW, cfg.startY, cfg.frameW, cfg.frameH };
+        Rectangle dst = { position.x, position.y, cfg.frameW * cfg.scale, cfg.frameH * cfg.scale };
+        DrawTexturePro(tex, src, dst, { 0, 0 }, 0, WHITE);
         DrawRectangleLinesEx(GetHitBox(), 2.0f, RED);
         return;
     }
 
-    // Item normal (machinegun)
-    if (!textureLoaded) return;
+    Rectangle src;
+    if (cfg.framesVertical)
+        src = { cfg.startX, cfg.startY + currentFrame * (cfg.frameH + cfg.spacing), cfg.frameW, cfg.frameH };
+    else
+        src = { cfg.startX + currentFrame * (cfg.frameW + cfg.spacing), cfg.startY, cfg.frameW, cfg.frameH };
 
-    float frameWidth = 32.0f;
-    float frameHeight = 32.0f;
-    int column = 3;
-
-    Rectangle sourceRect = { column * frameWidth, 0, frameWidth, frameHeight };
-    float scale = 3.0f;
-    float height = 22.0f * 3.0f;
-    Rectangle destRect = {
-        position.x - (frameWidth * scale) / 2,
-        position.y - (frameHeight * scale) + height,  
-        frameWidth * scale,
-        frameHeight * scale
+    float scale = cfg.scale;
+    float height = cfg.frameH * scale;
+    Rectangle dst = {
+        position.x - (cfg.frameW * scale) / 2.0f,
+        position.y - (cfg.frameH * scale) + height,
+        cfg.frameW * scale,
+        cfg.frameH * scale
     };
-    DrawTexturePro(texture, sourceRect, destRect, { 0, 0 }, 0, WHITE);
+    DrawTexturePro(tex, src, dst, { 0, 0 }, 0, WHITE);
     DrawRectangleLinesEx(GetHitBox(), 2.0f, YELLOW);
 }
 
 Rectangle Item::GetHitBox() const {
-    if (type == ItemType::BOX) {
-        float hbH = 23.0f * BOX_SCALE;
-        float hbY = position.y + BOX_H * BOX_SCALE - hbH;  // ← empieza desde abajo
+    if ((int)type < 0 || (int)type >= 8)
+        return Rectangle{ position.x, position.y, 10.0f, 10.0f };
 
-        return Rectangle{ position.x, hbY, BOX_W * BOX_SCALE, hbH };
+    const ItemConfig& cfg = Cfg();
+    if (type == ItemType::BOX) {
+        float boxW = cfg.frameW * cfg.scale;
+        float boxH = 23.0f * cfg.scale;
+        float hbY = position.y + cfg.frameH * cfg.scale - boxH;
+        return Rectangle{ position.x, hbY, boxW, boxH };
     }
-    if (type == ItemType::JETPACK) {
-        float width = 22.0f * 3.0f;
-        float height = 22.0f * 3.0f;
-        return Rectangle{
-            position.x - width / 2,
-            position.y,
-            width,
-            height
-        };
-    }
-    float width = 22.0f * 3.0f;
-    float height = 22.0f * 3.0f;
+    float w = cfg.frameW * cfg.scale;
+    float h = cfg.frameH * cfg.scale;
     return Rectangle{
-        position.x - width / 2,
-        position.y,  
-        width,
-        height
+        position.x - w / 2.0f,
+        position.y,
+        w, h
     };
 }
 

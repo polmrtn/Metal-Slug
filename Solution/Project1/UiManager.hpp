@@ -29,6 +29,7 @@ public:
 
     int  GetBombs() const { return bombs; }
     bool HasBombs() const { return bombs > 0; }
+	void  SetBombs(int amount) { bombs += amount; }
     void UseGrenade();
 
     void SetAmmo(int amount);
@@ -216,6 +217,8 @@ private:
     static constexpr float GO_ANIM_H = 31.0f;
     static constexpr float GO_PAUSE = 0.5f;
     static constexpr float GO_IDLE_INTERVAL = 5.0f;
+    bool initialized = false;
+
 
 public:
     void StartContinue();

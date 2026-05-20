@@ -173,7 +173,7 @@ void Player::Update(float CameraLeftLimit, float CameraTop) {
         }
 
         if (pos.x < CameraLeftLimit) pos.x = CameraLeftLimit;
-        return;
+ 
     }
 
     // Melee timer

@@ -92,7 +92,7 @@ void SystemCollision::PlayerBlockCollision()
 
             // -- Laterales --
             {
-                if (player.IsAlive() || !player.IsDyingInAir()) {  // ← solo laterales si está vivo o no cayendo muerto
+                if (player.IsAlive() || !player.IsDyingInAir()) {
                     bool vertOverlap = (pr.y + pr.height > br.y + 4.0f) &&
                         (pr.y < br.y + br.height - 4.0f);
                     if (vertOverlap)
@@ -112,6 +112,24 @@ void SystemCollision::PlayerBlockCollision()
                             player.SetX(player.GetX() - ov);
                             player.SetRightCollision(true);
                             pr = player.GetHitBox();
+                        }
+
+                        // ← check adicional con hitbox completa para bloques en L
+                        // solo cuando no está en rampa y está en el suelo
+                        if (player.GetRampGroundedFrames() == 0 && player.GetIsGrounded()) {
+                            if (CheckCollisionRecs(pr, br)) {
+                                float overlapLeft = (br.x + br.width) - pr.x;
+                                float overlapRight = (pr.x + pr.width) - br.x;
+                                if (overlapLeft < overlapRight) {
+                                    player.SetX(player.GetX() + overlapLeft);
+                                    player.SetLeftCollision(true);
+                                }
+                                else {
+                                    player.SetX(player.GetX() - overlapRight);
+                                    player.SetRightCollision(true);
+                                }
+                                pr = player.GetHitBox();
+                            }
                         }
                     }
                 }
@@ -156,13 +174,13 @@ void SystemCollision::PlayerBlockCollision()
         {
             float headY = pr.y;
             float prevHeadY = player.GetPreviousY();
-            bool  wasBelow = prevHeadY >= br.y + br.height - 1.0f;
+            bool  wasBelow = prevHeadY >= br.y + br.height - 20.0f;  // ← de -1 a -20, más permisivo
             bool  overlapX = (pr.x + pr.width > br.x + 2.0f) &&
                 (pr.x < br.x + br.width - 2.0f);
             float headPen = (br.y + br.height) - headY;
 
             if (overlapX && wasBelow && player.GetVelocityY() < 0 &&
-                headPen >= 0.0f && headPen <= 45.0f)
+                headPen >= 0.0f && headPen <= 60.0f)  // ← de 45 a 60
             {
                 player.SetY(br.y + br.height);
                 player.SetVelocityY(0.0f);
@@ -543,38 +561,67 @@ void SystemCollision::ItemPlayerCollision()
     for (auto& item : items)
     {
         if (!item.IsActive()) continue;
+        bool playerTouching = CheckCollisionRecs(item.GetHitBox(), player.GetHitBox());
 
-        if (item.GetType() == ItemType::SHOTGUN &&
-            CheckCollisionRecs(item.GetHitBox(), player.GetHitBox()))
+        if (item.GetType() == ItemType::SHOTGUN && playerTouching)
         {
             player.EquipMachinegun();
             item.Collect();
             audioManager.PlaySound(audioManager.GetMachinegunEquipSound());
             uiManager.SetAmmo(player.GetAmmo());
             uiManager.SetWeaponDisplay(UiManager::WeaponDisplay::MACHINEGUN);
-            Vector2 popupPos = { item.GetPosition().x, item.GetPosition().y - 30.0f };
-            creationManager.GetFloatingTexts().emplace_back(popupPos, "HEAVY MACHINE GUN");
         }
 
-        if (item.GetType() == ItemType::JETPACK &&
-            CheckCollisionRecs(item.GetHitBox(), player.GetHitBox()))
+        if (playerTouching && item.GetType() != ItemType::BOX && item.GetType() != ItemType::SHOTGUN)
         {
-            player.EquipJetpack();
-            uiManager.SetJetpackActive(true);
-            item.Collect();
             Vector2 popupPos = { item.GetPosition().x, item.GetPosition().y - 30.0f };
-            creationManager.GetFloatingTexts().emplace_back(popupPos, "JETPACK");
+
+            switch (item.GetType()) {
+            case ItemType::PLUSHY:
+                uiManager.AddScore(200);
+                creationManager.GetFloatingTexts().emplace_back(popupPos, "200");
+                break;
+            case ItemType::FISH:
+                uiManager.AddScore(500);
+                creationManager.GetFloatingTexts().emplace_back(popupPos, "500");
+                break;
+            case ItemType::MEDAL:
+                uiManager.AddScore(1000);
+                creationManager.GetFloatingTexts().emplace_back(popupPos, "1000");
+                break;
+            case ItemType::PIG:
+                uiManager.AddScore(300);
+                creationManager.GetFloatingTexts().emplace_back(popupPos, "300");
+                break;
+            case ItemType::BOMBS:
+                uiManager.SetBombs(10);
+                creationManager.GetFloatingTexts().emplace_back(popupPos, "BOMBS");
+                break;
+            case ItemType::JETPACK:
+                player.EquipJetpack();
+                uiManager.SetJetpackActive(true);
+                uiManager.SetJetpackFuel(player.GetJetpackFuel() / player.GetJetpackMaxFuel());
+                creationManager.GetFloatingTexts().emplace_back(popupPos, "JETPACK");
+                break;
+            default:
+                break;
+            }
+            item.Collect();
         }
 
-        if (item.ShouldSpawnMachinegun())
+        if (item.ShouldSpawnItem())
         {
             item.ConsumeSpawn();
             Vector2 spawnPos = { item.GetHitBox().x + 60.0f, item.GetHitBox().y - 20.0f };
-            Item newItem(spawnPos, ItemType::SHOTGUN);
+            ItemType spawnType = (GetRandomValue(0, 1) == 0) ? ItemType::SHOTGUN : ItemType::JETPACK;
+            Item newItem(spawnPos, spawnType);
             newItem.SetGravity(true);
             items.push_back(newItem);
         }
     }
+
+    items.erase(std::remove_if(items.begin(), items.end(),
+        [](const Item& i) { return !i.IsActive(); }), items.end());
 }
 
 void SystemCollision::BossAttackPlayerCollision()

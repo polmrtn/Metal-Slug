@@ -275,7 +275,11 @@ void Game::Update()
     systemCollision.CollisionUpdate();
 
     if (player.HasJetpack())
+    {
         uiManager.SetJetpackFuel(player.GetJetpackFuel() / player.GetJetpackMaxFuel());
+        // Ensure UI shows the jetpack bar when player picked the item
+        if (!uiManager.GetJetpackActive()) uiManager.SetJetpackActive(true);
+    }
     else if (uiManager.GetJetpackActive())
     {
         uiManager.SetJetpackFuel(0.0f);
@@ -373,14 +377,14 @@ void Game::Update()
     Color bossTint = WHITE;
     if (!boss.IsDestroyed()) {
         bossTint = boss.IsFlashing() ? ORANGE : WHITE;
-        backgroundManager.SetEventSpriteTint(5, bossTint);
+        backgroundManager.SetEventSpriteTint(2, bossTint);
     }
     else
         bossTint = { 255, 255, 255, 0 };
-    backgroundManager.SetEventSpriteTint(4, bossTint);
+    backgroundManager.SetEventSpriteTint(3, bossTint);
 
     if (boss.IsDestroyed()) {
-        backgroundManager.SetEventSpriteFrame(5, boss.GetDestroyFrame());
+        backgroundManager.SetEventSpriteFrame(3, boss.GetDestroyFrame());
     }
 
     backgroundManager.FollowPlayer(camera.GetCamera().target);
