@@ -63,11 +63,14 @@ void InputManager::InputPlayer()
 		player.JetpackThrust();
 	}
 
-	// SHOOTING: use TimerManager methods instead of assigning to GetTimer(...) result
-		if (IsKeyPressed(KEY_D) && timerManager.IsReady(TimerType::SHOOT_TIMER) && player.IsAlive()) {
+	// Debug
+	if (IsKeyDown(KEY_RIGHT) && IsKeyDown(KEY_UP))
+		TraceLog(LOG_INFO, "RIGHT+UP held, D pressed=%d", IsKeyPressed(KEY_D));
+
+	if (IsKeyPressed(KEY_D) && timerManager.IsReady(TimerType::SHOOT_TIMER) && player.IsAlive()) {
+		TraceLog(LOG_INFO, "D pressed, aimingUp=%d, velX=%.1f", player.IsAimingUp(), player.GetVelocityX());
 
 		bool meleeTriggered = false;
-		//Comprobar soldados
 		for (auto& soldier : creationManager.GetSoldiers()) {
 			if (soldier.GetisAlive() &&
 				CheckCollisionRecs(player.GetMeleeHitBox(), soldier.GetHurtBox())) {
@@ -83,7 +86,6 @@ void InputManager::InputPlayer()
 			}
 		}
 
-		// Comprobar cajas
 		if (!meleeTriggered) {
 			for (auto& item : creationManager.GetItems()) {
 				if (item.IsActive() && item.GetType() == ItemType::BOX &&
@@ -98,7 +100,6 @@ void InputManager::InputPlayer()
 			}
 		}
 
-		// Melee con prisioneros
 		if (!meleeTriggered) {
 			for (auto& p : creationManager.GetPrisoners()) {
 				if (!p.IsFreed() && CheckCollisionRecs(player.GetMeleeHitBox(), p.GetHitBox())) {
@@ -111,7 +112,6 @@ void InputManager::InputPlayer()
 			}
 		}
 
-		// Disparo normal
 		if (!meleeTriggered) {
 			if (player.GetCurrentWeapon() == WeaponType::MACHINEGUN) {
 				if (player.GetAmmo() > 0) {
@@ -129,10 +129,8 @@ void InputManager::InputPlayer()
 				audioManager.PlaySound(audioManager.GetShootSound());
 			}
 		}
-		
 	}
 
-	// GRENADE: use TimerManager to check/set cooldown
 	if (IsKeyPressed(KEY_S) && player.IsAlive() &&
 		timerManager.IsReady(TimerType::GRENADE_COOLDOWN) && uiManager.HasBombs()) {
 		game->ThrowGrenade();
@@ -158,6 +156,11 @@ void InputManager::InputMachinegunBurst()
 	}
 	else if (dir == PlayerDirection::RIGHT) {
 		if (IsKeyDown(KEY_RIGHT)) { player.MoveRight(); uiManager.NotifyPlayerMoved(); }
+		else player.StopMovingHorizontal();
+	}
+	else if (dir == PlayerDirection::UP) {  // ← añade
+		if (IsKeyDown(KEY_LEFT)) { player.MoveLeft(); uiManager.NotifyPlayerMoved(); }
+		else if (IsKeyDown(KEY_RIGHT)) { player.MoveRight(); uiManager.NotifyPlayerMoved(); }
 		else player.StopMovingHorizontal();
 	}
 	if (IsKeyPressed(KEY_SPACE)) { player.Jump(); uiManager.NotifyPlayerMoved(); }
