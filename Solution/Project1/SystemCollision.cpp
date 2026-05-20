@@ -92,7 +92,7 @@ void SystemCollision::PlayerBlockCollision()
 
             // -- Laterales --
             {
-                if (player.IsAlive() || !player.IsDyingInAir()) {  // ← solo laterales si está vivo o no cayendo muerto
+                if (player.IsAlive() || !player.IsDyingInAir()) {
                     bool vertOverlap = (pr.y + pr.height > br.y + 4.0f) &&
                         (pr.y < br.y + br.height - 4.0f);
                     if (vertOverlap)
@@ -112,6 +112,24 @@ void SystemCollision::PlayerBlockCollision()
                             player.SetX(player.GetX() - ov);
                             player.SetRightCollision(true);
                             pr = player.GetHitBox();
+                        }
+
+                        // ← check adicional con hitbox completa para bloques en L
+                        // solo cuando no está en rampa y está en el suelo
+                        if (player.GetRampGroundedFrames() == 0 && player.GetIsGrounded()) {
+                            if (CheckCollisionRecs(pr, br)) {
+                                float overlapLeft = (br.x + br.width) - pr.x;
+                                float overlapRight = (pr.x + pr.width) - br.x;
+                                if (overlapLeft < overlapRight) {
+                                    player.SetX(player.GetX() + overlapLeft);
+                                    player.SetLeftCollision(true);
+                                }
+                                else {
+                                    player.SetX(player.GetX() - overlapRight);
+                                    player.SetRightCollision(true);
+                                }
+                                pr = player.GetHitBox();
+                            }
                         }
                     }
                 }
@@ -543,9 +561,9 @@ void SystemCollision::ItemPlayerCollision()
     for (auto& item : items)
     {
         if (!item.IsActive()) continue;
-
+        bool playerTouching = CheckCollisionRecs(item.GetHitBox(), player.GetHitBox());
         if (item.GetType() == ItemType::SHOTGUN &&
-            CheckCollisionRecs(item.GetHitBox(), player.GetHitBox()))
+            playerTouching)
         {
             player.EquipMachinegun();
             item.Collect();
@@ -555,18 +573,41 @@ void SystemCollision::ItemPlayerCollision()
             Vector2 popupPos = { item.GetPosition().x, item.GetPosition().y - 30.0f };
             creationManager.GetFloatingTexts().emplace_back(popupPos, "HEAVY MACHINE GUN");
         }
-
-        if (item.GetType() == ItemType::JETPACK &&
-            CheckCollisionRecs(item.GetHitBox(), player.GetHitBox()))
+        if (playerTouching && item.GetType() != ItemType::BOX)
         {
-            player.EquipJetpack();
-            uiManager.SetJetpackActive(true);
+            switch (item.GetType()) {
+            case ItemType::PLUSHY:
+                uiManager.AddScore(200);
+                break;
+            case ItemType::FISH:
+                uiManager.AddScore(500);
+                break;
+            case ItemType::MEDAL:
+                uiManager.AddScore(1000);
+                break;
+            case ItemType::PIG:
+                uiManager.AddScore(300);
+                break;
+            case ItemType::BOMBS:
+                uiManager.SetBombs(10);
+                break;
+            case ItemType::JETPACK:
+                // Equipar jetpack al jugador y actualizar UI inmediatamente
+                player.EquipJetpack();
+                uiManager.SetJetpackActive(true);
+                uiManager.SetJetpackFuel(player.GetJetpackFuel() / player.GetJetpackMaxFuel());
+                break;
+            default:
+                break;
+            }
             item.Collect();
             Vector2 popupPos = { item.GetPosition().x, item.GetPosition().y - 30.0f };
             creationManager.GetFloatingTexts().emplace_back(popupPos, "JETPACK");
+            continue;
         }
 
-        if (item.ShouldSpawnMachinegun())
+        // (El resto del código permanece igual: spawn items, erase inactivos, etc.)
+        if (item.ShouldSpawnItem())
         {
             item.ConsumeSpawn();
             Vector2 spawnPos = { item.GetHitBox().x + 60.0f, item.GetHitBox().y - 20.0f };
@@ -574,6 +615,9 @@ void SystemCollision::ItemPlayerCollision()
             newItem.SetGravity(true);
             items.push_back(newItem);
         }
+
+        items.erase(std::remove_if(items.begin(), items.end(),
+            [](const Item& i) { return !i.IsActive(); }), items.end());
     }
 }
 

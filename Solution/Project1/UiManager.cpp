@@ -64,10 +64,16 @@ UiManager::UiManager()
     : credits(0), score(0), level(1), timeLeft(60), bombs(10), ammo(0),
     timeAccum(0.0f), introTimer(0.0f),
     blinkAccum(0.0f), blinkVisible(true),
-    idleTimer(0.0f), goVisible(false), goBlinkAccum(0.0f), goBlinkOn(false)
+    idleTimer(0.0f), goVisible(false), goBlinkAccum(0.0f), goBlinkOn(false),
+    initialized(false) // now valid, as 'initialized' is a member
 { }
 
 void UiManager::Init() {
+    if (initialized) {
+        TraceLog(LOG_INFO, "UiManager::Init() called but already initialized.");
+        return;
+    }
+
     texArms = LoadTexture(PATH_ARMS);
     texBomb = LoadTexture(PATH_BOMB);
     texCannon = LoadTexture(PATH_CANNON);
@@ -114,6 +120,9 @@ void UiManager::Init() {
     SetTextureFilter(texEnding, TEXTURE_FILTER_POINT);
     SetTextureFilter(texStars, TEXTURE_FILTER_POINT);
     SetTextureFilter(texHighScoreYellow, TEXTURE_FILTER_POINT);
+
+    initialized = true;
+    TraceLog(LOG_INFO, "UiManager initialized: textures loaded.");
 }
 
 UiManager::~UiManager()
@@ -779,7 +788,7 @@ void UiManager::UpdateContinue(float dt)
         if (continueDelay >= CONTINUE_DELAY)
         {
             continueDelayActive = false;
-            continueScreenActive = true;  // ← ahora sí activa
+            continueScreenActive = true;  // ← teraz sí activa
         }
         return;
     }
