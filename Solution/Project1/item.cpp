@@ -104,15 +104,16 @@ void Item::Draw() {
 }
 
 Rectangle Item::GetHitBox() const {
-    const ItemConfig& cfg = Cfg();
+    if ((int)type < 0 || (int)type >= 8)
+        return Rectangle{ position.x, position.y, 10.0f, 10.0f };
 
+    const ItemConfig& cfg = Cfg();
     if (type == ItemType::BOX) {
         float boxW = cfg.frameW * cfg.scale;
         float boxH = 23.0f * cfg.scale;
         float hbY = position.y + cfg.frameH * cfg.scale - boxH;
         return Rectangle{ position.x, hbY, boxW, boxH };
     }
-
     float w = cfg.frameW * cfg.scale;
     float h = cfg.frameH * cfg.scale;
     return Rectangle{

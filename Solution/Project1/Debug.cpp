@@ -173,7 +173,14 @@ void Debug::SaveToFile(const char* filename) const
         fprintf(f, "S %.0f %.0f %d\n", s.GetX(), s.GetY(), const_cast<Soldier&>(s).GetType());
 
     for (const auto& item : creationManager.GetItems()) {
-        int t = (item.GetType() == ItemType::BOX) ? 1 : 0;
+        int t = 0;
+        if (item.GetType() == ItemType::BOX)     t = 1;
+        if (item.GetType() == ItemType::JETPACK) t = 2;
+        if (item.GetType() == ItemType::PLUSHY)  t = 3;
+        if (item.GetType() == ItemType::FISH)    t = 4;
+        if (item.GetType() == ItemType::MEDAL)   t = 5;
+        if (item.GetType() == ItemType::PIG)     t = 6;
+        if (item.GetType() == ItemType::BOMBS)   t = 7;
         fprintf(f, "I %.0f %.0f %d\n", item.GetPosition().x, item.GetPosition().y, t);
     }
 

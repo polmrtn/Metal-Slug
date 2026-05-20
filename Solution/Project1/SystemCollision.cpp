@@ -174,13 +174,13 @@ void SystemCollision::PlayerBlockCollision()
         {
             float headY = pr.y;
             float prevHeadY = player.GetPreviousY();
-            bool  wasBelow = prevHeadY >= br.y + br.height - 1.0f;
+            bool  wasBelow = prevHeadY >= br.y + br.height - 20.0f;  // ← de -1 a -20, más permisivo
             bool  overlapX = (pr.x + pr.width > br.x + 2.0f) &&
                 (pr.x < br.x + br.width - 2.0f);
             float headPen = (br.y + br.height) - headY;
 
             if (overlapX && wasBelow && player.GetVelocityY() < 0 &&
-                headPen >= 0.0f && headPen <= 45.0f)
+                headPen >= 0.0f && headPen <= 60.0f)  // ← de 45 a 60
             {
                 player.SetY(br.y + br.height);
                 player.SetVelocityY(0.0f);
