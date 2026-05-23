@@ -81,6 +81,7 @@ void Game::Update()
     if (sceneManager.GetGamestate() == SceneManager::INTRO)
     {
         if (!musicStarted) {
+            SetMusicVolume(audioManager.GetIntroMusic(), 4.0f); // przywróc volume po ewentualnym StopIntroMusic
             audioManager.PlayMusic(audioManager.GetIntroMusic());
             musicStarted = true;
         }
@@ -259,7 +260,8 @@ void Game::Update()
         player.TakeDamage();
 
     // Jezeli animacja MISSION COMPLETE skonczyla sie (ekran czarny) — wróc do INTRO
-    if (uiManager.IsMissionCompleteDone()) {
+    // missionCompleteTriggered gwarantuje ze to dotyczy TYLKO tej instancji Game (reset przy new Game())
+    if (missionCompleteTriggered && uiManager.IsMissionCompleteDone()) {
         audioManager.StopMusic(audioManager.GetGameMusic());
         musicStarted = false;
         shouldRestart = true;
