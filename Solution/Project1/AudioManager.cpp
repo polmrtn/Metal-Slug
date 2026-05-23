@@ -24,6 +24,8 @@ void AudioManager::Init() {
     machinegunShootSound = LoadSound("OST/Non_music/machinegun_shot.mp3");
     creditSound          = LoadSound("OST/Non_music/credit_sound.mp3");
     thankYouSound        = LoadSound("OST/Non_music/thank_you_sound.mp3");
+    missionCompleteSound = LoadSound("OST/Non_music/metal-slug-mission-complete.mp3");
+    SetSoundVolume(missionCompleteSound, 6.0f);
     SetSoundVolume(thankYouSound, 3.0f);
     SetSoundVolume(creditSound, 0.6f);
 }
@@ -49,6 +51,7 @@ Sound& AudioManager::GetMachinegunEquipSound() { return machinegunEquipSound; }
 Sound& AudioManager::GetMachinegunShootSound() { return machinegunShootSound; }
 Sound& AudioManager::GetCreditSound()          { return creditSound; }
 Sound& AudioManager::GetThankYouSound()        { return thankYouSound; }
+Sound& AudioManager::GetMissionCompleteSound() { return missionCompleteSound; }
 
 Music& AudioManager::GetIntroMusic()      { return introMusic; }
 Music& AudioManager::GetTitleMusic()      { return titleMusic; }
@@ -78,4 +81,5 @@ AudioManager::~AudioManager()
     UnloadSound(machinegunShootSound);
     UnloadSound(creditSound);
     UnloadSound(thankYouSound);
+    UnloadSound(missionCompleteSound);
 }

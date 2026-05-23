@@ -23,6 +23,7 @@ public:
     Sound& GetDeathSound2();
     void   PlayRandomDeathSound();
     Sound& GetThankYouSound();
+    Sound& GetMissionCompleteSound();
     Sound& GetShootSound();
     Sound& GetGrenadeSound();
     Sound& GetMachinegunEquipSound();
@@ -43,4 +44,5 @@ private:
     Sound machinegunShootSound;
     Sound creditSound;
     Sound thankYouSound;
+    Sound missionCompleteSound;
 };

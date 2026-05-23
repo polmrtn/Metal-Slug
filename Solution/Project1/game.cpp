@@ -273,6 +273,8 @@ void Game::Update()
     if (boss.IsDestroyed() && boss.IsDestroyAnimFinished() && !missionCompleteTriggered) {
         missionCompleteTriggered = true;
         uiManager.StartMissionComplete();
+        audioManager.StopMusic(audioManager.GetGameMusic());
+        audioManager.PlaySound(audioManager.GetMissionCompleteSound());
     }
     if (boss.IsDestroyed()) {
         player.StopMovingHorizontal();

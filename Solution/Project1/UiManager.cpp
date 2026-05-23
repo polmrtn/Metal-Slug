@@ -1038,9 +1038,13 @@ void UiManager::UpdateMissionIntro(float dt) {
             l.currentY += dy * speed;
         }
         if (slowExit) {
-            exitFadeAlpha = exitTimer / 2.0f;
+            // Fade zaczyna sie po 3s, trwa 4s (lacznie 7s zanim ekran czarny)
+            float fadeStart = 3.0f;
+            float fadeDuration = 4.0f;
+            if (exitTimer > fadeStart)
+                exitFadeAlpha = (exitTimer - fadeStart) / fadeDuration;
             if (exitFadeAlpha > 1.0f) exitFadeAlpha = 1.0f;
-            if (exitTimer >= 2.0f) {
+            if (exitTimer >= fadeStart + fadeDuration) {
                 missionActive = false;
                 missionCompleteActive = false;
                 missionCompleteDone = true;  // game.cpp wykryje i przejdzie do INTRO
