@@ -25,6 +25,7 @@ public:
     Sound& GetThankYouSound();
     Sound& GetMissionCompleteSound();
     Sound& GetJetpackPickupSound();
+    Sound& GetGrenadePickupSound();
     Sound& GetShootSound();
     Sound& GetGrenadeSound();
     Sound& GetMachinegunEquipSound();
@@ -47,4 +48,5 @@ private:
     Sound thankYouSound;
     Sound missionCompleteSound;
     Sound jetpackPickupSound;
+    Sound grenadePickupSound;
 };

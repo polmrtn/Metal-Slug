@@ -596,6 +596,7 @@ void SystemCollision::ItemPlayerCollision()
             case ItemType::BOMBS:
                 uiManager.SetBombs(10);
                 creationManager.GetFloatingTexts().emplace_back(popupPos, "BOMBS");
+                audioManager.PlaySound(audioManager.GetGrenadePickupSound());
                 break;
             case ItemType::JETPACK:
                 player.EquipJetpack();
