@@ -602,6 +602,7 @@ void SystemCollision::ItemPlayerCollision()
                 uiManager.SetJetpackActive(true);
                 uiManager.SetJetpackFuel(player.GetJetpackFuel() / player.GetJetpackMaxFuel());
                 creationManager.GetFloatingTexts().emplace_back(popupPos, "JETPACK");
+                audioManager.PlaySound(audioManager.GetJetpackPickupSound());
                 break;
             default:
                 break;

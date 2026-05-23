@@ -24,6 +24,7 @@ public:
     void   PlayRandomDeathSound();
     Sound& GetThankYouSound();
     Sound& GetMissionCompleteSound();
+    Sound& GetJetpackPickupSound();
     Sound& GetShootSound();
     Sound& GetGrenadeSound();
     Sound& GetMachinegunEquipSound();
@@ -45,4 +46,5 @@ private:
     Sound creditSound;
     Sound thankYouSound;
     Sound missionCompleteSound;
+    Sound jetpackPickupSound;
 };
