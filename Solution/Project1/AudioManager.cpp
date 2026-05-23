@@ -15,15 +15,32 @@ void AudioManager::Init() {
     titleMusic = LoadMusicStream("OST/04. Steel Beast 5Beats (Boss Stage).ogg");
     gameMusic = LoadMusicStream("OST/03. Main Theme from Metal Slug (Stage 1).ogg");
     gameSound = LoadSound("OST/FX AUDIO/file002 mission 1 start.ogg");
-    deathSound = LoadSound("OST/Non_music/npc_death.ogg");
+    deathSound  = LoadSound("OST/Non_music/npc_death.ogg");
+    deathSound2 = LoadSound("OST/Non_music/npc_death2.mp3");
+    SetSoundVolume(deathSound2, 6.5f);
     shootSound = LoadSound("OST/Non_music/pistol_shot.wav");
     grenadeSound = LoadSound("OST/Non_music/grenade.wav");
     machinegunEquipSound = LoadSound("OST/FX AUDIO/file011 heavy machinegun.ogg");
     machinegunShootSound = LoadSound("OST/Non_music/machinegun_shot.mp3");
     creditSound          = LoadSound("OST/Non_music/credit_sound.mp3");
+    SetSoundVolume(creditSound, 0.6f);
 }
 
-Sound& AudioManager::GetDeathSound() { return deathSound; }
+Sound& AudioManager::GetDeathSound()  { return deathSound; }
+Sound& AudioManager::GetDeathSound2() { return deathSound2; }
+
+void AudioManager::PlayRandomDeathSound()
+{
+    // Jesli deathSound2 nie zaladowal sie poprawnie, zawsze graj deathSound
+    if (deathSound2.stream.buffer == nullptr) {
+        ::PlaySound(deathSound);
+        return;
+    }
+    if (GetRandomValue(0, 1) == 0)
+        ::PlaySound(deathSound);
+    else
+        ::PlaySound(deathSound2);
+}
 Sound& AudioManager::GetShootSound() { return shootSound; }
 Sound& AudioManager::GetGrenadeSound() { return grenadeSound; }
 Sound& AudioManager::GetMachinegunEquipSound() { return machinegunEquipSound; }
@@ -51,6 +68,7 @@ AudioManager::~AudioManager()
     UnloadMusicStream(titleMusic);
     UnloadMusicStream(gameMusic);
     UnloadSound(deathSound);
+    UnloadSound(deathSound2);
     UnloadSound(shootSound);
     UnloadSound(grenadeSound);
     UnloadSound(machinegunEquipSound);

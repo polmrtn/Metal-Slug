@@ -20,6 +20,8 @@ public:
     Music& GetHowtoplayMusic();
     Sound& GetGameSound();
     Sound& GetDeathSound();
+    Sound& GetDeathSound2();
+    void   PlayRandomDeathSound();
     Sound& GetShootSound();
     Sound& GetGrenadeSound();
     Sound& GetMachinegunEquipSound();
@@ -33,6 +35,7 @@ private:
     Music howtoplayMusic;
     Sound gameSound;
     Sound deathSound;
+    Sound deathSound2;
     Sound shootSound;
     Sound grenadeSound;
     Sound machinegunEquipSound;
