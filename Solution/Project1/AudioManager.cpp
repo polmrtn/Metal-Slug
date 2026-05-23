@@ -20,6 +20,7 @@ void AudioManager::Init() {
     grenadeSound = LoadSound("OST/Non_music/grenade.wav");
     machinegunEquipSound = LoadSound("OST/FX AUDIO/file011 heavy machinegun.ogg");
     machinegunShootSound = LoadSound("OST/Non_music/machinegun_shot.mp3");
+    creditSound          = LoadSound("OST/Non_music/credit_sound.mp3");
 }
 
 Sound& AudioManager::GetDeathSound() { return deathSound; }
@@ -27,6 +28,7 @@ Sound& AudioManager::GetShootSound() { return shootSound; }
 Sound& AudioManager::GetGrenadeSound() { return grenadeSound; }
 Sound& AudioManager::GetMachinegunEquipSound() { return machinegunEquipSound; }
 Sound& AudioManager::GetMachinegunShootSound() { return machinegunShootSound; }
+Sound& AudioManager::GetCreditSound()          { return creditSound; }
 
 Music& AudioManager::GetIntroMusic()      { return introMusic; }
 Music& AudioManager::GetTitleMusic()      { return titleMusic; }
@@ -53,4 +55,5 @@ AudioManager::~AudioManager()
     UnloadSound(grenadeSound);
     UnloadSound(machinegunEquipSound);
     UnloadSound(machinegunShootSound);
+    UnloadSound(creditSound);
 }

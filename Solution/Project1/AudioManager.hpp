@@ -24,6 +24,7 @@ public:
     Sound& GetGrenadeSound();
     Sound& GetMachinegunEquipSound();
     Sound& GetMachinegunShootSound();
+    Sound& GetCreditSound();
 
 private:
     Music introMusic;
@@ -36,4 +37,5 @@ private:
     Sound grenadeSound;
     Sound machinegunEquipSound;
     Sound machinegunShootSound;
+    Sound creditSound;
 };

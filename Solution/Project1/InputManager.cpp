@@ -20,6 +20,7 @@ void InputManager::InputCreditsPlayer()
 		if (uiManager.GetCredits() < 99) {
 			uiManager.SetCredits(1);
 			timerManager.StartTimer(TimerType::CREDIT_DELAY);
+			audioManager.PlaySound(audioManager.GetCreditSound());
 		}
 	}
 }
@@ -175,6 +176,7 @@ void InputManager::InputContinueScreen()
 		if (uiManager.GetCredits() < 99) {
 			uiManager.SetCredits(1);
 			timerManager.StartTimer(TimerType::CREDIT_DELAY);
+			audioManager.PlaySound(audioManager.GetCreditSound());
 		}
 	}
 
