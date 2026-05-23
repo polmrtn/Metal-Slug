@@ -1043,7 +1043,7 @@ void UiManager::UpdateMissionIntro(float dt) {
             if (exitTimer >= 2.0f) {
                 missionActive = false;
                 missionCompleteActive = false;
-                StartEnding();
+                missionCompleteDone = true;  // game.cpp wykryje i przejdzie do INTRO
             }
         }
         else {

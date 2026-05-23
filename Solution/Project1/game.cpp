@@ -257,6 +257,18 @@ void Game::Update()
     timerManager.Update(dt);
     if (uiManager.IsTimeUp() && player.IsAlive())
         player.TakeDamage();
+
+    // Jezeli animacja MISSION COMPLETE skonczyla sie (ekran czarny) — wróc do INTRO
+    if (uiManager.IsMissionCompleteDone()) {
+        audioManager.StopMusic(audioManager.GetGameMusic());
+        musicStarted = false;
+        shouldRestart = true;
+        sceneManager.SetGameState(SceneManager::INTRO);
+        BeginDrawing();
+        ClearBackground(BLACK);
+        return;
+    }
+
     boss.Update(player.GetPosition().x);
     if (boss.IsDestroyed() && boss.IsDestroyAnimFinished() && !missionCompleteTriggered) {
         missionCompleteTriggered = true;
