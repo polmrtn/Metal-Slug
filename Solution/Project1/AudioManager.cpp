@@ -34,6 +34,7 @@ void AudioManager::Init() {
     bossBulletSound      = LoadSound("OST/Non_music/boss_bullet.mp3");
     bossOpenSound        = LoadSound("OST/Non_music/boss_sliding_open.mp3");
     bossBigBulletSound   = LoadSound("OST/Non_music/boss_bigbullet.mp3");
+    SetSoundVolume(bossBigBulletSound, 2.0f);
     for (int i = 0; i < BOSS_DEATH_SOUND_COUNT; i++) {
         char path[64];
         snprintf(path, sizeof(path), "OST/Non_music/boss_death_%03d.mp3", i + 1);
