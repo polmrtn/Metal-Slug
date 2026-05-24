@@ -23,6 +23,7 @@ public:
     Sound& GetGameOverSound();
     Sound& GetBossBulletSound();
     Sound& GetBossOpenSound();
+    Sound& GetBossBigBulletSound();
     Sound& GetThankYouSound();
     Sound& GetMissionCompleteSound();
     Sound& GetJetpackPickupSound();
@@ -44,6 +45,7 @@ private:
     Sound gameOverSound;
     Sound bossBulletSound;
     Sound bossOpenSound;
+    Sound bossBigBulletSound;
     Sound shootSound;
     Sound grenadeSound;
     Sound machinegunEquipSound;

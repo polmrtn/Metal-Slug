@@ -573,6 +573,7 @@ void Boss::UpdateLaser(float dt)
                 laserBeamActive = true;
                 laserBeamVisible = true;
                 beamUpVisible = false;
+                audioManager.PlaySound(audioManager.GetBossBigBulletSound());
             }
         }
         break;
@@ -593,6 +594,7 @@ void Boss::UpdateLaser(float dt)
                 laserBeamActive = false;
                 flashLoopTimer = 0.0f;
                 laserBeamVisible = false;
+                audioManager.PlaySound(audioManager.GetBossBigBulletSound());
             }
         }
         break;

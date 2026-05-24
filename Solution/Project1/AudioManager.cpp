@@ -33,6 +33,7 @@ void AudioManager::Init() {
     gameOverSound        = LoadSound("OST/Non_music/game_over.mp3");
     bossBulletSound      = LoadSound("OST/Non_music/boss_bullet.mp3");
     bossOpenSound        = LoadSound("OST/Non_music/boss_sliding_open.mp3");
+    bossBigBulletSound   = LoadSound("OST/Non_music/boss_bigbullet.mp3");
     SetSoundVolume(jetpackPickupSound, 1.5f);
     SetSoundVolume(missionCompleteSound, 6.0f);
     SetSoundVolume(thankYouSound, 3.0f);
@@ -57,6 +58,7 @@ Sound& AudioManager::GetGrenadePickupSound()   { return grenadePickupSound; }
 Sound& AudioManager::GetGameOverSound()        { return gameOverSound; }
 Sound& AudioManager::GetBossBulletSound()      { return bossBulletSound; }
 Sound& AudioManager::GetBossOpenSound()        { return bossOpenSound; }
+Sound& AudioManager::GetBossBigBulletSound()   { return bossBigBulletSound; }
 
 Music& AudioManager::GetIntroMusic()      { return introMusic; }
 Music& AudioManager::GetTitleMusic()      { return titleMusic; }
@@ -92,4 +94,5 @@ AudioManager::~AudioManager()
     UnloadSound(gameOverSound);
     UnloadSound(bossBulletSound);
     UnloadSound(bossOpenSound);
+    UnloadSound(bossBigBulletSound);
 }
