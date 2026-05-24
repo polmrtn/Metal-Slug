@@ -363,6 +363,7 @@ void Boss::UpdateCannon(float dt)
                 else {
                     cannonState = CannonState::OPENING_UP;
                     openFrame = 0;
+                    audioManager.PlaySound(audioManager.GetBossOpenSound());
                 }
                 cannonFrameTimer = 0.0f;
             }
@@ -382,6 +383,7 @@ void Boss::UpdateCannon(float dt)
                 else {
                     cannonState = CannonState::OPENING_DOWN;
                     openFrame = 0;
+                    audioManager.PlaySound(audioManager.GetBossOpenSound());
                 }
                 cannonFrameTimer = 0.0f;
             }
