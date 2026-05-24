@@ -1,5 +1,6 @@
 #include "AudioManager.hpp"
 #include "raylib.h"
+#include <cstdio>
 
 AudioManager::AudioManager()
 {
@@ -15,9 +16,11 @@ void AudioManager::Init() {
     titleMusic = LoadMusicStream("OST/04. Steel Beast 5Beats (Boss Stage).ogg");
     gameMusic = LoadMusicStream("OST/03. Main Theme from Metal Slug (Stage 1).ogg");
     gameSound = LoadSound("OST/FX AUDIO/file002 mission 1 start.ogg");
-    deathSound  = LoadSound("OST/Non_music/npc_death.ogg");
-    deathSound2 = LoadSound("OST/Non_music/npc_death2.mp3");
-    SetSoundVolume(deathSound2, 6.5f);
+    for (int i = 0; i < DEATH_SOUND_COUNT; i++) {
+        char path[64];
+        snprintf(path, sizeof(path), "OST/Non_music/soldier_death_%03d.mp3", i + 1);
+        deathSounds[i] = LoadSound(path);
+    }
     shootSound = LoadSound("OST/Non_music/pistol_shot.wav");
     grenadeSound = LoadSound("OST/Non_music/grenade.wav");
     machinegunEquipSound = LoadSound("OST/FX AUDIO/file011 heavy machinegun.ogg");
@@ -33,20 +36,11 @@ void AudioManager::Init() {
     SetSoundVolume(creditSound, 0.6f);
 }
 
-Sound& AudioManager::GetDeathSound()  { return deathSound; }
-Sound& AudioManager::GetDeathSound2() { return deathSound2; }
-
 void AudioManager::PlayRandomDeathSound()
 {
-    // Jesli deathSound2 nie zaladowal sie poprawnie, zawsze graj deathSound
-    if (deathSound2.stream.buffer == nullptr) {
-        ::PlaySound(deathSound);
-        return;
-    }
-    if (GetRandomValue(0, 1) == 0)
-        ::PlaySound(deathSound);
-    else
-        ::PlaySound(deathSound2);
+    int idx = GetRandomValue(0, DEATH_SOUND_COUNT - 1);
+    if (deathSounds[idx].stream.buffer != nullptr)
+        ::PlaySound(deathSounds[idx]);
 }
 Sound& AudioManager::GetShootSound() { return shootSound; }
 Sound& AudioManager::GetGrenadeSound() { return grenadeSound; }
@@ -78,8 +72,8 @@ AudioManager::~AudioManager()
     UnloadMusicStream(howtoplayMusic);
     UnloadMusicStream(titleMusic);
     UnloadMusicStream(gameMusic);
-    UnloadSound(deathSound);
-    UnloadSound(deathSound2);
+    for (int i = 0; i < DEATH_SOUND_COUNT; i++)
+        UnloadSound(deathSounds[i]);
     UnloadSound(shootSound);
     UnloadSound(grenadeSound);
     UnloadSound(machinegunEquipSound);
