@@ -21,6 +21,7 @@ public:
     Sound& GetGameSound();
     void   PlayRandomDeathSound();
     Sound& GetGameOverSound();
+    Sound& GetBossBulletSound();
     Sound& GetThankYouSound();
     Sound& GetMissionCompleteSound();
     Sound& GetJetpackPickupSound();
@@ -40,6 +41,7 @@ private:
     static constexpr int DEATH_SOUND_COUNT = 6;
     Sound deathSounds[DEATH_SOUND_COUNT];
     Sound gameOverSound;
+    Sound bossBulletSound;
     Sound shootSound;
     Sound grenadeSound;
     Sound machinegunEquipSound;

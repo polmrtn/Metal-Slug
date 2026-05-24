@@ -827,6 +827,7 @@ void Boss::Draw()
 
 void Boss::FirePlasma()
 {
+    audioManager.PlaySound(audioManager.GetBossBulletSound());
     for (int i = 0; i < MAX_PLASMA; i++) {
         if (plasma[i].active) continue;
 
