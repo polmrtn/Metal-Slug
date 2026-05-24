@@ -237,6 +237,11 @@ void Game::Update()
             return;
         }
 
+        if (!gameOverSoundPlayed) {
+            audioManager.PlaySound(audioManager.GetGameOverSound());
+            gameOverSoundPlayed = true;
+        }
+
         if (gameOverTimer < 9.0f)
         {
             BeginDrawing();

@@ -30,6 +30,7 @@ void AudioManager::Init() {
     missionCompleteSound = LoadSound("OST/Non_music/metal-slug-mission-complete.mp3");
     jetpackPickupSound   = LoadSound("OST/Non_music/ok-metal-slug-sound.mp3");
     grenadePickupSound   = LoadSound("OST/Non_music/grenade_pickup_sound.mp3");
+    gameOverSound        = LoadSound("OST/Non_music/game_over.mp3");
     SetSoundVolume(jetpackPickupSound, 1.5f);
     SetSoundVolume(missionCompleteSound, 6.0f);
     SetSoundVolume(thankYouSound, 3.0f);
@@ -51,6 +52,7 @@ Sound& AudioManager::GetThankYouSound()        { return thankYouSound; }
 Sound& AudioManager::GetMissionCompleteSound() { return missionCompleteSound; }
 Sound& AudioManager::GetJetpackPickupSound()   { return jetpackPickupSound; }
 Sound& AudioManager::GetGrenadePickupSound()   { return grenadePickupSound; }
+Sound& AudioManager::GetGameOverSound()        { return gameOverSound; }
 
 Music& AudioManager::GetIntroMusic()      { return introMusic; }
 Music& AudioManager::GetTitleMusic()      { return titleMusic; }
@@ -83,4 +85,5 @@ AudioManager::~AudioManager()
     UnloadSound(missionCompleteSound);
     UnloadSound(jetpackPickupSound);
     UnloadSound(grenadePickupSound);
+    UnloadSound(gameOverSound);
 }

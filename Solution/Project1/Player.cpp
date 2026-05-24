@@ -433,8 +433,7 @@ void Player::UseAmmo() {
 // ========== MUERTE Y RESPAWN ==========
 void Player::TakeDamage() {
     if (!isAlive) return;
-    return; // TYMCZASOWO: niesmiertelnosc
-    if (IsInvincible()) return;
+if (IsInvincible()) return;
 
     isAlive = false;
     deathTimer = 0.0f;
