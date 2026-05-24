@@ -166,6 +166,7 @@ void Boss::Update(float playerX)
             explosionSpawnTimer += dt;
             if (explosionSpawnTimer >= explosionSpawnDelay) {
                 explosionSpawnTimer = 0.0f;
+                audioManager.PlayRandomBossDeathSound();
 
                 int leftLimit = 0;
                 if (destroyFrame >= 3) leftLimit = 56;

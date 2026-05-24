@@ -24,6 +24,7 @@ public:
     Sound& GetBossBulletSound();
     Sound& GetBossOpenSound();
     Sound& GetBossBigBulletSound();
+    void   PlayRandomBossDeathSound();
     Sound& GetThankYouSound();
     Sound& GetMissionCompleteSound();
     Sound& GetJetpackPickupSound();
@@ -46,6 +47,8 @@ private:
     Sound bossBulletSound;
     Sound bossOpenSound;
     Sound bossBigBulletSound;
+    static constexpr int BOSS_DEATH_SOUND_COUNT = 3;
+    Sound bossDeathSounds[BOSS_DEATH_SOUND_COUNT];
     Sound shootSound;
     Sound grenadeSound;
     Sound machinegunEquipSound;

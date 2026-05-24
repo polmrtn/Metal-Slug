@@ -34,6 +34,11 @@ void AudioManager::Init() {
     bossBulletSound      = LoadSound("OST/Non_music/boss_bullet.mp3");
     bossOpenSound        = LoadSound("OST/Non_music/boss_sliding_open.mp3");
     bossBigBulletSound   = LoadSound("OST/Non_music/boss_bigbullet.mp3");
+    for (int i = 0; i < BOSS_DEATH_SOUND_COUNT; i++) {
+        char path[64];
+        snprintf(path, sizeof(path), "OST/Non_music/boss_death_%03d.mp3", i + 1);
+        bossDeathSounds[i] = LoadSound(path);
+    }
     SetSoundVolume(jetpackPickupSound, 1.5f);
     SetSoundVolume(missionCompleteSound, 6.0f);
     SetSoundVolume(thankYouSound, 3.0f);
@@ -59,6 +64,13 @@ Sound& AudioManager::GetGameOverSound()        { return gameOverSound; }
 Sound& AudioManager::GetBossBulletSound()      { return bossBulletSound; }
 Sound& AudioManager::GetBossOpenSound()        { return bossOpenSound; }
 Sound& AudioManager::GetBossBigBulletSound()   { return bossBigBulletSound; }
+
+void AudioManager::PlayRandomBossDeathSound()
+{
+    int idx = GetRandomValue(0, BOSS_DEATH_SOUND_COUNT - 1);
+    if (bossDeathSounds[idx].stream.buffer != nullptr)
+        ::PlaySound(bossDeathSounds[idx]);
+}
 
 Music& AudioManager::GetIntroMusic()      { return introMusic; }
 Music& AudioManager::GetTitleMusic()      { return titleMusic; }
@@ -95,4 +107,6 @@ AudioManager::~AudioManager()
     UnloadSound(bossBulletSound);
     UnloadSound(bossOpenSound);
     UnloadSound(bossBigBulletSound);
+    for (int i = 0; i < BOSS_DEATH_SOUND_COUNT; i++)
+        UnloadSound(bossDeathSounds[i]);
 }
