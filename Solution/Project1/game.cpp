@@ -81,7 +81,7 @@ void Game::Update()
     // ── INTRO ──────────────────────────────
     if (sceneManager.GetGamestate() == SceneManager::INTRO)
     {
-        if (!musicStarted) {
+        if (!musicStarted && !sceneManager.IsSplashActive()) {
             SetMusicVolume(audioManager.GetIntroMusic(), 4.0f); // przywróc volume po ewentualnym StopIntroMusic
             audioManager.PlayMusic(audioManager.GetIntroMusic());
             musicStarted = true;
@@ -105,6 +105,7 @@ void Game::Update()
     // ── TITLE ──────────────────────────────
     if (sceneManager.GetGamestate() == SceneManager::TITLE)
     {
+
         if (introSkipped) {
             audioManager.StopIntroMusic();
         }
