@@ -31,6 +31,8 @@ public:
     SceneManager& GetSceneManager() { return sceneManager; }
     UiManager& GetUiManager() { return uiManager; }
 
+    void SetContinueStarted(bool val) { continueStarted = val; }
+    void SetShouldRestart(bool val) { shouldRestart = val; }
 private:
     // CameraManager local porque necesita el offset de pantalla en el constructor
     CameraManager camera;
@@ -52,4 +54,8 @@ private:
     bool  introSkipped           = false;
     bool  howtoplayMusicStarted  = false;
     float gameOverTimer  = 0.0f;
+    bool continueStarted = false;
+
+    bool missionCompleteTriggered = false;
+    bool gameOverSoundPlayed  = false;
 };

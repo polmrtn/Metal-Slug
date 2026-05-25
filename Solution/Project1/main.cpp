@@ -14,10 +14,13 @@ int main()
     backgroundManager.Init();
     boss.Init();
 
-
     Game* game = new Game();
     game->GetSceneManager().SetUiManager(&game->GetUiManager());
 
+    //debug boss
+    //player.SetX(15200.0f);
+    //player.SetY(100.0f);
+    //player.SetGrounded(true);
 
     while (WindowShouldClose() == false)
     {
@@ -27,6 +30,16 @@ int main()
         if (game->ShouldRestart())
         {
             delete game;
+
+            // Reset completo de todos los globals sin recargar texturas
+            player.FullReset();
+            uiManager.FullReset();
+            sceneManager.FullReset();
+            timerManager.FullReset();
+            boss.FullReset();
+            // creationManager se recarga en Game::Game() via LoadFromFile
+            // backgroundManager, audioManager, boss no necesitan reset de estado
+
             game = new Game();
             game->GetSceneManager().SetUiManager(&game->GetUiManager());
         }

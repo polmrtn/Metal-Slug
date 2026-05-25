@@ -250,11 +250,11 @@ void Soldier::UpdateAI(Player& player)
     else if (currentState == SoldierState::WALKING && isGrounded && isAlive) {
         hasShot = false;
         if (direction == 1) {
-            velocity.x = 5;
+            velocity.x = 15;
             facingRight = true;
         }
         else {
-            velocity.x = -5;
+            velocity.x = -15;
             facingRight = false;
         }
     }
@@ -287,11 +287,11 @@ void Soldier::UpdateAI(Player& player)
     else if (currentState == SoldierState::SNEAK && isAlive && isGrounded) {
         hasShot = false;
         if (direction == 1) {
-            velocity.x = 2;
+            velocity.x = 5;
             facingRight = true;
         }
         else {
-            velocity.x = -2;
+            velocity.x = -5;
             facingRight = false;
         }
     }
@@ -303,7 +303,7 @@ void Soldier::TriggerDeath(AudioManager& audio) {
     currentState = SoldierState::DEAD;
     soldierAnim.ForceAnimation(SoldierState::DEAD);
     velocity.x = 0;
-    audio.PlaySound(audio.GetDeathSound());
+    audio.PlayRandomDeathSound();
 }
 Rectangle Soldier::GetLeftHitBox() {
     Rectangle hurtBox = GetHurtBox();

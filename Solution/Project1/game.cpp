@@ -16,6 +16,9 @@ Game::Game() : camera({ 1200.0f / 2.0f, 896.0f / 2.0f })
     player.ResetToStart();
     uiManager.SetAmmo(0);
     uiManager.SetWeaponDisplay(UiManager::WeaponDisplay::PISTOL);
+
+    boss.Init();
+    uiManager.StartMissionIntro();
 }
 
 Game::~Game() {}
@@ -26,11 +29,17 @@ Game::~Game() {}
 void Game::Reset()
 {
     player.ResetToStart();
+    player.GetAnim().StopParachute();
+    player.GetAnim().StartParachute();
     if (!player.IsAlive()) player.Respawn();
+    uiManager.AddScore(-uiManager.GetScore());
     camera.Reset();
-    musicStarted           = false;
-    introSkipped           = false;
-    howtoplayMusicStarted  = false;
+    musicStarted = false;
+    introSkipped = false;
+    howtoplayMusicStarted = false;
+    continueStarted = false;
+    uiManager.StartMissionIntro();
+    missionCompleteTriggered = false;
 }
 
 // ─────────────────────────────────────────
@@ -47,11 +56,15 @@ void Game::Draw()
     for (auto& bullet : creationManager.GetBullets())  bullet.Draw();
     for (auto& grenade : creationManager.GetGrenades()) grenade.Draw();
     for (auto& item : creationManager.GetItems())    item.Draw();
+    for (auto& blood : creationManager.GetBloodEffects()) blood.Draw();
+    for (auto& p : creationManager.GetPrisoners()) p.Draw();
+    for (auto& ft : creationManager.GetFloatingTexts()) ft.Draw();
 
     // Tiles en coordenadas de mundo
     creationManager.GetTileMap().DrawTiles();
     creationManager.GetTileMap().DrawColliders();
     debug.DrawEditorGrid(camera.GetCamera());
+    boss.Draw();
 
     camera.End();
 
@@ -68,6 +81,7 @@ void Game::Update()
     if (sceneManager.GetGamestate() == SceneManager::INTRO)
     {
         if (!musicStarted) {
+            SetMusicVolume(audioManager.GetIntroMusic(), 4.0f); // przywróc volume po ewentualnym StopIntroMusic
             audioManager.PlayMusic(audioManager.GetIntroMusic());
             musicStarted = true;
         }
@@ -75,11 +89,10 @@ void Game::Update()
         BeginDrawing();
         ClearBackground(BLACK);
 
-        // Jezeli Enter/Space wcisniety — skipnij intro i zatrzymaj muzyke
         if (IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_SPACE)) {
-            audioManager.StopIntroMusic();     // działa bezpośrednio na składowej
+            audioManager.StopIntroMusic();
             musicStarted = true;
-            introSkipped  = true;
+            introSkipped = true;
             sceneManager.SetGameState(SceneManager::TITLE);
             return;
         }
@@ -93,7 +106,8 @@ void Game::Update()
     {
         if (introSkipped) {
             audioManager.StopIntroMusic();
-        } else {
+        }
+        else {
             if (!musicStarted) {
                 audioManager.PlayMusic(audioManager.GetIntroMusic());
                 musicStarted = true;
@@ -118,7 +132,7 @@ void Game::Update()
     // ── HOWTOPLAY ─────────────────────────
     if (sceneManager.GetGamestate() == SceneManager::HOWTOPLAY)
     {
-        musicStarted = false; // reset zeby GAME odpalil muzyke i dzwiek od nowa
+        musicStarted = false;
         if (!howtoplayMusicStarted) {
             audioManager.PlayMusic(audioManager.GetHowtoplayMusic());
             howtoplayMusicStarted = true;
@@ -128,7 +142,6 @@ void Game::Update()
         BeginDrawing();
         ClearBackground(BLACK);
         sceneManager.DrawTexts();
-        // Jezeli HOWTOPLAY sie skonczylo naturalnie — zatrzymaj muzyke
         if (sceneManager.GetGamestate() != SceneManager::HOWTOPLAY) {
             StopMusicStream(audioManager.GetHowtoplayMusic());
             howtoplayMusicStarted = false;
@@ -143,20 +156,14 @@ void Game::Update()
         uiManager.UpdateContinue(dt);
         timerManager.Update(dt);
 
-        // C -> dodaj credit i natychmiast kontynuuj
-        if (IsKeyPressed(KEY_C)) {
-            uiManager.SetCredits(1);
-            uiManager.SetCredits(-1);
-            uiManager.StopContinue();
-            player.Respawn();
-            sceneManager.SetGameState(SceneManager::GAME);
+        inputManager.InputContinueScreen();
+        if (sceneManager.GetGamestate() != SceneManager::CONTINUE_SCREEN) {
             BeginDrawing();
             ClearBackground(BGCOLOR);
             Draw();
             return;
         }
 
-        // Countdown skonczony -> sekwencja GAME OVER
         if (uiManager.IsContinueOver()) {
             uiManager.StopContinue();
             audioManager.StopMusic(audioManager.GetGameMusic());
@@ -166,9 +173,10 @@ void Game::Update()
             return;
         }
 
-        // Aktualizuj swiat gry (bez inputu gracza)
-        player.Update(camera.GetLeftLimit());
+        float camTop = camera.GetCamera().target.y - camera.GetCamera().offset.y;
+        player.Update(camera.GetLeftLimit(), camTop);
         systemCollision.CollisionUpdate();
+        boss.Update(player.GetPosition().x);
 
         for (auto& item : creationManager.GetItems()) item.Update();
         creationManager.GetItems().erase(
@@ -193,14 +201,21 @@ void Game::Update()
             grenade.CheckCollisionWithBlocks(creationManager.GetTileMap().GetColliders());
             grenade.CheckCollisionWithSoldiers(creationManager.GetSoldiers());
         }
-        auto& grenades = creationManager.GetGrenades();
-        grenades.erase(std::remove_if(grenades.begin(), grenades.end(),
-            [](const Grenade& g) { return !g.IsActive(); }), grenades.end());
+        auto& grenadesCont = creationManager.GetGrenades();
+        grenadesCont.erase(std::remove_if(grenadesCont.begin(), grenadesCont.end(),
+            [](const Grenade& g) { return !g.IsActive(); }), grenadesCont.end());
+
+        for (auto& ft : creationManager.GetFloatingTexts()) ft.Update(dt);
+        creationManager.GetFloatingTexts().erase(
+            std::remove_if(creationManager.GetFloatingTexts().begin(), creationManager.GetFloatingTexts().end(),
+                [](const FloatingText& ft) { return !ft.IsActive(); }),
+            creationManager.GetFloatingTexts().end());
 
         BeginDrawing();
         ClearBackground(BGCOLOR);
         Draw();
-        uiManager.DrawContinueScreen();
+        if (!uiManager.IsDelayActive())
+            uiManager.DrawContinueScreen();
         backgroundManager.FollowPlayer(camera.GetCamera().target);
         backgroundManager.Update(dt);
         audioManager.UpdateMusic(audioManager.GetGameMusic());
@@ -213,7 +228,6 @@ void Game::Update()
         float dt = GetFrameTime();
         gameOverTimer += dt;
 
-        // Faza 1+2: czerwony filtr + zaciemnienie (0-4s) — swiat gry widoczny pod filtrem
         if (gameOverTimer < 4.0f)
         {
             BeginDrawing();
@@ -223,7 +237,11 @@ void Game::Update()
             return;
         }
 
-        // Faza 3: sprite game over (4-9s)
+        if (!gameOverSoundPlayed) {
+            audioManager.PlaySound(audioManager.GetGameOverSound());
+            gameOverSoundPlayed = true;
+        }
+
         if (gameOverTimer < 9.0f)
         {
             BeginDrawing();
@@ -231,7 +249,6 @@ void Game::Update()
             return;
         }
 
-        // Koniec -> INTRO
         shouldRestart = true;
         sceneManager.SetGameState(SceneManager::INTRO);
         BeginDrawing();
@@ -240,28 +257,66 @@ void Game::Update()
     }
 
     // ── GAME ───────────────────────────────
+    float dt = GetFrameTime();
 
     uiManager.Update();
-    timerManager.Update(GetFrameTime());
+    timerManager.Update(dt);
+    if (uiManager.IsTimeUp() && player.IsAlive())
+        player.TakeDamage();
 
-    player.SavePreviousPosition();
-    HandleInput();
-    player.Update(camera.GetLeftLimit());
-
-    // Colisiones (todos los sistemas)
-    systemCollision.CollisionUpdate();
-
-    // Zona de victoria
-    Rectangle winZone = { 16190.0f, -9999.0f, 200.0f, 99999.0f };
-    if (CheckCollisionRecs(player.GetHitBox(), winZone))
-    {
+    // Jezeli animacja MISSION COMPLETE skonczyla sie (ekran czarny) — wróc do INTRO
+    // missionCompleteTriggered gwarantuje ze to dotyczy TYLKO tej instancji Game (reset przy new Game())
+    if (missionCompleteTriggered && uiManager.IsMissionCompleteDone()) {
         audioManager.StopMusic(audioManager.GetGameMusic());
         musicStarted = false;
         shouldRestart = true;
-        sceneManager.SetGameState(SceneManager::TITLE);
+        sceneManager.SetGameState(SceneManager::INTRO);
+        BeginDrawing();
+        ClearBackground(BLACK);
+        return;
     }
 
-    // Limpiar items inactivos
+    boss.Update(player.GetPosition().x);
+    if (boss.IsDestroyed() && boss.IsDestroyAnimFinished() && !missionCompleteTriggered) {
+        missionCompleteTriggered = true;
+        uiManager.StartMissionComplete();
+        audioManager.StopMusic(audioManager.GetGameMusic());
+        audioManager.PlaySound(audioManager.GetMissionCompleteSound());
+    }
+    if (boss.IsDestroyed()) {
+        player.StopMovingHorizontal();
+        if (player.IsCrouching()) player.StopCrouching();
+    }
+
+    player.SavePreviousPosition();
+    HandleInput();
+    float camTop = camera.GetCamera().target.y - camera.GetCamera().offset.y;
+    player.Update(camera.GetLeftLimit(), camTop);
+
+    systemCollision.CollisionUpdate();
+
+    if (player.HasJetpack())
+    {
+        uiManager.SetJetpackFuel(player.GetJetpackFuel() / player.GetJetpackMaxFuel());
+        // Ensure UI shows the jetpack bar when player picked the item
+        if (!uiManager.GetJetpackActive()) uiManager.SetJetpackActive(true);
+    }
+    else if (uiManager.GetJetpackActive())
+    {
+        uiManager.SetJetpackFuel(0.0f);
+        uiManager.SetJetpackActive(false);
+    }
+
+    Camera2D cam = camera.GetCamera();
+    float camLeft = cam.target.x - cam.offset.x;
+    float camRight = cam.target.x + cam.offset.x;
+    for (auto& p : creationManager.GetPrisoners())
+        p.Update(player.GetPosition().x, camLeft, camRight);
+    creationManager.GetPrisoners().erase(
+        std::remove_if(creationManager.GetPrisoners().begin(), creationManager.GetPrisoners().end(),
+            [](const Prisoner& p) { return !p.IsActive(); }),
+        creationManager.GetPrisoners().end());
+
     for (auto& item : creationManager.GetItems()) item.Update();
     creationManager.GetItems().erase(
         std::remove_if(creationManager.GetItems().begin(), creationManager.GetItems().end(),
@@ -273,7 +328,6 @@ void Game::Update()
         backgroundManager.GetHeight(),
         player.GetIsGrounded());
 
-    // IA y disparo de soldados
     for (auto& soldier : creationManager.GetSoldiers()) {
         soldier.UpdateAI(player);
         soldier.Update();
@@ -283,11 +337,15 @@ void Game::Update()
         }
     }
 
-    // Actualizar balas
+    for (auto& blood : creationManager.GetBloodEffects()) blood.Update();
+    creationManager.GetBloodEffects().erase(
+        std::remove_if(creationManager.GetBloodEffects().begin(), creationManager.GetBloodEffects().end(),
+            [](const BloodEffect& b) { return !b.IsActive(); }),
+        creationManager.GetBloodEffects().end());
+
     for (auto& bullet : creationManager.GetBullets()) bullet.Update();
     CheckBulletsOutOfCamera();
 
-    // Actualizar granadas
     for (auto& grenade : creationManager.GetGrenades()) {
         grenade.Update();
         grenade.CheckCollisionWithBlocks(creationManager.GetTileMap().GetColliders());
@@ -297,7 +355,12 @@ void Game::Update()
     grenades.erase(std::remove_if(grenades.begin(), grenades.end(),
         [](const Grenade& g) { return !g.IsActive(); }), grenades.end());
 
-    // ── RÁFAGA MACHINEGUN ──────────────────
+    for (auto& ft : creationManager.GetFloatingTexts()) ft.Update(dt);
+    creationManager.GetFloatingTexts().erase(
+        std::remove_if(creationManager.GetFloatingTexts().begin(), creationManager.GetFloatingTexts().end(),
+            [](const FloatingText& ft) { return !ft.IsActive(); }),
+        creationManager.GetFloatingTexts().end());
+
     if (machinegunBurst)
     {
         if (timerManager.IsReady(TimerType::MACHINEGUN_BURST_TIMER))
@@ -321,27 +384,34 @@ void Game::Update()
         }
     }
 
-
-    // Gracz zniknal po animacji smierci
-    if (!player.IsAlive() && player.IsDisappeared()) {
-        if (uiManager.GetCredits() > 0) {
-            uiManager.SetCredits(-1);
-            player.Respawn();
-        } else {
-            uiManager.StartContinue();
-            sceneManager.SetGameState(SceneManager::CONTINUE_SCREEN);
-        }
+    if (!player.IsAlive() && player.IsDisappeared() && !continueStarted)
+    {
+        continueStarted = true;
+        uiManager.StartContinue();
+        sceneManager.SetGameState(SceneManager::CONTINUE_SCREEN);
     }
 
     BeginDrawing();
     ClearBackground(BGCOLOR);
     Draw();
 
+    Color bossTint = WHITE;
+    if (!boss.IsDestroyed()) {
+        bossTint = boss.IsFlashing() ? ORANGE : WHITE;
+        backgroundManager.SetEventSpriteTint(2, bossTint);
+    }
+    else
+        bossTint = { 255, 255, 255, 0 };
+    backgroundManager.SetEventSpriteTint(3, bossTint);
+
+    if (boss.IsDestroyed()) {
+        backgroundManager.SetEventSpriteFrame(3, boss.GetDestroyFrame());
+    }
+
     backgroundManager.FollowPlayer(camera.GetCamera().target);
-    backgroundManager.Update(GetFrameTime());
+    backgroundManager.Update(dt);
 
     if (!musicStarted) {
-        // Zatrzymaj intro muzykę i puść game muzykę
         audioManager.StopMusic(audioManager.GetIntroMusic());
         audioManager.PlayMusic(audioManager.GetGameMusic());
         audioManager.PlaySound(audioManager.GetGameSound());
@@ -355,6 +425,9 @@ void Game::Update()
 // ─────────────────────────────────────────
 void Game::HandleInput()
 {
+    inputManager.InputEnding();
+
+    if (boss.IsDestroyed()) return;
     debug.EditorModeInput(camera.GetCamera());
 
     if (debug.GetEditorMode()) return; 
@@ -371,6 +444,7 @@ void Game::HandleInput()
     }
 
     inputManager.InputPlayer();
+
 }
 
 // ─────────────────────────────────────────
@@ -470,14 +544,13 @@ void Game::ThrowGrenade()
 void Game::CheckBulletsOutOfCamera()
 {
     Camera2D cam = camera.GetCamera();
-    float hw = GetScreenWidth() / 2.0f;
-    float hh = GetScreenHeight() / 2.0f;
-    const float margin = 200.0f;
+    float hw = cam.offset.x;
+    float hh = cam.offset.y;
 
-    float left = cam.target.x - hw - margin;
-    float right = cam.target.x + hw + margin;
-    float top = cam.target.y - hh - margin;
-    float bottom = cam.target.y + hh + margin;
+    float left = cam.target.x - hw + 1.0f;  
+    float right = cam.target.x + hw - 1.0f;  
+    float top = cam.target.y - hh + 1.0f;
+    float bottom = cam.target.y + hh - 1.0f;
 
     auto& bullets = creationManager.GetBullets();
     bullets.erase(std::remove_if(bullets.begin(), bullets.end(),

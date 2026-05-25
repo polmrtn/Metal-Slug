@@ -22,6 +22,7 @@ public:
     Gamestates currentState;
     UiManager* ui = nullptr;
     void SetUiManager(UiManager* u);
+    void FullReset();
 
 private:
     // ── TITLE screen textures ─────────────────────────────────
@@ -57,7 +58,7 @@ private:
     //   preloadFutures[2] = N+3  (started 3 frames ago, ~48 ms to decode)
     // On advance N→N+1: get [0], rotate [1]→[0] [2]→[1], start new [2]=N+4
     static constexpr int   PRELOAD_AHEAD      = 3;
-    static constexpr float INTRO_PLAYBACK_FPS = 55.0f;
+    static constexpr float INTRO_PLAYBACK_FPS = 54.0f;
     static constexpr float HTP_PLAYBACK_FPS   = 58.0f;
 
     std::future<Image> preloadFutures[PRELOAD_AHEAD];
@@ -82,4 +83,5 @@ private:
     void HtpStartPreload(int slot, int frameIdx);
     void HtpAdvanceFrame();
     void UpdateHowtoplay();
+    
 };

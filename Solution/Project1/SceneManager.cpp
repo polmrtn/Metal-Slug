@@ -1,4 +1,4 @@
-#include "SceneManager.hpp"
+            #include "SceneManager.hpp"
 #include "raymath.h"
 #include <cstdio>
 #include <algorithm>
@@ -95,21 +95,28 @@ void SceneManager::ResetIntro()
     introFrameTimer = 0.0f;
     introFrameIdx   = 0;
 
-    // Free old data
     // Cancel all running preloads
     for (int i = 0; i < PRELOAD_AHEAD; i++)
         if (preloadFutures[i].valid()) preloadFutures[i].wait();
 
-    if (introTex.id) { UnloadTexture(introTex); memset(&introTex, 0, sizeof(introTex)); }
-    if (imgCur.data) { UnloadImage(imgCur);      memset(&imgCur,   0, sizeof(imgCur));  }
+    // Keep introTex alive if possible; free old CPU frame
+    if (imgCur.data) { UnloadImage(imgCur); memset(&imgCur,   0, sizeof(imgCur)); }
 
     if (introTotalFrames == 0) return;
 
-    // Load frame 0 synchronously → GPU
+    // Load frame 0 synchronously → GPU (create texture once)
     char path[512];
     IntroFramePath(path, sizeof(path), 0);
     imgCur   = LoadImage(path);
-    introTex = LoadTextureFromImage(imgCur);
+    if (introTex.id && introTex.width == imgCur.width && introTex.height == imgCur.height) {
+        // update existing texture pixels
+        UpdateTexture(introTex, imgCur.data);
+        TraceLog(LOG_INFO, "ResetIntro: UpdateTexture initial frame");
+    } else {
+        if (introTex.id) { UnloadTexture(introTex); memset(&introTex, 0, sizeof(introTex)); }
+        introTex = LoadTextureFromImage(imgCur);
+        TraceLog(LOG_INFO, "ResetIntro: LoadTextureFromImage initial frame");
+    }
     SetTextureFilter(introTex, TEXTURE_FILTER_BILINEAR);
 
     // Kick off PRELOAD_AHEAD async decodes immediately
@@ -150,13 +157,15 @@ void SceneManager::IntroAdvanceFrame()
     if (imgCur.data) { UnloadImage(imgCur); memset(&imgCur, 0, sizeof(imgCur)); }
 
     // Get next frame from slot 0 (started PRELOAD_AHEAD frames ago — plenty of time)
-    if (preloadFutures[0].valid())
+    if (preloadFutures[0].valid()) {
         imgCur = preloadFutures[0].get();
-    else
+        TraceLog(LOG_INFO, "IntroAdvanceFrame: got preloaded Image frame=%d", introFrameIdx);
+    } else
     {
         char path[512];
         IntroFramePath(path, sizeof(path), introFrameIdx);
         imgCur = LoadImage(path);
+        TraceLog(LOG_WARNING, "IntroAdvanceFrame: synchronous LoadImage frame=%d (fallback)", introFrameIdx);
     }
 
     // Rotate buffer: [1]→[0], [2]→[1]
@@ -166,10 +175,19 @@ void SceneManager::IntroAdvanceFrame()
     // Start new preload for the furthest-ahead frame
     IntroStartPreload(PRELOAD_AHEAD - 1, introFrameIdx + PRELOAD_AHEAD);
 
-    // GPU upload (~1 ms — pixels already in RAM)
-    if (introTex.id) { UnloadTexture(introTex); memset(&introTex, 0, sizeof(introTex)); }
-    introTex = LoadTextureFromImage(imgCur);
-    SetTextureFilter(introTex, TEXTURE_FILTER_BILINEAR);
+    // GPU upload: prefer UpdateTexture to avoid re-allocating VRAM every frame
+    if (introTex.id && introTex.width == imgCur.width && introTex.height == imgCur.height) {
+        TraceLog(LOG_INFO, "IntroAdvanceFrame: UpdateTexture frame=%d", introFrameIdx);
+        UpdateTexture(introTex, imgCur.data);
+    } else {
+        // fallback: recreate texture if size mismatch
+        if (introTex.id) { UnloadTexture(introTex); memset(&introTex, 0, sizeof(introTex)); }
+        introTex = LoadTextureFromImage(imgCur);
+        SetTextureFilter(introTex, TEXTURE_FILTER_BILINEAR);
+        TraceLog(LOG_INFO, "IntroAdvanceFrame: LoadTextureFromImage frame=%d (size mismatch)", introFrameIdx);
+    }
+
+    // keep imgCur in RAM only as long as needed; previous frame(s) already freed above
 }
 
 // ============================================================
@@ -263,18 +281,9 @@ void SceneManager::DrawTexts()
               startY + texMetalBig.height * scaleM + 10.0f },
             0.0f, scaleS, WHITE);
 
-        const char* txt = "INSERT COINT!";
-        if ((int)(GetTime() * 2.5f) % 2 == 0)
-        {
-            int fs = 28, tw = MeasureText(txt, fs);
-            DrawText(txt, SW / 2 - tw / 2 + 2, (int)(SH * 0.82f) + 2, fs, BLACK);
-            DrawText(txt, SW / 2 - tw / 2,     (int)(SH * 0.82f),     fs, YELLOW);
-        }
+        if (ui) ui->DrawInsertCoin(SH * 0.82f, 3.0f);
 
-        const char* footer = "2026 KURVVA PRODUCTIONS";
-        int fSize = 20, fw = MeasureText(footer, fSize);
-        DrawText(footer, SW / 2 - fw / 2 + 2, (int)(SH * 0.92f) + 2, fSize, BLACK);
-        DrawText(footer, SW / 2 - fw / 2,     (int)(SH * 0.92f),     fSize, WHITE);
+        if (ui) ui->DrawFooter(SH * 0.90f, 1.5f);
 
         if (ui) ui->DrawCreditsOnly();
         return;
@@ -343,13 +352,16 @@ void SceneManager::HtpAdvanceFrame()
 
     if (htpImgCur.data) { UnloadImage(htpImgCur); memset(&htpImgCur, 0, sizeof(htpImgCur)); }
 
-    if (htpFutures[0].valid())
+    if (htpFutures[0].valid()) {
         htpImgCur = htpFutures[0].get();
+        TraceLog(LOG_INFO, "HtpAdvanceFrame: got preloaded Image frame=%d", htpFrameIdx+1);
+    }
     else
     {
         char path[512];
         snprintf(path, sizeof(path), "Graphics/howtoplay_png/frame_%06d.png", htpFrameIdx + 1);
         htpImgCur = LoadImage(path);
+        TraceLog(LOG_WARNING, "HtpAdvanceFrame: synchronous LoadImage frame=%d (fallback)", htpFrameIdx+1);
     }
 
     for (int i = 0; i < PRELOAD_AHEAD - 1; i++)
@@ -357,9 +369,15 @@ void SceneManager::HtpAdvanceFrame()
 
     HtpStartPreload(PRELOAD_AHEAD - 1, htpFrameIdx + PRELOAD_AHEAD);
 
-    if (htpTex.id) { UnloadTexture(htpTex); memset(&htpTex, 0, sizeof(htpTex)); }
-    htpTex = LoadTextureFromImage(htpImgCur);
-    SetTextureFilter(htpTex, TEXTURE_FILTER_BILINEAR);
+    if (htpTex.id && htpTex.width == htpImgCur.width && htpTex.height == htpImgCur.height) {
+        TraceLog(LOG_INFO, "HtpAdvanceFrame: UpdateTexture frame=%d", htpFrameIdx+1);
+        UpdateTexture(htpTex, htpImgCur.data);
+    } else {
+        if (htpTex.id) { UnloadTexture(htpTex); memset(&htpTex, 0, sizeof(htpTex)); }
+        htpTex = LoadTextureFromImage(htpImgCur);
+        SetTextureFilter(htpTex, TEXTURE_FILTER_BILINEAR);
+        TraceLog(LOG_INFO, "HtpAdvanceFrame: LoadTextureFromImage frame=%d (size mismatch)", htpFrameIdx+1);
+    }
 }
 
 void SceneManager::UpdateHowtoplay()
@@ -406,4 +424,10 @@ void SceneManager::DrawHowtoplay() const
         { 0.0f, 0.0f, (float)htpTex.width, (float)htpTex.height },
         { drawX, drawY, drawW, drawH },
         { 0.0f, 0.0f }, 0.0f, WHITE);
+}
+
+void SceneManager::FullReset() {
+    currentState = INTRO;
+    ui = nullptr;
+    ResetIntro();
 }

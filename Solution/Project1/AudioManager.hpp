@@ -19,11 +19,21 @@ public:
     Music& GetGameMusic();
     Music& GetHowtoplayMusic();
     Sound& GetGameSound();
-    Sound& GetDeathSound();
+    void   PlayRandomDeathSound();
+    Sound& GetGameOverSound();
+    Sound& GetBossBulletSound();
+    Sound& GetBossOpenSound();
+    Sound& GetBossBigBulletSound();
+    void   PlayRandomBossDeathSound();
+    Sound& GetThankYouSound();
+    Sound& GetMissionCompleteSound();
+    Sound& GetJetpackPickupSound();
+    Sound& GetGrenadePickupSound();
     Sound& GetShootSound();
     Sound& GetGrenadeSound();
     Sound& GetMachinegunEquipSound();
     Sound& GetMachinegunShootSound();
+    Sound& GetCreditSound();
 
 private:
     Music introMusic;
@@ -31,9 +41,21 @@ private:
     Music gameMusic;
     Music howtoplayMusic;
     Sound gameSound;
-    Sound deathSound;
+    static constexpr int DEATH_SOUND_COUNT = 6;
+    Sound deathSounds[DEATH_SOUND_COUNT];
+    Sound gameOverSound;
+    Sound bossBulletSound;
+    Sound bossOpenSound;
+    Sound bossBigBulletSound;
+    static constexpr int BOSS_DEATH_SOUND_COUNT = 3;
+    Sound bossDeathSounds[BOSS_DEATH_SOUND_COUNT];
     Sound shootSound;
     Sound grenadeSound;
     Sound machinegunEquipSound;
     Sound machinegunShootSound;
+    Sound creditSound;
+    Sound thankYouSound;
+    Sound missionCompleteSound;
+    Sound jetpackPickupSound;
+    Sound grenadePickupSound;
 };

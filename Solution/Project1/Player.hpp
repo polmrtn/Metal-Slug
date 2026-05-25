@@ -25,7 +25,7 @@ public:
     void Init();
 
     // ========== ACTUALIZACIÓN Y DIBUJO ==========
-    void Update(float CameraLeftLimit);
+    void Update(float CameraLeftLimit, float CameraTop = -99999.0f);
     void Draw();
     void DrawHitBox();
 
@@ -100,12 +100,33 @@ public:
     void SetRampGroundedFrames(int f) { rampGroundedFrames = f; }
     int GetRampGroundedFrames() const { return rampGroundedFrames; }
 
+    void SetDeathPosition(Vector2 pos) { deathPosition = pos; }
+    void SetDyingInAir(bool val) { dyingInAir = val; }
+    bool IsDyingInAir() const { return dyingInAir; }
+    float GetNormalHeight() const { return 40.0f * SCALE; }
+    // ========== MELEE ==========
+    void StartMelee();
+    bool IsMeleeAttacking() const { return meleeAttacking; }
+    Rectangle GetMeleeHitBox() const;
+
+    // ========== JETPACK ==========
+    void EquipJetpack();
+    bool HasJetpack() const { return hasJetpack; }
+    void JetpackThrust();
+    float GetJetpackFuel() const { return jetpackFuel; }
+    float GetJetpackMaxFuel() const { return JETPACK_MAX_FUEL; }
+
+    void FullReset();
+    void ResetWeapon();
+    void EquipMachinegunFresh();
+    bool IsAimingUp() const { return aimingUp; }
+
 private:
     // ========== ANIMACIÓN ==========
     PlayerAnim anim;
 
     // ========== POSICIÓN Y FÍSICA ==========
-    Vector2 pos = { 300.0f, -50.0f };
+    Vector2 pos = { 14000.0f, -400.0f };
     Vector2 vel = { 0.0f, 0.0f };
     float inputVelX = 0.0f;     // Velocidad deseada por input (para animación)
     float previousY = 0.0f;     // Posición Y del frame anterior
@@ -124,8 +145,8 @@ private:
     static constexpr float SCALE = 4.0f;
     static constexpr float GRAVITY = 2.5f;
     static constexpr float JUMP_FORCE = -34.0f;
-    static constexpr float MOVE_SPEED = 10.0f;
-    static constexpr float CROUCH_SPEED = 4.0f;
+    static constexpr float MOVE_SPEED = 12.0f;
+    static constexpr float CROUCH_SPEED = 6.0f;
 
     // ========== HITBOX ==========
     float hitboxWidth;
@@ -171,4 +192,24 @@ private:
     bool blinkVisible = true;
     bool wasOnRamp = false;
     int rampGroundedFrames = 0;
+
+    bool dyingInAir = false;
+    float deathFallGravity = 2.5f;
+
+    // ========== MELEE ==========
+    bool  meleeAttacking = false;
+    float meleeTimer = 0.0f;
+    static constexpr float MELEE_DURATION = 0.3f;
+
+    // ========== JETPACK ==========
+    bool  hasJetpack = false;
+    float jetpackFuel = 0.0f;
+    static constexpr float JETPACK_MAX_FUEL = 100.0f;
+    static constexpr float JETPACK_FUEL_DRAIN = 25.0f;  // por segundo
+    static constexpr float JETPACK_FORCE = -3.5f;
+    static constexpr float JETPACK_MAX_VEL = -18.0f;
+
+    float fallingTimer = 0.0f;
+    static constexpr float PARACHUTE_RELEASE_TIME = 2.0f;
+    static constexpr float PARACHUTE_FALL_GRAVITY = 2.0f;  // ← ajusta, más bajo que GRAVITY=2.5
 };

@@ -103,11 +103,12 @@ void TileMap::Bake() {
         // 1. Extender en X
         float endX = startX;
         for (int j = i + 1; j < (int)marked.size(); ++j) {
-            if (marked[j].used)                              continue;
-            if (fabsf(marked[j].worldY - rowY) > EPS)       break;
-            if (marked[j].type != type)                      continue;
-            if (fabsf(marked[j].worldX - (endX + TILE_SIZE)) > EPS) break;
+            if (marked[j].used) continue;
+            if (fabsf(marked[j].worldY - rowY) > EPS) break;  // ← diferente fila, para
+            if (marked[j].type != type) continue;              // ← diferente tipo, salta
+            if (fabsf(marked[j].worldX - (endX + TILE_SIZE)) > EPS) break;  // ← no adyacente, para
             endX = marked[j].worldX;
+            marked[j].used = true;  // ← AÑADE ESTO — marca como usado al extender en X
         }
 
         // 2. Extender en Y

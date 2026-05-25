@@ -1,4 +1,5 @@
 #include "Player.hpp"
+#include "GlobalManagers.hpp"
 
 // ========== CONSTRUCTOR / DESTRUCTOR ==========
 Player::Player() {
@@ -14,19 +15,28 @@ Player::~Player() {
     anim.UnloadTextures();
 }
 
-void Player::ResetToStart()
-{
+void Player::ResetToStart() {
     pos = { 300.0f, -50.0f };
     vel = { 0.0f, 0.0f };
+    fallingTimer = 0.0f;
     isAlive = true;
     isDisappeared = false;
     invincibilityTimer = 0.0f;
     deathPosition = { 0.0f, 0.0f };
     currentWeapon = WeaponType::PISTOL;
     machinegunAmmo = 0;
+    isFalling = true;        
+    grounded = false;        
+    dyingInAir = false;
+    deathTimer = 0.0f;
+    meleeAttacking = false;
+    hasJetpack = false;
+    jetpackFuel = 0.0f;
     anim.StopMachinegun();
     anim.StopMachinegunAiming();
     anim.StopMachinegunCrouch();
+    anim.StopParachute();
+    anim.StartParachute();   
 }
 
 // ========== HITBOX ==========
@@ -45,24 +55,51 @@ void Player::SetCrouchHitbox() {
 }
 
 // ========== ACTUALIZACIÓN PRINCIPAL ==========
-void Player::Update(float CameraLeftLimit) {
+void Player::Update(float CameraLeftLimit, float CameraTop) {
     if (isFalling) {
         blinkTimer += GetFrameTime();
         if (blinkTimer >= blinkDelay) {
             blinkTimer = 0.0f;
             blinkVisible = !blinkVisible;
         }
-        pos.y += fallSpeed;
+
+        fallingTimer += GetFrameTime();
+
+        if (fallingTimer >= PARACHUTE_RELEASE_TIME && anim.IsParachuteActive()) {
+            // Soltar paracaídas y caer con gravedad
+            anim.StopParachute();
+            anim.StartParachuteLanding();
+            vel.y = 0.0f;  // empieza desde 0 la gravedad
+        }
+
+        if (anim.IsParachuteActive()) {
+            pos.y += fallSpeed;  // cae lento con paracaídas
+        }
+        else {
+            // Cae con gravedad normal
+            vel.y += PARACHUTE_FALL_GRAVITY;
+            pos.y += vel.y;
+        }
+
         anim.UpdateParachute(GetFrameTime());
+        anim.UpdateParachuteLanding(GetFrameTime());
+        anim.UpdateP1Anim(GetFrameTime());
+
+        if (anim.IsParachuteActive() && !anim.IsP1AnimActive())
+            anim.StartP1Anim();
+
         if (grounded) {
             isFalling = false;
             blinkVisible = true;
+            fallingTimer = 0.0f;
+            vel.y = 0.0f;
             anim.StopParachute();
-            anim.StartParachuteLanding();
         }
         return;
     }
     anim.UpdateParachuteLanding(GetFrameTime());
+    anim.UpdateP1Anim(GetFrameTime());
+
     if (invincibilityTimer > 0.0f) {
         invincibilityTimer -= GetFrameTime();
     }
@@ -78,6 +115,17 @@ void Player::Update(float CameraLeftLimit) {
             specialTimer += GetFrameTime();
             if (specialTimer >= specialDuration) {
                 specialTimer = specialDuration;
+            }
+        }
+
+        // ── CAÍDA EN MUERTE EN EL AIRE ──────────────────────────────
+        if (dyingInAir) {
+            previousY = pos.y;          // necesario para que PlayerBlockCollision use prevFeetY correcto
+            vel.y += deathFallGravity;
+            pos.y += vel.y;
+
+            if (grounded) {             // grounded lo setea SystemCollision justo antes de Update
+                vel.y = 0.0f;
             }
         }
         return;
@@ -125,7 +173,14 @@ void Player::Update(float CameraLeftLimit) {
         }
 
         if (pos.x < CameraLeftLimit) pos.x = CameraLeftLimit;
-        return;
+ 
+    }
+
+    // Melee timer
+    if (meleeAttacking) {
+        meleeTimer += GetFrameTime();
+        if (meleeTimer >= MELEE_DURATION)
+            meleeAttacking = false;
     }
 
     // Física y movimiento
@@ -135,7 +190,14 @@ void Player::Update(float CameraLeftLimit) {
     }
     if (!grounded) {
         vel.y += GRAVITY;
+        if (vel.y > 40.0f) vel.y = 40.0f;
         pos.y += vel.y;
+
+        float camTop = CameraTop;
+        if (pos.y + hitboxHeight * 0.8f < camTop) {  // ← solo el 20% superior (casi los pies)
+            pos.y = camTop - hitboxHeight * 0.8f;
+            vel.y = 0.0f;
+        }
     }
     else {
         vel.y = 0;
@@ -162,6 +224,11 @@ void Player::MoveLeft() {
         dir = PlayerDirection::LEFT;
     }
     else if (crouching && !anim.IsCrouchShooting()) {
+            if (meleeAttacking) {
+        vel.x = 0;
+        inputVelX = 0;
+        return;
+    }
         if (currentWeapon == WeaponType::MACHINEGUN &&
             (anim.IsMachinegunCrouchShooting() || anim.IsMachinegunCrouchThrowing())) return;
         inputVelX = -CROUCH_SPEED;
@@ -181,6 +248,11 @@ void Player::MoveRight() {
         dir = PlayerDirection::RIGHT;
     }
     else if (crouching && !anim.IsCrouchShooting()) {
+        if (meleeAttacking) {
+            vel.x = 0;
+            inputVelX = 0;
+            return;
+        }
         if (currentWeapon == WeaponType::MACHINEGUN &&
             (anim.IsMachinegunCrouchShooting() || anim.IsMachinegunCrouchThrowing())) return;
         inputVelX = CROUCH_SPEED;
@@ -342,7 +414,7 @@ GrenadeThrowData Player::ThrowGrenade() {
 // ========== ARMAS ==========
 void Player::EquipMachinegun() {
     currentWeapon = WeaponType::MACHINEGUN;
-    machinegunAmmo = MACHINEGUN_MAX_AMMO;
+    machinegunAmmo += MACHINEGUN_MAX_AMMO;
     anim.StartMachinegunIdle();
 }
 
@@ -353,6 +425,7 @@ void Player::UseAmmo() {
             currentWeapon = WeaponType::PISTOL;
             anim.StopMachinegun();
             anim.StopMachinegunAiming();
+            anim.StopMachinegunCrouch();
         }
     }
 }
@@ -360,10 +433,10 @@ void Player::UseAmmo() {
 // ========== MUERTE Y RESPAWN ==========
 void Player::TakeDamage() {
     if (!isAlive) return;
+    return; // TYMCZASOWO: niesmiertelnosc
     if (IsInvincible()) return;
 
     isAlive = false;
-    deathPosition = pos;
     deathTimer = 0.0f;
     isDisappeared = false;
 
@@ -372,11 +445,27 @@ void Player::TakeDamage() {
     specialTimer = 0.0f;
     specialDuration = 1.0f;
 
-    vel = { 0.0f, 0.0f };
     inputVelX = 0;
+    vel.x = 0.0f;
+
+    if (grounded) {
+        vel.y = 0.0f;
+        dyingInAir = false;
+        // Si estaba agachado, ajusta pos.y para que los pies queden en el mismo sitio
+        if (crouching) {
+            float feetY = pos.y + hitboxHeight;  // pies actuales (agachado)
+            pos.y = feetY - GetNormalHeight();    // reposiciona como si estuviera de pie
+        }
+        deathPosition = pos;
+    }
+    else {
+        dyingInAir = true;
+        // vel.y mantiene la velocidad actual
+    }
 }
 
 void Player::Respawn() {
+    pos = deathPosition;
     isAlive = true;
     isDisappeared = false;
     deathTimer = 0.0f;
@@ -386,31 +475,36 @@ void Player::Respawn() {
     specialTimer = 0.0f;
     specialDuration = 0.6f;
 
-    pos = deathPosition;
     vel = { 0.0f, 0.0f };
     invincibilityTimer = invincibilityDuration;
+
+    // Random machinegun al respawnear cerca del boss
+    if (GetRandomValue(0, 1) == 1) {
+        EquipMachinegun();
+    }
+    anim.StartP1Anim(3);
 }
 
 // ========== HITBOXES ==========
 Rectangle Player::GetHitBox() {
     float spriteTotalWidth = 34.0f * SCALE;
     float hitboxX = pos.x + (spriteTotalWidth - hitboxWidth) / 2.0f;
-    float hitboxY = pos.y + hitboxOffsetY;
-    return Rectangle{ hitboxX, hitboxY, hitboxWidth, hitboxHeight };
+    float hitboxY = pos.y + hitboxOffsetY + 15.0f;  // ← sube el inicio
+    return Rectangle{ hitboxX, hitboxY, hitboxWidth, hitboxHeight - 15.0f };  // ← reduce altura
 }
 
 Rectangle Player::GetLeftHitBox() {
     Rectangle mainHitBox = GetHitBox();
-    float reducedHeight = mainHitBox.height * 0.6f;
-    float offsetY = (mainHitBox.height - reducedHeight) / 2.0f;
+    float reducedHeight = mainHitBox.height * 0.4f;
+    float offsetY = (mainHitBox.height - reducedHeight) / 2.0f - 35.0f;
     float hitboxX = mainHitBox.x - (mainHitBox.width * 0.3f);
     return Rectangle{ hitboxX, mainHitBox.y + offsetY, mainHitBox.width * 0.4f, reducedHeight };
 }
 
 Rectangle Player::GetRightHitBox() {
     Rectangle mainHitBox = GetHitBox();
-    float reducedHeight = mainHitBox.height * 0.6f;
-    float offsetY = (mainHitBox.height - reducedHeight) / 2.0f;
+    float reducedHeight = mainHitBox.height * 0.4f;
+    float offsetY = (mainHitBox.height - reducedHeight) / 2.0f - 35.0f;
     float hitboxX = mainHitBox.x + mainHitBox.width - (mainHitBox.width * 0.1f);
     return Rectangle{ hitboxX, mainHitBox.y + offsetY, mainHitBox.width * 0.4f, reducedHeight };
 }
@@ -459,10 +553,12 @@ Rectangle Player::GetFullBodyRect() {
 void Player::Draw() {
     // ========== NUEVO: Animación de caída inicial (fila 30) ==========
     if (isFalling) {
-        if (!blinkVisible) return;
-
         // Dibujar paracaídas
         anim.DrawParachute(pos, SCALE, dir == PlayerDirection::LEFT);
+        anim.DrawParachuteLanding(pos, SCALE, dir == PlayerDirection::LEFT);
+        anim.DrawP1Anim(pos, SCALE, dir == PlayerDirection::LEFT);
+
+        if (!blinkVisible) return;
 
         // Sprite de la fila 30 (30 * 34 = 1020), ancho 34, alto 68
         Rectangle sourceRect = { 0, 29 * 34.0f, 34.0f, 68.0f };
@@ -473,6 +569,21 @@ void Player::Draw() {
 
         // Ajuste vertical para que los pies toquen el hitbox
         float offsetY = -68.0f * SCALE + GetHeight();
+
+        // Prioridad melee
+        if (anim.IsMeleeAttacking()) {
+            bool mg = (currentWeapon == WeaponType::MACHINEGUN);
+            float rowY = anim.GetMeleeRowY(mg, false);
+            float drawX = pos.x;
+            Rectangle sourceRect = { anim.GetMeleeFrame() * 64.0f, rowY, 64.0f, 64.0f };
+            if (dir == PlayerDirection::LEFT) {
+                sourceRect.width = -64.0f;
+                drawX = pos.x - (64.0f - 34.0f) * SCALE;
+            }
+            Rectangle destRect = { drawX, pos.y, 64.0f * SCALE, 64.0f * SCALE };
+            DrawTexturePro(anim.GetSheet(), sourceRect, destRect, { 0,0 }, 0, WHITE);
+            return;
+        }
 
         Rectangle destRect = {
             pos.x,
@@ -488,6 +599,9 @@ void Player::Draw() {
 
     // Resto del código original de Draw()...
     if (!isAlive && isDisappeared) return;
+
+    if (anim.IsP1AnimActive())
+        anim.DrawP1Anim(pos, SCALE, dir == PlayerDirection::LEFT);
 
     bool shouldDraw = true;
 
@@ -517,15 +631,16 @@ void Player::Draw() {
         return;
     }
     anim.DrawParachute(pos, SCALE, dir == PlayerDirection::LEFT);
-    anim.DrawParachuteLanding(pos, SCALE, dir == PlayerDirection::LEFT);
     DrawSeparated();
+    anim.DrawParachuteLanding(pos, SCALE, dir == PlayerDirection::LEFT);
     DrawHitBox();
 }
 
 void Player::DrawHitBox() {
-//    DrawRectangleLinesEx(GetHitBox(), 2, WHITE);
-//    DrawRectangleLinesEx(GetLeftHitBox(), 2, RED);
-//    DrawRectangleLinesEx(GetRightHitBox(), 2, BLUE);
+    DrawRectangleLinesEx(GetHitBox(), 2, WHITE);
+    DrawRectangleLinesEx(GetLeftHitBox(), 2, RED);
+    DrawRectangleLinesEx(GetRightHitBox(), 2, BLUE);
+    DrawRectangleLinesEx(GetMeleeHitBox(), 2, YELLOW);
 }
 
 // ========== DIBUJO AGACHADO ==========
@@ -535,6 +650,18 @@ void Player::DrawCrouch() {
     float rowY;
     float yOffset;
     float drawX = pos.x;
+
+    if (anim.IsMeleeAttacking()) {
+        bool mg = (currentWeapon == WeaponType::MACHINEGUN);
+        float rowY = anim.GetMeleeRowY(mg, true);
+        float meleeDrawX = pos.x - (68.0f - 34.0f) / 2.0f * SCALE + (dir == PlayerDirection::RIGHT ? 30.0f : -30.0f);
+        Rectangle meleeSrc = { anim.GetMeleeFrame() * 68.0f, rowY, 68.0f, 68.0f };
+        if (dir == PlayerDirection::LEFT) meleeSrc.width = -68.0f;
+        float destY = pos.y + hitboxHeight - 68.0f * SCALE;  // ← nuevo
+        Rectangle destRect = { meleeDrawX, destY, 68.0f * SCALE, 68.0f * SCALE };  // ← nuevo
+        DrawTexturePro(anim.GetSheet(), meleeSrc, destRect, { 0,0 }, 0, WHITE);
+        return;
+    }
 
     if (anim.IsMachinegunCrouching()) {
 
@@ -733,6 +860,22 @@ void Player::DrawSeparated() {
     Rectangle torsoSrc;
     Color tint = WHITE;
 
+    // Prioridad: Melee
+    if (anim.IsMeleeAttacking()) {
+        bool mg = (currentWeapon == WeaponType::MACHINEGUN);
+        float rowY = anim.GetMeleeRowY(mg, false);
+        // Centrar el 68px respecto a la hitbox de 34px
+        float meleeDrawX = pos.x - (68.0f - 34.0f) / 2.0f * SCALE + (dir == PlayerDirection::RIGHT ? 32.0f : -32.0f);
+        Rectangle meleeSrc = { anim.GetMeleeFrame() * 68.0f, rowY, 68.0f, 68.0f };
+        if (dir == PlayerDirection::LEFT) {
+            meleeSrc.width = -68.0f;
+        }
+        DrawTexturePro(anim.GetSheet(), meleeSrc,
+            { meleeDrawX, torsoDrawY - (30.0f * SCALE), 68.0f * SCALE, 68.0f * SCALE },
+            { 0,0 }, 0, WHITE);
+        return;
+    }
+
     // Prioridad: Lanzar granada
     if (anim.IsThrowing()) {
         torsoSrc = { anim.GetThrowFrame() * w, anim.GetThrowRowY(), w, h };
@@ -858,13 +1001,23 @@ void Player::DrawSeparated() {
 
     // Aiming up
     if (aimingUp) {
+        float aimOffsetX = 0.0f;
+        if (anim.GetLegsAnim() == LegsAnim::JUMPING)
+            aimOffsetX = (dir == PlayerDirection::RIGHT) ? 20.0f : -20.0f;  // ← ajusta el valor
+
         if (anim.IsAimingTransition()) {
             torsoSrc = { (float)(anim.GetAimingFrame() * w), anim.GetAimingTransitionRowY(), w, h };
         }
         else {
             torsoSrc = { (float)(anim.GetAimingFrame() * w), anim.GetAimingIdleRowY(), w, h };
         }
+        if (dir == PlayerDirection::LEFT) torsoSrc.width = -w;
+        DrawTexturePro(anim.GetSheet(), torsoSrc,
+            { torsoDrawX + aimOffsetX, torsoDrawY, w * SCALE, h * SCALE },
+            { 0,0 }, 0, tint);
+        return;
     }
+
     // Torso normal
     else {
         switch (anim.GetTorsoAnim()) {
@@ -946,4 +1099,92 @@ void Player::DrawFullBody() {
     float currentHeight = GetFullBodyH();
     Rectangle destRect = { pos.x, pos.y + (34.0f - currentHeight) * SCALE, GetWidth(), currentHeight * SCALE };
     DrawTexturePro(anim.GetSheet(), sourceRect, destRect, { 0,0 }, 0, aimingUp ? YELLOW : WHITE);
+}
+
+void Player::StartMelee() {
+    if (meleeAttacking) return;
+    meleeAttacking = true;
+    meleeTimer = 0.0f;
+    anim.StartMelee();
+}
+
+Rectangle Player::GetMeleeHitBox() const {
+    Rectangle hb = const_cast<Player*>(this)->GetHitBox();
+    float hbW = 60.0f;
+    float hbH = 80.0f;
+    float hbY = hb.y + hb.height * 0.2f;
+    if (dir == PlayerDirection::RIGHT)
+        return { hb.x + hb.width, hbY, hbW, hbH };
+    else
+        return { hb.x - hbW, hbY, hbW, hbH };
+}
+
+void Player::EquipJetpack() {
+    hasJetpack = true;
+    jetpackFuel = JETPACK_MAX_FUEL;
+}
+
+void Player::JetpackThrust() {
+    if (!hasJetpack || grounded || jetpackFuel <= 0.0f) return;
+    vel.y += JETPACK_FORCE;
+    if (vel.y < JETPACK_MAX_VEL) vel.y = JETPACK_MAX_VEL;
+    jetpackFuel -= JETPACK_FUEL_DRAIN * GetFrameTime();
+    if (jetpackFuel <= 0.0f) {
+        jetpackFuel = 0.0f;
+        hasJetpack = false;  // vuelve al salto normal
+    }
+}
+
+void Player::FullReset() {
+    pos = { 300.0f, -50.0f };
+    vel = { 0.0f, 0.0f };
+    inputVelX = 0.0f;
+    fallingTimer = 0.0f;
+    grounded = false;
+    aimingUp = false;
+    crouching = false;
+    dir = PlayerDirection::RIGHT;
+    leftCollision = false;
+    rightCollision = false;
+    mode = Mode::SEPARATED;
+    special = SpecialAnim::NONE;
+    specialTimer = 0.0f;
+    specialDuration = 0.0f;
+    isAlive = true;
+    deathPosition = { 0.0f, 0.0f };
+    invincibilityTimer = 0.0f;
+    deathTimer = 0.0f;
+    isDisappeared = false;
+    currentWeapon = WeaponType::PISTOL;
+    machinegunAmmo = 0;
+    isFalling = true;
+    blinkTimer = 0.0f;
+    blinkVisible = true;
+    wasOnRamp = false;
+    rampGroundedFrames = 0;
+    dyingInAir = false;
+    meleeAttacking = false;
+    meleeTimer = 0.0f;
+    hasJetpack = false;
+    jetpackFuel = 0.0f;
+    SetNormalHitbox();
+    anim.StopMachinegun();
+    anim.StopMachinegunAiming();
+    anim.StopMachinegunCrouch();
+    anim.StopParachute();
+    anim.StartParachute();
+}
+
+void Player::ResetWeapon() {
+    currentWeapon = WeaponType::PISTOL;
+    machinegunAmmo = 0;
+    anim.StopMachinegun();
+    anim.StopMachinegunAiming();
+    anim.StopMachinegunCrouch();
+}
+
+void Player::EquipMachinegunFresh() {
+    currentWeapon = WeaponType::MACHINEGUN;
+    machinegunAmmo = MACHINEGUN_MAX_AMMO;  // siempre 200 fijos
+    anim.StartMachinegunIdle();
 }

@@ -1,4 +1,5 @@
 ﻿#include "SystemCollision.hpp"
+#include "item.hpp"
 #include <cmath>
 #include <algorithm>
 
@@ -8,12 +9,15 @@ SystemCollision::~SystemCollision() {}
 void SystemCollision::CollisionUpdate()
 {
     PlayerBlockCollision();
+    PlayerBoxCollision();
     SoldierBlockCollision();
     BulletCollision();
     BulletBlockCollision();
     GrenadesCollision();
     ItemBlockCollision();
     ItemPlayerCollision();
+    BossAttackPlayerCollision();
+    PrisonerBlockCollision();
 }
 
 // ═════════════════════════════════════════════════════════════
@@ -28,6 +32,7 @@ void SystemCollision::PlayerBlockCollision()
     Rectangle pr = player.GetHitBox();
     const auto& colliders = creationManager.GetTileMap().GetColliders();
 
+
     for (const auto& col : colliders)
     {
         const Rectangle& br = col.rect;
@@ -41,20 +46,34 @@ void SystemCollision::PlayerBlockCollision()
             float feetY = pr.y + pr.height;
             float prevFeetY = player.GetPreviousY() + player.GetHeight();
             // ← más permisivo si viene de rampa
-            bool  wasAbove = prevFeetY <= br.y + 8.0f;
+            bool wasAbove = player.IsDyingInAir()
+                ? prevFeetY <= br.y + 200.0f   // más tolerante cuando cae muerto
+                : prevFeetY <= br.y + 15.0f;
             bool  overlapX = (pr.x + pr.width > br.x + 2.0f) &&
                 (pr.x < br.x + br.width - 2.0f);
             float penetration = feetY - br.y;
 
-            if (overlapX && wasAbove && player.GetVelocityY() >= 0 &&
-                penetration >= 0.0f && penetration <= 45.0f)
-            {
-                player.SetY(br.y - player.GetHeight());
-                player.SetVelocityY(0.0f);
-                onGround = true;
-                pr = player.GetHitBox();
-            }
+            float maxPen = player.IsDyingInAir() ? 200.0f : 60.0f;
 
+            if (overlapX && wasAbove &&
+                (player.GetVelocityY() >= 0 || player.IsDyingInAir()) &&
+                penetration >= 0.0f && penetration <= maxPen)
+            {
+                if (player.IsDyingInAir()) {
+                    Vector2 spawnPos = { player.GetPosition().x, br.y - player.GetNormalHeight() };
+                    player.SetDeathPosition(spawnPos);
+                    player.SetDyingInAir(false);
+                    player.SetVelocityY(0.0f);
+                    // ← Sin SetY: el sprite se queda donde está visualmente
+                }
+                else {
+                    // Comportamiento normal para jugador vivo
+                    player.SetY(br.y - player.GetHeight());
+                    player.SetVelocityY(0.0f);
+                    onGround = true;
+                    pr = player.GetHitBox();
+                }
+            }
             // -- Cabeza --
             float headY = pr.y;
             float prevHeadY = player.GetPreviousY();
@@ -73,30 +92,50 @@ void SystemCollision::PlayerBlockCollision()
 
             // -- Laterales --
             {
-                bool vertOverlap = (pr.y + pr.height > br.y + 4.0f) &&
-                    (pr.y < br.y + br.height - 4.0f);
-                if (vertOverlap)
-                {
-                    Rectangle leftBox = player.GetLeftHitBox();
-                    if (CheckCollisionRecs(leftBox, br))
+                if (player.IsAlive() || !player.IsDyingInAir()) {
+                    bool vertOverlap = (pr.y + pr.height > br.y + 4.0f) &&
+                        (pr.y < br.y + br.height - 4.0f);
+                    if (vertOverlap)
                     {
-                        float ov = (br.x + br.width) - leftBox.x;
-                        player.SetX(player.GetX() + ov);
-                        player.SetLeftCollision(true);
-                        pr = player.GetHitBox();
-                    }
-                    Rectangle rightBox = player.GetRightHitBox();
-                    if (CheckCollisionRecs(rightBox, br))
-                    {
-                        float ov = (rightBox.x + rightBox.width) - br.x;
-                        player.SetX(player.GetX() - ov);
-                        player.SetRightCollision(true);
-                        pr = player.GetHitBox();
+                        Rectangle leftBox = player.GetLeftHitBox();
+                        if (CheckCollisionRecs(leftBox, br))
+                        {
+                            float ov = (br.x + br.width) - leftBox.x;
+                            player.SetX(player.GetX() + ov);
+                            player.SetLeftCollision(true);
+                            pr = player.GetHitBox();
+                        }
+                        Rectangle rightBox = player.GetRightHitBox();
+                        if (CheckCollisionRecs(rightBox, br))
+                        {
+                            float ov = (rightBox.x + rightBox.width) - br.x;
+                            player.SetX(player.GetX() - ov);
+                            player.SetRightCollision(true);
+                            pr = player.GetHitBox();
+                        }
+
+                        // ← check adicional con hitbox completa para bloques en L
+                        // solo cuando no está en rampa y está en el suelo
+                        if (player.GetRampGroundedFrames() == 0 && player.GetIsGrounded()) {
+                            if (CheckCollisionRecs(pr, br)) {
+                                float overlapLeft = (br.x + br.width) - pr.x;
+                                float overlapRight = (pr.x + pr.width) - br.x;
+                                if (overlapLeft < overlapRight) {
+                                    player.SetX(player.GetX() + overlapLeft);
+                                    player.SetLeftCollision(true);
+                                }
+                                else {
+                                    player.SetX(player.GetX() - overlapRight);
+                                    player.SetRightCollision(true);
+                                }
+                                pr = player.GetHitBox();
+                            }
+                        }
                     }
                 }
             }
-            break;
         }
+        break;
 
         case TileType::PLATFORM:
         {
@@ -107,8 +146,21 @@ void SystemCollision::PlayerBlockCollision()
                 (pr.x < br.x + br.width - 2.0f);
             float penetration = feetY - br.y;
 
-            if (overlapX && wasAbove && player.GetVelocityY() >= 0 &&
-                penetration >= 0.0f && penetration <= 45.0f)
+            if (player.IsDyingInAir())
+            {
+                // Mismo tratamiento que SOLID para muerte en el aire
+                bool wasAboveDying = prevFeetY <= br.y + 200.0f;
+                float penetrationDying = feetY - br.y;
+                if (overlapX && wasAboveDying && penetrationDying >= 0.0f && penetrationDying <= 99999.0f)
+                {
+                    Vector2 spawnPos = { player.GetPosition().x, br.y - player.GetNormalHeight() };
+                    player.SetDeathPosition(spawnPos);
+                    player.SetDyingInAir(false);
+                    player.SetVelocityY(0.0f);
+                }
+            }
+            else if (overlapX && wasAbove && player.GetVelocityY() >= 0 &&
+                penetration >= -1.0f && penetration <= 45.0f)
             {
                 player.SetY(br.y - player.GetHeight());
                 player.SetVelocityY(0.0f);
@@ -122,13 +174,13 @@ void SystemCollision::PlayerBlockCollision()
         {
             float headY = pr.y;
             float prevHeadY = player.GetPreviousY();
-            bool  wasBelow = prevHeadY >= br.y + br.height - 1.0f;
+            bool  wasBelow = prevHeadY >= br.y + br.height - 20.0f;  // ← de -1 a -20, más permisivo
             bool  overlapX = (pr.x + pr.width > br.x + 2.0f) &&
                 (pr.x < br.x + br.width - 2.0f);
             float headPen = (br.y + br.height) - headY;
 
             if (overlapX && wasBelow && player.GetVelocityY() < 0 &&
-                headPen >= 0.0f && headPen <= 45.0f)
+                headPen >= 0.0f && headPen <= 60.0f)  // ← de 45 a 60
             {
                 player.SetY(br.y + br.height);
                 player.SetVelocityY(0.0f);
@@ -149,20 +201,67 @@ void SystemCollision::PlayerBlockCollision()
                 player.SetY(surfaceY - player.GetHeight());
                 player.SetVelocityY(3.0f);
                 onGround = true;
-                player.SetRampGroundedFrames(3);  // ← 3 frames de gracia
+                player.SetRampGroundedFrames(6);  // ← 3 frames de gracia
                 pr = player.GetHitBox();
             }
             break;
         }
         }
     }
+    // ── LOOKAHEAD DE RAMPA ──────────────────────────────────────
+// Solo si está en el suelo y moviéndose a la izquierda
+    if ((onGround || player.GetRampGroundedFrames() > 0) && player.GetVelocityX() < 0)
+    {
+        float nextCenterX = pr.x + pr.width / 2.0f + player.GetVelocityX();
+        bool rampFound = false;
 
-    if (onGround)
+        for (const auto& rampCol : colliders)
+        {
+            if (rampCol.type != TileType::RAMP_UP) continue;
+            const Rectangle& rbr = rampCol.rect;
+            if (nextCenterX < rbr.x || nextCenterX > rbr.x + rbr.width) continue;
+            float nextSurfaceY = rampCol.GetRampSurfaceY(nextCenterX);
+            float feetY = pr.y + pr.height;
+            if (fabsf(feetY - nextSurfaceY) <= 60.0f)
+            {
+                player.SetY(nextSurfaceY - player.GetHeight());
+                player.SetVelocityY(3.0f);
+                player.SetRampGroundedFrames(15);
+                rampFound = true;
+                break;
+            }
+        }
+
+        // Si salió de la rampa, busca el SOLID más cercano debajo
+        if (!rampFound && player.GetRampGroundedFrames() > 0)
+        {
+            for (const auto& solidCol : colliders)
+            {
+                if (solidCol.type != TileType::SOLID) continue;
+                const Rectangle& sbr = solidCol.rect;
+                float feetY = pr.y + pr.height;
+                bool overlapX = (pr.x + pr.width > sbr.x) && (pr.x < sbr.x + sbr.width);
+                if (overlapX && feetY <= sbr.y + 20.0f && feetY >= sbr.y - 20.0f)
+                {
+                    player.SetY(sbr.y - player.GetHeight());
+                    player.SetVelocityY(0.0f);
+                    onGround = true;
+                    pr = player.GetHitBox();
+                    break;
+                }
+            }
+        }
+    }
+    // ───────────────────────────────────────────────────────────
+    if (onGround) {
         player.SetGrounded(true);
-    else if (player.GetRampGroundedFrames() > 0)
-        player.SetGrounded(true);  // los frames de gracia los decrementa Player::Update
-    else
-        player.SetGrounded(false);
+    }
+    else if (player.GetRampGroundedFrames() > 0) {
+        player.SetGrounded(true);
+    }
+    else if (!player.IsDyingInAir()) {
+        player.SetGrounded(false);  // ← solo resetea si NO está muriendo en el aire
+    }
 }
 
 // ═════════════════════════════════════════════════════════════
@@ -251,7 +350,24 @@ void SystemCollision::BulletCollision()
                 if (s.GetisAlive() && CheckCollisionRecs(s.GetHurtBox(), bIt->GetHitbox()))
                 {
                     s.TriggerDeath(audioManager);
+                    Rectangle hurtBox = s.GetHurtBox();
+                    Vector2 bloodPos = { hurtBox.x + hurtBox.width / 2.0f, hurtBox.y + hurtBox.height / 2.0f };
+                    creationManager.GetBloodEffects().emplace_back(bloodPos);
                     uiManager.AddScore(100);
+                    hit = true;
+                    break;
+                }
+            }
+        }
+
+        // Prisioneros
+        if (!hit)
+        {
+            for (auto& p : creationManager.GetPrisoners())
+            {
+                if (!p.IsFreed() && CheckCollisionRecs(bIt->GetHitbox(), p.GetHitBox()))
+                {
+                    p.TakeDamage();
                     hit = true;
                     break;
                 }
@@ -269,7 +385,9 @@ void SystemCollision::BulletCollision()
         {
             for (auto& item : items)
             {
-                if (item.IsActive() && item.GetType() == ItemType::BOX &&
+                if (item.IsActive() &&
+                    item.GetType() == ItemType::BOX &&
+                    !item.IsDestroyed() &&
                     (bIt->GetType() == 1 || bIt->GetType() == 3) &&
                     CheckCollisionRecs(bIt->GetHitbox(), item.GetHitBox()))
                 {
@@ -280,15 +398,21 @@ void SystemCollision::BulletCollision()
             }
         }
         // 4. DAÑO AL BOSS
-        if (!hit && boss.IsActive() && (bIt->GetType() == 1 || bIt->GetType() == 3))
+        if (!hit && (boss.IsActive() || boss.IsInIntro()) &&
+            (bIt->GetType() == 1 || bIt->GetType() == 3))
         {
             if (CheckCollisionRecs(bIt->GetHitbox(), boss.GetHitBox()))
             {
                 boss.TakeDamage();
+                boss.StartIntro();
                 hit = true;
             }
         }
-        if (hit) bIt = bullets.erase(bIt);
+        if (hit) {
+            TraceLog(LOG_INFO, "BULLET hit block at x=%.1f y=%.1f", bIt->GetPosition().x, bIt->GetPosition().y);
+            bIt = bullets.erase(bIt);
+        }
+
         else     ++bIt;
     }
 
@@ -366,8 +490,27 @@ void SystemCollision::GrenadesCollision()
                 CheckCollisionRecs(soldier.GetHurtBox(), explosionBox))
             {
                 soldier.TriggerDeath(audioManager);
+                Rectangle hurtBox = soldier.GetHurtBox();
+                Vector2 bloodPos = { hurtBox.x + hurtBox.width / 2.0f, hurtBox.y + hurtBox.height / 2.0f };
+                creationManager.GetBloodEffects().emplace_back(bloodPos);
                 uiManager.AddScore(100);
             }
+        }
+
+        // Cajas
+        for (auto& item : creationManager.GetItems()) {
+            if (!item.IsActive() || item.GetType() != ItemType::BOX || item.IsDestroyed()) continue;
+            if (CheckCollisionRecs(grenade.GetExplosionHitBox(), item.GetHitBox())) {
+                item.Destroy();
+            }
+        }
+        // Boss
+        if (!grenade.HasHitBoss() &&
+            !boss.IsDestroyed() &&
+            CheckCollisionRecs(boss.GetHitBox(), explosionBox))
+        {
+            boss.TakeDamage(20);
+            grenade.SetHitBoss(true);  // ← solo una vez
         }
     }
 }
@@ -381,7 +524,8 @@ void SystemCollision::ItemBlockCollision()
 
     for (auto& item : creationManager.GetItems())
     {
-        if (item.IsGrounded() || item.GetType() != ItemType::SHOTGUN) continue;
+        if (item.IsGrounded() || !item.HasGravity()) continue;
+        if (!item.HasGravity()) continue;
 
         Rectangle ir = item.GetHitBox();
         for (const auto& col : colliders)
@@ -394,8 +538,12 @@ void SystemCollision::ItemBlockCollision()
 
             if (overlapX && penetration >= 0.0f && penetration <= 35.0f)
             {
-                float offsetY = item.GetPosition().y - ir.y;
-                item.SetPositionY(br.y - ir.height + offsetY);
+                if (item.GetType() == ItemType::BOX) {
+                    item.SetPositionY(br.y - item.GetVisualHeight()); 
+                }
+                else {
+                    item.SetPositionY(br.y - item.GetVisualHeight());
+                }
                 item.SetGrounded(true);
                 item.SetGravity(false);
                 break;
@@ -413,9 +561,9 @@ void SystemCollision::ItemPlayerCollision()
     for (auto& item : items)
     {
         if (!item.IsActive()) continue;
+        bool playerTouching = CheckCollisionRecs(item.GetHitBox(), player.GetHitBox());
 
-        if (item.GetType() == ItemType::SHOTGUN &&
-            CheckCollisionRecs(item.GetHitBox(), player.GetHitBox()))
+        if (item.GetType() == ItemType::SHOTGUN && playerTouching)
         {
             player.EquipMachinegun();
             item.Collect();
@@ -424,13 +572,172 @@ void SystemCollision::ItemPlayerCollision()
             uiManager.SetWeaponDisplay(UiManager::WeaponDisplay::MACHINEGUN);
         }
 
-        if (item.ShouldSpawnMachinegun())
+        if (playerTouching && item.GetType() != ItemType::BOX && item.GetType() != ItemType::SHOTGUN)
+        {
+            Vector2 popupPos = { item.GetPosition().x, item.GetPosition().y - 30.0f };
+
+            switch (item.GetType()) {
+            case ItemType::PLUSHY:
+                uiManager.AddScore(200);
+                creationManager.GetFloatingTexts().emplace_back(popupPos, "200");
+                break;
+            case ItemType::FISH:
+                uiManager.AddScore(500);
+                creationManager.GetFloatingTexts().emplace_back(popupPos, "500");
+                break;
+            case ItemType::MEDAL:
+                uiManager.AddScore(1000);
+                creationManager.GetFloatingTexts().emplace_back(popupPos, "1000");
+                break;
+            case ItemType::PIG:
+                uiManager.AddScore(300);
+                creationManager.GetFloatingTexts().emplace_back(popupPos, "300");
+                break;
+            case ItemType::BOMBS:
+                uiManager.SetBombs(10);
+                creationManager.GetFloatingTexts().emplace_back(popupPos, "BOMBS");
+                audioManager.PlaySound(audioManager.GetGrenadePickupSound());
+                break;
+            case ItemType::JETPACK:
+                player.EquipJetpack();
+                uiManager.SetJetpackActive(true);
+                uiManager.SetJetpackFuel(player.GetJetpackFuel() / player.GetJetpackMaxFuel());
+                creationManager.GetFloatingTexts().emplace_back(popupPos, "JETPACK");
+                audioManager.PlaySound(audioManager.GetJetpackPickupSound());
+                break;
+            default:
+                break;
+            }
+            item.Collect();
+        }
+
+        if (item.ShouldSpawnItem())
         {
             item.ConsumeSpawn();
             Vector2 spawnPos = { item.GetHitBox().x + 60.0f, item.GetHitBox().y - 20.0f };
-            Item newItem(spawnPos, ItemType::SHOTGUN);
+            ItemType spawnType = (GetRandomValue(0, 1) == 0) ? ItemType::SHOTGUN : ItemType::JETPACK;
+            Item newItem(spawnPos, spawnType);
             newItem.SetGravity(true);
             items.push_back(newItem);
+        }
+    }
+
+    items.erase(std::remove_if(items.begin(), items.end(),
+        [](const Item& i) { return !i.IsActive(); }), items.end());
+}
+
+void SystemCollision::BossAttackPlayerCollision()
+{
+    if (!boss.IsActive() && !boss.IsInIntro()) return;
+    if (player.IsInvincible() || !player.IsAlive()) return;
+
+    Rectangle playerBox = player.GetHitBox();
+
+    // Bolas de plasma fase 1
+    for (int i = 0; i < 3; i++) {
+        if (!boss.GetPlasmaActive(i)) continue;
+        Rectangle plasmaBox = {
+            boss.GetPlasmaPos(i).x - 8.0f,
+            boss.GetPlasmaPos(i).y - 8.0f,
+            16.0f, 16.0f
+        };
+        if (CheckCollisionRecs(playerBox, plasmaBox)) {
+            player.TakeDamage();
+            return;
+        }
+    }
+    if (boss.IsLaserBeamActive()) {
+        Rectangle beamBox = boss.GetLaserBeamHitBox();
+        TraceLog(LOG_INFO, "BEAM ABAJO active beamBox x=%.0f y=%.0f w=%.0f h=%.0f playerX=%.0f playerY=%.0f",
+            beamBox.x, beamBox.y, beamBox.width, beamBox.height, playerBox.x, playerBox.y);
+        if (CheckCollisionRecs(playerBox, beamBox)) {
+            TraceLog(LOG_INFO, "BEAM ABAJO MATA");
+            player.TakeDamage();
+            return;
+        }
+    }
+
+    if (boss.IsBeamUpActive()) {
+        Rectangle beamBox = boss.GetBeamUpHitBox();
+        TraceLog(LOG_INFO, "BEAM ARRIBA active beamBox x=%.0f y=%.0f w=%.0f h=%.0f playerX=%.0f playerY=%.0f",
+            beamBox.x, beamBox.y, beamBox.width, beamBox.height, playerBox.x, playerBox.y);
+        if (CheckCollisionRecs(playerBox, beamBox)) {
+            TraceLog(LOG_INFO, "BEAM ARRIBA MATA");
+            player.TakeDamage();
+            return;
+        }
+    }
+}
+
+void SystemCollision::PlayerBoxCollision()
+{
+    if (!player.IsAlive()) return;
+
+    Rectangle pr = player.GetHitBox();
+    float prevFeetY = player.GetPreviousY() + player.GetHeight();
+
+    for (auto& item : creationManager.GetItems())
+    {
+        if (!item.IsActive() || item.IsDestroyed()) continue;
+        if (item.GetType() != ItemType::BOX) continue;
+
+        Rectangle br = item.GetHitBox();  // hitbox amarilla
+
+        // ── COLISIÓN VERTICAL (encima) ──────────────────
+        float feetY = pr.y + pr.height;
+        bool  overlapX = (pr.x + pr.width > br.x) && (pr.x < br.x + br.width);
+        float penetration = feetY - br.y;
+        bool  wasAbove = prevFeetY <= br.y + 2.0f;
+
+        if (overlapX && wasAbove && player.GetVelocityY() >= 0 &&
+            penetration >= 0.0f && penetration <= 45.0f)
+        {
+            player.SetY(br.y - player.GetHeight());
+            player.SetVelocityY(0.0f);
+            player.SetGrounded(true);
+            continue;
+        }
+
+        // ── COLISIÓN LATERAL ────────────────────────────
+        if (!CheckCollisionRecs(pr, br)) continue;
+
+        // Viene por la izquierda
+        if (pr.x + pr.width > br.x && pr.x < br.x)
+        {
+            player.SetX(br.x - pr.width - player.GetHitBox().x + player.GetX());
+            player.SetVelocityX(0.0f);
+        }
+        // Viene por la derecha
+        else if (pr.x < br.x + br.width && pr.x + pr.width > br.x + br.width)
+        {
+            player.SetX(br.x + br.width - player.GetHitBox().x + player.GetX());
+            player.SetVelocityX(0.0f);
+        }
+    }
+}
+
+void SystemCollision::PrisonerBlockCollision()
+{
+    const auto& colliders = creationManager.GetTileMap().GetColliders();
+    for (auto& p : creationManager.GetPrisoners())
+    {
+        if (!p.IsActive()) continue;
+        Rectangle pr = p.GetCollisionHitBox();
+
+        for (const auto& col : colliders)
+        {
+            if (col.type != TileType::SOLID && col.type != TileType::PLATFORM) continue;
+            const Rectangle& br = col.rect;
+            float feetY = pr.y + pr.height;
+            bool overlapX = (pr.x + pr.width > br.x) && (pr.x < br.x + br.width);
+            float penetration = feetY - br.y;
+
+            if (overlapX && penetration >= 0.0f && penetration <= 30.0f)
+            {
+                p.SetPositionY(br.y - pr.height);
+                p.SetGrounded(true);
+                pr = p.GetCollisionHitBox();
+            }
         }
     }
 }

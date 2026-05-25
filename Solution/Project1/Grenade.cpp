@@ -172,13 +172,32 @@ void Grenade::Draw() {
 
 void Grenade::CheckCollisionWithBlocks(const std::vector<CollisionRect>& colliders) {
     if (!isActive || hasExploded) return;
-
     Rectangle grenadeBox = GetHitBox();
-
     for (const auto& col : colliders) {
-        if (col.type == TileType::RAMP_UP || col.type == TileType::PLATFORM) continue;
-
+        if (col.type == TileType::PLATFORM) continue;
         const Rectangle& br = col.rect;
+
+        // Rampas: no usar CheckCollisionRecs
+        if (col.type == TileType::RAMP_UP) {
+            float centerX = position.x;
+            if (centerX < br.x || centerX > br.x + br.width) continue;
+            float surfaceY = col.GetRampSurfaceY(centerX);
+            float grenadeBottom = position.y + 11.0f;
+            if (grenadeBottom >= surfaceY - 5.0f && velocity.y >= 0) {
+                position.y = surfaceY - 11.0f;
+                if (!hasBounced) {
+                    velocity.y = -fabsf(velocity.y) * bounceDamping;
+                    velocity.x *= 0.7f;
+                    hasBounced = true;
+                }
+                else {
+                    Explode();
+                    return;
+                }
+            }
+            continue;
+        }
+
         if (!CheckCollisionRecs(grenadeBox, br)) continue;
 
         if (col.type == TileType::CEILING) {
@@ -201,7 +220,6 @@ void Grenade::CheckCollisionWithBlocks(const std::vector<CollisionRect>& collide
             }
             return;
         }
-
         Explode();
         return;
     }

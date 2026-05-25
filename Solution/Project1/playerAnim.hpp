@@ -175,8 +175,23 @@ public:
     bool IsParachuteLanding() const { return parachuteLanding; }
     bool IsParachuteLandingFinished() const { return parachuteLandingFrame >= parachuteLandingFrameCount - 1; }
 
+    // Melee
+    void StartMelee();
+    bool IsMeleeAttacking() const { return meleeAttacking; }
+    int  GetMeleeFrame() const { return meleeFrame; }
+    // pistola pie: fila 58-59, machinegun pie: 62-63
+    // pistola agachado: 60-61, machinegun agachado: 64-65
+    float GetMeleeRowY(bool machinegun, bool crouching) const {
+        if (!machinegun && !crouching) return 58 * 34.0f;  // fila 58, cubre 58+59
+        if (!machinegun && crouching) return 60 * 34.0f;  // fila 60, cubre 60+61
+        if (machinegun && !crouching) return 62 * 34.0f;  // fila 62, cubre 62+63
+        return 64 * 34.0f;                                  // fila 64, cubre 64+65
+    }
 
-
+    void StartP1Anim(int loops = 8);
+    void UpdateP1Anim(float dt);
+    void DrawP1Anim(Vector2 playerPos, float scale, bool facingLeft) const;
+    bool IsP1AnimActive() const { return p1AnimActive; }
 
 private:
     Texture2D spriteSheet;
@@ -200,36 +215,36 @@ private:
     bool jumpComplete = false;
 
     // Velocidades de animación walking
-    float walkLegsDelay = 0.05f;
-    float walkTorsoDelay = 0.05f;
+    float walkLegsDelay = 0.025f;
+    float walkTorsoDelay = 0.025f;
 
     // Agachado
     int crouchFrame = 0;
     float crouchTimer = 0.0f;
-    float crouchTransitionDelay = 0.05f;
-    float crouchIdleDelay = 0.15f;
+    float crouchTransitionDelay = 0.025f;
+    float crouchIdleDelay = 0.075f;
     bool crouching = false;
     bool crouchTransition = false;
 
     // Caminar agachado
     int crouchWalkFrame = 0;
     float crouchWalkTimer = 0.0f;
-    float crouchWalkDelay = 0.08f;
+    float crouchWalkDelay = 0.04f;
     int crouchWalkFrameCount = 7;
     bool crouchWalking = false;
 
     // Disparo agachado
     int crouchShootFrame = 0;
     float crouchShootTimer = 0.0f;
-    float crouchShootDelay = 0.05f;
+    float crouchShootDelay = 0.025f;
     int crouchShootFrameCount = 10;
     bool crouchShooting = false;
 
     // Pistol Crouch Throw
     int crouchThrowFrame = 0;
     float crouchThrowTimer = 0.0f;
-    float crouchThrowDelay = 0.05f;
-    float crouchThrowEndDelay = 0.15f;  // delay más largo para los últimos 2 frames
+    float crouchThrowDelay = 0.025f;
+    float crouchThrowEndDelay = 0.075f;  // delay más largo para los últimos 2 frames
     int crouchThrowFrameCount = 6;
     bool crouchThrowing = false;
 
@@ -243,14 +258,14 @@ private:
     // Shooting up
     int shootUpFrame = 0;
     float shootUpTimer = 0.0f;
-    float shootUpDelay = 0.05f;
+    float shootUpDelay = 0.025f;
     int shootUpFrameCount = 10;
     bool shootingUp = false;
 
     // Animación de lanzar granada
     int throwFrame = 0;
     float throwTimer = 0.0f;
-    float throwDelay = 0.05f;
+    float throwDelay = 0.025f;
     int throwFrameCount = 6;
     bool isThrowing = false;
 
@@ -259,8 +274,8 @@ private:
     int machinegunShootFrame = 0;
     float machinegunIdleTimer = 0.0f;
     float machinegunShootTimer = 0.0f;
-    float machinegunIdleDelay = 0.1f;
-    float machinegunShootDelay = 0.05f;
+    float machinegunIdleDelay = 0.05f;
+    float machinegunShootDelay = 0.025f;
     int machinegunIdleFrameCount = 4;
     int machinegunShootFrameCount = 4;
     bool machinegunIdle = false;
@@ -271,7 +286,7 @@ private:
     // Machinegun Throw
     int machinegunThrowFrame = 0;
     float machinegunThrowTimer = 0.0f;
-    float machinegunThrowDelay = 0.05f;
+    float machinegunThrowDelay = 0.025f;
     int machinegunThrowFrameCount = 6;
     bool machinegunThrowing = false;
     float machinegunThrowCooldown = 0.0f;
@@ -287,7 +302,7 @@ private:
     // Machinegun Shooting Up
     int machinegunShootUpFrame = 0;
     float machinegunShootUpTimer = 0.0f;
-    float machinegunShootUpDelay = 0.05f;
+    float machinegunShootUpDelay = 0.025f;
     int machinegunShootUpFrameCount = 4;
     bool machinegunShootingUp = false;
 
@@ -296,32 +311,32 @@ private:
     bool machinegunCrouchTransition = false;
     int machinegunCrouchFrame = 0;
     float machinegunCrouchTimer = 0.0f;
-    float machinegunCrouchTransitionDelay = 0.05f;
-    float machinegunCrouchIdleDelay = 0.15f;
+    float machinegunCrouchTransitionDelay = 0.025f;
+    float machinegunCrouchIdleDelay = 0.075f;
     int machinegunCrouchTransitionFrameCount = 3;
     int machinegunCrouchIdleFrameCount = 4;
 
     // Machinegun Crouch Walk
     int machinegunCrouchWalkFrame = 0;
     float machinegunCrouchWalkTimer = 0.0f;
-    float machinegunCrouchWalkDelay = 0.08f;
+    float machinegunCrouchWalkDelay = 0.04f;
     int machinegunCrouchWalkFrameCount = 7;
     bool machinegunCrouchWalking = false;
 
     // Machinegun Crouch Throw
     int machinegunCrouchThrowFrame = 0;
     float machinegunCrouchThrowTimer = 0.0f;
-    float machinegunCrouchThrowDelay = 0.05f;
+    float machinegunCrouchThrowDelay = 0.025f;
     int machinegunCrouchThrowFrameCount = 6;
     bool machinegunCrouchThrowing = false;
     float machinegunCrouchThrowCooldown = 0.0f;
     float machinegunCrouchThrowCooldownMax = 0.25f;
-    float machinegunCrouchThrowEndDelay = 0.15f;
+    float machinegunCrouchThrowEndDelay = 0.075f;
 
     // Machinegun Crouch Shoot
     int machinegunCrouchShootFrame = 0;
     float machinegunCrouchShootTimer = 0.0f;
-    float machinegunCrouchShootDelay = 0.05f;
+    float machinegunCrouchShootDelay = 0.025f;
     int machinegunCrouchShootFrameCount = 4;
     bool machinegunCrouchShooting = false;
 
@@ -342,7 +357,7 @@ private:
     bool parachuteLanding = false;
     int  parachuteLandingFrame = 0;
     float parachuteLandingTimer = 0.0f;
-    const float parachuteLandingDelay = 0.08f;
+    const float parachuteLandingDelay = 0.05f;
     const int   parachuteLandingFrameCount = 17;
     const float PARACHUTE2_W = 62.0f;
     const float PARACHUTE2_H = 59.0f;
@@ -354,4 +369,22 @@ private:
     VisualOffsets walkOffset = { -1.0f, 15.0f, 3.0f, 0.0f };
     VisualOffsets jumpOffset = { 0.0f, 20.0f, 0.0f, 0.0f };
     VisualOffsets jumpShootOffset = { -6.0f, 20.0f, 0.0f, 0.0f };
+
+    // Melee
+    bool  meleeAttacking = false;
+    int   meleeFrame = 0;
+    float meleeTimer = 0.0f;
+    float meleeFrameDelay = 0.05f;
+    static constexpr int MELEE_FRAMES = 6;
+
+    Texture2D texP1Anim;
+    int   p1AnimFrame = 0;
+    float p1AnimTimer = 0.0f;
+    float p1AnimDelay = 0.08f;
+    static constexpr int   P1_ANIM_FRAMES = 4;
+    static constexpr float P1_ANIM_W = 30.0f;
+    static constexpr float P1_ANIM_H = 31.0f;
+    int   p1AnimLoopCount = 0;
+    bool  p1AnimActive = false;
+    int p1AnimMaxLoops = 5;
 };

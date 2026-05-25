@@ -23,4 +23,6 @@ private:
     float maxScrollX = 0.0f;
     bool isFirstFrame = true;
     bool bossZoneLocked = false;
+    bool transitionZone = false;
+    float transitionTimer = 0.0f;
 };
