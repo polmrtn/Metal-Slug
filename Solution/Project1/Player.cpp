@@ -225,6 +225,17 @@ void Player::Update(float CameraLeftLimit, float CameraTop) {
 
     bool thrusting = IsKeyDown(KEY_SPACE) && !grounded && hasJetpack;
     anim.UpdateJetFire(GetFrameTime(), thrusting);
+
+    // Dzwiek jetpacka: gra co 0.25s podczas thrustu, ostatnia instancja leci do konca
+    if (thrusting) {
+        jetpackSoundTimer += GetFrameTime();
+        if (jetpackSoundTimer >= JETPACK_SOUND_INTERVAL) {
+            jetpackSoundTimer = 0.0f;
+            audioManager.PlaySound(audioManager.GetJetpackSound());
+        }
+    } else {
+        jetpackSoundTimer = JETPACK_SOUND_INTERVAL; // nastepne wcisniecie odpali od razu
+    }
 }
 
 // ========== MOVIMIENTO ==========
