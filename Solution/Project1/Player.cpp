@@ -223,9 +223,18 @@ void Player::Update(float CameraLeftLimit, float CameraTop) {
 
     if (pos.x < CameraLeftLimit) pos.x = CameraLeftLimit;
 
+    bool wasJetFireActive = anim.IsJetFireActive();
+
     bool thrusting = IsKeyDown(KEY_SPACE) && !grounded && hasJetpack;
     anim.UpdateJetFire(GetFrameTime(), thrusting);
 
+    if (grounded && !wasGroundedLastFrame && jetpackWasUsed) {
+        anim.StopJetFire();
+        anim.StartJetLanding();
+        jetpackWasUsed = false;
+    }
+    wasGroundedLastFrame = grounded;
+    anim.UpdateJetLanding(GetFrameTime());
     // Dzwiek jetpacka: start -> co 0.25s mid -> stop
     if (thrusting && !wasThrusting) {
         // Wlasnie zaczal thrust: graj start, zresetuj timer, faza = start
@@ -673,6 +682,7 @@ void Player::Draw() {
     anim.DrawParachute(pos, SCALE, dir == PlayerDirection::LEFT);
     anim.DrawJetFire(pos, SCALE, dir == PlayerDirection::LEFT, currentWeapon == WeaponType::MACHINEGUN);
     DrawSeparated();
+    anim.DrawJetLanding(pos, SCALE);
     anim.DrawParachuteLanding(pos, SCALE, dir == PlayerDirection::LEFT);
     DrawHitBox();
 }
@@ -1167,6 +1177,7 @@ void Player::EquipJetpack() {
 
 void Player::JetpackThrust() {
     isJetpackThrusting = true;
+    jetpackWasUsed = true;
     if (!hasJetpack || grounded || jetpackFuel <= 0.0f) return;
     vel.y += JETPACK_FORCE;
     if (vel.y < JETPACK_MAX_VEL) vel.y = JETPACK_MAX_VEL;

@@ -816,3 +816,33 @@ void PlayerAnim::DrawJetFire(Vector2 playerPos, float scale, bool facingLeft, bo
     Rectangle dst = { x, y, JET_FIRE_W * scale, JET_FIRE_H * scale };
     DrawTexturePro(jetFireSheet, src, dst, { 0,0 }, 0, WHITE);
 }
+
+void PlayerAnim::StartJetLanding() {
+    if (!jetLandLoaded) {
+        jetLandSheet = LoadTexture("Graphics/jetpack/landinganim140x40.png");
+        SetTextureFilter(jetLandSheet, TEXTURE_FILTER_POINT);
+        jetLandLoaded = true;
+    }
+    jetLandFrame = 0;
+    jetLandTimer = 0.0f;
+    jetLandActive = true;
+}
+
+void PlayerAnim::UpdateJetLanding(float dt) {
+    if (!jetLandActive) return;
+    jetLandTimer += dt;
+    if (jetLandTimer < JET_LAND_DELAY) return;
+    jetLandTimer = 0.0f;
+    jetLandFrame++;
+    if (jetLandFrame >= 8)
+        jetLandActive = false;
+}
+
+void PlayerAnim::DrawJetLanding(Vector2 playerPos, float scale) const {
+    if (!jetLandActive || !jetLandLoaded) return;
+    Rectangle src = { jetLandFrame * JET_LAND_W, 0, JET_LAND_W, JET_LAND_H };
+    float x = playerPos.x + (34.0f * scale / 2.0f) - (JET_LAND_W * scale / 2.0f);
+    float y = playerPos.y + 40.0f * scale - JET_LAND_H * scale;
+    Rectangle dst = { x, y, JET_LAND_W * scale, JET_LAND_H * scale };
+    DrawTexturePro(jetLandSheet, src, dst, { 0,0 }, 0, WHITE);
+}

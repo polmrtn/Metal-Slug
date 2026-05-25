@@ -199,6 +199,11 @@ public:
     void StopJetFire();
     bool IsJetFireActive() const { return jetFireActive; }
 
+    void StartJetLanding();
+    void UpdateJetLanding(float dt);
+    void DrawJetLanding(Vector2 playerPos, float scale) const;
+    bool IsJetLandingActive() const { return jetLandActive; }
+
 private:
     Texture2D spriteSheet;
 
@@ -405,6 +410,16 @@ private:
     static constexpr float JET_FIRE_DELAY = 0.05f;
     static constexpr float JET_FIRE_W = 16.0f;
     static constexpr float JET_FIRE_H = 64.0f;
+
+    //Jetpack landing
+    Texture2D jetLandSheet = { 0 };
+    bool jetLandLoaded = false;
+    int  jetLandFrame = 0;
+    float jetLandTimer = 0.0f;
+    bool jetLandActive = false;
+    static constexpr float JET_LAND_DELAY = 0.06f;
+    static constexpr float JET_LAND_W = 140.0f;
+    static constexpr float JET_LAND_H = 40.0f;
 
 
 };
