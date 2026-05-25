@@ -438,6 +438,7 @@ void Player::TakeDamage() {
     isAlive = false;
     deathTimer = 0.0f;
     isDisappeared = false;
+    audioManager.PlaySound(audioManager.GetPlayerDeathSound());
 
     mode = Mode::FULL_BODY;
     special = SpecialAnim::DEATH;

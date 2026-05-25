@@ -30,6 +30,7 @@ void AudioManager::Init() {
     missionCompleteSound = LoadSound("OST/Non_music/metal-slug-mission-complete.mp3");
     jetpackPickupSound   = LoadSound("OST/Non_music/ok-metal-slug-sound.mp3");
     grenadePickupSound   = LoadSound("OST/Non_music/grenade_pickup_sound.mp3");
+    playerDeathSound     = LoadSound("OST/Non_music/player_death.mp3");
     gameOverSound        = LoadSound("OST/Non_music/game_over.mp3");
     bossBulletSound      = LoadSound("OST/Non_music/boss_bullet.mp3");
     bossOpenSound        = LoadSound("OST/Non_music/boss_sliding_open.mp3");
@@ -65,6 +66,7 @@ Sound& AudioManager::GetGameOverSound()        { return gameOverSound; }
 Sound& AudioManager::GetBossBulletSound()      { return bossBulletSound; }
 Sound& AudioManager::GetBossOpenSound()        { return bossOpenSound; }
 Sound& AudioManager::GetBossBigBulletSound()   { return bossBigBulletSound; }
+Sound& AudioManager::GetPlayerDeathSound()     { return playerDeathSound; }
 
 void AudioManager::PlayRandomBossDeathSound()
 {
@@ -104,6 +106,7 @@ AudioManager::~AudioManager()
     UnloadSound(missionCompleteSound);
     UnloadSound(jetpackPickupSound);
     UnloadSound(grenadePickupSound);
+    UnloadSound(playerDeathSound);
     UnloadSound(gameOverSound);
     UnloadSound(bossBulletSound);
     UnloadSound(bossOpenSound);

@@ -34,6 +34,7 @@ public:
     Sound& GetMachinegunEquipSound();
     Sound& GetMachinegunShootSound();
     Sound& GetCreditSound();
+    Sound& GetPlayerDeathSound();
 
 private:
     Music introMusic;
@@ -58,4 +59,5 @@ private:
     Sound missionCompleteSound;
     Sound jetpackPickupSound;
     Sound grenadePickupSound;
+    Sound playerDeathSound;
 };
