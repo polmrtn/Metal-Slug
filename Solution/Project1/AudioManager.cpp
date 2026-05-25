@@ -13,6 +13,8 @@ void AudioManager::Init() {
     SetMusicVolume(introMusic, 4.0f);
     howtoplayMusic = LoadMusicStream("OST/FX AUDIO/HOWTOPLAY AUDIO.ogg");
     howtoplayMusic.looping = false;
+    theEndMusic = LoadMusicStream("OST/Non_music/the-end-song.mp3");
+    theEndMusic.looping = false;
     titleMusic = LoadMusicStream("OST/04. Steel Beast 5Beats (Boss Stage).ogg");
     gameMusic = LoadMusicStream("OST/03. Main Theme from Metal Slug (Stage 1).ogg");
     gameSound = LoadSound("OST/FX AUDIO/file002 mission 1 start.ogg");
@@ -35,9 +37,9 @@ void AudioManager::Init() {
     jetpackStartSound    = LoadSound("OST/Non_music/jetpack_jet_start.wav");
     jetpackMidSound      = LoadSound("OST/Non_music/jetpack_jet_mid.wav");
     jetpackStopSound     = LoadSound("OST/Non_music/jetpack_jet_stop.wav");
-    SetSoundVolume(jetpackStartSound, 2.0f);
-    SetSoundVolume(jetpackMidSound,   2.0f);
-    SetSoundVolume(jetpackStopSound,  2.0f);
+    SetSoundVolume(jetpackStartSound, 1.5f);
+    SetSoundVolume(jetpackMidSound,   1.5f);
+    SetSoundVolume(jetpackStopSound,  1.5f);
     gameOverSound        = LoadSound("OST/Non_music/game_over.mp3");
     bossBulletSound      = LoadSound("OST/Non_music/boss_bullet.mp3");
     bossOpenSound        = LoadSound("OST/Non_music/boss_sliding_open.mp3");
@@ -90,6 +92,7 @@ Music& AudioManager::GetIntroMusic()      { return introMusic; }
 Music& AudioManager::GetTitleMusic()      { return titleMusic; }
 Music& AudioManager::GetGameMusic()       { return gameMusic; }
 Music& AudioManager::GetHowtoplayMusic()  { return howtoplayMusic; }
+Music& AudioManager::GetTheEndMusic()     { return theEndMusic; }
 Sound& AudioManager::GetGameSound() { return gameSound; }
 
 void AudioManager::PlayMusic(Music music)   { PlayMusicStream(music); }
@@ -104,6 +107,7 @@ AudioManager::~AudioManager()
     UnloadSound(gameSound);
     UnloadMusicStream(introMusic);
     UnloadMusicStream(howtoplayMusic);
+    UnloadMusicStream(theEndMusic);
     UnloadMusicStream(titleMusic);
     UnloadMusicStream(gameMusic);
     for (int i = 0; i < DEATH_SOUND_COUNT; i++)

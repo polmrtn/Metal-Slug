@@ -275,16 +275,21 @@ void Game::Update()
     if (missionCompleteTriggered && uiManager.IsMissionCompleteDone() && !endingStarted) {
         endingStarted = true;
         uiManager.StartEnding();
+        audioManager.PlayMusic(audioManager.GetTheEndMusic());
     }
 
     // Ekran THE END aktywny — pomijamy logike gry, tylko update/draw ending
     if (endingStarted) {
+        audioManager.UpdateMusic(audioManager.GetTheEndMusic());
         uiManager.UpdateEnding(dt);
 
-        if (!uiManager.IsEndingFinished() && IsKeyPressed(KEY_ENTER))
+        if (!uiManager.IsEndingFinished() && IsKeyPressed(KEY_ENTER)) {
+            audioManager.StopMusic(audioManager.GetTheEndMusic());
             uiManager.TriggerEndingFadeOut();
+        }
 
         if (uiManager.IsEndingFinished()) {
+            audioManager.StopMusic(audioManager.GetTheEndMusic());
             shouldRestart = true;
             sceneManager.SetGameState(SceneManager::TITLE);
         }
