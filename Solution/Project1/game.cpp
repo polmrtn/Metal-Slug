@@ -40,6 +40,7 @@ void Game::Reset()
     continueStarted = false;
     uiManager.StartMissionIntro();
     missionCompleteTriggered = false;
+    endingStarted = false;
 }
 
 // ─────────────────────────────────────────
@@ -264,15 +265,26 @@ void Game::Update()
     if (uiManager.IsTimeUp() && player.IsAlive())
         player.TakeDamage();
 
-    // Jezeli animacja MISSION COMPLETE skonczyla sie (ekran czarny) — wróc do INTRO
-    // missionCompleteTriggered gwarantuje ze to dotyczy TYLKO tej instancji Game (reset przy new Game())
-    if (missionCompleteTriggered && uiManager.IsMissionCompleteDone()) {
-        audioManager.StopMusic(audioManager.GetGameMusic());
-        musicStarted = false;
-        shouldRestart = true;
-        sceneManager.SetGameState(SceneManager::INTRO);
+    // Jezeli animacja MISSION COMPLETE skonczyla sie (ekran czarny) — uruchom ekran THE END
+    if (missionCompleteTriggered && uiManager.IsMissionCompleteDone() && !endingStarted) {
+        endingStarted = true;
+        uiManager.StartEnding();
+    }
+
+    // Ekran THE END aktywny — pomijamy logike gry, tylko update/draw ending
+    if (endingStarted) {
+        uiManager.UpdateEnding(dt);
+
+        if (!uiManager.IsEndingFinished() && IsKeyPressed(KEY_ENTER))
+            uiManager.TriggerEndingFadeOut();
+
+        if (uiManager.IsEndingFinished()) {
+            shouldRestart = true;
+            sceneManager.SetGameState(SceneManager::TITLE);
+        }
+
         BeginDrawing();
-        ClearBackground(BLACK);
+        uiManager.DrawEnding();
         return;
     }
 
