@@ -20,6 +20,7 @@ void InputManager::InputCreditsPlayer()
 		if (uiManager.GetCredits() < 99) {
 			uiManager.SetCredits(1);
 			timerManager.StartTimer(TimerType::CREDIT_DELAY);
+			audioManager.PlaySound(audioManager.GetCreditSound());
 		}
 	}
 }
@@ -68,7 +69,6 @@ void InputManager::InputPlayer()
 		player.IsAlive() && !player.IsJetpackThrusting()) {
 
 		bool meleeTriggered = false;
-		//Comprobar soldados
 		for (auto& soldier : creationManager.GetSoldiers()) {
 			if (soldier.GetisAlive() &&
 				CheckCollisionRecs(player.GetMeleeHitBox(), soldier.GetHurtBox())) {
@@ -84,7 +84,6 @@ void InputManager::InputPlayer()
 			}
 		}
 
-		// Comprobar cajas
 		if (!meleeTriggered) {
 			for (auto& item : creationManager.GetItems()) {
 				if (item.IsActive() && item.GetType() == ItemType::BOX &&
@@ -99,7 +98,6 @@ void InputManager::InputPlayer()
 			}
 		}
 
-		// Melee con prisioneros
 		if (!meleeTriggered) {
 			for (auto& p : creationManager.GetPrisoners()) {
 				if (!p.IsFreed() && CheckCollisionRecs(player.GetMeleeHitBox(), p.GetHitBox())) {
@@ -112,7 +110,6 @@ void InputManager::InputPlayer()
 			}
 		}
 
-		// Disparo normal
 		if (!meleeTriggered) {
 			if (player.GetCurrentWeapon() == WeaponType::MACHINEGUN) {
 				if (player.GetAmmo() > 0) {
@@ -130,10 +127,8 @@ void InputManager::InputPlayer()
 				audioManager.PlaySound(audioManager.GetShootSound());
 			}
 		}
-		
 	}
 
-	// GRENADE: use TimerManager to check/set cooldown
 	if (IsKeyPressed(KEY_S) && player.IsAlive() &&
 		timerManager.IsReady(TimerType::GRENADE_COOLDOWN) && uiManager.HasBombs() &&
 		!player.IsJetpackThrusting()) {  
@@ -162,6 +157,11 @@ void InputManager::InputMachinegunBurst()
 		if (IsKeyDown(KEY_RIGHT)) { player.MoveRight(); uiManager.NotifyPlayerMoved(); }
 		else player.StopMovingHorizontal();
 	}
+	else if (dir == PlayerDirection::UP) {  // ← añade
+		if (IsKeyDown(KEY_LEFT)) { player.MoveLeft(); uiManager.NotifyPlayerMoved(); }
+		else if (IsKeyDown(KEY_RIGHT)) { player.MoveRight(); uiManager.NotifyPlayerMoved(); }
+		else player.StopMovingHorizontal();
+	}
 	if (IsKeyPressed(KEY_SPACE)) { player.Jump(); uiManager.NotifyPlayerMoved(); }
 	if (IsKeyDown(KEY_DOWN)) player.StartCrouching();
 	else player.StopCrouching();
@@ -174,6 +174,7 @@ void InputManager::InputContinueScreen()
 		if (uiManager.GetCredits() < 99) {
 			uiManager.SetCredits(1);
 			timerManager.StartTimer(TimerType::CREDIT_DELAY);
+			audioManager.PlaySound(audioManager.GetCreditSound());
 		}
 	}
 

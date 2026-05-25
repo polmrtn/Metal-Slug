@@ -166,6 +166,7 @@ void Boss::Update(float playerX)
             explosionSpawnTimer += dt;
             if (explosionSpawnTimer >= explosionSpawnDelay) {
                 explosionSpawnTimer = 0.0f;
+                audioManager.PlayRandomBossDeathSound();
 
                 int leftLimit = 0;
                 if (destroyFrame >= 3) leftLimit = 56;
@@ -363,6 +364,7 @@ void Boss::UpdateCannon(float dt)
                 else {
                     cannonState = CannonState::OPENING_UP;
                     openFrame = 0;
+                    audioManager.PlaySound(audioManager.GetBossOpenSound());
                 }
                 cannonFrameTimer = 0.0f;
             }
@@ -382,6 +384,7 @@ void Boss::UpdateCannon(float dt)
                 else {
                     cannonState = CannonState::OPENING_DOWN;
                     openFrame = 0;
+                    audioManager.PlaySound(audioManager.GetBossOpenSound());
                 }
                 cannonFrameTimer = 0.0f;
             }
@@ -571,6 +574,7 @@ void Boss::UpdateLaser(float dt)
                 laserBeamActive = true;
                 laserBeamVisible = true;
                 beamUpVisible = false;
+                audioManager.PlaySound(audioManager.GetBossBigBulletSound());
             }
         }
         break;
@@ -591,6 +595,7 @@ void Boss::UpdateLaser(float dt)
                 laserBeamActive = false;
                 flashLoopTimer = 0.0f;
                 laserBeamVisible = false;
+                audioManager.PlaySound(audioManager.GetBossBigBulletSound());
             }
         }
         break;
@@ -827,6 +832,7 @@ void Boss::Draw()
 
 void Boss::FirePlasma()
 {
+    audioManager.PlaySound(audioManager.GetBossBulletSound());
     for (int i = 0; i < MAX_PLASMA; i++) {
         if (plasma[i].active) continue;
 

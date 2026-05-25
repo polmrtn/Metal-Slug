@@ -120,6 +120,8 @@ public:
     void ResetWeapon();
     void EquipMachinegunFresh();
     bool IsJetpackThrusting() const { return isJetpackThrusting; }
+    //maybe uncoment below
+  //bool IsAimingUp() const { return aimingUp; }
 
 private:
     // ========== ANIMACIÓN ==========
