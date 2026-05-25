@@ -284,7 +284,7 @@ void SystemCollision::SoldierBlockCollision()
         {
             const Rectangle& br = col.rect;
             if (br.x > hr.x + 400.0f || br.x + br.width < hr.x - 400.0f) continue;
-            if (col.type == TileType::CEILING || col.type == TileType::PLATFORM) continue;
+            if (col.type == TileType::CEILING) continue;
 
             if (col.type == TileType::RAMP_UP)
             {
@@ -361,7 +361,7 @@ void SystemCollision::BulletCollision()
         }
 
         // Prisioneros
-        if (!hit)
+        if (!hit && (bIt->GetType() == 1 || bIt->GetType() == 3))
         {
             for (auto& p : creationManager.GetPrisoners())
             {

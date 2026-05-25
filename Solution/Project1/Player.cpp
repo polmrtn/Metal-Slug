@@ -172,8 +172,18 @@ void Player::Update(float CameraLeftLimit, float CameraTop) {
             }
         }
 
+        // ← AÑADE: gravedad durante respawn para que detecte el suelo
+        if (special == SpecialAnim::RESPAWN && !grounded) {
+            vel.y += GRAVITY;
+            if (vel.y > 40.0f) vel.y = 40.0f;
+            pos.y += vel.y;
+        }
+        if (special == SpecialAnim::RESPAWN && grounded) {
+            vel.y = 0.0f;
+        }
+
         if (pos.x < CameraLeftLimit) pos.x = CameraLeftLimit;
- 
+        return;
     }
 
     // Melee timer
@@ -451,16 +461,15 @@ void Player::TakeDamage() {
     if (grounded) {
         vel.y = 0.0f;
         dyingInAir = false;
-        // Si estaba agachado, ajusta pos.y para que los pies queden en el mismo sitio
         if (crouching) {
-            float feetY = pos.y + hitboxHeight;  // pies actuales (agachado)
-            pos.y = feetY - GetNormalHeight();    // reposiciona como si estuviera de pie
+            float feetY = pos.y + hitboxHeight;  // pies actuales agachado
+            SetNormalHitbox();                    // resetea hitbox a normal
+            pos.y = feetY - hitboxHeight;         // reposiciona con hitbox normal
         }
         deathPosition = pos;
     }
     else {
         dyingInAir = true;
-        // vel.y mantiene la velocidad actual
     }
 }
 
@@ -514,7 +523,10 @@ Vector2 Player::GetPosition() {
 }
 
 float Player::GetHeight() const {
-    if (mode == Mode::FULL_BODY) return GetFullBodyH() * SCALE;
+    if (mode == Mode::FULL_BODY) {
+        if (special == SpecialAnim::RESPAWN) return 40.0f * SCALE;  // ← altura normal durante respawn
+        return GetFullBodyH() * SCALE;
+    }
     return hitboxHeight;
 }
 
