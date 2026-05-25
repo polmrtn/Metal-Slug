@@ -81,6 +81,7 @@ void Game::Update()
     if (sceneManager.GetGamestate() == SceneManager::INTRO)
     {
         if (!musicStarted) {
+            SetMusicVolume(audioManager.GetIntroMusic(), 4.0f); // przywróc volume po ewentualnym StopIntroMusic
             audioManager.PlayMusic(audioManager.GetIntroMusic());
             musicStarted = true;
         }
@@ -236,6 +237,11 @@ void Game::Update()
             return;
         }
 
+        if (!gameOverSoundPlayed) {
+            audioManager.PlaySound(audioManager.GetGameOverSound());
+            gameOverSoundPlayed = true;
+        }
+
         if (gameOverTimer < 9.0f)
         {
             BeginDrawing();
@@ -257,10 +263,25 @@ void Game::Update()
     timerManager.Update(dt);
     if (uiManager.IsTimeUp() && player.IsAlive())
         player.TakeDamage();
+
+    // Jezeli animacja MISSION COMPLETE skonczyla sie (ekran czarny) — wróc do INTRO
+    // missionCompleteTriggered gwarantuje ze to dotyczy TYLKO tej instancji Game (reset przy new Game())
+    if (missionCompleteTriggered && uiManager.IsMissionCompleteDone()) {
+        audioManager.StopMusic(audioManager.GetGameMusic());
+        musicStarted = false;
+        shouldRestart = true;
+        sceneManager.SetGameState(SceneManager::INTRO);
+        BeginDrawing();
+        ClearBackground(BLACK);
+        return;
+    }
+
     boss.Update(player.GetPosition().x);
     if (boss.IsDestroyed() && boss.IsDestroyAnimFinished() && !missionCompleteTriggered) {
         missionCompleteTriggered = true;
         uiManager.StartMissionComplete();
+        audioManager.StopMusic(audioManager.GetGameMusic());
+        audioManager.PlaySound(audioManager.GetMissionCompleteSound());
     }
     if (boss.IsDestroyed()) {
         player.StopMovingHorizontal();

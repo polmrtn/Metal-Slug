@@ -55,6 +55,7 @@ public:
 
     void StartMissionComplete();
     bool IsMissionCompleteActive() const { return missionCompleteActive; }
+    bool IsMissionCompleteDone()   const { return missionCompleteDone; }
 
     // Mission intro animation
     struct MissionLetter {
@@ -180,6 +181,7 @@ private:
     int   missionLettersSpawned = 0;
     float letterSpawnTimer = 0.0f;
     bool missionCompleteActive = false;
+    bool missionCompleteDone   = false;
     bool slowExit = false;  // false = salida rápida, true = salida lenta con fade
     float exitFadeAlpha = 0.0f;
 

@@ -119,6 +119,7 @@ public:
     void FullReset();
     void ResetWeapon();
     void EquipMachinegunFresh();
+    bool IsAimingUp() const { return aimingUp; }
 
 private:
     // ========== ANIMACIÓN ==========

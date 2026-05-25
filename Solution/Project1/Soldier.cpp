@@ -303,7 +303,7 @@ void Soldier::TriggerDeath(AudioManager& audio) {
     currentState = SoldierState::DEAD;
     soldierAnim.ForceAnimation(SoldierState::DEAD);
     velocity.x = 0;
-    audio.PlaySound(audio.GetDeathSound());
+    audio.PlayRandomDeathSound();
 }
 Rectangle Soldier::GetLeftHitBox() {
     Rectangle hurtBox = GetHurtBox();
