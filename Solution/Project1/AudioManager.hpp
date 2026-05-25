@@ -36,7 +36,9 @@ public:
     Sound& GetCreditSound();
     Sound& GetPlayerDeathSound();
     Sound& GetGoSignSound();
-    Sound& GetJetpackSound();
+    Sound& GetJetpackStartSound();
+    Sound& GetJetpackMidSound();
+    Sound& GetJetpackStopSound();
 
 private:
     Music introMusic;
@@ -63,5 +65,7 @@ private:
     Sound grenadePickupSound;
     Sound playerDeathSound;
     Sound goSignSound;
-    Sound jetpackSound;
+    Sound jetpackStartSound;
+    Sound jetpackMidSound;
+    Sound jetpackStopSound;
 };

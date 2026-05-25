@@ -226,16 +226,29 @@ void Player::Update(float CameraLeftLimit, float CameraTop) {
     bool thrusting = IsKeyDown(KEY_SPACE) && !grounded && hasJetpack;
     anim.UpdateJetFire(GetFrameTime(), thrusting);
 
-    // Dzwiek jetpacka: gra co 0.25s podczas thrustu, ostatnia instancja leci do konca
-    if (thrusting) {
+    // Dzwiek jetpacka: start -> co 0.25s mid -> stop
+    if (thrusting && !wasThrusting) {
+        // Wlasnie zaczal thrust: graj start, zresetuj timer, faza = start
+        audioManager.PlaySound(audioManager.GetJetpackStartSound());
+        jetpackSoundTimer = 0.0f;
+        jetpackMidPhase = false;
+    } else if (thrusting && wasThrusting) {
+        // Kontynuacja thrustu
         jetpackSoundTimer += GetFrameTime();
         if (jetpackSoundTimer >= JETPACK_SOUND_INTERVAL) {
             jetpackSoundTimer = 0.0f;
-            audioManager.PlaySound(audioManager.GetJetpackSound());
+            jetpackMidPhase = true;
+            audioManager.StopSound(audioManager.GetJetpackMidSound());
+            audioManager.PlaySound(audioManager.GetJetpackMidSound());
         }
-    } else {
-        jetpackSoundTimer = JETPACK_SOUND_INTERVAL; // nastepne wcisniecie odpali od razu
+    } else if (!thrusting && wasThrusting) {
+        // Wlasnie zatrzymal thrust: zatrzymaj mid, graj stop
+        audioManager.StopSound(audioManager.GetJetpackMidSound());
+        audioManager.PlaySound(audioManager.GetJetpackStopSound());
+        jetpackMidPhase = false;
+        jetpackSoundTimer = 0.0f;
     }
+    wasThrusting = thrusting;
 }
 
 // ========== MOVIMIENTO ==========
