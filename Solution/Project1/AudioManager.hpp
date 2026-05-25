@@ -38,6 +38,7 @@ public:
     Sound& GetPlayerDeathSound();
     Sound& GetGoSignSound();
     Sound& GetScoreAdditionSound();
+    Sound& GetSoldierFreeingSound();
     Sound& GetJetpackStartSound();
     Sound& GetJetpackMidSound();
     Sound& GetJetpackStopSound();
@@ -69,6 +70,7 @@ private:
     Sound playerDeathSound;
     Sound goSignSound;
     Sound scoreAdditionSound;
+    Sound soldierFreeingSound;
     Sound jetpackStartSound;
     Sound jetpackMidSound;
     Sound jetpackStopSound;
