@@ -207,7 +207,7 @@ private:
     bool  hasJetpack = false;
     float jetpackFuel = 0.0f;
     static constexpr float JETPACK_MAX_FUEL = 100.0f;
-    static constexpr float JETPACK_FUEL_DRAIN = 1.0f;  // por segundo
+    static constexpr float JETPACK_FUEL_DRAIN = 20.0f;  // por segundo
     static constexpr float JETPACK_FORCE = -3.5f;
     static constexpr float JETPACK_MAX_VEL = -18.0f;
 
