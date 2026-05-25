@@ -387,4 +387,22 @@ private:
     int   p1AnimLoopCount = 0;
     bool  p1AnimActive = false;
     int p1AnimMaxLoops = 5;
+
+    // Jetpack fire
+    Texture2D jetFireSheet = { 0 };
+    bool jetFireLoaded = false;
+    int  jetFireFrame = 0;
+    float jetFireTimer = 0.0f;
+    bool jetFireActive = false;
+    bool jetFireLooping = false;  // true = loop 5-9
+    bool jetFireEnding = false;   // true = playing 10-14
+    static constexpr float JET_FIRE_DELAY = 0.05f;
+    static constexpr float JET_FIRE_W = 16.0f;
+    static constexpr float JET_FIRE_H = 64.0f;
+
+    void StartJetFire();
+    void UpdateJetFire(float dt, bool thrusting);
+    void DrawJetFire(Vector2 playerPos, float scale, bool facingLeft) const;
+    void StopJetFire();
+    bool IsJetFireActive() const { return jetFireActive; }
 };

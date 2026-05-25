@@ -1144,6 +1144,7 @@ void Player::JetpackThrust() {
         jetpackFuel = 0.0f;
         hasJetpack = false;  // vuelve al salto normal
     }
+    if (!anim.IsJetFireActive()) anim.StartJetFire();
 }
 
 void Player::FullReset() {

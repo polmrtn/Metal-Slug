@@ -740,3 +740,78 @@ void PlayerAnim::DrawP1Anim(Vector2 playerPos, float scale, bool facingLeft) con
         { destX, destY, P1_ANIM_W * scale, P1_ANIM_H * scale },
         { 0,0 }, 0, WHITE);
 }
+
+void PlayerAnim::StartJetFire() {
+    if (!jetFireLoaded) {
+        jetFireSheet = LoadTexture("Graphics/jetpack/flyfireanim16x64.png");
+        SetTextureFilter(jetFireSheet, TEXTURE_FILTER_POINT);
+        jetFireLoaded = true;
+    }
+    jetFireFrame = 0;
+    jetFireTimer = 0.0f;
+    jetFireActive = true;
+    jetFireLooping = false;
+    jetFireEnding = false;
+}
+
+void PlayerAnim::StopJetFire() {
+    if (!jetFireActive) return;
+    if (jetFireLooping) {
+        jetFireEnding = true;
+        jetFireLooping = false;
+        jetFireFrame = 10;
+    }
+}
+
+void PlayerAnim::UpdateJetFire(float dt, bool thrusting) {
+    if (!jetFireActive) return;
+
+    jetFireTimer += dt;
+    if (jetFireTimer < JET_FIRE_DELAY) return;
+    jetFireTimer = 0.0f;
+
+    if (!jetFireLooping && !jetFireEnding) {
+        // Fase inicial 0-4
+        jetFireFrame++;
+        if (jetFireFrame >= 5) {
+            if (thrusting) {
+                jetFireLooping = true;
+                jetFireFrame = 5;
+            }
+            else {
+                jetFireEnding = true;
+                jetFireFrame = 10;
+            }
+        }
+    }
+    else if (jetFireLooping) {
+        // Loop 5-9
+        jetFireFrame++;
+        if (jetFireFrame > 9) jetFireFrame = 5;
+        if (!thrusting) {
+            jetFireEnding = true;
+            jetFireLooping = false;
+            jetFireFrame = 10;
+        }
+    }
+    else if (jetFireEnding) {
+        // Final 10-14
+        jetFireFrame++;
+        if (jetFireFrame >= 15) {
+            jetFireActive = false;
+            jetFireFrame = 0;
+        }
+    }
+}
+
+void PlayerAnim::DrawJetFire(Vector2 playerPos, float scale, bool facingLeft) const {
+    if (!jetFireActive || !jetFireLoaded) return;
+    Rectangle src = { jetFireFrame * JET_FIRE_W, 0, JET_FIRE_W, JET_FIRE_H };
+    // Posicionar en la espalda del player
+    float x = facingLeft
+        ? playerPos.x + 20.0f * scale
+        : playerPos.x - 10.0f * scale;
+    float y = playerPos.y + 10.0f * scale;
+    Rectangle dst = { x, y, JET_FIRE_W * scale, JET_FIRE_H * scale };
+    DrawTexturePro(jetFireSheet, src, dst, { 0,0 }, 0, WHITE);
+}
