@@ -207,7 +207,7 @@ private:
     bool  hasJetpack = false;
     float jetpackFuel = 0.0f;
     static constexpr float JETPACK_MAX_FUEL = 100.0f;
-    static constexpr float JETPACK_FUEL_DRAIN = 1.0f;  // por segundo
+    static constexpr float JETPACK_FUEL_DRAIN = 20.0f;  // por segundo
     static constexpr float JETPACK_FORCE = -3.5f;
     static constexpr float JETPACK_MAX_VEL = -18.0f;
 
@@ -215,4 +215,6 @@ private:
     static constexpr float PARACHUTE_RELEASE_TIME = 2.0f;
     static constexpr float PARACHUTE_FALL_GRAVITY = 2.0f;  // ← ajusta, más bajo que GRAVITY=2.5
     bool isJetpackThrusting = false;
+    bool wasGroundedLastFrame = false;
+    bool jetpackWasUsed = false;
 };

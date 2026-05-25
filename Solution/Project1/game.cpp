@@ -90,6 +90,11 @@ void Game::Update()
         BeginDrawing();
         ClearBackground(BLACK);
 
+        if (sceneManager.IsSplashActive()) {
+            sceneManager.DrawTexts();
+            return;
+        }
+
         if (IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_SPACE)) {
             audioManager.StopIntroMusic();
             musicStarted = true;
