@@ -36,7 +36,7 @@ void AudioManager::Init() {
     goSignSound          = LoadSound("OST/Non_music/go_sign.mp3");
     scoreAdditionSound   = LoadSound("OST/Non_music/score_addition.mp3");
     soldierFreeingSound  = LoadSound("OST/Non_music/soldier_freeing.mp3");
-    SetSoundVolume(soldierFreeingSound, 8.0f);
+    SetSoundVolume(soldierFreeingSound, 10.0f);
     SetSoundVolume(scoreAdditionSound, 3.0f);
     jetpackStartSound    = LoadSound("OST/Non_music/jetpack_jet_start.wav");
     jetpackMidSound      = LoadSound("OST/Non_music/jetpack_jet_mid.wav");
