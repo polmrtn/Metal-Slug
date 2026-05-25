@@ -217,6 +217,7 @@ void UiManager::UpdateGoTimer(float dt)
         goAnimCycle = 0;
         goAnimTimer = 0.0f;
         goAnimPausing = false;
+        audioManager.PlaySound(audioManager.GetGoSignSound());
     }
 
     if (!goAnimActive) return;
@@ -231,6 +232,8 @@ void UiManager::UpdateGoTimer(float dt)
             if (goAnimCycle >= 2) {
                 goAnimActive = false;
                 goAnimCycle = 0;
+            } else {
+                audioManager.PlaySound(audioManager.GetGoSignSound());
             }
         }
         return;
