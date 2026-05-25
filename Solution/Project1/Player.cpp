@@ -56,6 +56,7 @@ void Player::SetCrouchHitbox() {
 
 // ========== ACTUALIZACIÓN PRINCIPAL ==========
 void Player::Update(float CameraLeftLimit, float CameraTop) {
+    isJetpackThrusting = false; 
     if (isFalling) {
         blinkTimer += GetFrameTime();
         if (blinkTimer >= blinkDelay) {
@@ -221,6 +222,9 @@ void Player::Update(float CameraLeftLimit, float CameraTop) {
     }
 
     if (pos.x < CameraLeftLimit) pos.x = CameraLeftLimit;
+
+    bool thrusting = IsKeyDown(KEY_SPACE) && !grounded && hasJetpack;
+    anim.UpdateJetFire(GetFrameTime(), thrusting);
 }
 
 // ========== MOVIMIENTO ==========
@@ -643,6 +647,7 @@ void Player::Draw() {
         return;
     }
     anim.DrawParachute(pos, SCALE, dir == PlayerDirection::LEFT);
+    anim.DrawJetFire(pos, SCALE, dir == PlayerDirection::LEFT, currentWeapon == WeaponType::MACHINEGUN);
     DrawSeparated();
     anim.DrawParachuteLanding(pos, SCALE, dir == PlayerDirection::LEFT);
     DrawHitBox();
@@ -1137,6 +1142,7 @@ void Player::EquipJetpack() {
 }
 
 void Player::JetpackThrust() {
+    isJetpackThrusting = true;
     if (!hasJetpack || grounded || jetpackFuel <= 0.0f) return;
     vel.y += JETPACK_FORCE;
     if (vel.y < JETPACK_MAX_VEL) vel.y = JETPACK_MAX_VEL;
@@ -1145,6 +1151,7 @@ void Player::JetpackThrust() {
         jetpackFuel = 0.0f;
         hasJetpack = false;  // vuelve al salto normal
     }
+    if (!anim.IsJetFireActive()) anim.StartJetFire();
 }
 
 void Player::FullReset() {
