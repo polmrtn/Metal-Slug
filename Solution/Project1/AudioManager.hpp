@@ -18,6 +18,7 @@ public:
     Music& GetTitleMusic();
     Music& GetGameMusic();
     Music& GetHowtoplayMusic();
+    Music& GetTheEndMusic();
     Sound& GetGameSound();
     void   PlayRandomDeathSound();
     Sound& GetGameOverSound();
@@ -45,6 +46,7 @@ private:
     Music titleMusic;
     Music gameMusic;
     Music howtoplayMusic;
+    Music theEndMusic;
     Sound gameSound;
     static constexpr int DEATH_SOUND_COUNT = 6;
     Sound deathSounds[DEATH_SOUND_COUNT];
