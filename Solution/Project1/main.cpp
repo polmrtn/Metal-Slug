@@ -18,9 +18,10 @@ int main()
     game->GetSceneManager().SetUiManager(&game->GetUiManager());
 
     
-    player.SetX(15200.0f);
-    player.SetY(100.0f);
+    //player.SetX(15200.0f);
+    //player.SetY(100.0f);
     player.SetGrounded(true);
+    player.EquipJetpack();
 
     while (WindowShouldClose() == false)
     {

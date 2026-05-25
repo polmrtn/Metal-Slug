@@ -804,14 +804,15 @@ void PlayerAnim::UpdateJetFire(float dt, bool thrusting) {
     }
 }
 
-void PlayerAnim::DrawJetFire(Vector2 playerPos, float scale, bool facingLeft) const {
+void PlayerAnim::DrawJetFire(Vector2 playerPos, float scale, bool facingLeft, bool hasMachinegun) const {
     if (!jetFireActive || !jetFireLoaded) return;
     Rectangle src = { jetFireFrame * JET_FIRE_W, 0, JET_FIRE_W, JET_FIRE_H };
-    // Posicionar en la espalda del player
+
     float x = facingLeft
-        ? playerPos.x + 20.0f * scale
-        : playerPos.x - 10.0f * scale;
-    float y = playerPos.y + 10.0f * scale;
+        ? playerPos.x + (hasMachinegun ? 22.0f : 15.0f) * scale  
+        : playerPos.x + (hasMachinegun ? -5.0f : 3.0f) * scale;   
+    float y = playerPos.y + (hasMachinegun ? 25.0f : 20.0f) * scale; 
+
     Rectangle dst = { x, y, JET_FIRE_W * scale, JET_FIRE_H * scale };
     DrawTexturePro(jetFireSheet, src, dst, { 0,0 }, 0, WHITE);
 }

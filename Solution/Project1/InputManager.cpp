@@ -64,7 +64,8 @@ void InputManager::InputPlayer()
 	}
 
 	// SHOOTING: use TimerManager methods instead of assigning to GetTimer(...) result
-		if (IsKeyPressed(KEY_D) && timerManager.IsReady(TimerType::SHOOT_TIMER) && player.IsAlive()) {
+	if (IsKeyPressed(KEY_D) && timerManager.IsReady(TimerType::SHOOT_TIMER) &&
+		player.IsAlive() && !player.IsJetpackThrusting()) {
 
 		bool meleeTriggered = false;
 		//Comprobar soldados
@@ -134,7 +135,8 @@ void InputManager::InputPlayer()
 
 	// GRENADE: use TimerManager to check/set cooldown
 	if (IsKeyPressed(KEY_S) && player.IsAlive() &&
-		timerManager.IsReady(TimerType::GRENADE_COOLDOWN) && uiManager.HasBombs()) {
+		timerManager.IsReady(TimerType::GRENADE_COOLDOWN) && uiManager.HasBombs() &&
+		!player.IsJetpackThrusting()) {  
 		game->ThrowGrenade();
 		uiManager.UseGrenade();
 		uiManager.NotifyPlayerMoved();
