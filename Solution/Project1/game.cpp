@@ -374,16 +374,14 @@ void Game::Update()
     ClearBackground(BGCOLOR);
     Draw();
 
-    Color bossTint = WHITE;
     if (!boss.IsDestroyed()) {
-        bossTint = boss.IsFlashing() ? ORANGE : WHITE;
+        Color bossTint = boss.IsFlashing() ? ORANGE : WHITE;
         backgroundManager.SetEventSpriteTint(2, bossTint);
+        backgroundManager.SetEventSpriteTint(3, { 255, 255, 255, 0 });
     }
-    else
-        bossTint = { 255, 255, 255, 0 };
-    backgroundManager.SetEventSpriteTint(3, bossTint);
-
-    if (boss.IsDestroyed()) {
+    else {
+        backgroundManager.SetEventSpriteTint(2, { 255, 255, 255, 0 });
+        backgroundManager.SetEventSpriteTint(3, WHITE);
         backgroundManager.SetEventSpriteFrame(3, boss.GetDestroyFrame());
     }
 
