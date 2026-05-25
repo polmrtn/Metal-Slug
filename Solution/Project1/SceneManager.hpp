@@ -23,6 +23,7 @@ public:
     UiManager* ui = nullptr;
     void SetUiManager(UiManager* u);
     void FullReset();
+    bool IsSplashActive() const { return splashActive; }
 
 private:
     // ── TITLE screen textures ─────────────────────────────────
@@ -84,4 +85,9 @@ private:
     void HtpAdvanceFrame();
     void UpdateHowtoplay();
     
+    //intro
+    bool splashActive = true;
+    float splashTimer = 0.0f;
+    static constexpr float SPLASH_DURATION = 5.0f;
+    Texture2D texSplash = { 0 };
 };

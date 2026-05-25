@@ -215,4 +215,6 @@ private:
     static constexpr float PARACHUTE_RELEASE_TIME = 2.0f;
     static constexpr float PARACHUTE_FALL_GRAVITY = 2.0f;  // ← ajusta, más bajo que GRAVITY=2.5
     bool isJetpackThrusting = false;
+    bool wasGroundedLastFrame = false;
+    bool jetpackWasUsed = false;
 };

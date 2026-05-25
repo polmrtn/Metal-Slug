@@ -81,7 +81,7 @@ void Game::Update()
     // ── INTRO ──────────────────────────────
     if (sceneManager.GetGamestate() == SceneManager::INTRO)
     {
-        if (!musicStarted) {
+        if (!musicStarted && !sceneManager.IsSplashActive()) {
             SetMusicVolume(audioManager.GetIntroMusic(), 4.0f); // przywróc volume po ewentualnym StopIntroMusic
             audioManager.PlayMusic(audioManager.GetIntroMusic());
             musicStarted = true;
@@ -89,6 +89,11 @@ void Game::Update()
         audioManager.UpdateMusic(audioManager.GetIntroMusic());
         BeginDrawing();
         ClearBackground(BLACK);
+
+        if (sceneManager.IsSplashActive()) {
+            sceneManager.DrawTexts();
+            return;
+        }
 
         if (IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_SPACE)) {
             audioManager.StopIntroMusic();
@@ -105,6 +110,7 @@ void Game::Update()
     // ── TITLE ──────────────────────────────
     if (sceneManager.GetGamestate() == SceneManager::TITLE)
     {
+
         if (introSkipped) {
             audioManager.StopIntroMusic();
         }
