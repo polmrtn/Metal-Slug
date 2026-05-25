@@ -580,18 +580,22 @@ void SystemCollision::ItemPlayerCollision()
             case ItemType::PLUSHY:
                 uiManager.AddScore(200);
                 creationManager.GetFloatingTexts().emplace_back(popupPos, "200");
+                audioManager.PlaySound(audioManager.GetScoreAdditionSound());
                 break;
             case ItemType::FISH:
                 uiManager.AddScore(500);
                 creationManager.GetFloatingTexts().emplace_back(popupPos, "500");
+                audioManager.PlaySound(audioManager.GetScoreAdditionSound());
                 break;
             case ItemType::MEDAL:
                 uiManager.AddScore(1000);
                 creationManager.GetFloatingTexts().emplace_back(popupPos, "1000");
+                audioManager.PlaySound(audioManager.GetScoreAdditionSound());
                 break;
             case ItemType::PIG:
                 uiManager.AddScore(300);
                 creationManager.GetFloatingTexts().emplace_back(popupPos, "300");
+                audioManager.PlaySound(audioManager.GetScoreAdditionSound());
                 break;
             case ItemType::BOMBS:
                 uiManager.SetBombs(10);

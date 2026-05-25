@@ -34,6 +34,8 @@ void AudioManager::Init() {
     grenadePickupSound   = LoadSound("OST/Non_music/grenade_pickup_sound.mp3");
     playerDeathSound     = LoadSound("OST/Non_music/player_death.mp3");
     goSignSound          = LoadSound("OST/Non_music/go_sign.mp3");
+    scoreAdditionSound   = LoadSound("OST/Non_music/score_addition.mp3");
+    SetSoundVolume(scoreAdditionSound, 3.0f);
     jetpackStartSound    = LoadSound("OST/Non_music/jetpack_jet_start.wav");
     jetpackMidSound      = LoadSound("OST/Non_music/jetpack_jet_mid.wav");
     jetpackStopSound     = LoadSound("OST/Non_music/jetpack_jet_stop.wav");
@@ -77,6 +79,7 @@ Sound& AudioManager::GetBossOpenSound()        { return bossOpenSound; }
 Sound& AudioManager::GetBossBigBulletSound()   { return bossBigBulletSound; }
 Sound& AudioManager::GetPlayerDeathSound()     { return playerDeathSound; }
 Sound& AudioManager::GetGoSignSound()          { return goSignSound; }
+Sound& AudioManager::GetScoreAdditionSound()   { return scoreAdditionSound; }
 Sound& AudioManager::GetJetpackStartSound()    { return jetpackStartSound; }
 Sound& AudioManager::GetJetpackMidSound()      { return jetpackMidSound; }
 Sound& AudioManager::GetJetpackStopSound()     { return jetpackStopSound; }
@@ -123,6 +126,7 @@ AudioManager::~AudioManager()
     UnloadSound(grenadePickupSound);
     UnloadSound(playerDeathSound);
     UnloadSound(goSignSound);
+    UnloadSound(scoreAdditionSound);
     UnloadSound(jetpackStartSound);
     UnloadSound(jetpackMidSound);
     UnloadSound(jetpackStopSound);
