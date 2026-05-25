@@ -811,7 +811,7 @@ void PlayerAnim::DrawJetFire(Vector2 playerPos, float scale, bool facingLeft, bo
     float x = facingLeft
         ? playerPos.x + (hasMachinegun ? 22.0f : 15.0f) * scale  
         : playerPos.x + (hasMachinegun ? -5.0f : 3.0f) * scale;   
-    float y = playerPos.y + (hasMachinegun ? 25.0f : 20.0f) * scale; 
+    float y = playerPos.y + (hasMachinegun ? 20.0f : 20.0f) * scale; 
 
     Rectangle dst = { x, y, JET_FIRE_W * scale, JET_FIRE_H * scale };
     DrawTexturePro(jetFireSheet, src, dst, { 0,0 }, 0, WHITE);

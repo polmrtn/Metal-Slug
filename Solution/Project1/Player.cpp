@@ -235,6 +235,29 @@ void Player::Update(float CameraLeftLimit, float CameraTop) {
     }
     wasGroundedLastFrame = grounded;
     anim.UpdateJetLanding(GetFrameTime());
+    // Dzwiek jetpacka: start -> co 0.25s mid -> stop
+    if (thrusting && !wasThrusting) {
+        // Wlasnie zaczal thrust: graj start, zresetuj timer, faza = start
+        audioManager.PlaySound(audioManager.GetJetpackStartSound());
+        jetpackSoundTimer = 0.0f;
+        jetpackMidPhase = false;
+    } else if (thrusting && wasThrusting) {
+        // Kontynuacja thrustu
+        jetpackSoundTimer += GetFrameTime();
+        if (jetpackSoundTimer >= JETPACK_SOUND_INTERVAL) {
+            jetpackSoundTimer = 0.0f;
+            jetpackMidPhase = true;
+            audioManager.StopSound(audioManager.GetJetpackMidSound());
+            audioManager.PlaySound(audioManager.GetJetpackMidSound());
+        }
+    } else if (!thrusting && wasThrusting) {
+        // Wlasnie zatrzymal thrust: zatrzymaj mid, graj stop
+        audioManager.StopSound(audioManager.GetJetpackMidSound());
+        audioManager.PlaySound(audioManager.GetJetpackStopSound());
+        jetpackMidPhase = false;
+        jetpackSoundTimer = 0.0f;
+    }
+    wasThrusting = thrusting;
 }
 
 // ========== MOVIMIENTO ==========
