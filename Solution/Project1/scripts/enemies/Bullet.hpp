@@ -38,9 +38,8 @@ public:
 		isExploding = true;
 		this->speed = 0;      // Detenemos movimiento horizontal
 		this->directionY = 0;
-		
-		
 	}
+
 	void SetExploding(bool val) { isExploding = val; }
 	bool IsExploding() const { return isExploding; }
 	float GetX() const { return position.x; }  // Getter para la posici�n X
@@ -63,8 +62,8 @@ private:
 	float gravity = 9.8f;
 	bool isExploding = false;
 	int type;
-	float speed;        // <--- DEBE SER FLOAT
-	float directionX;   // <--- DEBE SER FLOAT
+	float speed;       
+	float directionX;   
 	float directionY;
 	float scale = 3.0f;
 };

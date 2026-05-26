@@ -169,8 +169,8 @@ private:
 
     // ── Hit flash ─────────────────────────────────────────────
     float hitFlashTimer = 0.0f;
-    static constexpr float HIT_FLASH_DURATION = 0.05f;
-    static constexpr int   HIT_FLASH_COUNT = 2;
+    static constexpr float HIT_FLASH_DURATION = 0.01f;
+    static constexpr int   HIT_FLASH_COUNT = 4;
     int   hitFlashCount = 0;
     bool  isFlashing = false;
 
