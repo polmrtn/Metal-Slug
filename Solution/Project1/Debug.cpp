@@ -117,6 +117,10 @@ void Debug::EditorModeInput(Camera2D cam)
         creationManager.GetItems().emplace_back(worldPos, ItemType::JETPACK);
         spawnCooldown = 0.3f;
     }
+    if (IsKeyPressed(KEY_T) && spawnCooldown <= 0.0f) {
+        creationManager.GetItems().emplace_back(worldPos, ItemType::PIG);
+        spawnCooldown = 0.3f;
+    }
     // P = normal, O = pole normal
     // Shift+P = ground flipped, Shift+O = pole flipped
     if (IsKeyPressed(KEY_P) && spawnCooldown <= 0.0f) {
