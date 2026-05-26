@@ -31,7 +31,7 @@ static const ItemConfig ITEM_CONFIGS[] = {
     { "Graphics/fish.png",              34.f, 34.f, 3.0f, 6, 8, true,  false, 0.f,  0.f, false, 0.f }, // FISH
     { "Graphics/medal.png",             22.f, 22.f, 3.0f, 7, 8, true,  false, 0.f,  0.f, false, 0.f }, // MEDAL
     { "Graphics/items.png",             32.f, 32.f, 3.0f, 1, 0, true,  false, 32.f, 0.f, false, 0.f }, // JETPACK
-    { "Graphics/pig.png",               32.f, 32.f, 3.0f, 4, 8, true,  false, 0.f,  0.f, false, 0.f }, // PIG
+    { "Graphics/pig37x21.png",          37.f, 21.f, 3.0f, 18, 8, true,  false, 0.f,  0.f, false, 0.f }, // PIG
     { "Graphics/items.png",             32.f, 32.f, 3.0f, 7, 0, true,  false, 0.f,  0.f, false, 0.f }, // BOMBS
 };
 

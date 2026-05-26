@@ -9,7 +9,7 @@ Item::Item(Vector2 position, ItemType type) {
 
 if (type == ItemType::BOX || type == ItemType::JETPACK||
     type == ItemType::PLUSHY ||
-    type == ItemType::MEDAL || type == ItemType::BOMBS) {
+    type == ItemType::MEDAL || type == ItemType::BOMBS || type == ItemType::PIG) {
     hasGravity = true;
 }
 

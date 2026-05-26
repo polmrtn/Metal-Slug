@@ -12,11 +12,11 @@ void Debug::SetEditorMode(Camera2D cam)
     if (!editorMode) return;
 
     // Sombra para efecto negrita
-    DrawText("EDITOR | F1:Salir | C:Ceiling | R:Ramp | Del:Borrar | S:Soldier1 | D:Soldier2 | P:Prisoner Ground | O:Prisoner Pole | | B:Box | J:Jetpack | Q:Plushy | W:Fish | E:Medalla | V:Bombs | F5:Guardar",
+    DrawText("EDITOR | F1:Salir | C:Ceiling | R:Ramp | Del:Borrar | S:Soldier1 | D:Soldier2 | P:Prisoner Ground | O:Prisoner Pole | | B:Box | J:Jetpack | Q:Plushy | W:Fish | E:Medalla | V:Bombs | T:PIG | F5:Guardar",
         9, 9, 13, BLACK);
-    DrawText("EDITOR | F1:Salir | C:Ceiling | R:Ramp | Del:Borrar | S:Soldier1 | D:Soldier2 | P:Prisoner Ground | O:Prisoner Pole | | B:Box | J:Jetpack | Q:Plushy | W:Fish | E:Medalla | V:Bombs | F5:Guardar",
+    DrawText("EDITOR | F1:Salir | C:Ceiling | R:Ramp | Del:Borrar | S:Soldier1 | D:Soldier2 | P:Prisoner Ground | O:Prisoner Pole | | B:Box | J:Jetpack | Q:Plushy | W:Fish | E:Medalla | V:Bombs | T:PIG | F5:Guardar",
         8, 8, 13, RED);
-    DrawText("ITEMS  B:Box | M:Machinegun | P:Plushy | K:Fish",
+    DrawText("ITEMS  B:Box | M:Machinegun | P:Plushy | K:Fish | T:PIG",
         8, 20, 11, GREEN);
 
     Vector2 worldPos = GetScreenToWorld2D(GetMousePosition(), cam);
@@ -137,6 +137,11 @@ void Debug::EditorModeInput(Camera2D cam)
     }
     if (IsKeyPressed(KEY_W) && spawnCooldown <= 0.0f) {
         creationManager.GetItems().emplace_back(worldPos, ItemType::FISH);
+        spawnCooldown = 0.3f;
+        TraceLog(LOG_INFO, "Fish en (%.0f, %.0f)", worldPos.x, worldPos.y);
+    }
+    if (IsKeyPressed(KEY_T) && spawnCooldown <= 0.0f) {
+        creationManager.GetItems().emplace_back(worldPos, ItemType::PIG);
         spawnCooldown = 0.3f;
         TraceLog(LOG_INFO, "Fish en (%.0f, %.0f)", worldPos.x, worldPos.y);
     }
