@@ -458,6 +458,7 @@ void SystemCollision::BulletBlockCollision()
             {
                 bIt->SetExploding(true);
                 bIt->GetAnim().SetAnimation(BulletState::EXPLOSIONSOLDIER);
+                audioManager.PlaySound(audioManager.GetGrenadeSound());
             }
         }
 
