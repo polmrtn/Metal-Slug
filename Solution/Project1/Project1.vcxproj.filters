@@ -15,89 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Player.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="game.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Soldier.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="AudioManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SceneManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Bullet.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="BackgroundManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="CameraManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="LevelMap.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="playerAnim.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="UiManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SoldierAnim.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="AudioManager.hpp">
-      <Filter>Header Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Grenade.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="item.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="BulletAnim.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="CreationManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Debug.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="InputManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SystemCollision.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="TimerManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="GlobalManagers.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Boss.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="BloodEffect.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Prisoner.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="FloatingText.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="libraries\raylib\include\raylib.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -107,82 +24,166 @@
     <ClInclude Include="libraries\raylib\include\rlgl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Player.hpp">
+    <ClInclude Include="scripts\enemies\AiEnemy.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="game.hpp">
+    <ClInclude Include="scripts\ui\AudioManager.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Soldier.hpp">
+    <ClInclude Include="scripts\ui\BackgroundManager.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SceneManager.hpp">
+    <ClInclude Include="scripts\entities\BloodEffect.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Bullet.hpp">
+    <ClInclude Include="scripts\enemies\Boss.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="BackgroundManager.hpp">
+    <ClInclude Include="scripts\enemies\Bullet.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CameraManager.hpp">
+    <ClInclude Include="scripts\enemies\BulletAnim.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="playerAnim.hpp">
+    <ClInclude Include="scripts\systems\CameraManager.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="UiManager.hpp">
+    <ClInclude Include="scripts\systems\CreationManager.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SoldierAnim.hpp">
+    <ClInclude Include="scripts\systems\Debug.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SoldierState.hpp">
+    <ClInclude Include="scripts\entities\FloatingText.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Grenade.hpp">
+    <ClInclude Include="scripts\core\game.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="item.hpp">
+    <ClInclude Include="scripts\core\GlobalManagers.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="BulletAnim.hpp">
+    <ClInclude Include="scripts\entities\Grenade.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CreationManager.hpp">
+    <ClInclude Include="scripts\player\InputManager.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Debug.hpp">
+    <ClInclude Include="scripts\entities\item.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="InputManager.hpp">
+    <ClInclude Include="scripts\systems\LevelMap.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SystemCollision.hpp">
+    <ClInclude Include="scripts\player\Player.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TimerManager.hpp">
+    <ClInclude Include="scripts\entities\Prisoner.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GlobalManagers.hpp">
+    <ClInclude Include="scripts\player\playerAnim.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Boss.hpp">
+    <ClInclude Include="scripts\core\SceneManager.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="BloodEffect.hpp">
+    <ClInclude Include="scripts\enemies\Soldier.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Prisoner.hpp">
+    <ClInclude Include="scripts\enemies\SoldierAnim.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="FloatingText.hpp">
+    <ClInclude Include="scripts\enemies\SoldierState.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts\systems\SystemCollision.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts\core\TimerManager.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts\ui\UiManager.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="LevelMap.hpp">
-      <Filter>Header Files</Filter>
-    </None>
+    <ClCompile Include="scripts\core\game.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="scripts\core\GlobalManagers.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="scripts\core\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="scripts\core\SceneManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="scripts\core\TimerManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="scripts\enemies\Boss.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="scripts\enemies\Bullet.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="scripts\enemies\BulletAnim.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="scripts\enemies\Soldier.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="scripts\enemies\SoldierAnim.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="scripts\entities\BloodEffect.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="scripts\entities\FloatingText.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="scripts\entities\Grenade.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="scripts\entities\item.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="scripts\entities\Prisoner.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="scripts\player\InputManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="scripts\player\Player.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="scripts\player\playerAnim.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="scripts\systems\CameraManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="scripts\systems\CreationManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="scripts\systems\Debug.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="scripts\systems\LevelMap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="scripts\systems\SystemCollision.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="scripts\ui\AudioManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="scripts\ui\BackgroundManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="scripts\ui\UiManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

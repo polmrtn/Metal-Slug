@@ -114,6 +114,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>scripts\ui;scripts\systems;scripts\entities;scripts\player;scripts\enemies;scripts\core;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -131,6 +132,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>scripts\ui;scripts\systems;scripts\entities;scripts\player;scripts\enemies;scripts\core;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -143,68 +145,64 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="AudioManager.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-      </ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="AudioManager.hpp" />
-    <ClCompile Include="BackgroundManager.cpp" />
-    <ClCompile Include="BloodEffect.cpp" />
-    <ClCompile Include="Boss.cpp" />
-    <ClCompile Include="Bullet.cpp" />
-    <ClCompile Include="BulletAnim.cpp" />
-    <ClCompile Include="CameraManager.cpp" />
-    <ClCompile Include="CreationManager.cpp" />
-    <ClCompile Include="Debug.cpp" />
-    <ClCompile Include="FloatingText.cpp" />
-    <ClCompile Include="game.cpp" />
-    <ClCompile Include="GlobalManagers.cpp" />
-    <ClCompile Include="Grenade.cpp" />
-    <ClCompile Include="InputManager.cpp" />
-    <ClCompile Include="item.cpp" />
-    <ClCompile Include="LevelMap.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="Player.cpp" />
-    <ClCompile Include="playerAnim.cpp" />
-    <ClCompile Include="Prisoner.cpp" />
-    <ClCompile Include="SceneManager.cpp" />
-    <ClCompile Include="Soldier.cpp" />
-    <ClCompile Include="SoldierAnim.cpp" />
-    <ClCompile Include="SystemCollision.cpp" />
-    <ClCompile Include="TimerManager.cpp" />
-    <ClCompile Include="UiManager.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="BackgroundManager.hpp" />
-    <ClInclude Include="BloodEffect.hpp" />
-    <ClInclude Include="Boss.hpp" />
-    <ClInclude Include="Bullet.hpp" />
-    <ClInclude Include="BulletAnim.hpp" />
-    <ClInclude Include="CameraManager.hpp" />
-    <ClInclude Include="CreationManager.hpp" />
-    <ClInclude Include="Debug.hpp" />
-    <ClInclude Include="FloatingText.hpp" />
-    <ClInclude Include="GlobalManagers.hpp" />
-    <ClInclude Include="Grenade.hpp" />
-    <ClInclude Include="InputManager.hpp" />
-    <ClInclude Include="item.hpp" />
-    <ClInclude Include="playerAnim.hpp" />
-    <ClInclude Include="Prisoner.hpp" />
-    <ClInclude Include="SceneManager.hpp" />
-    <ClInclude Include="Soldier.hpp" />
-    <ClInclude Include="game.hpp" />
     <ClInclude Include="libraries\raylib\include\raylib.h" />
     <ClInclude Include="libraries\raylib\include\raymath.h" />
     <ClInclude Include="libraries\raylib\include\rlgl.h" />
-    <ClInclude Include="Player.hpp" />
-    <ClInclude Include="SoldierAnim.hpp" />
-    <ClInclude Include="SoldierState.hpp" />
-    <ClInclude Include="SystemCollision.hpp" />
-    <ClInclude Include="TimerManager.hpp" />
-    <ClInclude Include="UiManager.hpp" />
+    <ClInclude Include="scripts\core\game.hpp" />
+    <ClInclude Include="scripts\core\GlobalManagers.hpp" />
+    <ClInclude Include="scripts\core\SceneManager.hpp" />
+    <ClInclude Include="scripts\core\TimerManager.hpp" />
+    <ClInclude Include="scripts\enemies\AiEnemy.hpp" />
+    <ClInclude Include="scripts\enemies\Boss.hpp" />
+    <ClInclude Include="scripts\enemies\Bullet.hpp" />
+    <ClInclude Include="scripts\enemies\BulletAnim.hpp" />
+    <ClInclude Include="scripts\enemies\Soldier.hpp" />
+    <ClInclude Include="scripts\enemies\SoldierAnim.hpp" />
+    <ClInclude Include="scripts\enemies\SoldierState.hpp" />
+    <ClInclude Include="scripts\entities\BloodEffect.hpp" />
+    <ClInclude Include="scripts\entities\FloatingText.hpp" />
+    <ClInclude Include="scripts\entities\Grenade.hpp" />
+    <ClInclude Include="scripts\entities\item.hpp" />
+    <ClInclude Include="scripts\entities\Prisoner.hpp" />
+    <ClInclude Include="scripts\player\InputManager.hpp" />
+    <ClInclude Include="scripts\player\Player.hpp" />
+    <ClInclude Include="scripts\player\playerAnim.hpp" />
+    <ClInclude Include="scripts\systems\CameraManager.hpp" />
+    <ClInclude Include="scripts\systems\CreationManager.hpp" />
+    <ClInclude Include="scripts\systems\Debug.hpp" />
+    <ClInclude Include="scripts\systems\LevelMap.hpp" />
+    <ClInclude Include="scripts\systems\SystemCollision.hpp" />
+    <ClInclude Include="scripts\ui\AudioManager.hpp" />
+    <ClInclude Include="scripts\ui\BackgroundManager.hpp" />
+    <ClInclude Include="scripts\ui\UiManager.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="LevelMap.hpp" />
+    <ClCompile Include="scripts\core\game.cpp" />
+    <ClCompile Include="scripts\core\GlobalManagers.cpp" />
+    <ClCompile Include="scripts\core\main.cpp" />
+    <ClCompile Include="scripts\core\SceneManager.cpp" />
+    <ClCompile Include="scripts\core\TimerManager.cpp" />
+    <ClCompile Include="scripts\enemies\Boss.cpp" />
+    <ClCompile Include="scripts\enemies\Bullet.cpp" />
+    <ClCompile Include="scripts\enemies\BulletAnim.cpp" />
+    <ClCompile Include="scripts\enemies\Soldier.cpp" />
+    <ClCompile Include="scripts\enemies\SoldierAnim.cpp" />
+    <ClCompile Include="scripts\entities\BloodEffect.cpp" />
+    <ClCompile Include="scripts\entities\FloatingText.cpp" />
+    <ClCompile Include="scripts\entities\Grenade.cpp" />
+    <ClCompile Include="scripts\entities\item.cpp" />
+    <ClCompile Include="scripts\entities\Prisoner.cpp" />
+    <ClCompile Include="scripts\player\InputManager.cpp" />
+    <ClCompile Include="scripts\player\Player.cpp" />
+    <ClCompile Include="scripts\player\playerAnim.cpp" />
+    <ClCompile Include="scripts\systems\CameraManager.cpp" />
+    <ClCompile Include="scripts\systems\CreationManager.cpp" />
+    <ClCompile Include="scripts\systems\Debug.cpp" />
+    <ClCompile Include="scripts\systems\LevelMap.cpp" />
+    <ClCompile Include="scripts\systems\SystemCollision.cpp" />
+    <ClCompile Include="scripts\ui\AudioManager.cpp" />
+    <ClCompile Include="scripts\ui\BackgroundManager.cpp" />
+    <ClCompile Include="scripts\ui\UiManager.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
