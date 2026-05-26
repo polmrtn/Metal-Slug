@@ -439,7 +439,20 @@ void SystemCollision::BulletBlockCollision()
         {
             for (const auto& col : colliders)
             {
-                if (col.type != TileType::SOLID && col.type != TileType::CEILING) continue;
+                if (col.type != TileType::SOLID && col.type != TileType::CEILING
+                    && col.type != TileType::RAMP_UP) continue;  
+
+                if (col.type == TileType::RAMP_UP && bIt->GetType() == 2) {
+                    float centerX = bIt->GetPosition().x + bIt->GetWidth() / 2.0f;
+                    if (centerX < col.rect.x || centerX > col.rect.x + col.rect.width) continue;
+                    float surfaceY = col.GetRampSurfaceY(centerX);
+                    if (bIt->GetPosition().y + bIt->GetHeight() >= surfaceY && bIt->GetDirectionY() > 0) {
+                        hit = true;
+                        break;
+                    }
+                    continue;
+                }
+
                 if (!CheckCollisionRecs(bIt->GetHitbox(), col.rect)) continue;
                 if (bIt->GetType() == 2 && bIt->GetDirectionY() <= 0) continue;
                 hit = true;
