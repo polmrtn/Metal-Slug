@@ -31,6 +31,13 @@ void AudioManager::Init() {
     jetpackPickupSound   = LoadSound("OST/Non_music/ok-metal-slug-sound.mp3");
     grenadePickupSound   = LoadSound("OST/Non_music/grenade_pickup_sound.mp3");
     playerDeathSound     = LoadSound("OST/Non_music/player_death.mp3");
+    goSignSound          = LoadSound("OST/Non_music/go_sign.mp3");
+    jetpackStartSound    = LoadSound("OST/Non_music/jetpack_jet_start.wav");
+    jetpackMidSound      = LoadSound("OST/Non_music/jetpack_jet_mid.wav");
+    jetpackStopSound     = LoadSound("OST/Non_music/jetpack_jet_stop.wav");
+    SetSoundVolume(jetpackStartSound, 2.0f);
+    SetSoundVolume(jetpackMidSound,   2.0f);
+    SetSoundVolume(jetpackStopSound,  2.0f);
     gameOverSound        = LoadSound("OST/Non_music/game_over.mp3");
     bossBulletSound      = LoadSound("OST/Non_music/boss_bullet.mp3");
     bossOpenSound        = LoadSound("OST/Non_music/boss_sliding_open.mp3");
@@ -67,6 +74,10 @@ Sound& AudioManager::GetBossBulletSound()      { return bossBulletSound; }
 Sound& AudioManager::GetBossOpenSound()        { return bossOpenSound; }
 Sound& AudioManager::GetBossBigBulletSound()   { return bossBigBulletSound; }
 Sound& AudioManager::GetPlayerDeathSound()     { return playerDeathSound; }
+Sound& AudioManager::GetGoSignSound()          { return goSignSound; }
+Sound& AudioManager::GetJetpackStartSound()    { return jetpackStartSound; }
+Sound& AudioManager::GetJetpackMidSound()      { return jetpackMidSound; }
+Sound& AudioManager::GetJetpackStopSound()     { return jetpackStopSound; }
 
 void AudioManager::PlayRandomBossDeathSound()
 {
@@ -107,6 +118,10 @@ AudioManager::~AudioManager()
     UnloadSound(jetpackPickupSound);
     UnloadSound(grenadePickupSound);
     UnloadSound(playerDeathSound);
+    UnloadSound(goSignSound);
+    UnloadSound(jetpackStartSound);
+    UnloadSound(jetpackMidSound);
+    UnloadSound(jetpackStopSound);
     UnloadSound(gameOverSound);
     UnloadSound(bossBulletSound);
     UnloadSound(bossOpenSound);

@@ -57,6 +57,10 @@ void Player::SetCrouchHitbox() {
 // ========== ACTUALIZACIÓN PRINCIPAL ==========
 void Player::Update(float CameraLeftLimit, float CameraTop) {
     isJetpackThrusting = false; 
+    if (hasJetpack) {
+        anim.StartJetSmoke();  // solo carga la textura si no está cargada
+        anim.UpdateJetSmoke(GetFrameTime());
+    }
     if (isFalling) {
         blinkTimer += GetFrameTime();
         if (blinkTimer >= blinkDelay) {
@@ -235,6 +239,29 @@ void Player::Update(float CameraLeftLimit, float CameraTop) {
     }
     wasGroundedLastFrame = grounded;
     anim.UpdateJetLanding(GetFrameTime());
+    // Dzwiek jetpacka: start -> co 0.25s mid -> stop
+    if (thrusting && !wasThrusting) {
+        // Wlasnie zaczal thrust: graj start, zresetuj timer, faza = start
+        audioManager.PlaySound(audioManager.GetJetpackStartSound());
+        jetpackSoundTimer = 0.0f;
+        jetpackMidPhase = false;
+    } else if (thrusting && wasThrusting) {
+        // Kontynuacja thrustu
+        jetpackSoundTimer += GetFrameTime();
+        if (jetpackSoundTimer >= JETPACK_SOUND_INTERVAL) {
+            jetpackSoundTimer = 0.0f;
+            jetpackMidPhase = true;
+            audioManager.StopSound(audioManager.GetJetpackMidSound());
+            audioManager.PlaySound(audioManager.GetJetpackMidSound());
+        }
+    } else if (!thrusting && wasThrusting) {
+        // Wlasnie zatrzymal thrust: zatrzymaj mid, graj stop
+        audioManager.StopSound(audioManager.GetJetpackMidSound());
+        audioManager.PlaySound(audioManager.GetJetpackStopSound());
+        jetpackMidPhase = false;
+        jetpackSoundTimer = 0.0f;
+    }
+    wasThrusting = thrusting;
 }
 
 // ========== MOVIMIENTO ==========
@@ -658,6 +685,9 @@ void Player::Draw() {
     }
     anim.DrawParachute(pos, SCALE, dir == PlayerDirection::LEFT);
     anim.DrawJetFire(pos, SCALE, dir == PlayerDirection::LEFT, currentWeapon == WeaponType::MACHINEGUN);
+    if (hasJetpack && !anim.IsJetFireActive() && grounded)
+        anim.DrawJetSmoke(pos, SCALE, dir == PlayerDirection::LEFT);
+    anim.DrawJetFire(pos, SCALE, dir == PlayerDirection::LEFT, currentWeapon == WeaponType::MACHINEGUN);
     DrawSeparated();
     anim.DrawJetLanding(pos, SCALE);
     anim.DrawParachuteLanding(pos, SCALE, dir == PlayerDirection::LEFT);
@@ -665,10 +695,10 @@ void Player::Draw() {
 }
 
 void Player::DrawHitBox() {
-    DrawRectangleLinesEx(GetHitBox(), 2, WHITE);
-    DrawRectangleLinesEx(GetLeftHitBox(), 2, RED);
-    DrawRectangleLinesEx(GetRightHitBox(), 2, BLUE);
-    DrawRectangleLinesEx(GetMeleeHitBox(), 2, YELLOW);
+    //DrawRectangleLinesEx(GetHitBox(), 2, WHITE);
+    //DrawRectangleLinesEx(GetLeftHitBox(), 2, RED);
+    //DrawRectangleLinesEx(GetRightHitBox(), 2, BLUE);
+    //DrawRectangleLinesEx(GetMeleeHitBox(), 2, YELLOW);
 }
 
 // ========== DIBUJO AGACHADO ==========

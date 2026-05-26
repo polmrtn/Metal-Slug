@@ -217,4 +217,8 @@ private:
     bool isJetpackThrusting = false;
     bool wasGroundedLastFrame = false;
     bool jetpackWasUsed = false;
+    bool  wasThrusting        = false;
+    bool  jetpackMidPhase     = false; // false = faza start, true = faza mid
+    float jetpackSoundTimer   = 0.0f;
+    static constexpr float JETPACK_SOUND_INTERVAL = 0.25f;
 };

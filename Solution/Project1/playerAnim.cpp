@@ -846,3 +846,29 @@ void PlayerAnim::DrawJetLanding(Vector2 playerPos, float scale) const {
     Rectangle dst = { x, y, JET_LAND_W * scale, JET_LAND_H * scale };
     DrawTexturePro(jetLandSheet, src, dst, { 0,0 }, 0, WHITE);
 }
+
+void PlayerAnim::StartJetSmoke() {
+    if (!jetSmokeLoaded) {
+        jetSmokeSheet = LoadTexture("Graphics/jetpack/smokefromjetpack48x90.png");
+        SetTextureFilter(jetSmokeSheet, TEXTURE_FILTER_POINT);
+        jetSmokeLoaded = true;
+    }
+}
+
+void PlayerAnim::UpdateJetSmoke(float dt) {
+    jetSmokeTimer += dt;
+    if (jetSmokeTimer < JET_SMOKE_DELAY) return;
+    jetSmokeTimer = 0.0f;
+    jetSmokeFrame = (jetSmokeFrame + 1) % 10;
+}
+
+void PlayerAnim::DrawJetSmoke(Vector2 playerPos, float scale, bool facingLeft) const {
+    if (!jetSmokeLoaded) return;
+    Rectangle src = { jetSmokeFrame * JET_SMOKE_W, 0, JET_SMOKE_W, JET_SMOKE_H };
+    float x = facingLeft
+        ? playerPos.x - 0.0f * scale
+        : playerPos.x - 14.0f * scale;
+    float y = playerPos.y - 54.0f * scale;
+    Rectangle dst = { x, y, JET_SMOKE_W * scale, JET_SMOKE_H * scale };
+    DrawTexturePro(jetSmokeSheet, src, dst, { 0,0 }, 0, WHITE);
+}

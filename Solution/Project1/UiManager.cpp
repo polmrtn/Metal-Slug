@@ -217,6 +217,7 @@ void UiManager::UpdateGoTimer(float dt)
         goAnimCycle = 0;
         goAnimTimer = 0.0f;
         goAnimPausing = false;
+        audioManager.PlaySound(audioManager.GetGoSignSound());
     }
 
     if (!goAnimActive) return;
@@ -231,6 +232,8 @@ void UiManager::UpdateGoTimer(float dt)
             if (goAnimCycle >= 2) {
                 goAnimActive = false;
                 goAnimCycle = 0;
+            } else {
+                audioManager.PlaySound(audioManager.GetGoSignSound());
             }
         }
         return;
@@ -1038,8 +1041,8 @@ void UiManager::UpdateMissionIntro(float dt) {
             l.currentY += dy * speed;
         }
         if (slowExit) {
-            // Fade zaczyna sie po 3s, trwa 4s (lacznie 7s zanim ekran czarny)
-            float fadeStart = 3.0f;
+            // Fade zaczyna sie od razu gdy litery sie rozjezdzaja, trwa 4s
+            float fadeStart = 0.0f;
             float fadeDuration = 4.0f;
             if (exitTimer > fadeStart)
                 exitFadeAlpha = (exitTimer - fadeStart) / fadeDuration;

@@ -76,7 +76,7 @@ void Prisoner::DrawFrame(float srcX, float srcY, float srcW, float srcH) const {
 
 void Prisoner::SpawnRewardItem() {
     Vector2 itemPos = {
-        facingRight ? position.x - 30.0f : position.x + 30.0f,
+        facingRight ? position.x + 130.0f : position.x + 30.0f,
         position.y + 50.0f
     };
 
