@@ -392,6 +392,7 @@ void SystemCollision::BulletCollision()
                     CheckCollisionRecs(bIt->GetHitbox(), item.GetHitBox()))
                 {
                     item.Destroy();
+                    audioManager.PlaySound(audioManager.GetCrateDestructionSound());
                     hit = true;
                     break;
                 }
@@ -502,6 +503,7 @@ void SystemCollision::GrenadesCollision()
             if (!item.IsActive() || item.GetType() != ItemType::BOX || item.IsDestroyed()) continue;
             if (CheckCollisionRecs(grenade.GetExplosionHitBox(), item.GetHitBox())) {
                 item.Destroy();
+                audioManager.PlaySound(audioManager.GetCrateDestructionSound());
             }
         }
         // Boss
