@@ -695,10 +695,10 @@ void Player::Draw() {
 }
 
 void Player::DrawHitBox() {
-    DrawRectangleLinesEx(GetHitBox(), 2, WHITE);
-    DrawRectangleLinesEx(GetLeftHitBox(), 2, RED);
-    DrawRectangleLinesEx(GetRightHitBox(), 2, BLUE);
-    DrawRectangleLinesEx(GetMeleeHitBox(), 2, YELLOW);
+    //DrawRectangleLinesEx(GetHitBox(), 2, WHITE);
+    //DrawRectangleLinesEx(GetLeftHitBox(), 2, RED);
+    //DrawRectangleLinesEx(GetRightHitBox(), 2, BLUE);
+    //DrawRectangleLinesEx(GetMeleeHitBox(), 2, YELLOW);
 }
 
 // ========== DIBUJO AGACHADO ==========
