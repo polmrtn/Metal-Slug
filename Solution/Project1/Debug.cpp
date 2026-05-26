@@ -184,13 +184,6 @@ void Debug::SaveToFile(const char* filename) const
         fprintf(f, "I %.0f %.0f %d\n", item.GetPosition().x, item.GetPosition().y, t);
     }
 
-    for (const auto& item : creationManager.GetItems()) {
-        int t = 0;
-        if (item.GetType() == ItemType::BOX)     t = 1;
-        if (item.GetType() == ItemType::JETPACK) t = 2;
-        fprintf(f, "I %.0f %.0f %d\n", item.GetPosition().x, item.GetPosition().y, t);
-    }
-
     for (const auto& p : creationManager.GetPrisoners()) {
         int t = (p.GetType() == PrisonerType::GROUND) ? 0 : 1;
         int flipped = p.IsFlippedDefault() ? 1 : 0;

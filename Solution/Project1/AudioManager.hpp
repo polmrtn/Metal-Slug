@@ -39,6 +39,7 @@ public:
     Sound& GetGoSignSound();
     Sound& GetScoreAdditionSound();
     Sound& GetSoldierFreeingSound();
+    Sound& GetCrateDestructionSound();
     Sound& GetJetpackStartSound();
     Sound& GetJetpackMidSound();
     Sound& GetJetpackStopSound();
@@ -71,6 +72,7 @@ private:
     Sound goSignSound;
     Sound scoreAdditionSound;
     Sound soldierFreeingSound;
+    Sound crateDestructionSound;
     Sound jetpackStartSound;
     Sound jetpackMidSound;
     Sound jetpackStopSound;

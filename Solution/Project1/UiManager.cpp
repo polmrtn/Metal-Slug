@@ -1356,4 +1356,12 @@ void UiManager::FullReset() {
     endingFadeOut = false;
     endingFadeAlpha = 0.0f;
     endingFinished = false;
+    goAnimActive = false;
+    goAnimFrame = 0;
+    goAnimCycle = 0;
+    goAnimTimer = 0.0f;
+    goAnimPausing = false;
+    goAnimPauseTimer = 0.0f;
+    goIdleTimer = 0.0f;
+    missionCompleteDone = false;
 }
