@@ -37,13 +37,13 @@ void AudioManager::Init() {
     scoreAdditionSound   = LoadSound("OST/Non_music/score_addition.mp3");
     soldierFreeingSound  = LoadSound("OST/Non_music/soldier_freeing.mp3");
     SetSoundVolume(soldierFreeingSound, 10.0f);
-    SetSoundVolume(scoreAdditionSound, 3.0f);
+    SetSoundVolume(scoreAdditionSound, 2.0f);
     jetpackStartSound    = LoadSound("OST/Non_music/jetpack_jet_start.wav");
     jetpackMidSound      = LoadSound("OST/Non_music/jetpack_jet_mid.wav");
     jetpackStopSound     = LoadSound("OST/Non_music/jetpack_jet_stop.wav");
-    SetSoundVolume(jetpackStartSound, 1.5f);
-    SetSoundVolume(jetpackMidSound,   1.5f);
-    SetSoundVolume(jetpackStopSound,  1.5f);
+    SetSoundVolume(jetpackStartSound, 5.0f);
+    SetSoundVolume(jetpackMidSound,   5.0f);
+    SetSoundVolume(jetpackStopSound,  5.0f);
     gameOverSound        = LoadSound("OST/Non_music/game_over.mp3");
     bossBulletSound      = LoadSound("OST/Non_music/boss_bullet.mp3");
     bossOpenSound        = LoadSound("OST/Non_music/boss_sliding_open.mp3");
