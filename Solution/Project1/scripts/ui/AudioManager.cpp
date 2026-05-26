@@ -26,6 +26,7 @@ void AudioManager::Init() {
     shootSound = LoadSound("OST/Non_music/pistol_shot.wav");
     grenadeSound = LoadSound("OST/Non_music/grenade.wav");
     machinegunEquipSound = LoadSound("OST/Non_music/machinegun_pickup_sound.ogg");
+    SetSoundVolume(machinegunEquipSound, 1.5f);
     machinegunShootSound = LoadSound("OST/Non_music/machinegun_shot.mp3");
     creditSound          = LoadSound("OST/Non_music/credit_sound.mp3");
     thankYouSound        = LoadSound("OST/Non_music/thank_you_sound.mp3");
@@ -57,7 +58,7 @@ void AudioManager::Init() {
         snprintf(path, sizeof(path), "OST/Non_music/boss_death_%03d.mp3", i + 1);
         bossDeathSounds[i] = LoadSound(path);
     }
-    SetSoundVolume(jetpackPickupSound, 1.5f);
+    SetSoundVolume(jetpackPickupSound, 1.2f);
     SetSoundVolume(missionCompleteSound, 6.0f);
     SetSoundVolume(thankYouSound, 3.0f);
     SetSoundVolume(creditSound, 0.6f);
