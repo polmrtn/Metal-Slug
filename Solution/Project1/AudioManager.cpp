@@ -25,7 +25,7 @@ void AudioManager::Init() {
     }
     shootSound = LoadSound("OST/Non_music/pistol_shot.wav");
     grenadeSound = LoadSound("OST/Non_music/grenade.wav");
-    machinegunEquipSound = LoadSound("OST/FX AUDIO/file011 heavy machinegun.ogg");
+    machinegunEquipSound = LoadSound("OST/Non_music/machinegun_pickup_sound.ogg");
     machinegunShootSound = LoadSound("OST/Non_music/machinegun_shot.mp3");
     creditSound          = LoadSound("OST/Non_music/credit_sound.mp3");
     thankYouSound        = LoadSound("OST/Non_music/thank_you_sound.mp3");
