@@ -204,6 +204,10 @@ public:
     void DrawJetLanding(Vector2 playerPos, float scale) const;
     bool IsJetLandingActive() const { return jetLandActive; }
 
+    void StartJetSmoke();
+    void UpdateJetSmoke(float dt);
+    void DrawJetSmoke(Vector2 playerPos, float scale, bool facingLeft) const;
+
 private:
     Texture2D spriteSheet;
 
@@ -421,5 +425,13 @@ private:
     static constexpr float JET_LAND_W = 140.0f;
     static constexpr float JET_LAND_H = 40.0f;
 
+    //jetpack equiped
+    Texture2D jetSmokeSheet = { 0 };
+    bool jetSmokeLoaded = false;
+    int  jetSmokeFrame = 0;
+    float jetSmokeTimer = 0.0f;
+    static constexpr float JET_SMOKE_DELAY = 0.08f;
+    static constexpr float JET_SMOKE_W = 48.0f;
+    static constexpr float JET_SMOKE_H = 90.0f;
 
 };

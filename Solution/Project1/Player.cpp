@@ -57,6 +57,10 @@ void Player::SetCrouchHitbox() {
 // ========== ACTUALIZACIÓN PRINCIPAL ==========
 void Player::Update(float CameraLeftLimit, float CameraTop) {
     isJetpackThrusting = false; 
+    if (hasJetpack) {
+        anim.StartJetSmoke();  // solo carga la textura si no está cargada
+        anim.UpdateJetSmoke(GetFrameTime());
+    }
     if (isFalling) {
         blinkTimer += GetFrameTime();
         if (blinkTimer >= blinkDelay) {
@@ -681,6 +685,9 @@ void Player::Draw() {
     }
     anim.DrawParachute(pos, SCALE, dir == PlayerDirection::LEFT);
     anim.DrawJetFire(pos, SCALE, dir == PlayerDirection::LEFT, currentWeapon == WeaponType::MACHINEGUN);
+    if (hasJetpack && !anim.IsJetFireActive() && grounded)
+        anim.DrawJetSmoke(pos, SCALE, dir == PlayerDirection::LEFT);
+    anim.DrawJetFire(pos, SCALE, dir == PlayerDirection::LEFT, currentWeapon == WeaponType::MACHINEGUN);
     DrawSeparated();
     anim.DrawJetLanding(pos, SCALE);
     anim.DrawParachuteLanding(pos, SCALE, dir == PlayerDirection::LEFT);
@@ -688,10 +695,10 @@ void Player::Draw() {
 }
 
 void Player::DrawHitBox() {
-    DrawRectangleLinesEx(GetHitBox(), 2, WHITE);
-    DrawRectangleLinesEx(GetLeftHitBox(), 2, RED);
-    DrawRectangleLinesEx(GetRightHitBox(), 2, BLUE);
-    DrawRectangleLinesEx(GetMeleeHitBox(), 2, YELLOW);
+    //DrawRectangleLinesEx(GetHitBox(), 2, WHITE);
+    //DrawRectangleLinesEx(GetLeftHitBox(), 2, RED);
+    //DrawRectangleLinesEx(GetRightHitBox(), 2, BLUE);
+    //DrawRectangleLinesEx(GetMeleeHitBox(), 2, YELLOW);
 }
 
 // ========== DIBUJO AGACHADO ==========
