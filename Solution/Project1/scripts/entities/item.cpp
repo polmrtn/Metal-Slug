@@ -81,7 +81,7 @@ void Item::Draw() {
         Rectangle src = { cfg.startX + frame * cfg.frameW, cfg.startY, cfg.frameW, cfg.frameH };
         Rectangle dst = { position.x, position.y, cfg.frameW * cfg.scale, cfg.frameH * cfg.scale };
         DrawTexturePro(tex, src, dst, { 0, 0 }, 0, WHITE);
-        DrawRectangleLinesEx(GetHitBox(), 2.0f, RED);
+        //DrawRectangleLinesEx(GetHitBox(), 2.0f, RED);
         return;
     }
 
@@ -100,7 +100,7 @@ void Item::Draw() {
         cfg.frameH * scale
     };
     DrawTexturePro(tex, src, dst, { 0, 0 }, 0, WHITE);
-    DrawRectangleLinesEx(GetHitBox(), 2.0f, YELLOW);
+    //DrawRectangleLinesEx(GetHitBox(), 2.0f, YELLOW);
 }
 
 Rectangle Item::GetHitBox() const {

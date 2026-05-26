@@ -114,11 +114,10 @@ void SceneManager::ResetIntro()
     if (introTex.id && introTex.width == imgCur.width && introTex.height == imgCur.height) {
         // update existing texture pixels
         UpdateTexture(introTex, imgCur.data);
-        TraceLog(LOG_INFO, "ResetIntro: UpdateTexture initial frame");
+
     } else {
         if (introTex.id) { UnloadTexture(introTex); memset(&introTex, 0, sizeof(introTex)); }
         introTex = LoadTextureFromImage(imgCur);
-        TraceLog(LOG_INFO, "ResetIntro: LoadTextureFromImage initial frame");
     }
     SetTextureFilter(introTex, TEXTURE_FILTER_BILINEAR);
 
@@ -162,13 +161,11 @@ void SceneManager::IntroAdvanceFrame()
     // Get next frame from slot 0 (started PRELOAD_AHEAD frames ago — plenty of time)
     if (preloadFutures[0].valid()) {
         imgCur = preloadFutures[0].get();
-        TraceLog(LOG_INFO, "IntroAdvanceFrame: got preloaded Image frame=%d", introFrameIdx);
     } else
     {
         char path[512];
         IntroFramePath(path, sizeof(path), introFrameIdx);
         imgCur = LoadImage(path);
-        TraceLog(LOG_WARNING, "IntroAdvanceFrame: synchronous LoadImage frame=%d (fallback)", introFrameIdx);
     }
 
     // Rotate buffer: [1]→[0], [2]→[1]
@@ -180,14 +177,12 @@ void SceneManager::IntroAdvanceFrame()
 
     // GPU upload: prefer UpdateTexture to avoid re-allocating VRAM every frame
     if (introTex.id && introTex.width == imgCur.width && introTex.height == imgCur.height) {
-        TraceLog(LOG_INFO, "IntroAdvanceFrame: UpdateTexture frame=%d", introFrameIdx);
         UpdateTexture(introTex, imgCur.data);
     } else {
         // fallback: recreate texture if size mismatch
         if (introTex.id) { UnloadTexture(introTex); memset(&introTex, 0, sizeof(introTex)); }
         introTex = LoadTextureFromImage(imgCur);
         SetTextureFilter(introTex, TEXTURE_FILTER_BILINEAR);
-        TraceLog(LOG_INFO, "IntroAdvanceFrame: LoadTextureFromImage frame=%d (size mismatch)", introFrameIdx);
     }
 
     // keep imgCur in RAM only as long as needed; previous frame(s) already freed above
@@ -365,14 +360,12 @@ void SceneManager::HtpAdvanceFrame()
 
     if (htpFutures[0].valid()) {
         htpImgCur = htpFutures[0].get();
-        TraceLog(LOG_INFO, "HtpAdvanceFrame: got preloaded Image frame=%d", htpFrameIdx+1);
     }
     else
     {
         char path[512];
         snprintf(path, sizeof(path), "Graphics/screens/howtoplay_png/frame_%06d.png", htpFrameIdx + 1);
         htpImgCur = LoadImage(path);
-        TraceLog(LOG_WARNING, "HtpAdvanceFrame: synchronous LoadImage frame=%d (fallback)", htpFrameIdx+1);
     }
 
     for (int i = 0; i < PRELOAD_AHEAD - 1; i++)
@@ -381,13 +374,11 @@ void SceneManager::HtpAdvanceFrame()
     HtpStartPreload(PRELOAD_AHEAD - 1, htpFrameIdx + PRELOAD_AHEAD);
 
     if (htpTex.id && htpTex.width == htpImgCur.width && htpTex.height == htpImgCur.height) {
-        TraceLog(LOG_INFO, "HtpAdvanceFrame: UpdateTexture frame=%d", htpFrameIdx+1);
         UpdateTexture(htpTex, htpImgCur.data);
     } else {
         if (htpTex.id) { UnloadTexture(htpTex); memset(&htpTex, 0, sizeof(htpTex)); }
         htpTex = LoadTextureFromImage(htpImgCur);
         SetTextureFilter(htpTex, TEXTURE_FILTER_BILINEAR);
-        TraceLog(LOG_INFO, "HtpAdvanceFrame: LoadTextureFromImage frame=%d (size mismatch)", htpFrameIdx+1);
     }
 }
 

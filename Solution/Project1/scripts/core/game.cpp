@@ -62,8 +62,8 @@ void Game::Draw()
     for (auto& ft : creationManager.GetFloatingTexts()) ft.Draw();
 
     // Tiles en coordenadas de mundo
-    creationManager.GetTileMap().DrawTiles();
-    creationManager.GetTileMap().DrawColliders();
+    //creationManager.GetTileMap().DrawTiles();
+    //creationManager.GetTileMap().DrawColliders();
     debug.DrawEditorGrid(camera.GetCamera());
     boss.Draw();
 
