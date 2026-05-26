@@ -284,7 +284,7 @@ void SystemCollision::SoldierBlockCollision()
         {
             const Rectangle& br = col.rect;
             if (br.x > hr.x + 400.0f || br.x + br.width < hr.x - 400.0f) continue;
-            if (col.type == TileType::CEILING || col.type == TileType::PLATFORM) continue;
+            if (col.type == TileType::CEILING) continue;
 
             if (col.type == TileType::RAMP_UP)
             {
@@ -361,7 +361,7 @@ void SystemCollision::BulletCollision()
         }
 
         // Prisioneros
-        if (!hit)
+        if (!hit && (bIt->GetType() == 1 || bIt->GetType() == 3))
         {
             for (auto& p : creationManager.GetPrisoners())
             {
@@ -580,18 +580,22 @@ void SystemCollision::ItemPlayerCollision()
             case ItemType::PLUSHY:
                 uiManager.AddScore(200);
                 creationManager.GetFloatingTexts().emplace_back(popupPos, "200");
+                audioManager.PlaySound(audioManager.GetScoreAdditionSound());
                 break;
             case ItemType::FISH:
                 uiManager.AddScore(500);
                 creationManager.GetFloatingTexts().emplace_back(popupPos, "500");
+                audioManager.PlaySound(audioManager.GetScoreAdditionSound());
                 break;
             case ItemType::MEDAL:
                 uiManager.AddScore(1000);
                 creationManager.GetFloatingTexts().emplace_back(popupPos, "1000");
+                audioManager.PlaySound(audioManager.GetScoreAdditionSound());
                 break;
             case ItemType::PIG:
                 uiManager.AddScore(300);
                 creationManager.GetFloatingTexts().emplace_back(popupPos, "300");
+                audioManager.PlaySound(audioManager.GetScoreAdditionSound());
                 break;
             case ItemType::BOMBS:
                 uiManager.SetBombs(10);

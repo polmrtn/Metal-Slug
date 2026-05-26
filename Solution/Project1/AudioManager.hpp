@@ -18,6 +18,7 @@ public:
     Music& GetTitleMusic();
     Music& GetGameMusic();
     Music& GetHowtoplayMusic();
+    Music& GetTheEndMusic();
     Sound& GetGameSound();
     void   PlayRandomDeathSound();
     Sound& GetGameOverSound();
@@ -35,12 +36,19 @@ public:
     Sound& GetMachinegunShootSound();
     Sound& GetCreditSound();
     Sound& GetPlayerDeathSound();
+    Sound& GetGoSignSound();
+    Sound& GetScoreAdditionSound();
+    Sound& GetSoldierFreeingSound();
+    Sound& GetJetpackStartSound();
+    Sound& GetJetpackMidSound();
+    Sound& GetJetpackStopSound();
 
 private:
     Music introMusic;
     Music titleMusic;
     Music gameMusic;
     Music howtoplayMusic;
+    Music theEndMusic;
     Sound gameSound;
     static constexpr int DEATH_SOUND_COUNT = 6;
     Sound deathSounds[DEATH_SOUND_COUNT];
@@ -60,4 +68,10 @@ private:
     Sound jetpackPickupSound;
     Sound grenadePickupSound;
     Sound playerDeathSound;
+    Sound goSignSound;
+    Sound scoreAdditionSound;
+    Sound soldierFreeingSound;
+    Sound jetpackStartSound;
+    Sound jetpackMidSound;
+    Sound jetpackStopSound;
 };

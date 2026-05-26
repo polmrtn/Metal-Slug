@@ -56,6 +56,7 @@ void Player::SetCrouchHitbox() {
 
 // ========== ACTUALIZACIÓN PRINCIPAL ==========
 void Player::Update(float CameraLeftLimit, float CameraTop) {
+    isJetpackThrusting = false; 
     if (isFalling) {
         blinkTimer += GetFrameTime();
         if (blinkTimer >= blinkDelay) {
@@ -172,8 +173,18 @@ void Player::Update(float CameraLeftLimit, float CameraTop) {
             }
         }
 
+        // ← AÑADE: gravedad durante respawn para que detecte el suelo
+        if (special == SpecialAnim::RESPAWN && !grounded) {
+            vel.y += GRAVITY;
+            if (vel.y > 40.0f) vel.y = 40.0f;
+            pos.y += vel.y;
+        }
+        if (special == SpecialAnim::RESPAWN && grounded) {
+            vel.y = 0.0f;
+        }
+
         if (pos.x < CameraLeftLimit) pos.x = CameraLeftLimit;
- 
+        return;
     }
 
     // Melee timer
@@ -211,6 +222,42 @@ void Player::Update(float CameraLeftLimit, float CameraTop) {
     }
 
     if (pos.x < CameraLeftLimit) pos.x = CameraLeftLimit;
+
+    bool wasJetFireActive = anim.IsJetFireActive();
+
+    bool thrusting = IsKeyDown(KEY_SPACE) && !grounded && hasJetpack;
+    anim.UpdateJetFire(GetFrameTime(), thrusting);
+
+    if (grounded && !wasGroundedLastFrame && jetpackWasUsed) {
+        anim.StopJetFire();
+        anim.StartJetLanding();
+        jetpackWasUsed = false;
+    }
+    wasGroundedLastFrame = grounded;
+    anim.UpdateJetLanding(GetFrameTime());
+    // Dzwiek jetpacka: start -> co 0.25s mid -> stop
+    if (thrusting && !wasThrusting) {
+        // Wlasnie zaczal thrust: graj start, zresetuj timer, faza = start
+        audioManager.PlaySound(audioManager.GetJetpackStartSound());
+        jetpackSoundTimer = 0.0f;
+        jetpackMidPhase = false;
+    } else if (thrusting && wasThrusting) {
+        // Kontynuacja thrustu
+        jetpackSoundTimer += GetFrameTime();
+        if (jetpackSoundTimer >= JETPACK_SOUND_INTERVAL) {
+            jetpackSoundTimer = 0.0f;
+            jetpackMidPhase = true;
+            audioManager.StopSound(audioManager.GetJetpackMidSound());
+            audioManager.PlaySound(audioManager.GetJetpackMidSound());
+        }
+    } else if (!thrusting && wasThrusting) {
+        // Wlasnie zatrzymal thrust: zatrzymaj mid, graj stop
+        audioManager.StopSound(audioManager.GetJetpackMidSound());
+        audioManager.PlaySound(audioManager.GetJetpackStopSound());
+        jetpackMidPhase = false;
+        jetpackSoundTimer = 0.0f;
+    }
+    wasThrusting = thrusting;
 }
 
 // ========== MOVIMIENTO ==========
@@ -451,16 +498,15 @@ void Player::TakeDamage() {
     if (grounded) {
         vel.y = 0.0f;
         dyingInAir = false;
-        // Si estaba agachado, ajusta pos.y para que los pies queden en el mismo sitio
         if (crouching) {
-            float feetY = pos.y + hitboxHeight;  // pies actuales (agachado)
-            pos.y = feetY - GetNormalHeight();    // reposiciona como si estuviera de pie
+            float feetY = pos.y + hitboxHeight;  // pies actuales agachado
+            SetNormalHitbox();                    // resetea hitbox a normal
+            pos.y = feetY - hitboxHeight;         // reposiciona con hitbox normal
         }
         deathPosition = pos;
     }
     else {
         dyingInAir = true;
-        // vel.y mantiene la velocidad actual
     }
 }
 
@@ -514,7 +560,10 @@ Vector2 Player::GetPosition() {
 }
 
 float Player::GetHeight() const {
-    if (mode == Mode::FULL_BODY) return GetFullBodyH() * SCALE;
+    if (mode == Mode::FULL_BODY) {
+        if (special == SpecialAnim::RESPAWN) return 40.0f * SCALE;  // ← altura normal durante respawn
+        return GetFullBodyH() * SCALE;
+    }
     return hitboxHeight;
 }
 
@@ -631,7 +680,9 @@ void Player::Draw() {
         return;
     }
     anim.DrawParachute(pos, SCALE, dir == PlayerDirection::LEFT);
+    anim.DrawJetFire(pos, SCALE, dir == PlayerDirection::LEFT, currentWeapon == WeaponType::MACHINEGUN);
     DrawSeparated();
+    anim.DrawJetLanding(pos, SCALE);
     anim.DrawParachuteLanding(pos, SCALE, dir == PlayerDirection::LEFT);
     DrawHitBox();
 }
@@ -1106,6 +1157,7 @@ void Player::StartMelee() {
     meleeAttacking = true;
     meleeTimer = 0.0f;
     anim.StartMelee();
+    audioManager.PlaySound(audioManager.GetSoldierFreeingSound());
 }
 
 Rectangle Player::GetMeleeHitBox() const {
@@ -1125,7 +1177,10 @@ void Player::EquipJetpack() {
 }
 
 void Player::JetpackThrust() {
+    isJetpackThrusting = true;
+    jetpackWasUsed = true;
     if (!hasJetpack || grounded || jetpackFuel <= 0.0f) return;
+    jetpackWasUsed = true;
     vel.y += JETPACK_FORCE;
     if (vel.y < JETPACK_MAX_VEL) vel.y = JETPACK_MAX_VEL;
     jetpackFuel -= JETPACK_FUEL_DRAIN * GetFrameTime();
@@ -1133,6 +1188,7 @@ void Player::JetpackThrust() {
         jetpackFuel = 0.0f;
         hasJetpack = false;  // vuelve al salto normal
     }
+    if (!anim.IsJetFireActive()) anim.StartJetFire();
 }
 
 void Player::FullReset() {

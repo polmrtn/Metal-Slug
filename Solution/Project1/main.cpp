@@ -17,10 +17,10 @@ int main()
     Game* game = new Game();
     game->GetSceneManager().SetUiManager(&game->GetUiManager());
 
-    //debug boss
-    //player.SetX(15200.0f);
-    //player.SetY(100.0f);
-    //player.SetGrounded(true);
+    
+    //player.SetX(15200.0f);//
+    //player.SetY(100.0f);//
+    //player.SetGrounded(true);//
 
     while (WindowShouldClose() == false)
     {

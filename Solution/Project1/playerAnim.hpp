@@ -193,6 +193,17 @@ public:
     void DrawP1Anim(Vector2 playerPos, float scale, bool facingLeft) const;
     bool IsP1AnimActive() const { return p1AnimActive; }
 
+    void StartJetFire();
+    void UpdateJetFire(float dt, bool thrusting);
+    void DrawJetFire(Vector2 playerPos, float scale, bool facingLeft, bool hasMachinegun = false) const;
+    void StopJetFire();
+    bool IsJetFireActive() const { return jetFireActive; }
+
+    void StartJetLanding();
+    void UpdateJetLanding(float dt);
+    void DrawJetLanding(Vector2 playerPos, float scale) const;
+    bool IsJetLandingActive() const { return jetLandActive; }
+
 private:
     Texture2D spriteSheet;
 
@@ -387,4 +398,28 @@ private:
     int   p1AnimLoopCount = 0;
     bool  p1AnimActive = false;
     int p1AnimMaxLoops = 5;
+
+    // Jetpack fire
+    Texture2D jetFireSheet = { 0 };
+    bool jetFireLoaded = false;
+    int  jetFireFrame = 0;
+    float jetFireTimer = 0.0f;
+    bool jetFireActive = false;
+    bool jetFireLooping = false;  // true = loop 5-9
+    bool jetFireEnding = false;   // true = playing 10-14
+    static constexpr float JET_FIRE_DELAY = 0.05f;
+    static constexpr float JET_FIRE_W = 16.0f;
+    static constexpr float JET_FIRE_H = 64.0f;
+
+    //Jetpack landing
+    Texture2D jetLandSheet = { 0 };
+    bool jetLandLoaded = false;
+    int  jetLandFrame = 0;
+    float jetLandTimer = 0.0f;
+    bool jetLandActive = false;
+    static constexpr float JET_LAND_DELAY = 0.06f;
+    static constexpr float JET_LAND_W = 140.0f;
+    static constexpr float JET_LAND_H = 40.0f;
+
+
 };
