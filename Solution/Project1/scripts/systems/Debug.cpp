@@ -44,7 +44,7 @@ void Debug::EditorModeInput(Camera2D cam)
     static float f1Cooldown = 0.0f;
     if (f1Cooldown > 0.0f) f1Cooldown -= GetFrameTime();
     if (IsKeyPressed(KEY_F1) && f1Cooldown <= 0.0f) {
-        editorMode = !editorMode;
+        //editorMode = !editorMode;
         f1Cooldown = 0.2f;
         if (!editorMode) {
             creationManager.GetTileMap().Bake();

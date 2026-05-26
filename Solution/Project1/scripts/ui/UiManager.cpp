@@ -934,7 +934,7 @@ void UiManager::DrawInsertCoin(float y, float scale) const
 {
     if ((int)(GetTime() * 2.5f) % 2 != 0) return;
 
-    const char* txt = "INSERT COINT!";
+    const char* txt = "INSERT COIN!";
     int SW = GetScreenWidth();
 
     // medir ancho total
