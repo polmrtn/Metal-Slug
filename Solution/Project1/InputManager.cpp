@@ -64,12 +64,9 @@ void InputManager::InputPlayer()
 		player.JetpackThrust();
 	}
 
-	// Debug
-	if (IsKeyDown(KEY_RIGHT) && IsKeyDown(KEY_UP))
-		TraceLog(LOG_INFO, "RIGHT+UP held, D pressed=%d", IsKeyPressed(KEY_D));
-
-	if (IsKeyPressed(KEY_D) && timerManager.IsReady(TimerType::SHOOT_TIMER) && player.IsAlive()) {
-		TraceLog(LOG_INFO, "D pressed, aimingUp=%d, velX=%.1f", player.IsAimingUp(), player.GetVelocityX());
+	// SHOOTING: use TimerManager methods instead of assigning to GetTimer(...) result
+	if (IsKeyPressed(KEY_D) && timerManager.IsReady(TimerType::SHOOT_TIMER) &&
+		player.IsAlive() && !player.IsJetpackThrusting()) {
 
 		bool meleeTriggered = false;
 		for (auto& soldier : creationManager.GetSoldiers()) {
@@ -93,6 +90,7 @@ void InputManager::InputPlayer()
 					!item.IsDestroyed() &&
 					CheckCollisionRecs(player.GetMeleeHitBox(), item.GetHitBox())) {
 					player.StartMelee();
+					audioManager.PlaySound(audioManager.GetCrateDestructionSound());
 					item.Destroy();
 					timerManager.StartTimer(TimerType::DELAY_PISTOL);
 					meleeTriggered = true;
@@ -107,6 +105,7 @@ void InputManager::InputPlayer()
 					p.TakeDamage();
 					meleeTriggered = true;
 					player.StartMelee();
+					audioManager.PlaySound(audioManager.GetSoldierFreeingSound());
 					timerManager.StartTimer(TimerType::DELAY_PISTOL);
 					break;
 				}
@@ -133,7 +132,8 @@ void InputManager::InputPlayer()
 	}
 
 	if (IsKeyPressed(KEY_S) && player.IsAlive() &&
-		timerManager.IsReady(TimerType::GRENADE_COOLDOWN) && uiManager.HasBombs()) {
+		timerManager.IsReady(TimerType::GRENADE_COOLDOWN) && uiManager.HasBombs() &&
+		!player.IsJetpackThrusting()) {  
 		game->ThrowGrenade();
 		uiManager.UseGrenade();
 		uiManager.NotifyPlayerMoved();

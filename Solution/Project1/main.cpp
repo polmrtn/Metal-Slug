@@ -17,10 +17,10 @@ int main()
     Game* game = new Game();
     game->GetSceneManager().SetUiManager(&game->GetUiManager());
 
-    //debug boss
-    //player.SetX(15200.0f);
-    //player.SetY(100.0f);
-    //player.SetGrounded(true);
+    
+    //player.SetX(15200.0f);//
+    //player.SetY(100.0f);//
+    //player.SetGrounded(true);//
 
     while (WindowShouldClose() == false)
     {
@@ -29,6 +29,9 @@ int main()
 
         if (game->ShouldRestart())
         {
+            // Zapamietaj stan przed resetem (np. TITLE po ekranie THE END)
+            SceneManager::Gamestates stateAfterReset = sceneManager.GetGamestate();
+
             delete game;
 
             // Reset completo de todos los globals sin recargar texturas
@@ -42,6 +45,10 @@ int main()
 
             game = new Game();
             game->GetSceneManager().SetUiManager(&game->GetUiManager());
+
+            // Przywroc stan jezeli powrot do TITLE (np. po The End)
+            if (stateAfterReset == SceneManager::TITLE)
+                sceneManager.SetGameState(SceneManager::TITLE);
         }
 
         EndDrawing();

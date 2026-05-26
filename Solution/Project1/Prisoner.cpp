@@ -76,10 +76,21 @@ void Prisoner::DrawFrame(float srcX, float srcY, float srcW, float srcH) const {
 
 void Prisoner::SpawnRewardItem() {
     Vector2 itemPos = {
-        facingRight ? position.x + 150.0f : position.x + 30.0f,
+        facingRight ? position.x + 130.0f : position.x + 30.0f,
         position.y + 50.0f
     };
-    creationManager.GetItems().emplace_back(itemPos, ItemType::SHOTGUN);
+
+    // Aleatorio entre varios items
+    int roll = GetRandomValue(0, 3);
+    ItemType spawnType;
+    switch (roll) {
+    case 0: spawnType = ItemType::SHOTGUN; break;   // machine gun
+    case 1: spawnType = ItemType::PLUSHY;  break;
+    case 2: spawnType = ItemType::MEDAL;   break;
+    case 3: spawnType = ItemType::JETPACK; break;
+    }
+
+    creationManager.GetItems().emplace_back(itemPos, spawnType);
     auto& items = creationManager.GetItems();
     items.back().SetGravity(true);
 }

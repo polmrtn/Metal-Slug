@@ -740,3 +740,135 @@ void PlayerAnim::DrawP1Anim(Vector2 playerPos, float scale, bool facingLeft) con
         { destX, destY, P1_ANIM_W * scale, P1_ANIM_H * scale },
         { 0,0 }, 0, WHITE);
 }
+
+void PlayerAnim::StartJetFire() {
+    if (!jetFireLoaded) {
+        jetFireSheet = LoadTexture("Graphics/jetpack/flyfireanim16x64.png");
+        SetTextureFilter(jetFireSheet, TEXTURE_FILTER_POINT);
+        jetFireLoaded = true;
+    }
+    jetFireFrame = 0;
+    jetFireTimer = 0.0f;
+    jetFireActive = true;
+    jetFireLooping = false;
+    jetFireEnding = false;
+}
+
+void PlayerAnim::StopJetFire() {
+    if (!jetFireActive) return;
+    if (jetFireLooping) {
+        jetFireEnding = true;
+        jetFireLooping = false;
+        jetFireFrame = 10;
+    }
+}
+
+void PlayerAnim::UpdateJetFire(float dt, bool thrusting) {
+    if (!jetFireActive) return;
+
+    jetFireTimer += dt;
+    if (jetFireTimer < JET_FIRE_DELAY) return;
+    jetFireTimer = 0.0f;
+
+    if (!jetFireLooping && !jetFireEnding) {
+        // Fase inicial 0-4
+        jetFireFrame++;
+        if (jetFireFrame >= 5) {
+            if (thrusting) {
+                jetFireLooping = true;
+                jetFireFrame = 5;
+            }
+            else {
+                jetFireEnding = true;
+                jetFireFrame = 10;
+            }
+        }
+    }
+    else if (jetFireLooping) {
+        // Loop 5-9
+        jetFireFrame++;
+        if (jetFireFrame > 9) jetFireFrame = 5;
+        if (!thrusting) {
+            jetFireEnding = true;
+            jetFireLooping = false;
+            jetFireFrame = 10;
+        }
+    }
+    else if (jetFireEnding) {
+        // Final 10-14
+        jetFireFrame++;
+        if (jetFireFrame >= 15) {
+            jetFireActive = false;
+            jetFireFrame = 0;
+        }
+    }
+}
+
+void PlayerAnim::DrawJetFire(Vector2 playerPos, float scale, bool facingLeft, bool hasMachinegun) const {
+    if (!jetFireActive || !jetFireLoaded) return;
+    Rectangle src = { jetFireFrame * JET_FIRE_W, 0, JET_FIRE_W, JET_FIRE_H };
+
+    float x = facingLeft
+        ? playerPos.x + (hasMachinegun ? 22.0f : 15.0f) * scale  
+        : playerPos.x + (hasMachinegun ? -5.0f : 3.0f) * scale;   
+    float y = playerPos.y + (hasMachinegun ? 20.0f : 20.0f) * scale; 
+
+    Rectangle dst = { x, y, JET_FIRE_W * scale, JET_FIRE_H * scale };
+    DrawTexturePro(jetFireSheet, src, dst, { 0,0 }, 0, WHITE);
+}
+
+void PlayerAnim::StartJetLanding() {
+    if (!jetLandLoaded) {
+        jetLandSheet = LoadTexture("Graphics/jetpack/landinganim140x40.png");
+        SetTextureFilter(jetLandSheet, TEXTURE_FILTER_POINT);
+        jetLandLoaded = true;
+    }
+    jetLandFrame = 0;
+    jetLandTimer = 0.0f;
+    jetLandActive = true;
+}
+
+void PlayerAnim::UpdateJetLanding(float dt) {
+    if (!jetLandActive) return;
+    jetLandTimer += dt;
+    if (jetLandTimer < JET_LAND_DELAY) return;
+    jetLandTimer = 0.0f;
+    jetLandFrame++;
+    if (jetLandFrame >= 8)
+        jetLandActive = false;
+}
+
+void PlayerAnim::DrawJetLanding(Vector2 playerPos, float scale) const {
+    if (!jetLandActive || !jetLandLoaded) return;
+    Rectangle src = { jetLandFrame * JET_LAND_W, 0, JET_LAND_W, JET_LAND_H };
+    float x = playerPos.x + (34.0f * scale / 2.0f) - (JET_LAND_W * scale / 2.0f);
+    float y = playerPos.y + 40.0f * scale - JET_LAND_H * scale;
+    Rectangle dst = { x, y, JET_LAND_W * scale, JET_LAND_H * scale };
+    DrawTexturePro(jetLandSheet, src, dst, { 0,0 }, 0, WHITE);
+}
+
+void PlayerAnim::StartJetSmoke() {
+    if (!jetSmokeLoaded) {
+        jetSmokeSheet = LoadTexture("Graphics/jetpack/smokefromjetpack48x90.png");
+        SetTextureFilter(jetSmokeSheet, TEXTURE_FILTER_POINT);
+        jetSmokeLoaded = true;
+    }
+}
+
+void PlayerAnim::UpdateJetSmoke(float dt) {
+    jetSmokeTimer += dt;
+    if (jetSmokeTimer < JET_SMOKE_DELAY) return;
+    jetSmokeTimer = 0.0f;
+    jetSmokeFrame = (jetSmokeFrame + 1) % 10;
+}
+
+void PlayerAnim::DrawJetSmoke(Vector2 playerPos, float scale, bool facingLeft) const {
+    if (!jetSmokeLoaded) return;
+    Rectangle src = { jetSmokeFrame * JET_SMOKE_W, 0, JET_SMOKE_W, JET_SMOKE_H };
+    float x = facingLeft
+        ? playerPos.x - 0.0f * scale
+        : playerPos.x - 14.0f * scale;
+    float y = playerPos.y - 54.0f * scale;
+    Rectangle dst = { x, y, JET_SMOKE_W * scale, JET_SMOKE_H * scale };
+    DrawTexturePro(jetSmokeSheet, src, dst, { 0,0 }, 0, WHITE);
+}

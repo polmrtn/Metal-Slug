@@ -217,6 +217,7 @@ void UiManager::UpdateGoTimer(float dt)
         goAnimCycle = 0;
         goAnimTimer = 0.0f;
         goAnimPausing = false;
+        audioManager.PlaySound(audioManager.GetGoSignSound());
     }
 
     if (!goAnimActive) return;
@@ -231,6 +232,8 @@ void UiManager::UpdateGoTimer(float dt)
             if (goAnimCycle >= 2) {
                 goAnimActive = false;
                 goAnimCycle = 0;
+            } else {
+                audioManager.PlaySound(audioManager.GetGoSignSound());
             }
         }
         return;
@@ -769,8 +772,9 @@ void UiManager::StartContinue()
     continueBlinkAccum   = 0.0f;
     continueBlinkOn      = true;
     continueScreenActive = false;
-    continueDelayActive = true;
-    continueDelay = 0.0f;
+    continueDelayActive  = true;
+    continueDelay        = 0.0f;
+    lastContinueDigit    = -1;
 }
 
 void UiManager::StopContinue()
@@ -798,6 +802,14 @@ void UiManager::UpdateContinue(float dt)
     if (continueBlinkAccum >= 0.25f) {
         continueBlinkAccum -= 0.25f;
         continueBlinkOn = !continueBlinkOn;
+    }
+
+    // Dzwiek przy zmianie cyfry odliczania
+    int currentDigit = 9 - (int)(continueElapsed / 2.0f);
+    if (currentDigit < 0) currentDigit = 0;
+    if (currentDigit != lastContinueDigit) {
+        lastContinueDigit = currentDigit;
+        audioManager.PlaySound(audioManager.GetDeathCountdownSound());
     }
 }
 
@@ -1038,8 +1050,8 @@ void UiManager::UpdateMissionIntro(float dt) {
             l.currentY += dy * speed;
         }
         if (slowExit) {
-            // Fade zaczyna sie po 3s, trwa 4s (lacznie 7s zanim ekran czarny)
-            float fadeStart = 3.0f;
+            // Fade zaczyna sie od razu gdy litery sie rozjezdzaja, trwa 4s
+            float fadeStart = 0.0f;
             float fadeDuration = 4.0f;
             if (exitTimer > fadeStart)
                 exitFadeAlpha = (exitTimer - fadeStart) / fadeDuration;
@@ -1329,7 +1341,8 @@ void UiManager::FullReset() {
     weaponDisplay = WeaponDisplay::PISTOL;
     jetpackActive = false;
     jetpackFuelRatio = 0.0f;
-    continueElapsed = 0.0f;
+    continueElapsed      = 0.0f;
+    lastContinueDigit    = -1;
     continueBlinkAccum = 0.0f;
     continueBlinkOn = true;
     continueScreenActive = false;
@@ -1353,4 +1366,12 @@ void UiManager::FullReset() {
     endingFadeOut = false;
     endingFadeAlpha = 0.0f;
     endingFinished = false;
+    goAnimActive = false;
+    goAnimFrame = 0;
+    goAnimCycle = 0;
+    goAnimTimer = 0.0f;
+    goAnimPausing = false;
+    goAnimPauseTimer = 0.0f;
+    goIdleTimer = 0.0f;
+    missionCompleteDone = false;
 }

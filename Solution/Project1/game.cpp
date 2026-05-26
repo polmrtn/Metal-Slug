@@ -40,6 +40,7 @@ void Game::Reset()
     continueStarted = false;
     uiManager.StartMissionIntro();
     missionCompleteTriggered = false;
+    endingStarted = false;
 }
 
 // ─────────────────────────────────────────
@@ -80,7 +81,7 @@ void Game::Update()
     // ── INTRO ──────────────────────────────
     if (sceneManager.GetGamestate() == SceneManager::INTRO)
     {
-        if (!musicStarted) {
+        if (!musicStarted && !sceneManager.IsSplashActive()) {
             SetMusicVolume(audioManager.GetIntroMusic(), 4.0f); // przywróc volume po ewentualnym StopIntroMusic
             audioManager.PlayMusic(audioManager.GetIntroMusic());
             musicStarted = true;
@@ -88,6 +89,11 @@ void Game::Update()
         audioManager.UpdateMusic(audioManager.GetIntroMusic());
         BeginDrawing();
         ClearBackground(BLACK);
+
+        if (sceneManager.IsSplashActive()) {
+            sceneManager.DrawTexts();
+            return;
+        }
 
         if (IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_SPACE)) {
             audioManager.StopIntroMusic();
@@ -104,6 +110,7 @@ void Game::Update()
     // ── TITLE ──────────────────────────────
     if (sceneManager.GetGamestate() == SceneManager::TITLE)
     {
+
         if (introSkipped) {
             audioManager.StopIntroMusic();
         }
@@ -264,15 +271,31 @@ void Game::Update()
     if (uiManager.IsTimeUp() && player.IsAlive())
         player.TakeDamage();
 
-    // Jezeli animacja MISSION COMPLETE skonczyla sie (ekran czarny) — wróc do INTRO
-    // missionCompleteTriggered gwarantuje ze to dotyczy TYLKO tej instancji Game (reset przy new Game())
-    if (missionCompleteTriggered && uiManager.IsMissionCompleteDone()) {
-        audioManager.StopMusic(audioManager.GetGameMusic());
-        musicStarted = false;
-        shouldRestart = true;
-        sceneManager.SetGameState(SceneManager::INTRO);
+    // Jezeli animacja MISSION COMPLETE skonczyla sie (ekran czarny) — uruchom ekran THE END
+    if (missionCompleteTriggered && uiManager.IsMissionCompleteDone() && !endingStarted) {
+        endingStarted = true;
+        uiManager.StartEnding();
+        audioManager.PlayMusic(audioManager.GetTheEndMusic());
+    }
+
+    // Ekran THE END aktywny — pomijamy logike gry, tylko update/draw ending
+    if (endingStarted) {
+        audioManager.UpdateMusic(audioManager.GetTheEndMusic());
+        uiManager.UpdateEnding(dt);
+
+        if (!uiManager.IsEndingFinished() && IsKeyPressed(KEY_ENTER)) {
+            audioManager.StopMusic(audioManager.GetTheEndMusic());
+            uiManager.TriggerEndingFadeOut();
+        }
+
+        if (uiManager.IsEndingFinished()) {
+            audioManager.StopMusic(audioManager.GetTheEndMusic());
+            shouldRestart = true;
+            sceneManager.SetGameState(SceneManager::TITLE);
+        }
+
         BeginDrawing();
-        ClearBackground(BLACK);
+        uiManager.DrawEnding();
         return;
     }
 
@@ -395,16 +418,14 @@ void Game::Update()
     ClearBackground(BGCOLOR);
     Draw();
 
-    Color bossTint = WHITE;
     if (!boss.IsDestroyed()) {
-        bossTint = boss.IsFlashing() ? ORANGE : WHITE;
+        Color bossTint = boss.IsFlashing() ? ORANGE : WHITE;
         backgroundManager.SetEventSpriteTint(2, bossTint);
+        backgroundManager.SetEventSpriteTint(3, { 255, 255, 255, 0 });
     }
-    else
-        bossTint = { 255, 255, 255, 0 };
-    backgroundManager.SetEventSpriteTint(3, bossTint);
-
-    if (boss.IsDestroyed()) {
+    else {
+        backgroundManager.SetEventSpriteTint(2, { 255, 255, 255, 0 });
+        backgroundManager.SetEventSpriteTint(3, WHITE);
         backgroundManager.SetEventSpriteFrame(3, boss.GetDestroyFrame());
     }
 

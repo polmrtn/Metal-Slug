@@ -117,6 +117,10 @@ void Debug::EditorModeInput(Camera2D cam)
         creationManager.GetItems().emplace_back(worldPos, ItemType::JETPACK);
         spawnCooldown = 0.3f;
     }
+    if (IsKeyPressed(KEY_T) && spawnCooldown <= 0.0f) {
+        creationManager.GetItems().emplace_back(worldPos, ItemType::PIG);
+        spawnCooldown = 0.3f;
+    }
     // P = normal, O = pole normal
     // Shift+P = ground flipped, Shift+O = pole flipped
     if (IsKeyPressed(KEY_P) && spawnCooldown <= 0.0f) {
@@ -181,13 +185,6 @@ void Debug::SaveToFile(const char* filename) const
         if (item.GetType() == ItemType::MEDAL)   t = 5;
         if (item.GetType() == ItemType::PIG)     t = 6;
         if (item.GetType() == ItemType::BOMBS)   t = 7;
-        fprintf(f, "I %.0f %.0f %d\n", item.GetPosition().x, item.GetPosition().y, t);
-    }
-
-    for (const auto& item : creationManager.GetItems()) {
-        int t = 0;
-        if (item.GetType() == ItemType::BOX)     t = 1;
-        if (item.GetType() == ItemType::JETPACK) t = 2;
         fprintf(f, "I %.0f %.0f %d\n", item.GetPosition().x, item.GetPosition().y, t);
     }
 

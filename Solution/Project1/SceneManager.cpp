@@ -24,11 +24,14 @@ SceneManager::SceneManager()
 
 void SceneManager::Init()
 {
+    texSplash = LoadTexture("Graphics/titlescreen.png");
+    SetTextureFilter(texSplash, TEXTURE_FILTER_POINT);
+
     // Title screen textures
-    texBrrrt         = LoadTexture("Graphics/intro/brrrt.png");
+    texBrrrt = LoadTexture("Graphics/intro/brrrt.png");
     texExplo2sprites = LoadTexture("Graphics/intro/newintro2explosprites.png");
-    texMetalBig      = LoadTexture("Graphics/intro/NEWintroMETALSLUG1.png");
-    texSlugTM        = LoadTexture("Graphics/intro/NEWINTROmetalslugTM.png");
+    texMetalBig = LoadTexture("Graphics/intro/NEWintroMETALSLUG1.png");
+    texSlugTM = LoadTexture("Graphics/intro/NEWINTROmetalslugTM.png");
 
     // Count total intro frames
     char path[512];
@@ -40,7 +43,6 @@ void SceneManager::Init()
         introTotalFrames++;
         if (introTotalFrames > 99999) break;
     }
-
     ResetIntro();
 
     // Count total howtoplay frames
@@ -58,6 +60,7 @@ void SceneManager::Init()
 
 SceneManager::~SceneManager()
 {
+    UnloadTexture(texSplash);
     UnloadTexture(texBrrrt);
     UnloadTexture(texExplo2sprites);
     UnloadTexture(texMetalBig);
@@ -250,6 +253,14 @@ void SceneManager::DrawTexts()
 {
     int SW = GetScreenWidth();
     int SH = GetScreenHeight();
+
+    if (splashActive) {
+        splashTimer += GetFrameTime();
+        DrawTexture(texSplash, 0, 0, WHITE);
+        if (splashTimer >= SPLASH_DURATION || IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_SPACE))
+            splashActive = false;
+        return;
+    }
 
     if (currentState == TITLE)
     {

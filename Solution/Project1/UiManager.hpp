@@ -154,6 +154,7 @@ private:
     float continueLabelX     = 10.0f;
     float continueLabelY     = 10.0f;
     bool  continueScreenActive = false;
+    int   lastContinueDigit   = -1;
 
     bool  jetpackActive = false;
     float jetpackFuelRatio = 0.0f;

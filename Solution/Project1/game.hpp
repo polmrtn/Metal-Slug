@@ -58,4 +58,5 @@ private:
 
     bool missionCompleteTriggered = false;
     bool gameOverSoundPlayed  = false;
+    bool endingStarted        = false;
 };
