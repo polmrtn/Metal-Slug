@@ -772,8 +772,9 @@ void UiManager::StartContinue()
     continueBlinkAccum   = 0.0f;
     continueBlinkOn      = true;
     continueScreenActive = false;
-    continueDelayActive = true;
-    continueDelay = 0.0f;
+    continueDelayActive  = true;
+    continueDelay        = 0.0f;
+    lastContinueDigit    = -1;
 }
 
 void UiManager::StopContinue()
@@ -801,6 +802,14 @@ void UiManager::UpdateContinue(float dt)
     if (continueBlinkAccum >= 0.25f) {
         continueBlinkAccum -= 0.25f;
         continueBlinkOn = !continueBlinkOn;
+    }
+
+    // Dzwiek przy zmianie cyfry odliczania
+    int currentDigit = 9 - (int)(continueElapsed / 2.0f);
+    if (currentDigit < 0) currentDigit = 0;
+    if (currentDigit != lastContinueDigit) {
+        lastContinueDigit = currentDigit;
+        audioManager.PlaySound(audioManager.GetDeathCountdownSound());
     }
 }
 
@@ -1332,7 +1341,8 @@ void UiManager::FullReset() {
     weaponDisplay = WeaponDisplay::PISTOL;
     jetpackActive = false;
     jetpackFuelRatio = 0.0f;
-    continueElapsed = 0.0f;
+    continueElapsed      = 0.0f;
+    lastContinueDigit    = -1;
     continueBlinkAccum = 0.0f;
     continueBlinkOn = true;
     continueScreenActive = false;

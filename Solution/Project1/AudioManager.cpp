@@ -37,7 +37,9 @@ void AudioManager::Init() {
     scoreAdditionSound   = LoadSound("OST/Non_music/score_addition.mp3");
     soldierFreeingSound  = LoadSound("OST/Non_music/soldier_freeing.mp3");
     SetSoundVolume(soldierFreeingSound, 10.0f);
-    crateDestructionSound = LoadSound("OST/Non_music/crate_destruction.mp3");
+    crateDestructionSound  = LoadSound("OST/Non_music/crate_destruction.mp3");
+    deathCountdownSound    = LoadSound("OST/Non_music/death_screen_countdown.mp3");
+    SetSoundVolume(deathCountdownSound, 3.0f);
     SetSoundVolume(scoreAdditionSound, 2.0f);
     jetpackStartSound    = LoadSound("OST/Non_music/jetpack_jet_start.wav");
     jetpackMidSound      = LoadSound("OST/Non_music/jetpack_jet_mid.wav");
@@ -85,6 +87,7 @@ Sound& AudioManager::GetGoSignSound()          { return goSignSound; }
 Sound& AudioManager::GetScoreAdditionSound()   { return scoreAdditionSound; }
 Sound& AudioManager::GetSoldierFreeingSound()  { return soldierFreeingSound; }
 Sound& AudioManager::GetCrateDestructionSound() { return crateDestructionSound; }
+Sound& AudioManager::GetDeathCountdownSound()   { return deathCountdownSound; }
 Sound& AudioManager::GetJetpackStartSound()    { return jetpackStartSound; }
 Sound& AudioManager::GetJetpackMidSound()      { return jetpackMidSound; }
 Sound& AudioManager::GetJetpackStopSound()     { return jetpackStopSound; }
@@ -134,6 +137,7 @@ AudioManager::~AudioManager()
     UnloadSound(scoreAdditionSound);
     UnloadSound(soldierFreeingSound);
     UnloadSound(crateDestructionSound);
+    UnloadSound(deathCountdownSound);
     UnloadSound(jetpackStartSound);
     UnloadSound(jetpackMidSound);
     UnloadSound(jetpackStopSound);
