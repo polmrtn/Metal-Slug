@@ -991,7 +991,7 @@ void Boss::DrawLaser() const
     }
     if (laserState == LaserState::FIRING && cannonGoingUp && !beamRetracting) {
         Rectangle beamBox = GetBeamUpHitBox();
-        DrawRectangleLinesEx(beamBox, 2, RED);
+        //DrawRectangleLinesEx(beamBox, 2, RED);
     }
 
     // 2. Beam abajo — detrás de todo
@@ -1005,7 +1005,7 @@ void Boss::DrawLaser() const
 
     if (laserBeamVisible) {
     Rectangle beamBox = GetLaserBeamHitBox();
-    DrawRectangleLinesEx(beamBox, 2, RED);
+    //DrawRectangleLinesEx(beamBox, 2, RED);
 }
 
     // 3. sprite 15 — detrás del cañón
