@@ -1164,6 +1164,7 @@ void Player::StartMelee() {
     meleeAttacking = true;
     meleeTimer = 0.0f;
     anim.StartMelee();
+    audioManager.PlaySound(audioManager.GetSoldierFreeingSound());
 }
 
 Rectangle Player::GetMeleeHitBox() const {
@@ -1186,6 +1187,7 @@ void Player::JetpackThrust() {
     isJetpackThrusting = true;
     jetpackWasUsed = true;
     if (!hasJetpack || grounded || jetpackFuel <= 0.0f) return;
+    jetpackWasUsed = true;
     vel.y += JETPACK_FORCE;
     if (vel.y < JETPACK_MAX_VEL) vel.y = JETPACK_MAX_VEL;
     jetpackFuel -= JETPACK_FUEL_DRAIN * GetFrameTime();

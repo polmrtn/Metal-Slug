@@ -13,6 +13,8 @@ void AudioManager::Init() {
     SetMusicVolume(introMusic, 4.0f);
     howtoplayMusic = LoadMusicStream("OST/FX AUDIO/HOWTOPLAY AUDIO.ogg");
     howtoplayMusic.looping = false;
+    theEndMusic = LoadMusicStream("OST/Non_music/the-end-song.mp3");
+    theEndMusic.looping = false;
     titleMusic = LoadMusicStream("OST/04. Steel Beast 5Beats (Boss Stage).ogg");
     gameMusic = LoadMusicStream("OST/03. Main Theme from Metal Slug (Stage 1).ogg");
     gameSound = LoadSound("OST/FX AUDIO/file002 mission 1 start.ogg");
@@ -32,12 +34,16 @@ void AudioManager::Init() {
     grenadePickupSound   = LoadSound("OST/Non_music/grenade_pickup_sound.mp3");
     playerDeathSound     = LoadSound("OST/Non_music/player_death.mp3");
     goSignSound          = LoadSound("OST/Non_music/go_sign.mp3");
+    scoreAdditionSound   = LoadSound("OST/Non_music/score_addition.mp3");
+    soldierFreeingSound  = LoadSound("OST/Non_music/soldier_freeing.mp3");
+    SetSoundVolume(soldierFreeingSound, 10.0f);
+    SetSoundVolume(scoreAdditionSound, 3.0f);
     jetpackStartSound    = LoadSound("OST/Non_music/jetpack_jet_start.wav");
     jetpackMidSound      = LoadSound("OST/Non_music/jetpack_jet_mid.wav");
     jetpackStopSound     = LoadSound("OST/Non_music/jetpack_jet_stop.wav");
-    SetSoundVolume(jetpackStartSound, 2.0f);
-    SetSoundVolume(jetpackMidSound,   2.0f);
-    SetSoundVolume(jetpackStopSound,  2.0f);
+    SetSoundVolume(jetpackStartSound, 1.5f);
+    SetSoundVolume(jetpackMidSound,   1.5f);
+    SetSoundVolume(jetpackStopSound,  1.5f);
     gameOverSound        = LoadSound("OST/Non_music/game_over.mp3");
     bossBulletSound      = LoadSound("OST/Non_music/boss_bullet.mp3");
     bossOpenSound        = LoadSound("OST/Non_music/boss_sliding_open.mp3");
@@ -75,6 +81,8 @@ Sound& AudioManager::GetBossOpenSound()        { return bossOpenSound; }
 Sound& AudioManager::GetBossBigBulletSound()   { return bossBigBulletSound; }
 Sound& AudioManager::GetPlayerDeathSound()     { return playerDeathSound; }
 Sound& AudioManager::GetGoSignSound()          { return goSignSound; }
+Sound& AudioManager::GetScoreAdditionSound()   { return scoreAdditionSound; }
+Sound& AudioManager::GetSoldierFreeingSound()  { return soldierFreeingSound; }
 Sound& AudioManager::GetJetpackStartSound()    { return jetpackStartSound; }
 Sound& AudioManager::GetJetpackMidSound()      { return jetpackMidSound; }
 Sound& AudioManager::GetJetpackStopSound()     { return jetpackStopSound; }
@@ -90,6 +98,7 @@ Music& AudioManager::GetIntroMusic()      { return introMusic; }
 Music& AudioManager::GetTitleMusic()      { return titleMusic; }
 Music& AudioManager::GetGameMusic()       { return gameMusic; }
 Music& AudioManager::GetHowtoplayMusic()  { return howtoplayMusic; }
+Music& AudioManager::GetTheEndMusic()     { return theEndMusic; }
 Sound& AudioManager::GetGameSound() { return gameSound; }
 
 void AudioManager::PlayMusic(Music music)   { PlayMusicStream(music); }
@@ -104,6 +113,7 @@ AudioManager::~AudioManager()
     UnloadSound(gameSound);
     UnloadMusicStream(introMusic);
     UnloadMusicStream(howtoplayMusic);
+    UnloadMusicStream(theEndMusic);
     UnloadMusicStream(titleMusic);
     UnloadMusicStream(gameMusic);
     for (int i = 0; i < DEATH_SOUND_COUNT; i++)
@@ -119,6 +129,8 @@ AudioManager::~AudioManager()
     UnloadSound(grenadePickupSound);
     UnloadSound(playerDeathSound);
     UnloadSound(goSignSound);
+    UnloadSound(scoreAdditionSound);
+    UnloadSound(soldierFreeingSound);
     UnloadSound(jetpackStartSound);
     UnloadSound(jetpackMidSound);
     UnloadSound(jetpackStopSound);
