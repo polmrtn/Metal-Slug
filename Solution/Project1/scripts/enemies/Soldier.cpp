@@ -4,9 +4,8 @@
 #include <raylib.h>
 #include <math.h>
 
-int direction = 1;
 
-Soldier::Soldier(int type, Vector2 position)
+Soldier::Soldier(int type, Vector2 position, bool flipped)
 {
     this->type = type;
     this->position = position;
@@ -21,6 +20,8 @@ Soldier::Soldier(int type, Vector2 position)
     this->stateTimer = 0;
     this->hasShot = false;
     this->wantsToShoot = false;
+    this->flippedDefault = flipped;
+    this->facingRight = !flipped;
 
     switch (type)
     {
@@ -249,13 +250,29 @@ void Soldier::UpdateAI(Player& player)
     }
     else if (currentState == SoldierState::WALKING && isGrounded && isAlive) {
         hasShot = false;
-        if (direction == 1) {
-            velocity.x = 15;
-            facingRight = true;
+
+        // Si choca con una pared, cambiar dirección o quedarse idle
+        bool blocked = (direction == 1 && rightCollision) || (direction == -1 && leftCollision);
+
+        if (blocked) {
+            int randomBehaviour = GetRandomValue(0, 1);
+            if (randomBehaviour == 0) {
+                // Invertir dirección
+                direction = -direction;
+                velocity.x = 15 * direction;
+                facingRight = (direction == 1);
+            }
+            else {
+                // Quedarse idle
+                SetSoliderState(SoldierState::IDLE);
+                soldierAnim.SetAnimation(SoldierState::IDLE);
+                velocity.x = 0;
+                stateTimer = 0.0f;
+            }
         }
         else {
-            velocity.x = -15;
-            facingRight = false;
+            velocity.x = 15 * direction;
+            facingRight = (direction == 1);
         }
     }
     else if (currentState == SoldierState::ATTACKING && isAlive && isGrounded) {
@@ -286,13 +303,26 @@ void Soldier::UpdateAI(Player& player)
     }
     else if (currentState == SoldierState::SNEAK && isAlive && isGrounded) {
         hasShot = false;
-        if (direction == 1) {
-            velocity.x = 5;
-            facingRight = true;
+
+        bool blocked = (direction == 1 && rightCollision) || (direction == -1 && leftCollision);
+
+        if (blocked) {
+            int randomBehaviour = GetRandomValue(0, 1);
+            if (randomBehaviour == 0) {
+                direction = -direction;
+                velocity.x = 5 * direction;
+                facingRight = (direction == 1);
+            }
+            else {
+                SetSoliderState(SoldierState::IDLE);
+                soldierAnim.SetAnimation(SoldierState::IDLE);
+                velocity.x = 0;
+                stateTimer = 0.0f;
+            }
         }
         else {
-            velocity.x = -5;
-            facingRight = false;
+            velocity.x = 5 * direction;
+            facingRight = (direction == 1);
         }
     }
 }

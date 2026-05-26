@@ -30,9 +30,11 @@ void CreationManager::LoadFromFile(const char* filename)
     while (fgets(line, sizeof(line), f))
     {
         if (line[0] == 'S') {
-            float x, y; int type;
-            if (sscanf(line + 2, "%f %f %d", &x, &y, &type) == 3)
-                soldiers.emplace_back(type, Vector2{ x, y });
+            float x, y; int type, flipped;
+            if (sscanf(line + 2, "%f %f %d %d", &x, &y, &type, &flipped) == 4)
+                soldiers.emplace_back(type, Vector2{ x, y }, flipped == 1);
+            else if (sscanf(line + 2, "%f %f %d", &x, &y, &type) == 3)
+                soldiers.emplace_back(type, Vector2{ x, y }, false);
         }
         else if (line[0] == 'I') {
             float x, y; int type;

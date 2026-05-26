@@ -200,6 +200,7 @@ void Game::Update()
             soldier.UpdateAI(player);
             soldier.Update();
         }
+
         for (auto& bullet : creationManager.GetBullets()) bullet.Update();
         CheckBulletsOutOfCamera();
 

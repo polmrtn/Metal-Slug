@@ -44,7 +44,7 @@ void Debug::EditorModeInput(Camera2D cam)
     static float f1Cooldown = 0.0f;
     if (f1Cooldown > 0.0f) f1Cooldown -= GetFrameTime();
     if (IsKeyPressed(KEY_F1) && f1Cooldown <= 0.0f) {
-        editorMode = !editorMode;
+        //editorMode = !editorMode;
         f1Cooldown = 0.2f;
         if (!editorMode) {
             creationManager.GetTileMap().Bake();
@@ -102,11 +102,13 @@ void Debug::EditorModeInput(Camera2D cam)
     if (spawnCooldown > 0.0f) spawnCooldown -= GetFrameTime();
 
     if (IsKeyPressed(KEY_S) && spawnCooldown <= 0.0f) {
-        creationManager.GetSoldiers().emplace_back(1, worldPos);
+        bool flipped = IsKeyDown(KEY_LEFT_SHIFT);
+        creationManager.GetSoldiers().emplace_back(1, worldPos, flipped);
         spawnCooldown = 0.3f;
     }
     if (IsKeyPressed(KEY_D) && spawnCooldown <= 0.0f) {
-        creationManager.GetSoldiers().emplace_back(2, worldPos);
+        bool flipped = IsKeyDown(KEY_LEFT_SHIFT);
+        creationManager.GetSoldiers().emplace_back(2, worldPos, flipped);
         spawnCooldown = 0.3f;
     }
     if (IsKeyPressed(KEY_B) && spawnCooldown <= 0.0f) {
@@ -174,7 +176,9 @@ void Debug::SaveToFile(const char* filename) const
     if (!f) return;
 
     for (const auto& s : creationManager.GetSoldiers())
-        fprintf(f, "S %.0f %.0f %d\n", s.GetX(), s.GetY(), const_cast<Soldier&>(s).GetType());
+        fprintf(f, "S %.0f %.0f %d %d\n", s.GetX(), s.GetY(),
+            const_cast<Soldier&>(s).GetType(),
+            s.IsFlippedDefault() ? 1 : 0);
 
     for (const auto& item : creationManager.GetItems()) {
         int t = 0;

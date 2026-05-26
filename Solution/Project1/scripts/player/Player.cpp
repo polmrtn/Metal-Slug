@@ -483,7 +483,6 @@ void Player::UseAmmo() {
 
 // ========== MUERTE Y RESPAWN ==========
 void Player::TakeDamage() {
-    return;
     if (!isAlive) return;
     if (IsInvincible()) return;
 

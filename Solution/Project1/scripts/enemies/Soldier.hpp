@@ -7,7 +7,7 @@ class AudioManager;
 
 class Soldier {
 public:
-    Soldier(int type, Vector2 position);
+    Soldier(int type, Vector2 position, bool flipped = false);
     Soldier(const Soldier& other);
     ~Soldier();
 
@@ -50,6 +50,8 @@ public:
     void SetRightCollision(bool val) { rightCollision = val; }
     bool GetLeftCollision() const { return leftCollision; }
     bool GetRightCollision() const { return rightCollision; }
+    bool IsFlippedDefault() const { return flippedDefault; }
+
 private:
     //reference soldier animation
     SoldierAnim soldierAnim;
@@ -75,6 +77,9 @@ private:
 
     // Prevent retrigger while player stays in vision: only trigger once per entry
     bool attackTriggered = false;
+    bool flippedDefault = false;
+    int direction = 1;
+
 };
 
 
