@@ -1164,7 +1164,6 @@ void Player::StartMelee() {
     meleeAttacking = true;
     meleeTimer = 0.0f;
     anim.StartMelee();
-    audioManager.PlaySound(audioManager.GetSoldierFreeingSound());
 }
 
 Rectangle Player::GetMeleeHitBox() const {

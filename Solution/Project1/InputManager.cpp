@@ -90,6 +90,7 @@ void InputManager::InputPlayer()
 					!item.IsDestroyed() &&
 					CheckCollisionRecs(player.GetMeleeHitBox(), item.GetHitBox())) {
 					player.StartMelee();
+					audioManager.PlaySound(audioManager.GetCrateDestructionSound());
 					item.Destroy();
 					timerManager.StartTimer(TimerType::DELAY_PISTOL);
 					meleeTriggered = true;
@@ -104,6 +105,7 @@ void InputManager::InputPlayer()
 					p.TakeDamage();
 					meleeTriggered = true;
 					player.StartMelee();
+					audioManager.PlaySound(audioManager.GetSoldierFreeingSound());
 					timerManager.StartTimer(TimerType::DELAY_PISTOL);
 					break;
 				}
