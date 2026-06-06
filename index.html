@@ -157,31 +157,51 @@
         <div class="contribuciones">
             <p><strong>Pol Martín:</strong></p>
             <ul>
-                <li>Player physics, hitbox, death/respawn animations.</li>
-                <li>Grenade and machine gun mechanics (damage, animations, items).</li>
-                <li>Tilemap, block collisions, diagonal ground and win box.</li>
-                <li><strong>Prisoners implementation + animations.</strong></li>
-                <li>Enemy and item instantiation. Multiple bug fixes.</li>
+                <li>Complete player mechanics: horizontal movement, jump, crouch, shoot (horizontal, upward, crouching), melee attack.</li>
+                <li>All player animations: idle, run, jump, shoot, aiming up, death.</li>
+                <li>Grenade system: implementation, explosion, damage and bug fixing.</li>
+                <li>Machine gun system: item box, animations and bullets.</li>
+                <li><strong>Jetpack mechanic: item implementation, fuel UI system and animations.</strong></li>
+                <li>Boss fights: phase 1, phase 2, intro, damage to player, destroyed animations.</li>
+                <li>Prisoners: both types implemented with sprites preparation.</li>
+                <li>Diagonal ground, block collisions (including ceiling), tilemap setup.</li>
+                <li>Coin mechanic for respawn and start. Death + respawn system.</li>
+                <li>Mission "Start!" and "Completed!" texts. Blood effect.</li>
+                <li>Bug fixing: collisions, infinite falling, FPS drops, UI ammo.</li>
             </ul>
             
             <p><strong>Nicolás Núñez:</strong></p>
             <ul>
-                <li>Background Manager and environment animations.</li>
-                <li>Soldier bomb animation (bullet and grenade).</li>
-                <li>Grenade and bullet collision bug fixing.</li>
+                <li>Camera following player system.</li>
+                <li>Core game architecture: Player.cpp, Soldier.cpp, Game.cpp, Bullet.cpp.</li>
+                <li>Collision system implementation and basic colliders.</li>
+                <li>Background Manager and background animations.</li>
+                <li>AI Enemy behavior inside soldier. Soldier animations (idle, knife, death).</li>
+                <li>Grenade and bullet bug fixing (collisions, detection).</li>
+                <li>Item animations, collection and score addition.</li>
+                <li>Code optimization, trash code removal, script organization.</li>
             </ul>
             
             <p><strong>Filip Patyk:</strong></p>
             <ul>
-                <li>Complete audio integration (pistol, death, grenade, machine gun).</li>
-                <li>UI bug fixing. Intro and title screens.</li>
+                <li>Full UI system: Score, Ammo, Level, Credit, Game Time counter.</li>
+                <li>Screen states: Mission Complete, Game Over, Death screen with continue sequence, HowToPlay screen.</li>
+                <li>Complete audio: pistol, soldier death (roulette system), grenade, machine gun equip/shoot, coin addition, NPC "Thank you" rescue sound, Jetpack gas pickup, grenade pickup, boss fight, player death.</li>
+                <li>Game states management (INTRO, TITLE, GAME).</li>
+                <li>Intro and Title screens finalization. Title and game music.</li>
+                <li>Blinking GO sign after 5 seconds of no movement.</li>
+                <li>Video recording and editing for deliveries.</li>
             </ul>
             
             <p><strong>Mikolaj Szeliga:</strong></p>
             <ul>
-                <li>All sprites: characters, backgrounds, enemies, items, UI.</li>
-                <li>Animations for water, waterfall, huts, parachute.</li>
-                <li>Continuous asset correction and optimization.</li>
+                <li>Creation, cutting and rescaling of all sprites: Marco, backgrounds, items, enemy soldiers, grenades, explosions, bullets.</li>
+                <li>Environment sprites: waterfall, water, huts, parachute, dust, smoke.</li>
+                <li><strong>Jetpack animations.</strong></li>
+                <li>Boss sprites: phase 1, phase 2, debris, explosions, boss elements.</li>
+                <li>UI sprites: HUD, fonts, initial screen, intro sprites, tutorial sprites.</li>
+                <li>File organization, sorting, naming fixes.</li>
+                <li>Continuous sprite fixing, pixel polishing and background adjustments.</li>
             </ul>
         </div>
 
