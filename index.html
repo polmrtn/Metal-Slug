@@ -1,45 +1,43 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Metal Slug - Proyecto</title>
+    <title>Metal Slug - Battle Reloaded</title>
     <style>
-        /* === ESTILOS - Basados en la referencia === */
+        /* === DARK THEME STYLES === */
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
             line-height: 1.6;
-            color: #333;
+            color: #e0e0e0;
             max-width: 900px;
             margin: 0 auto;
             padding: 20px;
-            background-color: #f8f9fa;
+            background-color: #0a0a0a;
         }
 
-        /* Contenedor principal como la referencia */
         .container {
-            background: white;
+            background: #1a1a1a;
             border-radius: 8px;
             padding: 30px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            border: 1px solid #2a2a2a;
         }
 
-        /* Títulos */
         h1 {
-            color: #2c3e50;
+            color: #ffffff;
             border-bottom: 3px solid #e74c3c;
             padding-bottom: 10px;
             font-size: 2.2em;
         }
 
         h2 {
-            color: #34495e;
+            color: #ffffff;
             margin-top: 30px;
             border-left: 5px solid #e74c3c;
             padding-left: 15px;
         }
 
-        /* Lista de equipo (estilo similar a la referencia) */
         .equipo-list {
             display: flex;
             flex-wrap: wrap;
@@ -50,35 +48,33 @@
         }
 
         .equipo-list li {
-            background: #ecf0f1;
+            background: #2a2a2a;
             padding: 8px 16px;
             border-radius: 20px;
             font-weight: 500;
+            color: #e0e0e0;
+            border: 1px solid #3a3a3a;
         }
 
-        /* Sección de descripción y contribuciones */
         .descripcion {
-            background: #f1f8e9;
+            background: #0d0d0d;
             padding: 20px;
             border-radius: 8px;
             margin: 20px 0;
+            border-left: 3px solid #e74c3c;
         }
 
         .contribuciones {
-            background: #e8f0fe;
+            background: #0d0d0d;
             padding: 20px;
             border-radius: 8px;
             margin: 20px 0;
+            border-left: 3px solid #e74c3c;
         }
 
-        .contribuciones p {
-            margin: 8px 0;
-        }
-
-        /* Botón de descarga */
         .boton-descarga {
             display: inline-block;
-            background-color: #2c3e50;
+            background-color: #e74c3c;
             color: white;
             text-decoration: none;
             padding: 12px 28px;
@@ -86,27 +82,29 @@
             font-weight: bold;
             font-size: 18px;
             margin: 20px 0;
-            transition: background 0.3s;
+            transition: all 0.3s;
             border: none;
             cursor: pointer;
         }
 
         .boton-descarga:hover {
-            background-color: #e74c3c;
+            background-color: #c0392b;
+            transform: scale(1.02);
         }
 
-        /* Sección de gameplay (placeholder) */
         .gameplay-placeholder {
-            background: #2c3e50;
-            color: white;
-            text-align: center;
-            padding: 60px 20px;
+            background: #0d0d0d;
             border-radius: 8px;
             margin: 20px 0;
-            font-size: 1.2em;
+            border: 1px solid #2a2a2a;
         }
 
-        /* Links */
+        hr {
+            margin: 30px 0;
+            border: none;
+            border-top: 1px solid #2a2a2a;
+        }
+
         a {
             color: #e74c3c;
             text-decoration: none;
@@ -114,28 +112,23 @@
 
         a:hover {
             text-decoration: underline;
-        }
-
-        hr {
-            margin: 30px 0;
-            border: none;
-            border-top: 1px solid #ddd;
+            color: #c0392b;
         }
 
         footer {
             text-align: center;
             margin-top: 40px;
-            color: #7f8c8d;
+            color: #666;
             font-size: 0.9em;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- Título principal -->
+        <!-- Title -->
         <h1>🕹️ METAL SLUG: BATTLE RELOADED</h1>
 
-        <!-- Sección Equipo -->
+        <!-- Team Section -->
         <h2>🎮 Development Team</h2>
         <ul class="equipo-list">
             <li>Pol Martín</li>
@@ -144,13 +137,13 @@
             <li>Mikolaj Szeliga</li>
         </ul>
 
-<!-- Descripción del Juego -->
-<h2>📖 Game Description</h2>
-<div class="descripcion">
-    <p>This project recreates the frenetic, arcade-like essence of <strong>Metal Slug</strong>, the classic run-and-gun game by SNK. Specifically, we have recreated the first level of <strong>Metal Slug: Super Vehicle-001</strong>.</p>
-    <p>Players control a rebel soldier fighting through enemy battalions, armored vehicles, and giant bosses. The story follows the Peregrine Falcon Squad as they battle against General Morden and his army, who have taken control of the world.</p>
-    <p>The goal is to advance through action-packed levels, rescue prisoners of war, collect powerful weapons, and destroy everything in your path. With detailed pixel art graphics and fast-paced gameplay, our project is a tribute to the arcade gems of the 90s.</p>
-</div>
+        <!-- Game Description -->
+        <h2>📖 Game Description</h2>
+        <div class="descripcion">
+            <p>This project recreates the frenetic, arcade-like essence of <strong>Metal Slug</strong>, the classic run-and-gun game by SNK. Specifically, we have recreated the first level of <strong>Metal Slug: Super Vehicle-001</strong>.</p>
+            <p>Players control a rebel soldier fighting through enemy battalions, armored vehicles, and giant bosses. The story follows the Peregrine Falcon Squad as they battle against General Morden and his army, who have taken control of the world.</p>
+            <p>The goal is to advance through action-packed levels, rescue prisoners of war, collect powerful weapons, and destroy everything in your path. With detailed pixel art graphics and fast-paced gameplay, our project is a tribute to the arcade gems of the 90s.</p>
+        </div>
 
         <!-- Individual Contributions -->
         <h2>⚙️ Individual Contributions</h2>
@@ -163,11 +156,11 @@
             
             <p><strong>Mikolaj Szeliga:</strong> Creation and rescaling of all sprites (Marco, backgrounds, items, enemies, grenades, explosions, bullets). Environment sprites (waterfall, water, huts, parachute, dust, smoke). Jetpack and boss sprites (phase 1, phase 2, debris). UI sprites (HUD, fonts, intro, tutorial). File organization and continuous sprite polishing.</p>
         </div>
-        
-        <!-- Gameplay -->
+
+        <!-- Gameplay Video -->
         <h2>🎬 Gameplay</h2>
         <div class="gameplay-placeholder" style="padding: 0; background: none;">
-            <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+            <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
                 <iframe 
                     src="https://www.youtube.com/embed/w7-zRKo3pwo" 
                     title="YouTube video player" 
@@ -178,27 +171,27 @@
                     style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;">
                 </iframe>
             </div>
-            <p style="text-align: center; margin-top: 15px; color: #555;">
+            <p style="text-align: center; margin-top: 15px; color: #888;">
                 🎮 Metal Slug: Battle Reloaded - Alpha Gameplay
             </p>
         </div>
 
-        <!-- Download -->
+        <!-- Download Section -->
         <h2>📥 Download Latest Version</h2>
         <p>Click the button below to get the latest build of the game.</p>
         <a href="https://github.com/polmrtn/Metal-Slug/releases/tag/v1.0.0" class="boton-descarga" target="_blank">⬇️ Download from GitHub</a>
-        <p style="font-size: 0.9em; margin-top: 10px;">Version 1.0 - Available for Windows</p>
+        <p style="font-size: 0.9em; margin-top: 10px; color: #888;">Version 1.0 - Available for Windows</p>
 
         <hr>
 
-        <!-- Enlace al repositorio -->
+        <!-- Repository Link -->
         <p style="text-align: center;">
-            📂 <a href="https://github.com/polmrtn/Metal-Slug" target="_blank">Ver código fuente completo en GitHub</a>
+            📂 <a href="https://github.com/polmrtn/Metal-Slug" target="_blank">View full source code on GitHub</a>
         </p>
     </div>
 
     <footer>
-        Proyecto desarrollado con ❤️ para GitHub Pages | Basado en Metal Slug (SNK)
+        Project developed with ❤️ for GitHub Pages | Based on Metal Slug (SNK)
     </footer>
 </body>
 </html>
